@@ -8,6 +8,17 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Theme über `data-theme` CSS-Variablen (dunkel Standard).
 - Alles liegt in einem <script>-Block, Abschnitte: Daten (CORE, M0, SEASON_DEF, Punkte-Katalog), UI (Ring, Radar, LifeTree), Start/Aufgaben/Duell, Liga, Stats, Sheets, App.
 
+## Zusammenarbeit Claude Code + Codex
+- Diese Datei ist die gemeinsame Quelle für beide Agenten (`CLAUDE.md` verweist nur hierher). Regeln nur hier ändern.
+- Nie direkt auf `main` arbeiten. Branches: `claude/<thema>` bzw. `codex/<thema>`, über Pull Request nach `main`.
+- Vor Arbeitsbeginn `git pull` auf `main`, Branch davon abzweigen. Kleine, beschreibende Commits.
+- Nicht parallel an denselben Dateien arbeiten; laufende Aufgaben unten unter „In Arbeit“ eintragen (wer, Branch, betroffene Dateien) und nach dem Merge wieder entfernen.
+- Der jeweils andere Agent reviewt PRs, bevor gemergt wird.
+- Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
+
+### In Arbeit
+- (nichts)
+
 ## PWA
 - `manifest.webmanifest`, `sw.js` (Cache `ww-v1` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Installation auf dem Handy braucht HTTPS-Hosting.
