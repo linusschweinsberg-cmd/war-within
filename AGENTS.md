@@ -20,7 +20,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
-- Codex: `codex/integrate-claude` – Supabase-Anbindung und Claude-Branches `season-path`, `one-tap`, `ux-pass` integriert. Technische und visuelle Prüfung läuft; Review durch Claude für Supabase offen.
+- Codex: `codex/integrate-claude` – Supabase-Anbindung und Claude-Branches `season-path`, `one-tap`, `ux-pass` integriert. Syntax und Auth-Vertragstests bestanden; Saison-Pfad, Statistik und Scroll-Kopf im Browser geprüft. Null-Missionszähler korrigiert. Manueller Missions-/Undo-Test und Review durch Claude für Supabase offen.
 
 ## PWA
 - `manifest.webmanifest`, `sw.js` (Cache `ww-v11` – bei jeder Änderung Version erhöhen), `icons/`.
