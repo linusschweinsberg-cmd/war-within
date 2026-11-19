@@ -6,7 +6,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Single-file: React 18 (UMD via CDN), Tailwind (CDN), htm (Tagged Templates: html`...`, Komponenten <${Comp}/>, Ende <//>).
 - State: `useState(loadState)`, `upd(fn)`, `derive(S)`; Spielstand in localStorage: `war_within_v5` (Gast/Demo) bzw. `war_within_acc_v1` (Demo-Konto).
 - Einstieg: `Root` → `AuthFlow` (Willkommen/Registrieren/Login) → `Onboarding` (9 Schritte, `buildState(ob)` erzeugt den Spielstand) → `App`. Sitzung und Onboarding-Fortschritt in `war_within_auth_v1`, niemals Passwörter.
-- Auth läuft über `authApi` (Demo). Für Supabase nur dessen Funktionen ersetzen; Profil liegt in `S.profile`, Konto-Bereich im Sheet `account`.
+- Auth läuft über `auth.js` mit Supabase; öffentliche Konfiguration in `supabase-config.js`; Profil liegt in `S.profile`, Konto-Bereich im Sheet `account`.
 - Theme über `data-theme` CSS-Variablen (dunkel Standard).
 - Alles liegt in einem <script>-Block, Abschnitte: Daten (CORE, M0, SEASON_DEF, Punkte-Katalog), UI (Ring, Radar, LifeTree), Start/Aufgaben/Duell, Liga, Stats, Sheets, App.
 
@@ -20,10 +20,10 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
-- Codex: `codex/supabase-auth` – `index.html`, `auth.js`, `supabase-config.js`, `sw.js`, `SUPABASE.md`. Supabase-Anmeldung; Projektwahl und Live-Test ausstehend. Review durch Claude offen.
+- Codex: `codex/integrate-claude` – Supabase-Anbindung und Claude-Branches `season-path`, `one-tap`, `ux-pass` integriert. Technische und visuelle Prüfung läuft; Review durch Claude für Supabase offen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v8` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v11` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Konzepte
