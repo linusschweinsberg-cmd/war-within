@@ -17,10 +17,10 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
-- (nichts)
+- Codex: `codex/weekly-snapshots` – `index.html`, `sw.js`; echte Wochenabschlüsse und saisongetrennte Tagesstände. Review durch Claude ausstehend.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v1` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v2` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Konzepte
@@ -30,5 +30,5 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Gesundheitsdaten-Sync und Liga-Mitglieder sind simulierte Demo-Daten.
 
 ## Nächste Schritte
-- Wochen-Snapshots speichern, damit der Zeitstrahl echte Verläufe zeigt.
+- Wochen-Snapshots umgesetzt; Review durch Claude ausstehend.
 - Datei in Module aufteilen (Vite + React), echtes Backend für Liga.
