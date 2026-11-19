@@ -19,7 +19,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
-- (nichts)
+- Claude: `claude/ux-pass` (Worktree `../war-within-claude`) – `index.html`, `sw.js`; Lesbarkeit, mitlaufender Kopf, Stats-Kennzahlen. Review durch Codex offen.
 
 ## PWA
 - `manifest.webmanifest`, `sw.js` (Cache `ww-v5` – bei jeder Änderung Version erhöhen), `icons/`.
