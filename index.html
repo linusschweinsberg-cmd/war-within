@@ -67,6 +67,37 @@ input{font-family:inherit}
 .swap-ring{animation:ringPulse 1.5s infinite}
 .rise{animation:rise .35s ease-out both}
 .fab{box-shadow:0 10px 30px rgba(124,58,237,.55);animation:ringPulse 2.6s infinite}
+
+/* ───── Politur: Material, Licht, Tiefe ───── */
+:root,[data-theme=dark]{--hi:rgba(255,255,255,.06);--sh:0 1px 0 rgba(255,255,255,.04) inset,0 18px 40px -24px rgba(0,0,0,.85);--card-g:linear-gradient(180deg,#1C1C21 0%,#17171A 100%);--card2-g:linear-gradient(180deg,#26262C,#212126);--glow:rgba(139,92,246,.22)}
+[data-theme=light]{--hi:rgba(255,255,255,.9);--sh:0 1px 0 rgba(255,255,255,.9) inset,0 14px 34px -22px rgba(76,54,160,.35);--card-g:linear-gradient(180deg,#FFFFFF 0%,#FBFAFF 100%);--card2-g:linear-gradient(180deg,#F3F0FC,#ECE8FA);--glow:rgba(124,58,237,.14)}
+html,body{background:radial-gradient(1200px 600px at 50% -10%,#1A1230 0%,#050508 60%) fixed}
+.app{background:radial-gradient(120% 60% at 0% 0%,var(--glow),transparent 55%),radial-gradient(90% 50% at 100% 100%,rgba(109,40,217,.10),transparent 60%),var(--bg)}
+.app:after{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;opacity:.035;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.card{background:var(--card-g);box-shadow:var(--sh)}
+.card2{background:var(--card2-g);box-shadow:0 1px 0 var(--hi) inset}
+.btn{position:relative;overflow:hidden;background:linear-gradient(135deg,#B69CFF 0%,#8B5CF6 45%,#6D28D9 100%);box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 10px 28px -6px rgba(124,58,237,.6);transition:transform .15s ease,box-shadow .2s ease,filter .2s}
+.btn:after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);transform:translateX(-120%);transition:transform .7s ease}
+.btn:hover:not(:disabled):after{transform:translateX(120%)}
+.btn:active:not(:disabled){transform:scale(.97);filter:brightness(.95)}
+.ghost{transition:transform .15s ease,background .2s,border-color .2s}
+.ghost:active{transform:scale(.98)}
+.chip{transition:background .2s,border-color .2s,color .2s,transform .15s}
+.chip:active{transform:scale(.95)}
+.chip.on{background:linear-gradient(135deg,#9D7BFF,#7C3AED);border-color:transparent;box-shadow:0 6px 16px -6px rgba(124,58,237,.7)}
+.inp{transition:border-color .2s,box-shadow .2s}
+.inp:focus{box-shadow:0 0 0 4px rgba(139,92,246,.18)}
+:focus-visible{outline:2px solid var(--acc2);outline-offset:2px;border-radius:12px}
+.grad-t{background:linear-gradient(180deg,var(--ink) 30%,color-mix(in srgb,var(--acc2) 70%,var(--ink)));-webkit-background-clip:text;background-clip:text;color:transparent}
+.screen>*{animation:rise .45s cubic-bezier(.2,.8,.2,1) both}
+.screen>*:nth-child(2){animation-delay:.04s}.screen>*:nth-child(3){animation-delay:.08s}.screen>*:nth-child(4){animation-delay:.12s}.screen>*:nth-child(5){animation-delay:.16s}.screen>*:nth-child(6){animation-delay:.2s}.screen>*:nth-child(n+7){animation-delay:.24s}
+.scroll-fade{-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 14px,#000 100%);mask-image:linear-gradient(180deg,transparent 0,#000 14px,#000 100%)}
+.nav-ind{transition:left .45s cubic-bezier(.3,1.3,.5,1)}
+@keyframes orbit{to{transform:rotate(360deg)}}
+.fab{box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 14px 34px -6px rgba(124,58,237,.75);transition:transform .2s cubic-bezier(.3,1.4,.5,1)}
+.fab:active{transform:scale(.9) rotate(90deg)}
+@keyframes heroGlow{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:.9;transform:scale(1.08)}}
+
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 @keyframes sway{0%,100%{transform:rotate(-1.1deg)}50%{transform:rotate(1.1deg)}}.tsw{transform-origin:200px 300px;animation:sway 7s ease-in-out infinite}
 @keyframes obInR{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:none}}@keyframes obInL{from{opacity:0;transform:translateX(-32px)}to{opacity:1;transform:none}}
@@ -355,10 +386,10 @@ function CountUp({v,dur=650,d=0}){
   const f=t=>{const p=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-p,3),val=a+(b-a)*e;cur.current=val;setX(val);if(p<1)raf=requestAnimationFrame(f);else cur.current=b};
   raf=requestAnimationFrame(f);return()=>cancelAnimationFrame(raf)},[v]);
  return d?n1(x):Math.round(x)}
-function Ring({pct,size=96,stroke=8,color='var(--acc)',children}){
- const r=(size-stroke)/2,c=2*Math.PI*r;
+function Ring({pct,size=96,stroke=8,color='var(--acc)',children,grad}){
+ const r=(size-stroke)/2,c=2*Math.PI*r;const gid=useId().replace(/:/g,'');if(grad)color=`url(#rg${gid})`;
  return html`<div className="relative inline-flex items-center justify-center" style=${{width:size,height:size}}>
- <svg width=${size} height=${size} className="-rotate-90"><circle cx=${size/2} cy=${size/2} r=${r} stroke="var(--ghost)" strokeWidth=${stroke} fill="none"/><circle cx=${size/2} cy=${size/2} r=${r} stroke=${color} strokeWidth=${stroke} fill="none" strokeLinecap="round" strokeDasharray=${c} strokeDashoffset=${c*(1-clamp(pct,0,1))} style=${{transition:'stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1)'}}/></svg>
+ <svg width=${size} height=${size} className="-rotate-90">${grad&&html`<defs><linearGradient id=${'rg'+gid} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#C4B5FD"/><stop offset=".5" stopColor="#8B5CF6"/><stop offset="1" stopColor="#6D28D9"/></linearGradient></defs>`}<circle cx=${size/2} cy=${size/2} r=${r} stroke="var(--ghost)" strokeWidth=${stroke} fill="none"/><circle cx=${size/2} cy=${size/2} r=${r} stroke=${color} strokeWidth=${stroke} fill="none" strokeLinecap="round" strokeDasharray=${c} strokeDashoffset=${c*(1-clamp(pct,0,1))} style=${{transition:'stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1)'}}/></svg>
  <div className="absolute inset-0 flex flex-col items-center justify-center">${children}</div></div>`}
 function Bar({pct,h=6,color='var(--acc)'}){return html`<div className="w-full rounded-full overflow-hidden" style=${{height:h,background:'var(--ghost)'}}><div className="h-full rounded-full bar-fill" style=${{width:`${clamp(pct,0,1)*100}%`,background:color,transition:'width .7s cubic-bezier(.2,.8,.2,1)'}}/></div>`}
 function Av({m,s=36}){return html`<div className="rounded-full flex items-center justify-center font-semibold shrink-0 num" style=${{width:s,height:s,background:m.color+'26',color:m.color,border:`1.5px solid ${m.color}66`,fontSize:s*.4}}>${m.id==='me'?'A':m.name[0]}</div>`}
@@ -572,7 +603,7 @@ function MRow({m,c,big}){
  const sz=big?54:46;
  return html`<div className="relative rounded-[26px] overflow-hidden rise" style=${{touchAction:'pan-y'}}>
  <div className="absolute inset-0 flex items-center pl-5 text-white" style=${{background:col,opacity:dx>0?1:0}}><${Icon} n="check" s=${26} sw=${3}/><span className="ml-2 text-sm font-bold">${dx>90?'Loslassen':'Weiter wischen'}</span></div>
- <div onPointerDown=${down} onPointerMove=${move} onPointerUp=${up} onPointerCancel=${()=>{st.current=null;setDx(0)}} onClick=${tap} role="button" className="flex items-center gap-3.5 relative cursor-pointer" style=${{borderRadius:26,padding:big?'20px 16px 16px 18px':'16px 14px 14px 16px',background:done?col:`color-mix(in srgb, ${col} 17%, #0c0c0d)`,border:done?`1px solid ${col}`:`1px solid color-mix(in srgb, ${col} 36%, transparent)`,transform:`translateX(${dx}px)`,transition:dx?'none':'transform .25s',userSelect:'none',color:done?'#fff':'var(--ink)'}}>
+ <div onPointerDown=${down} onPointerMove=${move} onPointerUp=${up} onPointerCancel=${()=>{st.current=null;setDx(0)}} onClick=${tap} role="button" className="flex items-center gap-3.5 relative cursor-pointer" style=${{borderRadius:26,padding:big?'20px 16px 16px 18px':'16px 14px 14px 16px',background:done?`linear-gradient(135deg,${col},color-mix(in srgb, ${col} 70%, #000))`:`linear-gradient(135deg,color-mix(in srgb, ${col} 20%, var(--card)),color-mix(in srgb, ${col} 9%, var(--card)))`,boxShadow:done?`0 10px 26px -12px ${col}`:'0 1px 0 var(--hi) inset',border:done?`1px solid ${col}`:`1px solid color-mix(in srgb, ${col} 36%, transparent)`,transform:`translateX(${dx}px)`,transition:dx?'none':'transform .25s',userSelect:'none',color:done?'#fff':'var(--ink)'}}>
   <span className="num absolute text-[12px] font-bold" style=${{left:18,top:6,color:done?'rgba(255,255,255,.9)':col}}>${capped?'Limit':'+'+m.pts}</span>
   <button aria-label="Aktivität öffnen" onClick=${e=>{e.stopPropagation();c.openSheet({t:'act',id:a.id})}} className="bg-transparent border-0 p-0 shrink-0 mt-2" style=${{color:done?'#fff':col}}><${Icon} n=${a.icon} s=${big?32:28}/></button>
   <div className="flex-1 min-w-0 mt-1"><div className=${`${big?'text-[18px]':'text-[16px]'} font-semibold leading-tight`}>${m.title}</div>
@@ -656,27 +687,37 @@ function Home({c}){
  const projSave=S.save.saved+S.save.weekly*(SL(S)-D.week);
  const dayName=DAYS_L[D.di];
  const fm=D.allM.filter(m=>c.freq==='all'||m.freq===c.freq),coreM=fm.filter(m=>S.acts[m.act].kind==='core'),devM=fm.filter(m=>S.acts[m.act].kind!=='core'),coreDone=coreM.filter(m=>isDone(S,m)).length;
+ const nm=((S.profile&&S.profile.name)||(c.auth&&c.auth.session&&c.auth.session.mode!=='guest'&&c.auth.session.name)||'').trim();
+ const hr=new Date().getHours(),greet=hr<5?'Gute Nacht':hr<11?'Guten Morgen':hr<17?'Guten Tag':hr<22?'Guten Abend':'Gute Nacht';
+ const pct=D.allM.length?D.doneN/D.allM.length:0;
+ const open=(()=>{const base=(S.comeback?cbList(S,D):ESS.map(id=>D.allM.find(m=>m.id===id))).filter(m=>m&&!isDone(S,m));const extra=D.allM.filter(m=>(m.freq==='daily'||m.freq==='multi')&&!isDone(S,m)&&!base.includes(m));return[...base,...extra].slice(0,3)})();
+ const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase();
+ const ib=(label,icon,on)=>html`<button aria-label=${label} onClick=${on} className="w-10 h-10 card flex items-center justify-center" style=${{borderRadius:14}}><${Icon} n=${icon} s=${18}/></button>`;
+ const pill=[['flame',S.streak,'Serie',null,'#FB923C'],['zap','+'+D.td,'Punkte',()=>c.setTab('stats'),'#C4B5FD'],['trophy','#'+D.me.rank,'Liga',()=>c.setTab('league'),'#FBBF24']];
  return html`<div className="screen px-4 pb-6">
- <div className="flex items-center justify-between pt-5 pb-3">
-  <div className="flex items-center gap-2"><div className="w-8 h-8 rounded-xl flex items-center justify-center" style=${{background:'linear-gradient(135deg,#A78BFA,#5B21B6)'}}><${Icon} n="shield" s=${17} sw=${2.2} cls="text-white"/></div>
-   <div className="leading-none"><div className="text-[9px] tracking-[.24em] mute font-semibold">THE</div><div className="text-[15px] font-bold tracking-[.08em] num">WAR WITHIN</div></div></div>
+ <div className="flex items-center justify-between pt-5 pb-4">
+  <div className="flex items-center gap-2.5"><div className="w-9 h-9 rounded-[12px] flex items-center justify-center" style=${{background:'linear-gradient(140deg,#C4B5FD,#7C3AED 55%,#4C1D95)',boxShadow:'0 1px 0 rgba(255,255,255,.35) inset,0 8px 20px -8px rgba(124,58,237,.8)'}}><${Icon} n="shield" s=${18} sw=${2.2} cls="text-white"/></div>
+   <div className="leading-none"><div className="text-[9px] tracking-[.3em] mute font-semibold">THE</div><div className="text-[15px] font-bold tracking-[.1em] num">WAR WITHIN</div></div></div>
   <div className="flex items-center gap-2">
-   <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full card text-[13px] font-semibold" style=${{borderRadius:999}}><${Icon} n="flame" s=${15} cls="acc"/><span className="num">${S.streak}</span></div>
-   <button aria-label="Hell/Dunkel wechseln" onClick=${c.toggleTheme} className="w-9 h-9 rounded-full card flex items-center justify-center" style=${{borderRadius:999}}><${Icon} n=${S.theme==='dark'?'sun':'moon'} s=${17}/></button>
-   <button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-bold text-white border-0" style=${{background:'linear-gradient(135deg,#A78BFA,#5B21B6)'}}>${((S.profile&&S.profile.name)||(c.auth&&c.auth.session&&c.auth.session.name)||'?').trim().slice(0,1).toUpperCase()||'?'}</button>
-   <button aria-label="Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="w-9 h-9 rounded-full card flex items-center justify-center" style=${{borderRadius:999}}><${Icon} n="sliders" s=${17}/></button></div></div>
+   ${ib('Hell/Dunkel wechseln',S.theme==='dark'?'sun':'moon',c.toggleTheme)}
+   ${ib('Einstellungen','sliders',()=>c.openSheet({t:'settings'}))}
+   <button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-10 h-10 rounded-full flex items-center justify-center text-[15px] font-bold text-white border-0" style=${{background:'linear-gradient(140deg,#C4B5FD,#7C3AED 55%,#4C1D95)',boxShadow:'0 0 0 2px var(--bg),0 0 0 3.5px rgba(167,139,250,.55)'}}>${ini}</button></div></div>
  ${S.setup&&html`<button onClick=${()=>c.openSheet({t:'newseason'})} className="btn w-full py-3 mb-3 text-sm">Neue Saison einrichten</button>`}
- <div className="flex justify-between mb-4 px-0.5">${DAYS.map((x,i)=>{const today=i===D.di,past=i<D.di,p=today?(D.allM.length?D.doneN/D.allM.length:0):past?1:0;return html`<div key=${x} className="flex flex-col items-center gap-1.5 py-2 px-1.5 rounded-[18px]" style=${{background:today?'var(--card2)':'transparent',minWidth:42}}><span className="text-[12px] font-semibold" style=${{color:today?'var(--ink)':'var(--mute)'}}>${x}</span><${Ring} pct=${p} size=${28} stroke=${4} color=${today?'var(--acc2)':'var(--good)'}/></div>`})}</div>
- <div className="flex items-center justify-between mb-3 px-1"><div><div className="lbl" style=${{display:"none"}}>Daily Briefing · Woche ${D.week+1}/${SL(S)} · ${S.acts[S.sTheme]?S.acts[S.sTheme].short+'-Saison':'Saison'}</div><div className="disp text-[26px] mt-0.5">${dayName} · ${PHASE[D.di]}</div></div>
-  ${D.di===0?html`<button onClick=${()=>c.openSheet({t:'add'})} className="chip on">Woche planen</button>`:D.di===6?html`<button onClick=${c.advance} className="chip on">After Action Review</button>`:html`<button onClick=${c.toggleRest} className="chip flex items-center gap-1"><${Icon} n="moon" s=${12}/>${D.restToday?'Pause aktiv':'Pause'}</button>`}</div>
- <${QuoteSlider}/>
+ <div className="card relative overflow-hidden p-5 mb-4" style=${{background:'var(--hero)'}}>
+  <div aria-hidden="true" className="absolute rounded-full pointer-events-none" style=${{right:-60,top:-60,width:220,height:220,background:'radial-gradient(circle,rgba(139,92,246,.45),transparent 65%)',animation:'heroGlow 6s ease-in-out infinite'}}/>
+  <div className="relative flex items-center gap-4">
+   <div className="flex-1 min-w-0">
+    <div className="lbl acc">${greet}${nm?',':''}</div>
+    <div className="disp text-[34px] leading-[.95] mt-1 truncate grad-t">${nm||'Krieger'}</div>
+    <div className="text-[12.5px] mute mt-2 leading-snug">${DAYS_L[D.di]} · ${PHASE[D.di]} · Woche ${D.week+1}/${SL(S)}</div></div>
+   <${Ring} pct=${pct} size=${92} stroke=${9} grad=${true}><div className="num text-[22px] font-bold leading-none">${Math.round(pct*100)}<span className="text-[12px] mute">%</span></div><div className="text-[9.5px] mute mt-1 tracking-wider">HEUTE</div><//></div>
+  <div className="relative grid grid-cols-3 gap-2 mt-4">
+   ${pill.map(([ic,v,l,on,col])=>html`<button key=${l} onClick=${on||undefined} disabled=${!on} className="rounded-2xl py-2.5 px-2 flex items-center gap-2 border-0 text-left" style=${{background:'var(--ghost)',boxShadow:'0 0 0 1px var(--line) inset',cursor:on?'pointer':'default'}}><span className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style=${{background:col+'22',color:col}}><${Icon} n=${ic} s=${15}/></span><span className="leading-none"><span className="num block text-[16px] font-bold ink">${v}</span><span className="block text-[9.5px] mute mt-1 tracking-wide uppercase">${l}</span></span></button>`)}</div></div>
+ <div className="flex justify-between mb-2 px-0.5">${DAYS.map((x,i)=>{const today=i===D.di,past=i<D.di,p=today?pct:past?1:0;return html`<div key=${x} className="flex flex-col items-center gap-1.5 py-2 px-1.5 rounded-[18px]" style=${{background:today?'linear-gradient(180deg,rgba(139,92,246,.22),rgba(139,92,246,.06))':'transparent',boxShadow:today?'0 0 0 1px rgba(167,139,250,.35) inset':'none',minWidth:42}}><span className="text-[12px] font-semibold" style=${{color:today?'var(--ink)':'var(--mute)'}}>${x}</span><${Ring} pct=${p} size=${28} stroke=${4} color=${today?'var(--acc2)':'var(--good)'}/></div>`})}</div>
+ <${Title} mt=${4} right=${D.di===0?html`<button onClick=${()=>c.openSheet({t:'add'})} className="chip on">Woche planen</button>`:D.di===6?html`<button onClick=${c.advance} className="chip on">After Action Review</button>`:html`<span className="flex items-center gap-1.5"><button onClick=${c.toggleRest} className=${`chip flex items-center gap-1 ${D.restToday?'on':''}`}><${Icon} n="moon" s=${12}/>${D.restToday?'Pause aktiv':'Pause'}</button><button onClick=${()=>c.setTab('tasks')} className="chip">Alle</button></span>`}>Heute wichtig<//>
+ ${open.length?html`<div className="flex flex-col gap-2.5">${open.map(m=>html`<${MRow} key=${m.id} m=${m} c=${c}/>`)}</div>`:html`<div className="card p-5 text-center"><div className="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center mb-2" style=${{background:'rgba(52,211,153,.15)',color:'var(--good)'}}><${Icon} n="check" s=${24} sw=${2.6}/></div><div className="text-[14px] font-semibold">Alles Wichtige erledigt.</div><div className="text-[12px] mute mt-1">Stark. Dein Potenzial spürt das.</div></div>`}
+ <div className="mt-6"><${QuoteSlider}/></div>
  <${TreeCard} c=${c}/>
- ${(()=>{const open=(S.comeback?cbList(S,D):ESS.map(id=>D.allM.find(m=>m.id===id))).filter(m=>m&&!isDone(S,m)).slice(0,3);return html`<${Title} right=${html`<button onClick=${()=>c.setTab('tasks')} className="text-xs acc font-semibold bg-transparent border-0">Alle</button>`}>Heute wichtig<//>
- ${open.length?html`<div className="flex flex-col gap-2.5">${open.map(m=>html`<${MRow} key=${m.id} m=${m} c=${c}/>`)}</div>`:html`<div className="card p-4 text-sm text-center">Alle wichtigen Aufgaben erledigt. Stark.</div>`}`})()}
- <div className="grid grid-cols-3 gap-2.5 mt-5 text-center">
-  <div><div className="disp text-[34px]">${D.doneN}<span className="mute text-[18px]">/${D.allM.length}</span></div><div className="lbl mt-1">Erledigt</div></div>
-  <button onClick=${()=>c.setTab('stats')} className="bg-transparent border-0 ink"><div className="disp text-[34px]">+${D.td}</div><div className="lbl mt-1">Punkte heute</div></button>
-  <button onClick=${()=>c.setTab('league')} className="bg-transparent border-0 ink"><div className="disp text-[34px]">#${D.me.rank}</div><div className="lbl mt-1">Liga</div></button></div>
  </div>`}
 /* ───── SOLO-DUELL ───── */
 function Tasks({c}){
@@ -1248,7 +1289,7 @@ function SheetHost({c}){
   case'season':b=html`<${SeasonRep} c=${c}/>`;break;
  }
  const lock=sh.t==='aar'||sh.t==='season';
- return html`<div className="absolute inset-0 z-50 flex items-end" style=${{background:'rgba(0,0,0,.55)',animation:'fadeIn .2s'}} onClick=${()=>{if(!lock)c.closeSheet()}}><div className="sheet w-full rounded-t-[28px] p-5 pb-8 max-h-[90%] overflow-y-auto border-t ln" style=${{background:'var(--bg2)'}} onClick=${e=>e.stopPropagation()}><div className="w-10 h-1 rounded-full mx-auto mb-4" style=${{background:'var(--line)'}}/>${b}</div></div>`}
+ return html`<div className="absolute inset-0 z-50 flex items-end" style=${{background:'rgba(5,4,12,.55)',backdropFilter:'blur(6px)',WebkitBackdropFilter:'blur(6px)',animation:'fadeIn .2s'}} onClick=${()=>{if(!lock)c.closeSheet()}}><div role="dialog" aria-modal="true" className="sheet w-full rounded-t-[30px] p-5 pb-8 max-h-[90%] overflow-y-auto border-t ln" style=${{background:'linear-gradient(180deg,color-mix(in srgb,var(--bg2) 92%,#8B5CF6) 0%,var(--bg2) 120px)',boxShadow:'0 -1px 0 var(--hi) inset,0 -30px 60px -30px rgba(124,58,237,.45)'}} onClick=${e=>e.stopPropagation()}><div className="w-10 h-1 rounded-full mx-auto mb-4" style=${{background:'var(--line)'}}/>${b}</div></div>`}
 /* ───── KONTO, ANMELDUNG & ONBOARDING ───── */
 /* Auth-Schnittstelle. DEMO: Nichts verlässt das Gerät, Passwörter werden weder geprüft noch gespeichert.
    Für Supabase nur diese Funktionen ersetzen:
@@ -1706,7 +1747,7 @@ function App({init,auth,skey='war_within_v5'}){
    n.events.unshift({id:uid(),text:m.title+(extra.msg?' · '+extra.msg:''),pts:award,t:Date.now()});n.events=n.events.slice(0,12);
    n.feed.unshift({id:uid(),who:'me',pts:award,text:`${n.acts[m.act].short} erledigt`,t:Date.now()});n.feed=n.feed.slice(0,12);
    if(extra.apply)extra.apply(n);checkAch(n)});
-  fx(pos,award>0?`+${award}`:'Limit');
+  fx(pos,award>0?`+${award}`:'Limit');try{navigator.vibrate&&navigator.vibrate(award>0?[12,40,18]:8)}catch(e){}
   toast(award>0&&room>0?`+${award} Pkt. · ${a.short}${extra.msg?' · '+extra.msg:''}`:`${a.short} hat das Wochenlimit erreicht. Rating wächst weiter, Punkte nicht.`,award>0&&room>0?'good':undefined);
   if(!extra.keep)setSheet(null)};
  const start=(mid,ev)=>{const m=S.missions.find(x=>x.id===mid);if(isDone(S,m)){toast(m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
@@ -1826,12 +1867,12 @@ function App({init,auth,skey='war_within_v5'}){
  const nav=[['home','Start','home'],['tasks','Aufgaben','check'],['solo','Duell','swords'],['league','Liga','trophy'],['stats','Stats','trend']];
  const ach=newA&&ACHS.find(a=>a.id===newA);
  return html`<div data-theme=${S.theme} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(139,92,246,.12)'}}>
- <div className="absolute inset-0 pointer-events-none overflow-hidden"><div className="absolute rounded-full" style=${{top:-110,left:-80,width:300,height:300,background:'rgba(139,92,246,.20)',filter:'blur(70px)'}}/></div>
- <div ref=${scrollRef} className="flex-1 overflow-y-auto relative" style=${{paddingBottom:96}}>
+ <div className="absolute inset-0 pointer-events-none overflow-hidden"><div className="absolute rounded-full" style=${{top:-110,left:-80,width:300,height:300,background:'rgba(139,92,246,.20)',filter:'blur(70px)',animation:'heroGlow 9s ease-in-out infinite'}}/><div className="absolute rounded-full" style=${{top:260,right:-140,width:260,height:260,background:'rgba(56,189,248,.07)',filter:'blur(80px)',animation:'heroGlow 12s ease-in-out infinite reverse'}}/></div>
+ <div ref=${scrollRef} className="flex-1 overflow-y-auto relative scroll-fade" style=${{paddingBottom:96}}>
   ${tab==='home'&&html`<${Home} c=${c}/>`}${tab==='tasks'&&html`<${Tasks} c=${c}/>`}${tab==='solo'&&html`<${Solo} c=${c}/>`}${tab==='league'&&html`<${League} c=${c}/>`}${tab==='stats'&&html`<${Stats} c=${c}/>`}</div>
- ${tab!=='tasks'&&html`<button aria-label="Mission hinzufügen" onClick=${()=>openSheet({t:'add'})} className="fab absolute z-30 right-4 w-14 h-14 rounded-full flex items-center justify-center text-white border-0" style=${{bottom:92,background:'linear-gradient(135deg,#A78BFA,#6D28D9)'}}><${Icon} n="plus" s=${26} sw=${2.6}/></button>`}
+ ${tab!=='tasks'&&html`<button aria-label="Mission hinzufügen" onClick=${()=>openSheet({t:'add'})} className="fab absolute z-30 right-4 w-14 h-14 rounded-[20px] flex items-center justify-center text-white border-0" style=${{bottom:100,background:'linear-gradient(140deg,#C4B5FD 0%,#8B5CF6 40%,#5B21B6 100%)'}}><${Icon} n="plus" s=${26} sw=${2.6}/></button>`}
  <div className="absolute bottom-0 inset-x-0 z-30 px-3 pt-2" style=${{paddingBottom:'max(12px,env(safe-area-inset-bottom))',background:'linear-gradient(180deg,transparent,var(--bg) 40%)'}}>
-  <div className="flex gap-1 p-1 rounded-[28px]" style=${{background:'var(--glass)',backdropFilter:'blur(14px)',border:'1px solid var(--line)'}}>${nav.map(([k,l,i])=>html`<button key=${k} aria-label=${l} onClick=${()=>{setTab(k);setSel(null)}} className="flex-1 h-[62px] rounded-[22px] flex flex-col items-center justify-center gap-1 border-0 transition-all" style=${{background:tab===k?'var(--card2)':'transparent',color:tab===k?'var(--ink)':'var(--mute)'}}><${Icon} n=${i} s=${25}/>${tab===k&&html`<span className="text-[11px] font-semibold uppercase tracking-wide">${l}</span>`}</button>`)}</div></div>
+  <nav aria-label="Hauptnavigation" className="relative flex p-1.5 rounded-[30px]" style=${{background:'var(--glass)',backdropFilter:'blur(18px) saturate(1.4)',WebkitBackdropFilter:'blur(18px) saturate(1.4)',border:'1px solid var(--line)',boxShadow:'0 1px 0 var(--hi) inset,0 18px 40px -16px rgba(0,0,0,.7)'}}>${(()=>{const ix=Math.max(0,nav.findIndex(n=>n[0]===tab));return html`<div aria-hidden="true" className="nav-ind absolute top-1.5 bottom-1.5 rounded-[24px]" style=${{left:`calc(6px + ${ix} * (100% - 12px) / ${nav.length})`,width:`calc((100% - 12px) / ${nav.length})`,background:'linear-gradient(160deg,rgba(167,139,250,.28),rgba(124,58,237,.14))',border:'1px solid rgba(167,139,250,.35)',boxShadow:'0 8px 22px -10px rgba(124,58,237,.8)'}}/>`})()}${nav.map(([k,l,i])=>html`<button key=${k} aria-label=${l} aria-current=${tab===k?'page':undefined} onClick=${()=>{setTab(k);setSel(null);try{navigator.vibrate&&navigator.vibrate(6)}catch(e){}}} className="relative flex-1 h-[58px] rounded-[24px] flex flex-col items-center justify-center gap-[3px] border-0 bg-transparent transition-colors" style=${{color:tab===k?'var(--ink)':'var(--mute)'}}><span style=${{transform:tab===k?'translateY(-1px) scale(1.06)':'none',transition:'transform .3s cubic-bezier(.3,1.4,.5,1)',color:tab===k?'var(--acc2)':'inherit',filter:tab===k?'drop-shadow(0 0 8px rgba(167,139,250,.6))':'none'}}><${Icon} n=${i} s=${23} sw=${tab===k?2.1:1.8}/></span><span className="text-[10px] font-semibold tracking-wide" style=${{opacity:tab===k?1:.75}}>${l}</span></button>`)}</nav></div>
  <${SheetHost} c=${c}/>
  ${ach&&html`<div key=${newA} className="absolute inset-0 z-[60] flex items-center justify-center" style=${{background:'rgba(5,5,10,.82)',animation:'fadeIn .25s'}} onClick=${()=>upd(n=>{n.newAch=n.newAch.slice(1)})}>
   ${Array.from({length:18}).map((_,i)=>{const ang=i/18*Math.PI*2,r=110+(i%3)*40;return html`<span key=${i} className="absolute w-2 h-2 rounded-full" style=${{background:i%2?'#8B5CF6':'#C4B5FD','--dx':Math.cos(ang)*r+'px','--dy':Math.sin(ang)*r+'px',animation:`burst 1.4s ease-out ${i*.03}s both`}}/>`})}
