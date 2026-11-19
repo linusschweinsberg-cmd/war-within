@@ -217,7 +217,7 @@ function readiness(S){
 const gradeOf=p=>p>=.9?'A':p>=.7?'B':p>=.5?'C':'D';
 const TIERS=['Bronze','Silber','Gold','Platin','Diamant'];
 const SL=S=>S.sLen||4,SDAYS=S=>(S.sLen||4)*7;
-const SEASON_DEF={baseCat:{fit:61,rec:54,fin:57,intel:46,career:49,time:55,rel:62,char:54,goals:42,prep:29},leagues:[],sLen:4,sTheme:'disc',sGoal:.85,sFocus:'Konstanz statt Perfektion',tier:1,potOff:.12,sThemePts:0,setup:false,sLocked:true,evalDone:false,freezes:2,mArea:'disc',mDays:2,mTarget:20,sSigned:{season:4,t:'Konstanz statt Perfektion'},codeCk:{body0:true,disc0:true,disc2:true,rec0:true},evalHist:[{week:3,season:4,grades:{body:.67,fin:1,rel:.67,disc:.67,rec:.33}}],sAreaGoals:{body:.7,fin:.7,rel:.7,disc:.7,rec:.7},sAreaPts:{body:34,fin:16,rel:20,disc:34,rec:22},gear:['Finisher-Patch'],sHist:[{season:3,theme:'body',len:4,rank:3,pts:281,cur:.81,goal:.85,ok:false,badges:['Finisher']},{season:2,theme:'disc',len:4,rank:2,pts:297,cur:.88,goal:.85,ok:true,badges:['Gipfel-Abzeichen']}]};
+const SEASON_DEF={sLevel:0,baseCat:{fit:61,rec:54,fin:57,intel:46,career:49,time:55,rel:62,char:54,goals:42,prep:29},leagues:[],sLen:4,sTheme:'disc',sGoal:.85,sFocus:'Konstanz statt Perfektion',tier:1,potOff:.12,sThemePts:0,setup:false,sLocked:true,evalDone:false,freezes:2,mArea:'disc',mDays:2,mTarget:20,sSigned:{season:4,t:'Konstanz statt Perfektion'},codeCk:{body0:true,disc0:true,disc2:true,rec0:true},evalHist:[{week:3,season:4,grades:{body:.67,fin:1,rel:.67,disc:.67,rec:.33}}],sAreaGoals:{body:.7,fin:.7,rel:.7,disc:.7,rec:.7},sAreaPts:{body:34,fin:16,rel:20,disc:34,rec:22},gear:['Finisher-Patch'],sHist:[{season:3,theme:'body',len:4,rank:3,pts:281,cur:.81,goal:.85,ok:false,badges:['Finisher']},{season:2,theme:'disc',len:4,rank:2,pts:297,cur:.88,goal:.85,ok:true,badges:['Gipfel-Abzeichen']}]};
 const ACT0={
 body:{id:'body',name:'Körper & Training',short:'Körper',icon:'dumbbell',cat:'fit',kind:'core',cap:70,rating:74,target:'4 Trainings pro Woche'},
 fin:{id:'fin',name:'Finanzverantwortung',short:'Finanzen',icon:'wallet',cat:'fin',kind:'core',cap:40,rating:68,target:'€50 pro Woche sparen'},
@@ -688,6 +688,39 @@ function TreeCard({c}){
   <${LifeTree} cats=${cats} vals=${vals} streak=${S.streak} wilt=${!!S.comeback}/>
   <div className="flex justify-between text-[12px] mt-1"><div><span className="mute">Stärkster Ast </span><span className="font-semibold">${sorted[sorted.length-1].n}</span></div><div className="text-right"><span className="mute">Braucht Wasser </span><span className="font-semibold">${sorted[0].n}</span></div></div>
   <div className="text-[12px] mute mt-2 leading-snug">${S.comeback?'Rückfall: einige Blätter welken. Jede erledigte Aufgabe bringt sie zurück.':'Jede Aufgabe lässt Blätter wachsen. Dein Streak macht den Stamm dicker.'}</div></div>`}
+/* ───── Saison-Pfad & Etappen ───── */
+const PATH=[['badge','Erste Spur'],['freeze','Streak-Schutz'],['title','Wächter'],['badge','Bronze-Abzeichen'],['freeze','Streak-Schutz'],['title','Hauptmann'],['badge','Silber-Abzeichen'],['freeze','Streak-Schutz'],['title','Stratege'],['crown','Gipfel-Krone']];
+const pathMax=S=>Math.max(PATH.length,Math.round(planWeek(S)*SL(S)*(S.sGoal||.85)));
+const pathStep=(S,i)=>Math.round(pathMax(S)*(i+1)/PATH.length);
+const pathLevel=S=>{let l=0;for(let i=0;i<PATH.length;i++)if(S.seasonPts>=pathStep(S,i))l=i+1;return l};
+const phaseOf=S=>{const w=Math.floor(S.day/7),L=SL(S);
+ if(w>=L-1)return{k:'final',n:'Finale',d:'Alle Punkte zählen 10 % mehr. Jetzt entscheidet sich die Saison.',bonus:.1,col:'#FBBF24',ic:'flame'};
+ if(w===0)return{k:'start',n:'Aufbruch',d:'Routinen aufbauen. Klein anfangen und jeden Tag dabei sein.',bonus:0,col:'#34D399',ic:'flag'};
+ return{k:'mid',n:'Belastungsprobe',d:'Die Mitte entscheidet. Halte den Standard, auch wenn die Motivation sinkt.',bonus:0,col:'#A78BFA',ic:'shield'}};
+const ptsMult=(S,m)=>(m.act===S.sTheme?1.15:1)*(1+phaseOf(S).bonus);
+function applyPath(n,from,to){const got=[];for(let i=from;i<to;i++){const [k,l]=PATH[i];if(k==='freeze')n.freezes=Math.min(5,(n.freezes||0)+1);if(k==='title')n.title=l;if(k==='crown')n.title='Legende · Saison '+n.season;if(k!=='freeze')n.gear=[...(n.gear||[]),l+' · S'+n.season].slice(-16);got.push(l)}n.sLevel=to;return got}
+const gradeSeason=r=>{const v=Math.min(1,r.cur/(r.goal||.85))*.5+(r.met/5)*.25+(r.mOk?.15:0)+(r.rank<=2?.1:r.rank<=4?.05:0);return v>=.95?'S':v>=.8?'A':v>=.65?'B':v>=.45?'C':'D'};
+function SeasonStrip({c}){const {S}=c;const ph=phaseOf(S),lv=Math.min(S.sLevel||0,PATH.length),done=lv>=PATH.length,need=done?pathMax(S):pathStep(S,lv),prev=lv?pathStep(S,lv-1):0,p=done?1:clamp((S.seasonPts-prev)/Math.max(1,need-prev),0,1),w=Math.min(SL(S),Math.floor(S.day/7)+1);
+ return html`<button onClick=${()=>c.openSheet({t:'spath'})} className="card w-full p-3.5 mb-4 text-left flex items-center gap-3" style=${{borderRadius:20}}>
+  <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style=${{background:ph.col+'22',color:ph.col,boxShadow:`0 0 0 1px ${ph.col}44 inset`}}><${Icon} n=${ph.ic} s=${20}/></div>
+  <div className="flex-1 min-w-0"><div className="flex items-center justify-between gap-2"><div className="text-[13px] font-bold truncate">Saison ${S.season} · <span style=${{color:ph.col}}>${ph.n}</span>${ph.bonus?html` <span className="num text-[11px]" style=${{color:ph.col}}>+10 %</span>`:''}</div><div className="num text-[11px] mute shrink-0">Woche ${w}/${SL(S)}</div></div>
+   <div className="mt-1.5"><${Bar} pct=${p} h=${5} color=${`linear-gradient(90deg,${ph.col},#8B5CF6)`}/></div>
+   <div className="text-[11px] mute mt-1 truncate">${done?'Pfad abgeschlossen · Gipfel erreicht':`Pfad ${lv}/${PATH.length} · nächste Belohnung: ${PATH[lv][1]} (noch ${Math.max(0,need-S.seasonPts)} Pkt.)`}</div></div>
+  <${Icon} n="chevR" s=${16} cls="mute"/></button>`}
+function SeasonPath({c}){const {S}=c;const ph=phaseOf(S),lv=S.sLevel||0,L=SL(S),w=Math.floor(S.day/7);
+ const ic={badge:'award',freeze:'shield',title:'star',crown:'crown'};
+ const desc={freeze:'Schützt deine Serie an einem verpassten Tag',title:'Neuer Titel in deinem Profil',crown:'Gipfelziel erreicht: Saison-Krone und Titel „Legende“',badge:'Abzeichen für deine Sammlung'};
+ return html`<${Sheet} sub=${`Saison ${S.season} · ${TIERS[S.tier||0]}-Liga`} title="Saison-Pfad" onClose=${c.closeSheet}>
+ <div className="lbl mb-2">Etappen</div>
+ <div className="flex gap-1.5">${Array.from({length:L},(_,i)=>{const k=i===L-1?'Finale':i===0?'Aufbruch':'Probe';const on=i===w,past=i<w;const col=i===L-1?'#FBBF24':i===0?'#34D399':'#A78BFA';return html`<div key=${i} className="flex-1 rounded-xl py-2 text-center min-w-0" style=${{background:on?col+'26':past?'var(--card2)':'var(--ghost)',boxShadow:on?`0 0 0 1px ${col} inset`:'none',opacity:past?.7:1}}><div className="text-[10px] font-bold" style=${{color:on?col:'var(--mute)'}}>${past?'✓ ':''}W${i+1}</div><div className="text-[9.5px] mute truncate px-1">${k}</div></div>`})}</div>
+ <div className="card2 p-3 mt-2 text-[12.5px] leading-relaxed"><b style=${{color:ph.col}}>${ph.n}:</b> ${ph.d}</div>
+ <div className="flex items-center justify-between mt-4 mb-2"><div className="lbl">Belohnungen bis zum Gipfel</div><div className="num text-[11px] mute">${S.seasonPts} / ${pathMax(S)} Pkt.</div></div>
+ <div>${PATH.map(([k,l],i)=>{const got=i<lv,next=i===lv,need=pathStep(S,i);return html`<div key=${i} className="flex items-center gap-3 py-1.5 relative">
+   ${i<PATH.length-1&&html`<div aria-hidden="true" className="absolute w-0.5" style=${{left:19,top:42,bottom:-8,background:i<lv-1?'var(--acc)':'var(--line)'}}/>`}
+   <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 relative" style=${{background:got?(k==='crown'?'linear-gradient(150deg,#FFF3C4,#FBBF24)':'linear-gradient(140deg,#C4B5FD,#7C3AED)'):'var(--card2)',color:got?(k==='crown'?'#78350F':'#fff'):next?'var(--acc2)':'var(--mute)',boxShadow:next?'0 0 0 2px var(--acc2)':'none'}}><${Icon} n=${got||next?ic[k]:'lock'} s=${17}/></div>
+   <div className="flex-1 min-w-0"><div className="text-[13px] font-semibold" style=${{opacity:got||next?1:.6}}>Stufe ${i+1} · ${l}</div><div className="text-[11px] mute">${desc[k]}</div></div>
+   <div className="num text-[11px] shrink-0" style=${{color:got?'var(--good)':'var(--mute)'}}>${got?'Erhalten':need+' Pkt.'}</div></div>`})}</div>
+ <div className="text-[11px] mute mt-3 leading-relaxed">Stufe 10 entspricht deinem Gipfelziel (${Math.round((S.sGoal||.85)*100)} % des Saisonplans). Streak-Schutz verfügbar: ${S.freezes||0}.${S.title?` Aktueller Titel: ${S.title}.`:''}</div><//>`}
 const dayKey=S=>S.season+'-'+S.day;
 const dailyAllDone=S=>{const d=S.missions.filter(m=>m.freq==='daily');return d.length>0&&d.every(m=>isDone(S,m))};
 const isPerfect=S=>!!(S.perfect&&S.perfect.k===dayKey(S));
@@ -719,12 +752,13 @@ function Home({c}){
   <div aria-hidden="true" className="absolute rounded-full pointer-events-none" style=${{right:-60,top:-60,width:220,height:220,background:'radial-gradient(circle,rgba(139,92,246,.45),transparent 65%)',animation:'heroGlow 6s ease-in-out infinite'}}/>
   <div className="relative flex items-center gap-4">
    <div className="flex-1 min-w-0">
-    <div className="lbl acc">${greet}${nm?',':''}</div>
+    <div className="flex items-center gap-2 min-w-0"><div className="lbl acc shrink-0">${greet}${nm?',':''}</div>${S.title&&html`<span className="text-[9.5px] font-bold px-2 py-0.5 rounded-full truncate" style=${{color:'#FDE68A',background:'rgba(251,191,36,.12)',boxShadow:'0 0 0 1px rgba(251,191,36,.35) inset'}}>${S.title}</span>`}</div>
     <div className="disp text-[34px] leading-[.95] mt-1 truncate grad-t">${nm||'Krieger'}</div>
     <div className="text-[12.5px] mute mt-2 leading-snug">${DAYS_L[D.di]} · ${PHASE[D.di]} · Woche ${D.week+1}/${SL(S)}</div></div>
    <div className="relative" style=${perfect?{animation:'goldPulse 2.4s ease-in-out infinite'}:null}><${Ring} pct=${perfect?1:pct} size=${92} stroke=${9} grad=${perfect?'gold':true}>${perfect?html`<span aria-hidden="true" style=${{color:'#FBBF24'}}><${Icon} n="crown" s=${18} sw=${2.2}/></span><div className="disp text-[16px] gold-t leading-none mt-0.5">Perfekt</div><div className="text-[9.5px] mute mt-1 tracking-wider">HEUTE</div>`:html`<div className="num text-[22px] font-bold leading-none">${Math.round(pct*100)}<span className="text-[12px] mute">%</span></div><div className="text-[9.5px] mute mt-1 tracking-wider">HEUTE</div>`}<//></div></div>
   <div className="relative grid grid-cols-3 gap-2 mt-4">
    ${pill.map(([ic,v,l,on,col])=>html`<button key=${l} onClick=${on||undefined} disabled=${!on} className="rounded-2xl py-2.5 px-2 flex items-center gap-2 border-0 text-left" style=${{background:'var(--ghost)',boxShadow:'0 0 0 1px var(--line) inset',cursor:on?'pointer':'default'}}><span className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style=${{background:col+'22',color:col}}><${Icon} n=${ic} s=${15}/></span><span className="leading-none"><span className="num block text-[16px] font-bold ink">${v}</span><span className="block text-[9.5px] mute mt-1 tracking-wide uppercase">${l}</span></span></button>`)}</div></div>
+ <${SeasonStrip} c=${c}/>
  <div className="flex justify-between mb-2 px-0.5">${DAYS.map((x,i)=>{const today=i===D.di,past=i<D.di,p=today?pct:past?1:0;return html`<div key=${x} className="flex flex-col items-center gap-1.5 py-2 px-1.5 rounded-[18px]" style=${{background:today?'linear-gradient(180deg,rgba(139,92,246,.22),rgba(139,92,246,.06))':'transparent',boxShadow:today?'0 0 0 1px rgba(167,139,250,.35) inset':'none',minWidth:42}}><span className="text-[12px] font-semibold" style=${{color:today?'var(--ink)':'var(--mute)'}}>${x}</span><${Ring} pct=${p} size=${28} stroke=${4} color=${today?'var(--acc2)':'var(--good)'}/></div>`})}</div>
  <${Title} mt=${4} right=${D.di===0?html`<button onClick=${()=>c.openSheet({t:'add'})} className="chip on">Woche planen</button>`:D.di===6?html`<button onClick=${c.advance} className="chip on">After Action Review</button>`:html`<span className="flex items-center gap-1.5"><button onClick=${c.toggleRest} className=${`chip flex items-center gap-1 ${D.restToday?'on':''}`}><${Icon} n="moon" s=${12}/>${D.restToday?'Pause aktiv':'Pause'}</button><button onClick=${()=>c.setTab('tasks')} className="chip">Alle</button></span>`}>Heute wichtig<//>
  ${open.length?html`<div className="flex flex-col gap-2.5">${open.map(m=>html`<${MRow} key=${m.id} m=${m} c=${c}/>`)}</div>`:html`<div className="card p-5 text-center"><div className="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center mb-2" style=${{background:'rgba(52,211,153,.15)',color:'var(--good)'}}><${Icon} n="check" s=${24} sw=${2.6}/></div><div className="text-[14px] font-semibold">Alles Wichtige erledigt.</div><div className="text-[12px] mute mt-1">Stark. Dein Potenzial spürt das.</div></div>`}
@@ -1153,13 +1187,13 @@ function Member({c,id}){
  ${!me&&html`<button onClick=${()=>c.openSheet({t:'newchal',pre:id})} className="btn w-full py-3.5 mt-4 text-sm flex items-center justify-center gap-2"><${Icon} n="swords" s=${16}/> Herausfordern</button>`}</${Sheet}>`}
 function QSlider({q,setQ,m,c}){
  const {S}=c;const [hp,setHp]=useState(false);const sb=m.freq==='daily'?streakBonus(S.streak):0,a=S.acts[m.act],room=Math.max(0,a.cap-(S.weekPts[m.act]||0));
- const tot=Math.min(Math.max(1,Math.round(m.pts*(1+(qBonus(q)+sb)/100)*(m.act===S.sTheme?1.15:1))),room);
+ const tot=Math.min(Math.max(1,Math.round(m.pts*(1+(qBonus(q)+sb)/100)*(ptsMult(S,m)))),room);
  const col=q>=85?'var(--good)':q>=60?'var(--acc2)':q>=30?'#F59E0B':'#F87171';
  return html`<div><div className="flex items-end justify-between"><div><div className="lbl flex items-center gap-1.5">Erfolgsgrad<button aria-label="Was bedeuten die Stufen?" onClick=${()=>setHp(!hp)} className="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold border-0" style=${{background:hp?'var(--acc)':'var(--ghost)',color:hp?'#fff':'var(--mute)'}}>?</button></div><div className="disp text-[30px] mt-1" style=${{color:col}}>${qLabel(q)}</div></div><div className="text-right"><div className="disp text-[44px]">${q}</div></div></div>
  ${hp&&html`<div className="card2 p-3 mt-2 text-[12px] leading-relaxed rise">${[[0,29,'Unter dem Standard','Du hast angefangen, aber dein eigener Anspruch blieb deutlich unerreicht. Es zählt nur etwa die Hälfte.'],[30,59,'Knapp','Ein Teil ist geschafft, aber es fehlte etwas: zu kurz, zu halbherzig oder zu abgelenkt.'],[60,84,'Standard erreicht','Du hast getan, was du dir vorgenommen hast, so wie geplant. Volle Punkte.'],[85,100,'Übertroffen','Mehr als geplant oder mit echter Hingabe, ohne Ausreden. Bis zu 20 % Zusatzpunkte.']].map(z=>html`<div key=${z[2]} className="mb-2 last:mb-0"><div><b className="ink">${z[2]}</b> <span className="mute num">(${z[0]}–${z[1]})</span></div><div className="mute">${z[3]}</div></div>`)}</div>`}
  <input type="range" min="0" max="100" step="5" value=${q} onChange=${e=>setQ(+e.target.value)} className="w-full mt-2" style=${{accentColor:'#8B5CF6'}}/>
  <div className="flex justify-between text-[10px] mute mt-1"><span>Unter Standard</span><span>Knapp</span><span>Standard</span><span>Übertroffen</span></div>
- <div className="card2 p-3 mt-3 text-[12px] mute leading-relaxed">Basis <b className="ink num">${m.pts}</b> · Erfolg <b className="ink num">${qBonus(q)>=0?'+':''}${qBonus(q)} %</b>${sb?html` · Konstanz <b className="ink num">+${sb} %</b>`:''}${m.act===S.sTheme?html` · Saisonthema <b className="ink num">+15 %</b>`:''} → <b className="acc num">${room>0?'+'+tot+' Pkt.':'Wochenlimit erreicht'}</b></div></div>`}
+ <div className="card2 p-3 mt-3 text-[12px] mute leading-relaxed">Basis <b className="ink num">${m.pts}</b> · Erfolg <b className="ink num">${qBonus(q)>=0?'+':''}${qBonus(q)} %</b>${sb?html` · Konstanz <b className="ink num">+${sb} %</b>`:''}${m.act===S.sTheme?html` · Saisonthema <b className="ink num">+15 %</b>`:''}${phaseOf(S).bonus?html` · Finale <b className="ink num">+10 %</b>`:''} → <b className="acc num">${room>0?'+'+tot+' Pkt.':'Wochenlimit erreicht'}</b></div></div>`}
 function RateSheet({c,mid}){
  const {S}=c;const m=S.missions.find(x=>x.id===mid);const [q,setQ]=useState(75);
  if(!m)return null;
@@ -1253,7 +1287,7 @@ function Evaluation({c}){const S=c.S;const ch=S.codeCk||{};const [res,setRes]=us
 function SeasonRep({c}){const r=c.S.sreport,S=c.S;const nm=id=>S.acts[id]?S.acts[id].short:id;
  return html`<${Sheet} sub=${`Season Report · Saison ${r.season}`} title=${r.rank===1?'Du bist Saison-Champion':r.goalOk?'Gipfel erreicht':`Saison auf Platz ${r.rank}`} onClose=${c.dismissSeason}>
  <div className="grid grid-cols-3 gap-2">${[[r.pts,'Saisonpunkte'],[Math.round(r.cur*100)+' %','Saisonreise'],[`${form(r.l0)} %`,'Form am Ende']].map(([v,l])=>html`<div key=${l} className="card2 p-3 text-center"><div className="num text-lg font-bold">${v}</div><div className="text-[10px] mute">${l}</div></div>`)}</div>
- <div className="card2 p-3.5 mt-3"><div className="lbl">Gipfelziel</div><div className="flex items-center justify-between mt-1"><div className="text-[14px] font-bold">${Math.round(r.goal*100)} % · du ${Math.round(r.cur*100)} %</div><span className="chip" style=${{color:r.goalOk?'var(--good)':'var(--mute)'}}>${r.goalOk?'Erreicht':'Knapp verfehlt'}</span></div><div className="text-[11.5px] mute mt-1">Thema ${nm(r.theme)}: ${r.thOk?'Titel gewonnen':'80 % des Bereichs-Limits nicht erreicht'}</div></div>
+ ${r.grade&&html`<div className="card2 p-3.5 mt-3 flex items-center gap-3"><div className=${`disp text-[46px] w-12 text-center ${r.grade==='S'?'gold-t':'acc'}`}>${r.grade}</div><div className="flex-1"><div className="lbl">Saisonnote</div><div className="text-[12.5px] mt-0.5">Saison-Pfad: Stufe <b className="num">${r.level||0}</b> von ${PATH.length}${(r.level||0)>=PATH.length?' · Gipfel-Krone':''}</div><div className="text-[10.5px] mute mt-0.5">Aus Saisonreise, Bereichszielen, Challenge und Platzierung</div></div></div>`}<div className="card2 p-3.5 mt-3"><div className="lbl">Gipfelziel</div><div className="flex items-center justify-between mt-1"><div className="text-[14px] font-bold">${Math.round(r.goal*100)} % · du ${Math.round(r.cur*100)} %</div><span className="chip" style=${{color:r.goalOk?'var(--good)':'var(--mute)'}}>${r.goalOk?'Erreicht':'Knapp verfehlt'}</span></div><div className="text-[11.5px] mute mt-1">Thema ${nm(r.theme)}: ${r.thOk?'Titel gewonnen':'80 % des Bereichs-Limits nicht erreicht'}</div></div>
  <div className="lbl mt-4 mb-1.5">Belohnungen</div><div className="flex flex-wrap gap-2">${r.badges.map(b=>html`<span key=${b} className="chip on">${b}</span>`)}</div>
  <div className="card2 p-3.5 mt-3"><div className="lbl">Challenge · ${nm(r.mArea)}</div><div className="flex items-center justify-between mt-1"><div className="text-[14px] font-bold">${r.mDays} von ${r.mTarget} Tagen</div><span className="chip" style=${{color:r.mOk?'var(--good)':'var(--mute)'}}>${r.mOk?'Gemeistert':'Nicht geschafft'}</span></div></div>
  <div className="lbl mt-4 mb-1.5">Bereichsziele · ${r.met} von 5 erreicht</div><div className="card2 p-3">${r.areas.map(x=>html`<div key=${x.id} className="flex items-center gap-2 py-1 text-[12px]"><span className="w-[78px] font-medium">${nm(x.id)}</span><div className="flex-1"><${Bar} pct=${clamp(x.pct/x.goal,0,1)} h=${5}/></div><span className="num w-[78px] text-right" style=${{color:x.ok?'var(--good)':'var(--mute)'}}>${Math.round(x.pct*100)} / ${Math.round(x.goal*100)} %</span></div>`)}</div>
@@ -1271,6 +1305,7 @@ function NewSeason({c}){const S=c.S;const [ag,setAg]=useState({...(S.sAreaGoals|
  <div className="card2 p-3">${CORE.map(id=>html`<div key=${id} className="flex items-center justify-between gap-2 py-1"><span className="text-[12.5px] font-medium w-[78px]">${S.acts[id].short}</span><${Seg} opts=${[[.5,'50 %'],[.7,'70 %'],[.9,'90 %']]} val=${ag[id]} on=${v=>setAg({...ag,[id]:v})}/></div>`)}</div>
  <div className="card2 p-3.5 mt-3 text-[12px] leading-relaxed"><b>Fairness:</b> Mit dem Start sind deine Ziele gesperrt. Du kannst sie nicht mehr senken oder nach oben schrauben, bis die Saison endet. Verglichen wird, was du dir vorgenommen hast, nicht nur nackte Punkte.</div>
  <div className="card2 p-3.5 mt-3 text-[12px] leading-relaxed">Deine Form (${form(c.D.lvC)} %) und deine Rekorde bleiben. Saisonpunkte starten bei 0, das Potenzial bei ${Math.round((S.potOff??.12)*100)} %.${len>4?' Längere Saisons haben mehr Etappen, aber auch mehr Spielraum für Rückschläge.':''}</div>
+ <div className="card2 p-3.5 mt-3 text-[12px] leading-relaxed"><b>Ablauf:</b> Woche 1 ist der Aufbruch, danach folgt die Belastungsprobe, die letzte Woche ist das Finale mit +10 % auf alle Punkte. Auf dem Saison-Pfad warten 10 Belohnungen bis zum Gipfel.</div>
  <div className="mt-4"><${HoldBtn} label="Halten zum Unterschreiben" onDone=${()=>c.startSeason(th,len,goal,fo.trim()||'Konstanz statt Perfektion',ag)}/></div><div className="text-[10.5px] mute mt-2 text-center">Mit dem Unterschreiben bindest du dich an deine Ziele und die Challenge für diese Saison.</div></${Sheet}>`}
 const S_key=c=>(c.S.evalDone?'d':'n')+(c.S.evalHist||[]).length;
 function SheetHost({c}){
@@ -1299,6 +1334,7 @@ function SheetHost({c}){
   case'swap':b=html`<${Swap} c=${c} sh=${sh}/>`;break;
   case'aar':b=html`<${Aar} c=${c}/>`;break;
   case'season':b=html`<${SeasonRep} c=${c}/>`;break;
+  case'spath':b=html`<${SeasonPath} c=${c}/>`;break;
  }
  const lock=sh.t==='aar'||sh.t==='season';
  return html`<div className="absolute inset-0 z-50 flex items-end" style=${{background:'rgba(5,4,12,.55)',backdropFilter:'blur(6px)',WebkitBackdropFilter:'blur(6px)',animation:'fadeIn .2s'}} onClick=${()=>{if(!lock)c.closeSheet()}}><div role="dialog" aria-modal="true" className="sheet w-full rounded-t-[30px] p-5 pb-8 max-h-[90%] overflow-y-auto border-t ln" style=${{background:'linear-gradient(180deg,color-mix(in srgb,var(--bg2) 92%,#8B5CF6) 0%,var(--bg2) 120px)',boxShadow:'0 -1px 0 var(--hi) inset,0 -30px 60px -30px rgba(124,58,237,.45)'}} onClick=${e=>e.stopPropagation()}><div className="w-10 h-1 rounded-full mx-auto mb-4" style=${{background:'var(--line)'}}/>${b}</div></div>`}
@@ -1751,6 +1787,8 @@ function App({init,auth,skey='war_within_v5'}){
  /* Rang-Toasts */
  const pr=useRef(D.me.rank);
  useEffect(()=>{const p=pr.current;if(D.me.rank>p)toast(`${D.standings[D.me.rank-2].name} hat dich überholt: jetzt Platz ${D.me.rank}`,'warn');else if(D.me.rank<p)toast(`Du bist auf Platz ${D.me.rank} aufgestiegen!`,'good');pr.current=D.me.rank},[D.me.rank]);
+ useEffect(()=>{if(pathLevel(S)>(S.sLevel||0))upd(n=>{applyPath(n,n.sLevel||0,pathLevel(n))})},[]);
+ useEffect(()=>{const u=S.pathUp;if(u&&u.ts>Date.now()-4000)toast(`Saison-Pfad Stufe ${u.lv}: ${u.got.join(', ')}`,'good')},[S.pathUp&&S.pathUp.ts]);
  /* Automatisch öffnende Berichte */
  useEffect(()=>{if(S.aar&&!(sheet&&(sheet.t==='aar'||sheet.t==='season')))setSheet({t:'aar'})},[S.aar]);
  useEffect(()=>{if(S.sreport&&!S.aar&&!(sheet&&sheet.t==='season'))setSheet({t:'season'})},[S.sreport,S.aar]);
@@ -1762,7 +1800,7 @@ function App({init,auth,skey='war_within_v5'}){
   const m=S.missions.find(x=>x.id===mid);if(!m||isDone(S,m)){toast(m&&m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
   const a=S.acts[m.act];const room=Math.max(0,a.cap-(S.weekPts[m.act]||0));
   const sb=m.freq==='daily'?streakBonus(S.streak):0;
-  const award=Math.min(Math.max(1,Math.round(m.pts*(1+((extra.bonus||0)+sb)/100)*(m.act===S.sTheme?1.15:1))),room);
+  const award=Math.min(Math.max(1,Math.round(m.pts*(1+((extra.bonus||0)+sb)/100)*(ptsMult(S,m)))),room);
   upd(n=>{if(isDone(n,m))return;n.done[mid]=true;if(m.freq==='multi'){n.counts=n.counts||{};n.counts[mid]=(n.counts[mid]||0)+1}n.weekPts[m.act]=(n.weekPts[m.act]||0)+award;n.todayPts[m.act]=(n.todayPts[m.act]||0)+award;n.seasonPts+=award;if(m.act===n.sTheme)n.sThemePts=(n.sThemePts||0)+award;n.sAreaPts=n.sAreaPts||{};n.sAreaPts[m.act]=(n.sAreaPts[m.act]||0)+award;
    n.acts[m.act].rating=Math.min(99,n.acts[m.act].rating+m.pts*.04);const ct=m.cat||n.acts[m.act].cat;n.catScore[ct]=Math.min(100,(n.catScore[ct]??40)+m.pts*.12);
    n.autoDone=n.autoDone||{};n.autoDone[mid]=!!extra.auto;
@@ -1770,6 +1808,7 @@ function App({init,auth,skey='war_within_v5'}){
    if(extra.q!=null&&extra.q>=85&&Math.random()<.5)n.nemMsg={t:['Übertroffen? Gut. Ich habe es auch getan.','Starker Zug. Aber ein Tag ist kein Standard.','Das war sauber. Mach es morgen wieder.'][rnd(0,2)],ts:Date.now()};
    if(n.comeback){n.cbDone=(n.cbDone||0)+1;if(n.cbDone>=3){n.comeback=false;n.cbDone=0;n.idle=0;n.nemMsg={t:'Du bist zurück. Nicht schlecht. Morgen wieder volle Last.',ts:Date.now()}}}
    n.pulse++;n.seasonMissions=(n.seasonMissions||12)+1;
+   {const lv=pathLevel(n);if(lv>(n.sLevel||0)){const got=applyPath(n,n.sLevel||0,lv);n.pathUp={lv,got,ts:Date.now()}}}
    if(!isPerfect(n)&&dailyAllDone(n)){n.perfect={k:dayKey(n),ts:Date.now()};n.perfectDays=(n.perfectDays||0)+1;n.perfectShow=true}
    n.events.unshift({id:uid(),text:m.title+(extra.msg?' · '+extra.msg:''),pts:award,t:Date.now()});n.events=n.events.slice(0,12);
    n.feed.unshift({id:uid(),who:'me',pts:award,text:`${n.acts[m.act].short} erledigt`,t:Date.now()});n.feed=n.feed.slice(0,12);
@@ -1869,12 +1908,13 @@ function App({init,auth,skey='war_within_v5'}){
     const mOk=(n.mDays||0)>=(n.mTarget||20);const badges=['Finisher'];if(mOk)badges.push('Challenge gemeistert');if(met>=4)badges.push('Wort gehalten');if(goalOk)badges.push('Gipfel-Abzeichen');if(thOk)badges.push('Meister: '+(n.acts[th]?n.acts[th].short:th));if(rank===1)badges.push('Champion-Banner');
     const tier0=n.tier||0;let tier1=tier0;if(rank<=2&&tier0<4)tier1++;else if(rank>=5&&tier0>0)tier1--;
     const potNext=was.cur>=.9?.18:was.cur<.5?.08:.12;
-    n.sreport={season:n.season,rank,pts:n.seasonPts,cur:was.cur,l0,l1:Math.round(30+70*clamp(n.base,0,1)),table:tbl,missions:n.seasonMissions||12,ach:Object.keys(n.ach).length,theme:th,len:SL(n),goal:n.sGoal||.85,goalOk,thOk,badges,areas,met,mOk,mDays:Math.min(n.mDays||0,n.mTarget||20),mTarget:n.mTarget||20,mArea:n.mArea,tier0,tier1,potNext,focus:n.sFocus};
+    {const lvE=pathLevel(n);if(lvE>(n.sLevel||0))applyPath(n,n.sLevel||0,lvE)}
+    n.sreport={season:n.season,rank,pts:n.seasonPts,cur:was.cur,l0,l1:Math.round(30+70*clamp(n.base,0,1)),table:tbl,missions:n.seasonMissions||12,ach:Object.keys(n.ach).length,theme:th,len:SL(n),goal:n.sGoal||.85,goalOk,thOk,badges,areas,met,mOk,mDays:Math.min(n.mDays||0,n.mTarget||20),mTarget:n.mTarget||20,mArea:n.mArea,tier0,tier1,potNext,focus:n.sFocus,level:n.sLevel||0};n.sreport.grade=gradeSeason(n.sreport);
     n.sHist=[{season:n.season,theme:th,len:SL(n),rank,pts:n.seasonPts,cur:was.cur,goal:n.sGoal||.85,ok:goalOk,badges},...(n.sHist||[])].slice(0,8);
     n.gear=[...(n.gear||[]),...badges.map(x=>x+' · S'+n.season)].slice(-12);
     n.tier=tier1;n.potOff=potNext;n.sThemePts=0;n.sAreaPts={};n.mDays=0;n.sLocked=false;n.setup=true;
     if(rank===1)n.flags.champ=true;if(was.cur>=.8)n.flags.improved=true;
-    n.missions.filter(m=>m.freq==='monthly').forEach(m=>delete n.done[m.id]);n.season++;n.baseCat={...n.catScore};n.snaps=[];n.seasonPts=0;OTH.forEach(o=>n.oSeason[o.id]=0);n.seasonCum=[0];n.rest=[];n.day=0;n.seasonMissions=0;n.flags.wasWide=false;
+    n.missions.filter(m=>m.freq==='monthly').forEach(m=>delete n.done[m.id]);n.season++;n.sLevel=0;n.pathUp=null;n.baseCat={...n.catScore};n.snaps=[];n.seasonPts=0;OTH.forEach(o=>n.oSeason[o.id]=0);n.seasonCum=[0];n.rest=[];n.day=0;n.seasonMissions=0;n.flags.wasWide=false;
    }else n.day++;
   }else n.day++;
   n.todayPts={};n.missions.filter(m=>m.freq==='daily'||m.freq==='multi').forEach(m=>delete n.done[m.id]);
