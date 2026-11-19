@@ -331,7 +331,7 @@ function initState(){
               {id:'c2',kind:'pb',metric:'Lesezeit (Min./Woche)',who:'lena',stake:10,deadline:6,status:'incoming',src:'Selbst gemeldet'}],
   ach:{first:true,streak7:true},newAch:[],flags:{wasWide:true},share:{fin:false,fit:false,focus:true,run5k:true,swim:true,bench:true,pull:true,read:true},
   pulse:0,aar:null,sreport:null,quoteIdx:0,
-  ui:'basic',tally:{...TALLY_ALL},sTally:{...TALLY_S},tallyDemo:true,wlog:{'4-0':{b:1,r:1,ps:3,pd:3,g:1},'4-1':{b:1,r:0,ps:3,pd:2,g:1}},brief:null,nextPrio:null,reviews:[],mxv:mxvDemo(),principles:PRINC_DEMO.map(x=>({...x})),tradition:'Stoizismus',mx:{},sugg:{},detail:{}};
+  ui:'basic',tally:{...TALLY_ALL},sTally:{...TALLY_S},tallyDemo:true,wlog:{'4-0':{b:1,r:1,ps:3,pd:3,g:1},'4-1':{b:1,r:0,ps:3,pd:2,g:1}},brief:null,nextPrio:null,reviews:[],mxv:mxvDemo(),principles:PRINC_DEMO.map(x=>({...x})),tradition:'Stoizismus',mx:{},sugg:{},detail:{},lastStory:{season:3,week:4,title:'Ein Herzschlag-Finale',lines:['Marcus gewinnt Spielwoche 4 mit 131 Punkten, nur 3 vor dir.','Lena macht 2 Plätze gut.','Du landest auf Platz 2, 3 Punkte hinter Marcus. Stärkster Bereich: Persönliche Disziplin.']}};
  return st;
 }
 /* ───── Berechnungen ───── */
@@ -929,6 +929,7 @@ function Home({c}){
    <div title=${fl.t} className="flex items-center gap-1 shrink-0 rounded-full px-2.5 py-1" style=${{background:fl.c+'1F',color:fl.c,boxShadow:`0 0 0 1px ${fl.c}44 inset`}}><${Icon} n="flame" s=${14}/><span className="num text-[13px] font-bold">${S.streak}</span><span className="sr-only">Tage Serie</span></div></div>
   <div className="relative grid grid-cols-3 gap-2 mt-4">${tiles.map(([ic,v,l,on,col,k])=>html`<button key=${l} onClick=${on} className="rounded-2xl p-3 text-left border-0" style=${{background:'var(--ghost)',boxShadow:'0 0 0 1px var(--line) inset'}}><span className="w-7 h-7 rounded-lg flex items-center justify-center" style=${{background:col+'22',color:col}}><${Icon} n=${ic} s=${15}/></span><span key=${k} className="num block text-[20px] font-bold ink mt-2 leading-none" style=${k?{animation:'pop .45s ease-out'}:null}>${v}</span><span className="block text-[10.5px] mute mt-1 tracking-wide uppercase">${l}</span></button>`)}</div></div>
  <${SeasonStrip} c=${c}/>
+ ${D.di===6&&html`<${Finale} c=${c}/>`}
  <${MountainCard} c=${c}/>
  <${Title} mt=${2} right=${html`<span className="flex items-center gap-1.5">${D.di===6&&html`<button onClick=${c.advance} className="chip on">Woche abschließen</button>`}<button onClick=${c.toggleRest} className=${`chip flex items-center gap-1 ${D.restToday?'on':''}`}><${Icon} n="moon" s=${12}/>${D.restToday?'Ruhetag aktiv':'Ruhetag'}</button></span>`}>Heute<//>
  <${DailyBriefing} key=${dayKey(S)} c=${c}/>
@@ -1016,17 +1017,45 @@ function Solo({c}){
  <${Ripple} c=${c}/>
  </div>`}
 /* ───── LIGA ───── */
+/* ───── Endspurt (Finaltag) & Wochen-Story ───── */
+const pad2=x=>String(x).padStart(2,'0');
+function weekStory(st,prev,wk,best){const me=st.find(r=>r.id==='me'),L=st[0],gap=st[0].pts-(st[1]?st[1].pts:0),who=r=>r.id==='me'?'dir':r.name;
+ const title=me.rank===1?(gap<=5?'Sieg in letzter Minute':'Deine Woche'):gap<=5?'Ein Herzschlag-Finale':L.name+' dominiert';
+ const lines=[me.rank===1?`Du gewinnst Spielwoche ${wk} mit ${me.pts} Punkten${gap<=5&&st[1]?`, nur ${gap} vor ${st[1].name}`:''}.`:`${L.name} gewinnt Spielwoche ${wk} mit ${L.pts} Punkten${gap<=5&&st[1]?`, nur ${gap} vor ${who(st[1])}`:''}.`];
+ const cl=prev?st.map(x=>({x,d:(prev[x.id]||x.rank)-x.rank})).sort((a,b)=>b.d-a.d)[0]:null;
+ if(cl&&cl.d>0)lines.push(cl.x.id==='me'?`Du machst ${cl.d} ${cl.d===1?'Platz':'Plätze'} gut.`:`${cl.x.name} macht ${cl.d} ${cl.d===1?'Platz':'Plätze'} gut.`);
+ else{const sp=st[0].pts-st[Math.min(2,st.length-1)].pts;lines.push(sp<=12?`Zwischen Platz 1 und 3 liegen nur ${sp} Punkte.`:`Zwischen Platz 1 und 3 liegen ${sp} Punkte.`)}
+ if(me.rank>1){const ab=st[me.rank-2];lines.push(`Du landest auf Platz ${me.rank}, ${ab.pts-me.pts} Punkte hinter ${ab.name}. Stärkster Bereich: ${best}.`)}else lines.push(`Stärkster Bereich: ${best}.`);
+ return{title,lines,rank:me.rank}}
+function Finale({c,big}){const {S,D}=c;const n=new Date(c.now),mid=new Date(n);mid.setHours(24,0,0,0);const ms=Math.max(0,mid-n),h=Math.floor(ms/36e5),m=Math.floor(ms%36e5/6e4),sec=Math.floor(ms%6e4/1e3);
+ const st=D.standings,me=D.me,ab=st[me.rank-2],be=st[me.rank];
+ const msg=ab?`${ab.pts-me.pts} Punkte bis Platz ${ab.rank} (${ab.name})`:`Du führst${be?`, ${me.pts-be.pts} Punkte vor ${be.name}`:''}`;
+ const rows=st.filter(x=>x.rank<=3||x.id==='me');
+ const room={};const pos=Math.round(D.allM.filter(x=>(x.freq==='daily'||x.freq==='multi')&&!isDone(S,x)).reduce((a,x)=>{const left=(S.acts[x.act].cap-(S.weekPts[x.act]||0))-(room[x.act]||0),g=Math.max(0,Math.min(left,x.pts*ptsMult(S,x)));room[x.act]=(room[x.act]||0)+g;return a+g},0));
+ const reach=ab&&ab.pts-me.pts<=pos;
+ return html`<div className="rounded-[24px] p-px mb-4" style=${{background:'linear-gradient(135deg,#FBBF24,#F97316 45%,rgba(139,92,246,.55))'}}><div className="rounded-[23px] p-4 relative overflow-hidden" style=${{background:'radial-gradient(120% 80% at 100% 0%,rgba(251,191,36,.18),transparent 60%),var(--card)'}}>
+ <div className="flex items-center justify-between"><div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full pulse-dot" style=${{background:'#F97316'}}/><span className="lbl" style=${{color:'#FBBF24'}}>Endspurt · Finaltag</span></div><span className="num text-[13px] font-bold" style=${{color:'#FBBF24'}} aria-label=${`Noch ${h} Stunden ${m} Minuten`}>noch ${h}:${pad2(m)}${big?':'+pad2(sec):''}</span></div>
+ <div className="disp text-[28px] mt-1.5 leading-none">Platz ${me.rank} · <${CountUp} v=${me.pts}/> Pkt.</div><div className="text-[12.5px] mute mt-1">${msg}</div>
+ <div className="mt-2 rounded-xl px-3 py-2 text-[12.5px] flex items-center gap-2" style=${{background:reach?'rgba(52,211,153,.12)':'var(--ghost)'}}><span style=${{color:reach?'var(--good)':'#FBBF24'}}><${Icon} n=${reach?'trend':'zap'} s=${15}/></span><span>${pos>0?html`Heute noch bis zu <b className="num">+${pos}</b> Punkte möglich.${reach?html` <b style=${{color:'var(--good)'}}>Platz ${ab.rank} ist erreichbar.</b>`:ab?' Jede Mission zählt für deinen Wochenscore.':''}`:'Alles erledigt. Jetzt entscheiden die anderen.'}</span></div>
+ ${big&&html`<div className="flex flex-col gap-1.5 mt-3">${rows.map(x=>{const isMe=x.id==='me';return html`<div key=${x.id} className="flex items-center gap-2.5 rounded-xl px-2.5 py-2" style=${{background:isMe?'rgba(139,92,246,.16)':'var(--ghost)'}}><span className="num font-bold w-4 text-[13px]">${x.rank}</span><${Av} m=${x} s=${24}/><span className="flex-1 text-[13px] font-medium">${isMe?'Du':x.name}</span><span className="num text-[11px] mute">${x.rank>1?'−'+(st[0].pts-x.pts):'führt'}</span><span className="num font-bold text-[14px] w-9 text-right"><${CountUp} v=${x.pts}/></span></div>`})}</div>
+  <div className="lbl mt-3 mb-1">Live</div>${S.feed.slice(0,3).map(f=>{const o=f.who==='me'?ME:OBY[f.who];return html`<div key=${f.id} className="flex items-center gap-2 text-[12px] py-1 rise"><span className="w-1.5 h-1.5 rounded-full" style=${{background:o.color}}/><span className="font-semibold">${f.who==='me'?'Du':o.name}</span><span className="mute flex-1 truncate">${f.text}</span><span className="num good font-semibold">+${f.pts}</span></div>`})}
+  <div className="text-[10.5px] mute mt-2">Gegnerpunkte laufen am Finaltag als Live-Simulation (Demo).</div>`}
+ ${!big&&html`<button onClick=${()=>c.setTab('league')} className="btn w-full py-3 mt-3 text-sm" style=${{background:'linear-gradient(135deg,#FBBF24,#EA580C)'}}>Zum Live-Finale</button>`}
+ </div></div>`}
+function StoryCard({s,sub}){return html`<div className="card p-4 mt-3" style=${{borderRadius:22}}><div className="flex items-center gap-2"><span className="acc"><${Icon} n="flag" s=${15}/></span><div className="lbl acc">${sub}</div></div><div className="disp text-[24px] mt-1.5 leading-none">${s.title}</div><div className="flex flex-col gap-1 mt-2">${s.lines.map((l,i)=>html`<div key=${i} className="text-[13px] leading-snug" style=${{color:i===0?'var(--ink)':'color-mix(in srgb,var(--mute) 85%,var(--ink))'}}>${l}</div>`)}</div></div>`}
 function League({c}){
  const {S,D,flash}=c;const [mode,setMode]=useState('pts');const st=D.standings;const ROW=68;const max=Math.max(...st.map(r=>r.pts),1);
  const above=st[D.me.rank-2];
  const ago=t=>{const x=Math.round((c.now-t)/1000);return x<10?'gerade eben':x<60?`vor ${x} Sek.`:`vor ${Math.round(x/60)} Min.`};
  const ch=S.challenges;
+ useEffect(()=>{if(D.di!==6)return;const t=setInterval(()=>c.simulate(true),12000);return()=>clearInterval(t)},[D.di]);
  return html`<div className="screen px-4 pb-6">
  <div className="pt-5"><div className="lbl">${TIERS[S.tier||0]}-Liga · Saison ${S.season}</div><h1 className="disp text-[40px] mt-1">Der Eiserne Kreis</h1></div>
  <div className="flex items-center justify-between gap-2 mt-2"><div className="text-[11px] mute flex items-center gap-1.5 min-w-0"><span className="w-1.5 h-1.5 rounded-full pulse-dot shrink-0" style=${{background:'var(--acc)'}}/><span>Gegner-Punkte sind simuliert (Demo).</span></div><button onClick=${c.simulate} className="chip flex items-center gap-1.5 shrink-0" style=${{color:'var(--acc2)',borderColor:'rgba(167,139,250,.4)'}}><${Icon} n="play" s=${12}/>Simulieren</button></div>
  <div className="card p-4 mt-3"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="lbl">Spielwoche ${D.week+1} von ${SL(S)}</div><div className="text-[15px] font-bold mt-0.5">${D.di===6?'Spieltag heute':`Noch ${6-D.di} Tage bis zur Auswertung`}</div><div className="text-[11.5px] mute mt-0.5">${phaseOf(S).n} · Wochenscore <b className="ink num">${weekScore(S,D).total}</b>/100 (vorläufig)</div></div>
   <div className="flex gap-1 flex-wrap justify-end shrink-0" style=${{maxWidth:SL(S)>4?'50%':'none'}}>${Array.from({length:SL(S)},(_,i)=>i).map(w=>html`<div key=${w} className=${(SL(S)>4?'w-5 h-5 rounded-md text-[9px]':'w-7 h-7 rounded-lg text-[10px]')+' flex items-center justify-center font-bold num'} style=${{background:w===D.week?'var(--acc)':'var(--ghost)',color:w===D.week?'#fff':w<D.week?'var(--good)':'var(--mute)'}}>${w<D.week?html`<${Icon} n="check" s=${14} sw=${3}/>`:(SL(S)>4?w+1:'W'+(w+1))}</div>`)}</div></div>
   <div className="flex justify-between mt-3">${DAYS.map((d,i)=>html`<div key=${d} className="flex flex-col items-center gap-1"><div className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-semibold" style=${{background:i===D.di?'var(--acc)':i<D.di?'var(--ghost)':'transparent',color:i===D.di?'#fff':'var(--mute)',border:i>D.di?'1px solid var(--line)':'none'}}>${i<D.di?html`<${Icon} n="check" s=${13} sw=${3}/>`:d}</div></div>`)}</div></div>
+ ${D.di===6?html`<div className="mt-3"><${Finale} c=${c} big=${true}/></div>`:S.lastStory&&html`<${StoryCard} s=${S.lastStory} sub=${`Spielbericht · Saison ${S.lastStory.season}, Woche ${S.lastStory.week}`}/>`}
  <${Title} right=${html`<span className="text-xs mute">Wochenpunkte</span>`}>Live-Tabelle<//>
  <div className="relative" style=${{height:ROW*st.length}}>${st.map(r=>{const isMe=r.id==='me';return html`<button key=${r.id} onClick=${()=>c.openSheet({t:'member',id:r.id})} className="absolute left-0 right-0 text-left bg-transparent border-0 p-0" style=${{height:ROW-8,transform:`translateY(${(r.rank-1)*ROW}px)`,transition:'transform .8s cubic-bezier(.2,.8,.2,1)'}}>
   <div className="card h-full flex items-center gap-3 px-3 relative overflow-hidden" style=${{borderRadius:18,borderColor:isMe?'rgba(139,92,246,.55)':'var(--line)',background:isMe?'linear-gradient(90deg,rgba(139,92,246,.18),var(--card))':'var(--card)'}}>
@@ -1568,6 +1597,7 @@ function Swap({c,sh}){const {S}=c;const o=S.acts[sh.out],i=S.acts[sh.inn];const 
  <div className="flex gap-2 mt-4"><button onClick=${c.closeSheet} className="ghost flex-1 py-3.5 text-sm font-semibold">Abbrechen</button><button onClick=${()=>c.doSwap(sh.out,sh.inn)} className="btn flex-[1.6] py-3.5 text-sm">Bestätigen</button></div></${Sheet}>`}
 function Aar({c}){const a=c.S.aar;
  return html`<${Sheet} sub=${`After Action Review · Woche ${a.week}`} title=${a.rank===1?'Spielwoche gewonnen':`Platz ${a.rank} in der Liga`} onClose=${c.dismissAar}>
+ ${a.story&&html`<div className="mb-3 -mt-1"><${StoryCard} s=${a.story} sub="Spielbericht"/></div>`}
  <div className="grid grid-cols-3 gap-2">${[[a.pts,'Punkte'],['#'+a.rank,'Rang'],[a.reached+' %','Planerfüllung']].map(([v,l])=>html`<div key=${l} className="card2 p-3 text-center"><div className="num text-xl font-bold">${v}</div><div className="text-[10px] mute">${l}</div></div>`)}</div>
  ${a.score&&html`<div className="card2 p-3.5 mt-3"><div className="flex items-center justify-between mb-2.5"><div className="lbl">Matchweek-Score${a.chapter?' · '+a.chapter:''}</div><div className="disp text-[24px]">${a.score.total}<span className="mute text-[14px]">/100</span></div></div><${ScoreBars} sc=${a.score}/></div>`}
  <div className="text-[13px] mt-4 flex flex-col gap-2.5"><div><span className="mute">Wochensieger:</span> <b>${a.leader}</b> <span className="num mute">(${a.leaderPts} Pkt.)</span></div><div><span className="mute">Stärkster Bereich:</span> <b>${a.best}</b></div><div><span className="mute">Missionen erledigt:</span> <b className="num">${a.done}</b></div>
@@ -2102,7 +2132,7 @@ function App({init,auth,skey='war_within_v5'}){
  const openSheet=o=>setSheet(o),closeSheet=()=>setSheet(null);
  /* Rang-Toasts */
  const pr=useRef(D.me.rank);
- useEffect(()=>{const p=pr.current;if(D.me.rank>p)toast(`${D.standings[D.me.rank-2].name} hat dich überholt: jetzt Platz ${D.me.rank}`,'warn');else if(D.me.rank<p)toast(`Du bist auf Platz ${D.me.rank} aufgestiegen!`,'good');pr.current=D.me.rank},[D.me.rank]);
+ useEffect(()=>{const p=pr.current;if(D.standings.every(x=>!x.pts)){pr.current=D.me.rank;return}if(D.me.rank>p)toast(`${D.standings[D.me.rank-2].name} hat dich überholt: jetzt Platz ${D.me.rank}`,'warn');else if(D.me.rank<p)toast(`Du bist auf Platz ${D.me.rank} aufgestiegen!`,'good');pr.current=D.me.rank},[D.me.rank]);
  useEffect(()=>{if(pathLevel(S)>(S.sLevel||0))upd(n=>{applyPath(n,n.sLevel||0,pathLevel(n))})},[]);
  useEffect(()=>{const u=S.pathUp;if(u&&u.ts>Date.now()-4000)toast(`Saison-Pfad Stufe ${u.lv}: ${u.got.join(', ')}`,'good')},[S.pathUp&&S.pathUp.ts]);
  /* Automatisch öffnende Berichte */
@@ -2207,9 +2237,9 @@ function App({init,auth,skey='war_within_v5'}){
  const setQuote=()=>upd(n=>{n.quoteIdx++});
  const resetDemo=()=>{try{localStorage.removeItem(skey)}catch(e){}setS(initState());setSheet(null);setSel(null);setTab('home');toast('Demo zurückgesetzt')};
  /* Liga */
- const simulate=()=>{const o=OTH[rnd(0,OTH.length-1)];const pts=[5,6,7,8,9,12][rnd(0,5)];
+ const simulate=quiet=>{const o=OTH[rnd(0,OTH.length-1)];const pts=[5,6,7,8,9,12][rnd(0,5)];
   upd(n=>{n.others[o.id]=Math.min(PLAN_CAP,n.others[o.id]+pts);n.oSeason[o.id]+=pts;n.feed.unshift({id:uid(),who:o.id,pts,text:`${o.lineup[rnd(0,2)]} erledigt (simuliert)`,t:Date.now()});n.feed=n.feed.slice(0,12)});
-  setFlash(f=>({...f,[o.id]:Date.now()}));toast(`${o.name} +${pts} Pkt. (simulierte Daten)`)};
+  setFlash(f=>({...f,[o.id]:Date.now()}));if(quiet!==true)toast(`${o.name} +${pts} Pkt. (simulierte Daten)`)};
  const createLeague=L=>{const code=Array.from({length:6},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]).join('');upd(n=>{n.leagues=n.leagues||[];n.leagues.unshift({id:'lg'+uid(),code,...L,created:Date.now()})});setSheet(null);toast(`Liga „${L.name}“ erstellt.`,'good')}
  const createChal=({kind,metric,who,stake,deadline})=>{const id='c'+uid();upd(n=>{n.challenges.unshift({id,kind,metric,who,stake,deadline,status:'pending',src:'Selbst gemeldet'})});setSheet(null);toast(`Herausforderung an ${OBY[who].name} gesendet.`,'good');
   setTimeout(()=>{upd(n=>{const c=n.challenges.find(x=>x.id===id);if(c&&c.status==='pending')c.status='active'});toast(`${OBY[who].name} hat angenommen (simuliert).`,'good')},2200)};
@@ -2235,7 +2265,7 @@ function App({init,auth,skey='war_within_v5'}){
    const st=standingsOf(n),me=st.find(r=>r.id==='me');recordWeek(n,me.rank);if(me.rank===1)n.flags.league=true;
    const lag=[...was.active].sort((a,b)=>(n.weekPts[a]||0)/n.acts[a].cap-(n.weekPts[b]||0)/n.acts[b].cap)[0];
    const bestA=[...was.active].sort((a,b)=>(n.weekPts[b]||0)/n.acts[b].cap-(n.weekPts[a]||0)/n.acts[a].cap)[0];
-   n.evalDone=false;n.aar={week:week+1,pts:weekTotal(n),rank:me.rank,leader:st[0].full,leaderPts:st[0].pts,best:n.acts[bestA].name,weak:n.acts[lag].name,reached:Math.round(weekTotal(n)/was.plan*100),done:was.doneN,score:weekScore(n,was),chapter:phaseOf(n).n};
+   n.evalDone=false;n.aar={week:week+1,pts:weekTotal(n),rank:me.rank,leader:st[0].full,leaderPts:st[0].pts,best:n.acts[bestA].name,weak:n.acts[lag].name,reached:Math.round(weekTotal(n)/was.plan*100),done:was.doneN,score:weekScore(n,was),chapter:phaseOf(n).n};n.aar.story=weekStory(st,n.lastWkRank,week+1,n.acts[bestA].name);n.lastStory={...n.aar.story,week:week+1,season:n.season};n.lastWkRank=Object.fromEntries(st.map(x=>[x.id,x.rank]));
    Object.keys(n.acts).forEach(k=>n.weekPts[k]=0);n.adj=0;n.subs=3;OTH.forEach(o=>n.others[o.id]=0);
    n.missions.filter(m=>m.freq==='weekly').forEach(m=>delete n.done[m.id]);n.counts={};
    if(week===SL(n)-1){
