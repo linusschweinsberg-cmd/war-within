@@ -69,6 +69,8 @@ input{font-family:inherit}
 .fab{box-shadow:0 10px 30px rgba(124,58,237,.55);animation:ringPulse 2.6s infinite}
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 @keyframes sway{0%,100%{transform:rotate(-1.1deg)}50%{transform:rotate(1.1deg)}}.tsw{transform-origin:200px 300px;animation:sway 7s ease-in-out infinite}
+@keyframes obInR{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:none}}@keyframes obInL{from{opacity:0;transform:translateX(-32px)}to{opacity:1;transform:none}}
+input[type=range]{accent-color:#8B5CF6}
 </style>
 </head>
 <body>
@@ -134,7 +136,10 @@ play:'<polygon points="6 3 20 12 6 21 6 3"/>',
 ff:'<polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/>',
 flag:'<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
 link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
-edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/>'
+edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+user:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/>',
+bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>'
 };
 function Icon({n,s=20,cls='',sw=1.8,style}){return html`<svg width=${s} height=${s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth=${sw} strokeLinecap="round" strokeLinejoin="round" className=${cls} style=${style} dangerouslySetInnerHTML=${{__html:IC[n]||''}}/>`}
 /* ───── Stammdaten ───── */
@@ -288,7 +293,7 @@ const FREQ={daily:'Täglich',multi:'Mehrmals pro Woche',weekly:'Wöchentlich',mo
 const freqLabel=m=>m.freq==='multi'?`${m.times}× pro Woche`:FREQ[m.freq]||'Täglich';
 const planWeek=S=>Math.round(.85*Object.keys(S.acts).reduce((s,id)=>s+S.acts[id].cap,0));
 function standingsOf(S){
- const rows=[{...ME,pts:weekTotal(S),season:S.seasonPts,rating:Math.round(30+70*clamp(S.base+1.4*S.seasonPts/(planWeek(S)*SL(S)),0,1))},...OTH.map(o=>({...o,pts:S.others[o.id],season:S.oSeason[o.id]}))];
+ const rows=[{...ME,full:(S.profile&&S.profile.name)||ME.full,pts:weekTotal(S),season:S.seasonPts,rating:Math.round(30+70*clamp(S.base+1.4*S.seasonPts/(planWeek(S)*SL(S)),0,1))},...OTH.map(o=>({...o,pts:S.others[o.id],season:S.oSeason[o.id]}))];
  rows.sort((a,b)=>b.pts-a.pts||(a.id==='me'?-1:1));rows.forEach((r,i)=>r.rank=i+1);return rows}
 function derive(S){
  const di=S.day%7,week=Math.floor(S.day/7),plan=planWeek(S),seasonPlan=plan*SL(S);
@@ -317,7 +322,7 @@ function recordWeek(S,rank){
  const snapshot={season:S.season,week,day:S.day,pts:weekTotal(S),rank,cats:{...S.catScore},streak:S.streak,areas:{...S.weekPts},savedAt:new Date().toISOString()};
  S.weekHist=[...(S.weekHist||[]).filter(w=>w.season!==S.season||w.week!==week),snapshot];
 }
-function loadState(){try{const r=localStorage.getItem('war_within_v5');if(r){const s=JSON.parse(r);if(s&&s.v===5){const d=JSON.parse(JSON.stringify(SEASON_DEF));Object.keys(d).forEach(k=>{if(s[k]===undefined)s[k]=d[k]});
+function loadState(key='war_within_v5'){try{const r=localStorage.getItem(key);if(r){const s=JSON.parse(r);if(s&&s.v===5){const d=JSON.parse(JSON.stringify(SEASON_DEF));Object.keys(d).forEach(k=>{if(s[k]===undefined)s[k]=d[k]});
    if(s.acts&&!s.acts.read)s.acts.read=JSON.parse(JSON.stringify(ACT0.read));
    if(s.weekPts&&s.weekPts.read===undefined)s.weekPts.read=0;
    if(s.bench)s.bench=s.bench.filter(x=>x!=='read');
@@ -658,6 +663,7 @@ function Home({c}){
   <div className="flex items-center gap-2">
    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full card text-[13px] font-semibold" style=${{borderRadius:999}}><${Icon} n="flame" s=${15} cls="acc"/><span className="num">${S.streak}</span></div>
    <button aria-label="Hell/Dunkel wechseln" onClick=${c.toggleTheme} className="w-9 h-9 rounded-full card flex items-center justify-center" style=${{borderRadius:999}}><${Icon} n=${S.theme==='dark'?'sun':'moon'} s=${17}/></button>
+   <button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-bold text-white border-0" style=${{background:'linear-gradient(135deg,#A78BFA,#5B21B6)'}}>${((S.profile&&S.profile.name)||(c.auth&&c.auth.session&&c.auth.session.name)||'?').trim().slice(0,1).toUpperCase()||'?'}</button>
    <button aria-label="Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="w-9 h-9 rounded-full card flex items-center justify-center" style=${{borderRadius:999}}><${Icon} n="sliders" s=${17}/></button></div></div>
  ${S.setup&&html`<button onClick=${()=>c.openSheet({t:'newseason'})} className="btn w-full py-3 mb-3 text-sm">Neue Saison einrichten</button>`}
  <div className="flex justify-between mb-4 px-0.5">${DAYS.map((x,i)=>{const today=i===D.di,past=i<D.di,p=today?(D.allM.length?D.doneN/D.allM.length:0):past?1:0;return html`<div key=${x} className="flex flex-col items-center gap-1.5 py-2 px-1.5 rounded-[18px]" style=${{background:today?'var(--card2)':'transparent',minWidth:42}}><span className="text-[12px] font-semibold" style=${{color:today?'var(--ink)':'var(--mute)'}}>${x}</span><${Ring} pct=${p} size=${28} stroke=${4} color=${today?'var(--acc2)':'var(--good)'}/></div>`})}</div>
@@ -1149,6 +1155,7 @@ function Integ({c}){const S=c.S;return html`<${Sheet} sub="Zukunft" title="Integ
 function Settings({c}){const {S}=c;
  return html`<${Sheet} sub="Einstellungen & Demo" title="Optionen" onClose=${c.closeSheet}>
  <div className="flex flex-col gap-2">
+ <button onClick=${()=>c.openSheet({t:'account'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="user" s=${18} cls="acc"/>Konto & Profil</button>
  <button onClick=${()=>c.openSheet({t:'catalog'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="info" s=${18} cls="acc"/>Punkte-Katalog ansehen</button>
  <button onClick=${c.simComeback} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="moon" s=${18} cls="acc"/>Rückfall-Modus simulieren (Demo)</button>
  <button onClick=${c.toggleTheme} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n=${S.theme==='dark'?'sun':'moon'} s=${18} cls="acc"/>${S.theme==='dark'?'Helles Design aktivieren':'Dunkles Design aktivieren'}</button>
@@ -1235,23 +1242,441 @@ function SheetHost({c}){
   case'achs':b=html`<${Achs} c=${c}/>`;break;
   case'integ':b=html`<${Integ} c=${c}/>`;break;
   case'settings':b=html`<${Settings} c=${c}/>`;break;
+  case'account':b=html`<${Account} c=${c}/>`;break;
   case'swap':b=html`<${Swap} c=${c} sh=${sh}/>`;break;
   case'aar':b=html`<${Aar} c=${c}/>`;break;
   case'season':b=html`<${SeasonRep} c=${c}/>`;break;
  }
  const lock=sh.t==='aar'||sh.t==='season';
  return html`<div className="absolute inset-0 z-50 flex items-end" style=${{background:'rgba(0,0,0,.55)',animation:'fadeIn .2s'}} onClick=${()=>{if(!lock)c.closeSheet()}}><div className="sheet w-full rounded-t-[28px] p-5 pb-8 max-h-[90%] overflow-y-auto border-t ln" style=${{background:'var(--bg2)'}} onClick=${e=>e.stopPropagation()}><div className="w-10 h-1 rounded-full mx-auto mb-4" style=${{background:'var(--line)'}}/>${b}</div></div>`}
+/* ───── KONTO, ANMELDUNG & ONBOARDING ───── */
+/* Auth-Schnittstelle. DEMO: Nichts verlässt das Gerät, Passwörter werden weder geprüft noch gespeichert.
+   Für Supabase nur diese Funktionen ersetzen:
+   signUp        → supabase.auth.signUp({email,password,options:{data:{name},emailRedirectTo:location.origin}})  (E-Mail-Bestätigung)
+   signIn        → supabase.auth.signInWithPassword({email,password})
+   resetPassword → supabase.auth.resetPasswordForEmail(email,{redirectTo})
+   signOut       → supabase.auth.signOut()
+   Profil, Onboarding-Daten und Spielstand gehören dann in eine Tabelle pro Nutzer (Row Level Security). */
+const AUTH_KEY='war_within_auth_v1';
+/* Getrennte Spielstände: Gast nutzt den bisherigen Demo-Stand, das (Demo-)Konto einen eigenen. */
+const GUEST_KEY='war_within_v5',ACC_KEY='war_within_acc_v1';
+const authApi={
+ demo:true,
+ async signUp({name,email}){return{user:{name,email},needsVerification:false}},
+ async signIn({email},account){if(!account||account.email.toLowerCase()!==email.trim().toLowerCase())throw new Error('Auf diesem Gerät gibt es kein Demo-Konto mit dieser E-Mail. Registriere dich zuerst oder fahre als Gast fort.');return{user:account}},
+ async resetPassword(){return{sent:false}},
+ async signOut(){}};
+const loadAuth=()=>{try{const r=localStorage.getItem(AUTH_KEY);if(r){const a=JSON.parse(r);if(a&&typeof a==='object')return a}}catch(e){}return{session:null,account:null,onboarded:false,ob:null}};
+const saveAuth=a=>{try{localStorage.setItem(AUTH_KEY,JSON.stringify(a))}catch(e){}};
+const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const guessTz=()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||'Europe/Berlin'}catch(e){return'Europe/Berlin'}};
+const TZS=['Europe/Berlin','Europe/Vienna','Europe/Zurich','Europe/London','Europe/Paris','Europe/Madrid','Europe/Istanbul','America/New_York','America/Chicago','America/Los_Angeles','Asia/Dubai','Asia/Tokyo','Australia/Sydney','UTC'];
+const AGES=['unter 18','18–24','25–34','35–44','45–54','55+'];
+const OB_CATS=[
+ {id:'fit',name:'Fitness & Gesundheit',icon:'dumbbell',q:'Wie zufrieden bist du mit deinen Trainings- und Gesundheitsgewohnheiten?'},
+ {id:'fin',name:'Finanzen',icon:'wallet',q:'Wie zufrieden bist du mit deinem Umgang mit Geld?'},
+ {id:'intel',name:'Intellektuelle Entwicklung',icon:'book',q:'Wie zufrieden bist du damit, wie regelmäßig du lernst?'},
+ {id:'career',name:'Karriere & Business',icon:'briefcase',q:'Wie zufrieden bist du mit deinem beruflichen Vorankommen?'},
+ {id:'time',name:'Zeitmanagement',icon:'clock',q:'Wie zufrieden bist du damit, wie du deine Zeit nutzt?'},
+ {id:'rel',name:'Beziehungen',icon:'heart',q:'Wie zufrieden bist du mit der Zeit für Menschen, die dir wichtig sind?'},
+ {id:'rec',name:'Schlaf & Erholung',icon:'moon',q:'Wie zufrieden bist du mit deinem Schlaf und deiner Erholung?'},
+ {id:'char',name:'Charakter & Disziplin',icon:'shield',q:'Wie zufrieden bist du damit, wie konsequent du deine Vorsätze umsetzt?'}];
+const OBC=Object.fromEntries(OB_CATS.map(x=>[x.id,x]));
+const SAT_L=['','Gar nicht','Wenig','Teils','Ziemlich','Sehr'];
+const GP=[
+ {t:'Körperlich fitter werden',cat:'fit',kind:'fit',unit:'Trainings',target:36},
+ {t:'5 km unter 25 Minuten laufen',cat:'fit',kind:'pace',unit:'Läufe',target:24},
+ {t:'€5.000 sparen',cat:'fin',kind:'save',unit:'€',target:5000},
+ {t:'12 Bücher lesen',cat:'intel',kind:'read',unit:'Bücher',target:12},
+ {t:'Ein Business aufbauen',cat:'career',kind:'biz',unit:'Kunden',target:10},
+ {t:'Zeitmanagement verbessern',cat:'time',kind:'focus',unit:'Fokus-Std.',target:100},
+ {t:'Stärkere Beziehungen aufbauen',cat:'rel',kind:'rel',unit:'Treffen',target:24},
+ {t:'Besser schlafen',cat:'rec',kind:'sleep',unit:'Nächte mit 7+ h',target:60},
+ {t:'Disziplin aufbauen',cat:'char',kind:'disc',unit:'Tage',target:60}];
+/* [key,label,unit,typ,istMesswert] – Messwerte bekommen Schätzung/Verifiziert */
+const STAT_DEF={
+ fit:[['run5k','5-km-Zeit (optional)','mm:ss','time',true],['bench','Bankdrücken-Rekord (optional)','kg','num',true],['trainFreq','Trainings pro Woche (Ziel)','× / Woche','num',false]],
+ fin:[['saveMonthly','Monatliches Sparziel','€','num',false],['savedNow','Bereits gespart für dein Ziel (optional)','€','num',true]],
+ intel:[['studyWeekly','Lernzeit pro Woche (Ziel)','Std.','num',false],['project','Aktuelles Lernprojekt (optional)','','text',false]],
+ time:[['focusWeekly','Fokus-Arbeit pro Woche (Ziel)','Std.','num',false]]};
+const parseT=s=>{const m=/^(\d{1,3}):([0-5]\d)$/.exec((s||'').trim());return m?(+m[1])*60+(+m[2]):null};
+/* Missions-Bausteine für den ersten Schlachtplan */
+const MP={
+ train:{act:'body',sub:'Training',title:'Training absolvieren',pts:8,freq:'multi',times:3,log:'lift'},
+ walk:{act:'body',sub:'Bewegung',title:'8.000 Schritte gehen',pts:3,freq:'multi',times:4},
+ run:{act:'run',title:'Lauf absolvieren',pts:7,freq:'multi',times:2,log:'run'},
+ spend:{act:'fin',sub:'Überblick',title:'Ausgaben der Woche prüfen',pts:6,freq:'weekly'},
+ save:{act:'fin',sub:'Sparen',title:'Sparbetrag zurücklegen',pts:8,freq:'weekly',log:'save'},
+ rel:{act:'rel',sub:'Zeit füreinander',title:'Zeit mit jemand Wichtigem verbringen',pts:5,freq:'multi',times:2},
+ call:{act:'rel',sub:'Kontakt',title:'Jemanden anrufen, der dir wichtig ist',pts:4,freq:'weekly'},
+ hard:{act:'disc',sub:'Überwinden',title:'Das Aufgeschobene zuerst erledigen',pts:6,freq:'daily'},
+ ref:{act:'disc',sub:'Reflexion',title:'Abendreflexion (2 Minuten)',pts:3,freq:'daily'},
+ sleep:{act:'rec',sub:'Schlaf',title:'7+ Stunden schlafen',pts:4,freq:'daily'},
+ wind:{act:'rec',sub:'Abschalten',title:'30 Min. ohne Bildschirm entspannen',pts:3,freq:'multi',times:3},
+ read:{act:'read',title:'15 Minuten lesen',pts:4,freq:'daily',log:'read'},
+ study:{act:'lang',title:'20 Min. am Lernprojekt',pts:5,freq:'multi',times:3,log:'study'},
+ focus:{act:'deep',title:'Ein Fokusblock (60 Min.) pro Werktag',pts:9,freq:'multi',times:5,log:'focus'},
+ biz:{act:'biz',title:'Eine Stunde an Karriere oder Business',pts:7,freq:'multi',times:3}};
+const MID={train:'m_train',walk:'m_walk',run:'m_run',sleep:'m_sleep',read:'m_read',focus:'m_focus'};
+const sv=(ob,k)=>ob.stats&&ob.stats[k]?ob.stats[k].v:null;
+function genMissions(ob){
+ const has=k=>ob.pri.includes(k),out=[];const add=(k,o={})=>{if(!out.some(m=>m.k===k))out.push({k,...MP[k],...o})};
+ const tf=+sv(ob,'trainFreq')||0,mon=+sv(ob,'saveMonthly')||0,fw=+sv(ob,'focusWeekly')||0,pj=(sv(ob,'project')||'').trim();
+ add('train',{times:clamp(Math.round(tf)||(has('fit')?3:2),1,6)});
+ if(has('fit'))add('walk');
+ if(has('fit')&&(ob.goals.some(g=>g.kind==='pace')||sv(ob,'run5k')))add('run');
+ add('spend');if(has('fin'))add('save',mon?{title:`€${Math.max(5,Math.round(mon/4.33))} zurücklegen`}:{});
+ if(has('rel'))add('rel');else add('call');
+ add(has('char')?'hard':'ref');if(has('char'))add('ref');
+ add('sleep');if(has('rec'))add('wind');
+ if(has('intel')){add('read');if(pj)add('study',{title:`20 Min.: ${pj}`})}
+ if(has('time'))add('focus',fw?{times:clamp(Math.round(fw),1,7),title:fw>=5?'Ein Fokusblock (60 Min.) pro Werktag':'Fokusblock (60 Min.)'}:{});
+ if(has('career'))add('biz');
+ return out}
+const perWeek=ms=>ms.reduce((a,m)=>a+(m.freq==='daily'?7:m.freq==='multi'?(m.times||1):m.freq==='weekly'?1:.25),0);
+function devLineup(ob,missions){
+ const L=[];const push=a=>{if(a&&!L.includes(a)&&L.length<3)L.push(a)};
+ const uses=a=>missions.some(m=>m.act===a);
+ ob.pri.forEach(p=>{if(p==='intel'){push('read');if(uses('lang'))push('lang')}if(p==='career')push('biz');if(p==='time')push('deep');if(p==='fit'&&uses('run'))push('run')});
+ missions.forEach(m=>{if(!CORE.includes(m.act))push(m.act)});
+ ['deep','read','run'].forEach(push);return L}
+const newOb=name=>({step:0,dir:1,name:name||'',age:'',units:'metric',tz:guessTz(),pri:[],sat:{},goals:[],stats:{},missions:null,mKey:''});
+const satOf=(ob,id)=>ob.sat[id]||3;
+function vSelf(ob){const ids=ob.pri.length?ob.pri:['fit','rec','fin'];const avg=ids.reduce((a,id)=>a+satOf(ob,id),0)/ids.length;const cur=clamp(.15+.5*(avg-1)/4,.12,.7);return{cur,pot:clamp(cur+.22,0,.95)}}
+function obMilestones(ob){
+ const ms=ob.missions||[],pw=Math.round(perWeek(ms)),g=ob.goals[0];
+ const tr=(ms.find(m=>m.k==='train')||{}).times||0,sm=ms.find(m=>m.k==='save'),mon=+sv(ob,'saveMonthly')||0;
+ return[
+  `Rhythmus finden: rund ${pw} Aufgaben pro Woche`,
+  g?`Erster messbarer Schritt Richtung „${g.t}“`:'Zwei Wochen am Stück dabeigeblieben',
+  sm&&mon?`Etwa ${eur(Math.round(mon/4.33)*3)} zurückgelegt`:tr?`Rund ${tr*3} Trainings absolviert`:'Erste Wochen-Evaluation abgeschlossen',
+  'Saison 1 abschließen und ehrlich Bilanz ziehen']}
+function goalObj(g,ob){
+ const weeks=g.deadline?Math.max(1,Math.ceil((new Date(g.deadline)-Date.now())/6048e5)):26;
+ const tgt=Math.max(1,+g.target||1);const ms=[...new Set([.25,.5,.75,1].map(f=>Math.max(1,Math.round(tgt*f))))];
+ const tf=+sv(ob,'trainFreq')||3;
+ const W={save:[`${eur(Math.ceil(tgt/weeks))} zurücklegen`,['Ausgaben prüfen','Unnötigen Kauf vermeiden']],read:['ca. 2 Std. lesen',['15 Min. lesen']],pace:['2–3 Läufe',['Lauf oder Mobility']],fit:[`${tf} Trainings`,['Training oder aktive Erholung']],biz:['3 Stunden am Business',['Eine konkrete Aufgabe erledigen']],focus:['5 Fokusblöcke',['Wichtigste Aufgabe zuerst']],rel:['Ein bewusstes Treffen',['Bei jemandem melden']],sleep:['Feste Schlafenszeit',['30 Min. vorher Bildschirme aus']],disc:['Jeden Tag das Unbequeme zuerst',['Wichtigste Aufgabe zuerst']]}[g.kind]||['Regelmäßig dranbleiben',['Ein kleiner Schritt']];
+ return{id:'g'+uid(),title:g.t,kind:g.kind==='custom'?'custom':g.kind,unit:g.unit||'Schritte',now:0,target:tgt,weeks,deadline:g.deadline||null,ms,weekly:W[0],daily:W[1]}}
+/* Baut aus dem Onboarding einen frischen, persönlichen Spielstand (Saison 1, Tag 1) */
+function buildState(ob,session){
+ const s=initState();const has=k=>ob.pri.includes(k);
+ const missions=ob.missions&&ob.missions.length?ob.missions:genMissions(ob);
+ const lineup=devLineup(ob,missions);
+ const acts=JSON.parse(JSON.stringify(ACT0));delete acts.code;
+ const pj=(sv(ob,'project')||'').trim();
+ if(pj){acts.lang.name=pj;acts.lang.short=pj.length>11?pj.slice(0,10)+'…':pj;acts.lang.target='20 Min., 3× pro Woche'}else{acts.lang.name='Neues lernen';acts.lang.short='Lernen'}
+ if(!has('career')&&!lineup.includes('biz')&&!missions.some(m=>m.act==='biz'))delete acts.biz;else{acts.biz.name='Karriere & Business';acts.biz.short='Karriere'}
+ const coreCat={body:'fit',fin:'fin',rel:'rel',disc:'char',rec:'rec'};
+ Object.values(acts).forEach(a=>{const sc=satOf(ob,a.cat==='goals'?'fit':a.cat);a.rating=Math.round(40+sc*7)});
+ CORE.forEach(id=>{acts[id].rating=Math.round(40+satOf(ob,coreCat[id])*7)});
+ const cat={};CATS0.forEach(x=>{cat[x.id]=OBC[x.id]?Math.round(20+(satOf(ob,x.id)-1)*15):x.id==='goals'?40:30});
+ const weekPts=Object.fromEntries(Object.keys(acts).map(k=>[k,0]));
+ const theme={fit:'body',fin:'fin',rel:'rel',rec:'rec'}[ob.pri[0]]||'disc';
+ const st=JSON.parse(JSON.stringify(s.stats));
+ const r5=parseT(sv(ob,'run5k'));if(r5){st.run5k={pr:r5,last:r5,hist:Array(8).fill(r5)}}
+ const bRaw=+sv(ob,'bench');if(bRaw>0){const kg=Math.round((ob.units==='imperial'?bRaw*.4536:bRaw)*10)/10;if(ob.stats.bench.src==='ver'){st.bench.ver=kg;st.bench.hist=Array(8).fill(kg)}else st.bench.est=kg}
+ const mon=+sv(ob,'saveMonthly')||0,saved=+sv(ob,'savedNow')||0;
+ const saveGoal=ob.goals.find(g=>g.kind==='save');
+ const save={saved,weekly:mon?Math.max(5,Math.round(mon/4.33)):s.save.weekly,target:mon?Math.max(5,Math.round(mon/4.33)):s.save.target,goal:saveGoal?Math.max(1,+saveGoal.target):s.save.goal,hist:Array(8).fill(saved)};
+ const sw=+sv(ob,'studyWeekly')||0;
+ const startStats=[];Object.entries(STAT_DEF).forEach(([c,list])=>list.forEach(([k,l,u,t,meas])=>{const x=ob.stats[k];if(x&&x.v!==null&&x.v!==''&&x.v!==undefined)startStats.push({k,label:l.replace(' (optional)','').replace(' (Ziel)',''),v:x.v,unit:k==='bench'&&ob.units==='imperial'?'lb':u==='mm:ss'?'':u,src:meas?(x.src||'est'):'target'})}));
+ const others=Object.fromEntries(OTH.map(o=>[o.id,0]));
+ const n={...s,acts,catScore:cat,baseCat:{...cat},weekPts,todayPts:{},day:0,season:1,rest:[],streak:0,bestStreak:0,seasonPts:0,adj:0,base:.3,
+  lineup,bench:Object.keys(acts).filter(k=>!CORE.includes(k)&&!lineup.includes(k)),subs:3,
+  missions:missions.map(m=>{const {k,...r}=m;return{...r,id:MID[k]&&!missions.some(o=>o!==m&&MID[o.k]===MID[k])?MID[k]:'m_'+k+'_'+uid()}}),
+  done:{},counts:{},seasonCum:[0],others,oSeason:{...others},weekHist:[],hist:[],snaps:[],sHist:[],gear:[],evalHist:[],codeCk:{},qLog:[],
+  feed:[],events:[],challenges:[],leagues:[],ach:{},newAch:[],flags:{},pulse:0,aar:null,sreport:null,
+  sTheme:theme,mArea:theme,mDays:0,mTarget:20,sLen:4,sGoal:.7,sFocus:'Kleine Schritte, jeden Tag',sSigned:{season:1,t:'Kleine Schritte, jeden Tag'},sAreaPts:{},sThemePts:0,sAreaGoals:Object.fromEntries(CORE.map(id=>[id,.7])),
+  setup:false,sLocked:true,evalDone:false,freezes:1,tier:0,potOff:.12,
+  stats:st,save,study:{hours:0,weekly:sw||s.study.weekly,target:sw||s.study.target},
+  goals:ob.goals.map(g=>goalObj(g,ob)),
+  profile:{name:ob.name.trim()||session.name||'Du',email:session.email||null,mode:session.mode,ageRange:ob.age||null,units:ob.units,tz:ob.tz,priorities:[...ob.pri],sat:{...ob.sat},startStats,notif:{daily:true,weekly:true,nemesis:true,time:'08:00'},createdAt:new Date().toISOString()}};
+ n.startRank=Object.fromEntries(standingsOf(n).map(r=>[r.id,r.rank]));
+ return n}
+
+/* ───── Bausteine ───── */
+function Shell({theme,children}){return html`<div data-theme=${theme} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(139,92,246,.12)'}}>
+ <div className="absolute inset-0 pointer-events-none overflow-hidden"><div className="absolute rounded-full" style=${{top:-120,left:-90,width:320,height:320,background:'rgba(139,92,246,.22)',filter:'blur(80px)'}}/><div className="absolute rounded-full" style=${{bottom:-140,right:-100,width:300,height:300,background:'rgba(109,40,217,.16)',filter:'blur(90px)'}}/></div>${children}</div>`}
+function Logo({s=56}){return html`<div className="rounded-[22%] flex items-center justify-center" style=${{width:s,height:s,background:'linear-gradient(135deg,#A78BFA,#5B21B6)',boxShadow:'0 12px 40px rgba(124,58,237,.45)'}}><${Icon} n="shield" s=${s*.52} sw=${2.2} cls="text-white"/></div>`}
+function Field({id,label,type='text',value,on,err,auto,hint,ph,max}){
+ return html`<div className="mb-3.5"><label htmlFor=${id} className="lbl block mb-1.5">${label}</label>
+ <input id=${id} type=${type} className="inp" value=${value} placeholder=${ph||''} maxLength=${max||120} onChange=${e=>on(e.target.value)} autoComplete=${auto||'off'} aria-invalid=${err?'true':'false'} aria-describedby=${err?id+'-e':hint?id+'-h':undefined} style=${err?{borderColor:'var(--bad)'}:null}/>
+ ${err?html`<div id=${id+'-e'} role="alert" className="text-[11.5px] mt-1" style=${{color:'var(--bad)'}}>${err}</div>`:hint?html`<div id=${id+'-h'} className="text-[11px] mute mt-1">${hint}</div>`:null}</div>`}
+function DemoNote({children}){return html`<div className="card2 p-3 text-[11.5px] leading-relaxed flex gap-2.5" style=${{border:'1px solid rgba(251,191,36,.35)',background:'rgba(251,191,36,.07)'}}><span className="text-[10px] font-bold tracking-wider shrink-0 mt-0.5" style=${{color:'#FBBF24'}}>DEMO</span><span className="mute">${children||'Kein echtes Konto: Passwörter werden weder geprüft noch gespeichert. Profil und Fortschritt bleiben nur auf diesem Gerät.'}</span></div>`}
+function SrcPick({v,on}){return html`<div className="flex gap-1.5 -mt-1.5 mb-3.5" role="radiogroup" aria-label="Herkunft des Werts">${[['est','Schätzung'],['ver','Verifiziert']].map(([k,l])=>html`<button key=${k} type="button" role="radio" aria-checked=${v===k?'true':'false'} onClick=${()=>on(k)} className=${`chip ${v===k?'on':''}`} style=${{padding:'4px 11px',fontSize:11}}>${l}</button>`)}</div>`}
+function SrcBadge({src}){const m={ver:['Verifiziert','var(--good)'],est:['Schätzung','#FBBF24'],target:['Ziel','var(--acc2)']}[src]||['–','var(--mute)'];return html`<span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style=${{color:m[1],border:'1px solid currentColor'}}>${m[0]}</span>`}
+function PriPicker({pri,on,max=5}){
+ const tog=id=>on(pri.includes(id)?pri.filter(x=>x!==id):pri.length>=max?pri:[...pri,id]);
+ const mv=(i,d)=>{const n=[...pri];const j=i+d;if(j<0||j>=n.length)return;[n[i],n[j]]=[n[j],n[i]];on(n)};
+ return html`<div><div className="grid grid-cols-2 gap-2.5">${OB_CATS.map(x=>{const r=pri.indexOf(x.id),sel=r>=0;return html`<button key=${x.id} type="button" aria-pressed=${sel?'true':'false'} onClick=${()=>tog(x.id)} className="relative text-left p-3.5 rounded-[18px] transition-all" style=${{background:sel?'linear-gradient(160deg,rgba(139,92,246,.28),rgba(139,92,246,.08))':'var(--card)',border:`1px solid ${sel?'var(--acc)':'var(--line)'}`,transform:sel?'translateY(-1px)':'none',boxShadow:sel?'0 8px 24px rgba(124,58,237,.25)':'none'}}>
+  <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-2.5" style=${{background:sel?'var(--acc)':'var(--ghost)',color:sel?'#fff':'var(--acc2)'}}><${Icon} n=${x.icon} s=${18}/></div>
+  <div className="text-[13px] font-semibold leading-tight">${x.name}</div>
+  ${sel&&html`<span className="num absolute top-2.5 right-2.5 w-6 h-6 rounded-full text-[12px] font-bold flex items-center justify-center" style=${{background:'#fff',color:'#5B21B6'}}>${r+1}</span>`}</button>`})}</div>
+ ${pri.length>1&&html`<div className="lbl mt-4 mb-1.5">Deine Rangfolge</div><div className="flex flex-col gap-1.5">${pri.map((id,i)=>html`<div key=${id} className="card2 px-3 py-2 flex items-center gap-2.5"><span className="num acc font-bold w-4">${i+1}</span><span className="flex-1 text-[13px] font-medium">${OBC[id].name}</span>
+  <button type="button" aria-label=${OBC[id].name+' nach oben'} disabled=${i===0} onClick=${()=>mv(i,-1)} className="ghost w-8 h-8 flex items-center justify-center disabled:opacity-30"><${Icon} n="up" s=${15}/></button>
+  <button type="button" aria-label=${OBC[id].name+' nach unten'} disabled=${i===pri.length-1} onClick=${()=>mv(i,1)} className="ghost w-8 h-8 flex items-center justify-center disabled:opacity-30"><${Icon} n="up" s=${15} style=${{transform:'rotate(180deg)'}}/></button></div>`)}</div>`}</div>`}
+
+/* ───── Willkommen, Registrierung, Login ───── */
+function AuthFlow({A,set,theme}){
+ const [v,setV]=useState('welcome');const [f,setF]=useState({name:'',email:A.account?A.account.email:'',pw:'',pw2:''});const [tried,setTried]=useState(false);const [err,setErr]=useState('');const [msg,setMsg]=useState('');const [busy,setBusy]=useState(false);
+ const F=k=>x=>setF(p=>({...p,[k]:x}));const go=x=>{setV(x);setTried(false);setErr('');setMsg('');setF(p=>({...p,pw:'',pw2:''}))};
+ const E={name:f.name.trim().length<2?'Bitte gib einen Namen mit mindestens 2 Zeichen ein.':'',email:!EMAIL_RE.test(f.email.trim())?'Bitte gib eine gültige E-Mail-Adresse ein.':'',pw:v==='signup'?(f.pw.length<8?'Mindestens 8 Zeichen.':''):(!f.pw?'Bitte gib dein Passwort ein.':''),pw2:f.pw2!==f.pw?'Die Passwörter stimmen nicht überein.':''};
+ const e=k=>tried?E[k]:'';
+ const signup=async ev=>{ev.preventDefault();setTried(true);if(E.name||E.email||E.pw||E.pw2)return;setBusy(true);
+  try{const r=await authApi.signUp({name:f.name.trim(),email:f.email.trim(),password:f.pw});const user={name:r.user.name,email:r.user.email};set(()=>({account:user,session:{mode:'demo',...user},onboarded:false,ob:newOb(user.name)}))}catch(x){setErr(x.message)}setBusy(false)};
+ const login=async ev=>{ev.preventDefault();setTried(true);if(E.email||E.pw)return;setBusy(true);setErr('');
+  try{const r=await authApi.signIn({email:f.email,password:f.pw},A.account);set(p=>({session:{mode:'demo',...r.user},ob:p.onboarded?null:(p.ob||newOb(r.user.name))}))}catch(x){setErr(x.message)}setBusy(false)};
+ const forgot=async ev=>{ev.preventDefault();setTried(true);if(E.email)return;await authApi.resetPassword(f.email);setMsg('Demo-Modus: Es wurde keine E-Mail verschickt. Sobald echte Konten (Supabase) aktiv sind, bekommst du hier einen Link zum Zurücksetzen.')};
+ const guest=()=>set(()=>({session:{mode:'guest',name:'Gast'}}));
+ const Back=html`<button type="button" aria-label="Zurück" onClick=${()=>go(v==='forgot'?'login':'welcome')} className="ghost w-10 h-10 flex items-center justify-center mb-5"><${Icon} n="chevL" s=${20}/></button>`;
+ if(v==='welcome')return html`<${Shell} theme=${theme}><div className="flex-1 flex flex-col px-6 relative screen" style=${{paddingTop:'max(28px,env(safe-area-inset-top))',paddingBottom:'max(24px,env(safe-area-inset-bottom))'}}>
+  <div className="flex-1 flex flex-col items-center justify-center text-center">
+   <div className="flex items-end justify-center -mb-2 opacity-90"><div style=${{opacity:.55}}><${Figure} v=${.32} kind="cur" areas=${[.3,.3,.3,.3,.3]} size=${78}/></div><div className="mx-[-6px]" style=${{transform:'translateY(-14px)'}}><${Logo} s=${64}/></div><div><${Figure} v=${.9} kind="pot" areas=${[.9,.9,.9,.9,.9]} size=${78}/></div></div>
+   <div className="mt-8"><div className="text-[11px] tracking-[.32em] mute font-semibold">THE</div><div className="disp text-[52px] tracking-[.02em]">War Within</div></div>
+   <p className="disp disp-i text-[22px] mt-4 max-w-[300px]" style=${{color:'var(--acc2)',textTransform:'none'}}>Werde, wer du sein kannst.</p></div>
+  <div className="flex flex-col gap-2.5">
+   <button onClick=${()=>go('signup')} className="btn w-full py-4 text-[15px]">Registrieren</button>
+   <button onClick=${()=>go('login')} className="ghost w-full py-4 text-[15px] font-semibold">Anmelden</button>
+   <button onClick=${guest} className="bg-transparent border-0 py-3 text-[13.5px] font-semibold mute">Als Gast fortfahren <span className="font-normal">· Demo mit Beispieldaten</span></button></div></div><//>`;
+ if(v==='signup')return html`<${Shell} theme=${theme}><form noValidate onSubmit=${signup} className="flex-1 overflow-y-auto px-6 relative screen" style=${{paddingTop:'max(20px,env(safe-area-inset-top))',paddingBottom:32}}>${Back}
+  <div className="disp text-[38px]">Konto erstellen</div><div className="text-[13.5px] mute mt-1.5 mb-6">Ein Konto, eine Reise. Dauert 20 Sekunden.</div>
+  <${Field} id="su-name" label="Anzeigename" value=${f.name} on=${F('name')} err=${e('name')} auto="nickname" max=${40}/>
+  <${Field} id="su-mail" label="E-Mail-Adresse" type="email" value=${f.email} on=${F('email')} err=${e('email')} auto="email"/>
+  <${Field} id="su-pw" label="Passwort" type="password" value=${f.pw} on=${F('pw')} err=${e('pw')} auto="new-password" hint="Mindestens 8 Zeichen."/>
+  <${Field} id="su-pw2" label="Passwort bestätigen" type="password" value=${f.pw2} on=${F('pw2')} err=${e('pw2')} auto="new-password"/>
+  ${err&&html`<div role="alert" className="text-[12.5px] mb-3" style=${{color:'var(--bad)'}}>${err}</div>`}
+  <button type="submit" disabled=${busy} className="btn w-full py-4 text-[15px] mt-1">Konto erstellen</button>
+  <div className="mt-4"><${DemoNote}/></div>
+  <button type="button" onClick=${()=>go('login')} className="bg-transparent border-0 w-full py-4 text-[13px] mute">Schon registriert? <span className="acc font-semibold">Anmelden</span></button></form><//>`;
+ if(v==='login')return html`<${Shell} theme=${theme}><form noValidate onSubmit=${login} className="flex-1 overflow-y-auto px-6 relative screen" style=${{paddingTop:'max(20px,env(safe-area-inset-top))',paddingBottom:32}}>${Back}
+  <div className="disp text-[38px]">Willkommen zurück</div><div className="text-[13.5px] mute mt-1.5 mb-6">Dein Potenzial hat nicht gewartet. Hol es ein.</div>
+  <${Field} id="li-mail" label="E-Mail-Adresse" type="email" value=${f.email} on=${F('email')} err=${e('email')} auto="email"/>
+  <${Field} id="li-pw" label="Passwort" type="password" value=${f.pw} on=${F('pw')} err=${e('pw')} auto="current-password"/>
+  <button type="button" onClick=${()=>go('forgot')} className="bg-transparent border-0 acc text-[12.5px] font-semibold -mt-1 mb-4 p-0">Passwort vergessen?</button>
+  ${err&&html`<div role="alert" className="text-[12.5px] mb-3" style=${{color:'var(--bad)'}}>${err}</div>`}
+  <button type="submit" disabled=${busy} className="btn w-full py-4 text-[15px]">Anmelden</button>
+  <div className="mt-4"><${DemoNote}>Demo-Anmeldung: Das Passwort wird nicht geprüft. Es funktioniert nur die E-Mail des Demo-Kontos, das auf diesem Gerät registriert wurde.<//></div>
+  <button type="button" onClick=${()=>go('signup')} className="bg-transparent border-0 w-full py-4 text-[13px] mute">Neu hier? <span className="acc font-semibold">Konto erstellen</span></button></form><//>`;
+ return html`<${Shell} theme=${theme}><form noValidate onSubmit=${forgot} className="flex-1 overflow-y-auto px-6 relative screen" style=${{paddingTop:'max(20px,env(safe-area-inset-top))',paddingBottom:32}}>${Back}
+  <div className="disp text-[38px]">Passwort vergessen</div><div className="text-[13.5px] mute mt-1.5 mb-6">Gib deine E-Mail ein. Wir schicken dir einen Link zum Zurücksetzen.</div>
+  <${Field} id="fp-mail" label="E-Mail-Adresse" type="email" value=${f.email} on=${F('email')} err=${e('email')} auto="email"/>
+  ${msg?html`<div className="mt-2"><${DemoNote}>${msg}<//></div>`:html`<button type="submit" className="btn w-full py-4 text-[15px]">Link anfordern</button>`}</form><//>`}
+
+/* ───── Onboarding ───── */
+const OB_N=9;
+function Onboarding({A,set,theme,onDone}){
+ const [ob,setOb]=useState(()=>A.ob||newOb(A.session&&A.session.name));
+ const u=fn=>setOb(p=>{const n={...p,...fn(p)};set(()=>({ob:n}));return n});
+ const st=ob.step;
+ const mk=JSON.stringify([ob.pri,sv(ob,'trainFreq'),sv(ob,'saveMonthly'),sv(ob,'focusWeekly'),sv(ob,'project'),sv(ob,'run5k'),ob.goals.map(g=>g.kind)]);
+ const goTo=s=>u(p=>{const n={step:clamp(s,0,OB_N-1),dir:s>p.step?1:-1};if(s===6&&(!p.missions||p.mKey!==mk)){n.missions=genMissions(p);n.mKey=mk}return n});
+ const ok=[true,ob.name.trim().length>=1,ob.pri.length>=1,true,true,true,(ob.missions||[]).length>=1,true,true][st];
+ const optional=[3,4,5].includes(st);
+ const body=[StepWelcome,StepPersonal,StepPri,StepNow,StepGoals,StepStats,StepPlan,StepPotential,StepReady][st];
+ const scroller=useRef(null);useEffect(()=>{if(scroller.current)scroller.current.scrollTop=0},[st]);
+ return html`<${Shell} theme=${theme}>
+ <div className="relative px-5 pb-2" style=${{paddingTop:'max(16px,env(safe-area-inset-top))'}}>
+  <div className="flex items-center gap-3 h-10">
+   ${st>0?html`<button type="button" aria-label="Zurück" onClick=${()=>goTo(st-1)} className="ghost w-10 h-10 flex items-center justify-center shrink-0"><${Icon} n="chevL" s=${20}/></button>`:html`<div className="w-10"/>`}
+   <div className="flex-1 flex gap-1" role="progressbar" aria-label="Fortschritt" aria-valuemin="1" aria-valuemax=${OB_N} aria-valuenow=${st+1}>${Array.from({length:OB_N}).map((_,i)=>html`<div key=${i} className="flex-1 h-1.5 rounded-full overflow-hidden" style=${{background:'var(--ghost)'}}><div className="h-full rounded-full" style=${{width:i<=st?'100%':'0%',background:'linear-gradient(90deg,#A78BFA,#7C3AED)',transition:'width .4s ease'}}/></div>`)}</div>
+   ${optional?html`<button type="button" onClick=${()=>goTo(st+1)} className="bg-transparent border-0 text-[12.5px] mute font-semibold w-[68px] text-right shrink-0">Überspringen</button>`:html`<div className="num text-[12px] mute w-[68px] text-right shrink-0">${st+1} / ${OB_N}</div>`}</div></div>
+ <div ref=${scroller} className="flex-1 overflow-y-auto overflow-x-hidden relative px-5 pt-3 pb-6"><div key=${st} style=${{animation:`${ob.dir<0?'obInL':'obInR'} .38s cubic-bezier(.2,.8,.2,1) both`}}><${body} ob=${ob} u=${u}/></div></div>
+ <div className="relative px-5 pt-3 flex gap-2.5" style=${{paddingBottom:'max(18px,env(safe-area-inset-bottom))',background:'linear-gradient(180deg,transparent,var(--bg) 35%)'}}>
+  ${st===0?html`<button onClick=${()=>goTo(1)} className="btn w-full py-4 text-[15px]">Los geht's</button>`
+  :st===OB_N-1?html`<button onClick=${()=>onDone(ob)} className="btn w-full py-4 text-[15px]">Meine Reise starten</button>`
+  :html`<button onClick=${()=>goTo(st-1)} className="ghost flex-1 py-4 text-[14px] font-semibold">Zurück</button><button disabled=${!ok} onClick=${()=>goTo(st+1)} className="btn flex-[1.8] py-4 text-[15px]">Weiter</button>`}</div><//>`}
+function ObHead({k,t,s}){return html`<div className="mb-5">${k&&html`<div className="lbl acc mb-2">${k}</div>`}<h1 className="disp text-[36px] leading-[.95]">${t}</h1>${s&&html`<p className="text-[13.5px] mute mt-2.5 leading-relaxed">${s}</p>`}</div>`}
+function StepWelcome({ob}){return html`<div className="flex flex-col items-center text-center pt-2">
+ <div className="relative w-full flex items-end justify-center gap-2 mt-2" style=${{height:250}}>
+  <div className="flex flex-col items-center"><div style=${{opacity:.7}}><${Figure} v=${.3} kind="cur" areas=${[.25,.3,.3,.25,.3]} size=${108}/></div><div className="lbl mt-2">Dein jetziges Ich</div></div>
+  <svg width="48" height="40" viewBox="0 0 48 40" className="mb-24 shrink-0" aria-hidden="true"><path d="M4 20h36m-9-9 9 9-9 9" fill="none" stroke="var(--acc2)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="4 4"><animate attributeName="stroke-dashoffset" values="16;0" dur="1.2s" repeatCount="indefinite"/></path></svg>
+  <div className="flex flex-col items-center"><${Figure} v=${.88} kind="pot" areas=${[.9,.85,.9,.9,.85]} size=${108}/><div className="lbl acc mt-2">Dein Potenzial</div></div></div>
+ <h1 className="disp text-[44px] leading-[.95] mt-8">Deine Reise<br/>beginnt hier.</h1>
+ <p className="text-[14.5px] mute mt-4 leading-relaxed max-w-[300px]">Kleine Schritte. Echter Fortschritt. Dein stärkstes zukünftiges Ich.</p></div>`}
+function StepPersonal({ob,u}){
+ const tzs=TZS.includes(ob.tz)?TZS:[ob.tz,...TZS];
+ return html`<div><${ObHead} k="Dein Profil" t="Wie sollen wir dich nennen?" s="Nur das Nötigste für deinen Plan. Keine sensiblen Daten."/>
+ <${Field} id="ob-name" label="Bevorzugter Name" value=${ob.name} on=${x=>u(()=>({name:x}))} auto="nickname" max=${40} err=${ob.name.trim()?'':'Ein Name ist nötig, damit dein Plan dich ansprechen kann.'}/>
+ <div className="lbl mb-1.5 mt-1">Altersgruppe <span className="normal-case tracking-normal font-normal">(optional)</span></div>
+ <div className="flex flex-wrap gap-1.5 mb-4" role="radiogroup" aria-label="Altersgruppe">${AGES.map(a=>html`<button key=${a} type="button" role="radio" aria-checked=${ob.age===a?'true':'false'} onClick=${()=>u(p=>({age:p.age===a?'':a}))} className=${`chip ${ob.age===a?'on':''}`}>${a}</button>`)}</div>
+ <div className="lbl mb-1.5">Maßeinheiten</div>
+ <div className="grid grid-cols-2 gap-2 mb-4" role="radiogroup" aria-label="Maßeinheiten">${[['metric','Metrisch','kg · km'],['imperial','Imperial','lb · mi']].map(([k,l,d])=>html`<button key=${k} type="button" role="radio" aria-checked=${ob.units===k?'true':'false'} onClick=${()=>u(()=>({units:k}))} className="p-3 rounded-2xl text-left" style=${{background:ob.units===k?'rgba(139,92,246,.18)':'var(--card)',border:`1px solid ${ob.units===k?'var(--acc)':'var(--line)'}`}}><div className="text-[14px] font-semibold">${l}</div><div className="text-[11.5px] mute">${d}</div></button>`)}</div>
+ <label htmlFor="ob-tz" className="lbl block mb-1.5">Zeitzone</label>
+ <select id="ob-tz" className="inp" value=${ob.tz} onChange=${e=>u(()=>({tz:e.target.value}))}>${tzs.map(z=>html`<option key=${z} value=${z}>${z.replace(/_/g,' ')}${z===guessTz()?' (erkannt)':''}</option>`)}</select>
+ <div className="text-[11px] mute mt-1.5">Automatisch erkannt. Wichtig für Tageswechsel und Erinnerungen.</div></div>`}
+function StepPri({ob,u}){return html`<div><${ObHead} k="Prioritäten" t="Was zählt für dich am meisten?" s="Wähle bis zu fünf Bereiche und bring sie in eine Reihenfolge. Die erste Wahl wird dein Saisonthema."/>
+ <${PriPicker} pri=${ob.pri} on=${p=>u(()=>({pri:p}))}/>
+ <div className="text-[11.5px] mute mt-4 leading-relaxed">Alle Grundbereiche (Körper, Finanzen, Beziehungen, Disziplin, Erholung) bleiben in deinem Spiel aktiv, auch wenn du sie nicht wählst. Sie bekommen dann nur kleinere Missionen.</div></div>`}
+function StepNow({ob,u}){const ids=ob.pri;
+ return html`<div><${ObHead} k="Standort" t="Wo stehst du gerade?" s="Ehrlich, nicht perfekt. Das ist deine Startlinie, keine Note."/>
+ <div className="flex flex-col gap-3">${ids.map(id=>{const v=satOf(ob,id);return html`<div key=${id} className="card p-4">
+  <div className="flex items-center gap-2.5 mb-2"><div className="w-8 h-8 rounded-lg flex items-center justify-center" style=${{background:'rgba(139,92,246,.14)',color:'var(--acc2)'}}><${Icon} n=${OBC[id].icon} s=${16}/></div><div className="text-[13px] font-semibold flex-1">${OBC[id].name}</div><div className="num font-bold acc text-[18px]">${v}<span className="mute text-[12px]">/5</span></div></div>
+  <label htmlFor=${'sat-'+id} className="text-[12.5px] leading-snug block mb-2">${OBC[id].q}</label>
+  <input id=${'sat-'+id} type="range" min="1" max="5" step="1" value=${v} onChange=${e=>u(p=>({sat:{...p.sat,[id]:+e.target.value}}))} aria-valuetext=${v+' von 5: '+SAT_L[v]} className="w-full" style=${{accentColor:'#8B5CF6'}}/>
+  <div className="flex justify-between text-[10.5px] mute mt-0.5"><span>1 · Gar nicht</span><span className="ink font-semibold">${SAT_L[v]}</span><span>5 · Sehr</span></div></div>`})}</div>
+ <div className="text-[11px] mute mt-4 leading-relaxed">Das sind Selbsteinschätzungen deiner Zufriedenheit, keine Messung von Fitness, Intelligenz oder Charakter.</div></div>`}
+function StepGoals({ob,u}){
+ const [ct,setCt]=useState({t:'',target:'',unit:''});
+ const sorted=[...GP].sort((a,b)=>(ob.pri.includes(a.cat)?ob.pri.indexOf(a.cat):9)-(ob.pri.includes(b.cat)?ob.pri.indexOf(b.cat):9));
+ const sel=t=>ob.goals.some(g=>g.t===t);
+ const tog=g=>u(p=>({goals:sel(g.t)?p.goals.filter(x=>x.t!==g.t):p.goals.length>=5?p.goals:[...p.goals,{...g,deadline:''}]}));
+ const ed=(t,patch)=>u(p=>({goals:p.goals.map(g=>g.t===t?{...g,...patch}:g)}));
+ const addC=()=>{if(!ct.t.trim()||ob.goals.length>=5)return;u(p=>({goals:[...p.goals,{t:ct.t.trim(),cat:p.pri[0]||'char',kind:'custom',unit:ct.unit.trim()||'Schritte',target:+ct.target||10,deadline:''}]}));setCt({t:'',target:'',unit:''})};
+ const today=new Date().toISOString().slice(0,10);
+ return html`<div><${ObHead} k="Langfristige Ziele" t="Wer willst du werden?" s="Wähle ein bis drei Ziele oder formuliere eigene. Ziel und Frist kannst du jederzeit ändern."/>
+ <div className="flex flex-wrap gap-2">${sorted.map(g=>html`<button key=${g.t} type="button" aria-pressed=${sel(g.t)?'true':'false'} onClick=${()=>tog(g)} className=${`chip flex items-center gap-1.5 ${sel(g.t)?'on':''}`} style=${{padding:'8px 13px',fontSize:12.5}}><${Icon} n=${sel(g.t)?'check':OBC[g.cat].icon} s=${13}/>${g.t}</button>`)}</div>
+ ${ob.goals.length>0&&html`<div className="flex flex-col gap-2.5 mt-5">${ob.goals.map((g,i)=>html`<div key=${g.t} className="card p-3.5" style=${{borderColor:'rgba(139,92,246,.45)'}}>
+  <div className="flex items-start gap-2"><div className="flex-1 text-[14px] font-semibold leading-snug">${g.t}</div><button type="button" aria-label=${'Ziel entfernen: '+g.t} onClick=${()=>u(p=>({goals:p.goals.filter(x=>x.t!==g.t)}))} className="ghost w-8 h-8 flex items-center justify-center shrink-0"><${Icon} n="x" s=${14}/></button></div>
+  <div className="grid grid-cols-2 gap-2 mt-2.5"><div><label htmlFor=${'gt'+i} className="text-[10.5px] mute block mb-1">Zielwert (${g.unit})</label><input id=${'gt'+i} type="number" inputMode="decimal" min="1" className="inp" style=${{padding:'9px 11px'}} value=${g.target} onChange=${e=>ed(g.t,{target:e.target.value})}/></div>
+  <div><label htmlFor=${'gd'+i} className="text-[10.5px] mute block mb-1">Frist (optional)</label><input id=${'gd'+i} type="date" min=${today} className="inp" style=${{padding:'9px 11px'}} value=${g.deadline||''} onChange=${e=>ed(g.t,{deadline:e.target.value})}/></div></div></div>`)}</div>`}
+ <div className="card2 p-3.5 mt-4"><div className="lbl mb-2">Eigenes Ziel</div>
+  <input aria-label="Eigenes Ziel" className="inp mb-2" maxLength=${60} placeholder="z. B. Einen Halbmarathon laufen" value=${ct.t} onChange=${e=>setCt({...ct,t:e.target.value})}/>
+  <div className="flex gap-2"><input aria-label="Zielwert" type="number" min="1" className="inp" placeholder="Zielwert" value=${ct.target} onChange=${e=>setCt({...ct,target:e.target.value})}/><input aria-label="Einheit" className="inp" maxLength=${16} placeholder="Einheit" value=${ct.unit} onChange=${e=>setCt({...ct,unit:e.target.value})}/><button type="button" onClick=${addC} disabled=${!ct.t.trim()} className="btn px-4 shrink-0" aria-label="Eigenes Ziel hinzufügen"><${Icon} n="plus" s=${18}/></button></div></div>
+ ${ob.goals.length>=5&&html`<div className="text-[11.5px] mute mt-2">Maximal fünf Ziele. Weniger ist meistens mehr.</div>`}</div>`}
+function StepStats({ob,u}){
+ const cats=ob.pri.filter(id=>STAT_DEF[id]);
+ const setV=(k,v)=>u(p=>({stats:{...p.stats,[k]:{...(p.stats[k]||{src:'est'}),v}}}));
+ const setS=(k,s)=>u(p=>({stats:{...p.stats,[k]:{...(p.stats[k]||{v:null}),src:s}}}));
+ return html`<div><${ObHead} k="Startwerte" t="Deine Ausgangslage" s="Ein paar Zahlen für deinen Plan. Alles ist optional und lässt sich später über Quick Log nachtragen."/>
+ ${!cats.length&&html`<div className="card p-4 text-[13px] leading-relaxed">Für deine gewählten Bereiche brauchst du gerade keine Zahlen. Weiter geht's.</div>`}
+ ${cats.map(c=>html`<div key=${c} className="card p-4 mb-3"><div className="flex items-center gap-2 mb-3"><${Icon} n=${OBC[c].icon} s=${16} cls="acc"/><div className="text-[13.5px] font-bold">${OBC[c].name}</div></div>
+  ${STAT_DEF[c].map(([k,l,unit,typ,meas])=>{const x=ob.stats[k]||{},un=k==='bench'&&ob.units==='imperial'?'lb':unit;const bad=typ==='time'&&x.v&&parseT(x.v)===null;return html`<div key=${k}>
+   <label htmlFor=${'st-'+k} className="lbl block mb-1.5">${l}</label>
+   <div className="flex items-center gap-2 mb-3.5">${typ==='text'?html`<input id=${'st-'+k} className="inp" maxLength=${40} placeholder="z. B. Spanisch, Python, Gitarre" value=${x.v||''} onChange=${e=>setV(k,e.target.value)}/>`
+    :typ==='time'?html`<input id=${'st-'+k} className="inp" inputMode="numeric" placeholder="z. B. 27:30" value=${x.v||''} onChange=${e=>setV(k,e.target.value)} aria-invalid=${bad?'true':'false'} style=${bad?{borderColor:'var(--bad)'}:null}/>`
+    :html`<input id=${'st-'+k} type="number" inputMode="decimal" min="0" className="inp" value=${x.v??''} onChange=${e=>setV(k,e.target.value===''?null:+e.target.value)}/>`}
+    ${un&&html`<span className="text-[11.5px] mute w-[64px] shrink-0">${un}</span>`}</div>
+   ${bad&&html`<div role="alert" className="text-[11px] -mt-2.5 mb-3" style=${{color:'var(--bad)'}}>Format mm:ss, z. B. 27:30</div>`}
+   ${meas&&x.v!==undefined&&x.v!==null&&x.v!==''&&html`<${SrcPick} v=${x.src||'est'} on=${s=>setS(k,s)}/>`}</div>`})}</div>`)}
+ ${cats.length>0&&html`<div className="text-[11px] mute leading-relaxed"><b className="ink">Verifiziert</b> heißt: gemessen, z. B. mit Uhr, im Wettkampf oder mit Kontoauszug. <b className="ink">Schätzung</b> ist dein ehrlicher Richtwert. Beides wird getrennt angezeigt.</div>`}</div>`}
+function StepPlan({ob,u}){
+ const ms=ob.missions||[];const pool=Object.keys(MP).filter(k=>!ms.some(m=>m.k===k));
+ const ed=(i,patch)=>u(p=>({missions:p.missions.map((m,j)=>j===i?{...m,...patch}:m)}));
+ const rm=i=>u(p=>({missions:p.missions.filter((_,j)=>j!==i)}));
+ const lineup=devLineup(ob,ms);const pw=perWeek(ms),pd=pw/7;
+ const actName=a=>ACT0[a]?(a==='lang'&&sv(ob,'project')?sv(ob,'project'):a==='lang'?'Lernen':a==='biz'?'Karriere':ACT0[a].short):a;
+ const row=(m,i)=>html`<div key=${m.k} className="card p-3">
+  <div className="flex items-center gap-2.5"><${Tile} a=${ACT0[m.act]||{icon:'target'}} s=${34}/><input aria-label="Missionstitel" className="inp flex-1" style=${{padding:'8px 10px',fontSize:13,fontWeight:600}} maxLength=${60} value=${m.title} onChange=${e=>ed(i,{title:e.target.value})}/>
+  <button type="button" aria-label=${'Mission entfernen: '+m.title} onClick=${()=>rm(i)} className="ghost w-8 h-8 flex items-center justify-center shrink-0"><${Icon} n="x" s=${14}/></button></div>
+  <div className="flex items-center gap-1.5 mt-2 pl-[44px] flex-wrap">${[['daily','Täglich'],['multi','Pro Woche'],['weekly','Wöchentlich']].map(([f,l])=>html`<button key=${f} type="button" onClick=${()=>ed(i,{freq:f,times:f==='multi'?(m.times||3):m.times})} className=${`chip ${m.freq===f?'on':''}`} style=${{padding:'3px 10px',fontSize:11}}>${l}</button>`)}
+   ${m.freq==='multi'&&html`<span className="flex items-center gap-1 ml-1"><button type="button" aria-label="Seltener" onClick=${()=>ed(i,{times:Math.max(1,(m.times||1)-1)})} className="ghost w-7 h-7 flex items-center justify-center"><${Icon} n="minus" s=${12}/></button><span className="num text-[12px] font-bold w-7 text-center">${m.times}×</span><button type="button" aria-label="Öfter" onClick=${()=>ed(i,{times:Math.min(7,(m.times||1)+1)})} className="ghost w-7 h-7 flex items-center justify-center"><${Icon} n="plus" s=${12}/></button></span>`}</div></div>`;
+ const core=ms.map((m,i)=>[m,i]).filter(([m])=>CORE.includes(m.act)),dev=ms.map((m,i)=>[m,i]).filter(([m])=>!CORE.includes(m.act));
+ return html`<div><${ObHead} k="Schlachtplan" t="Dein erster Plan" s="Aus deinen Prioritäten erstellt. Ändere, entferne oder ersetze alles, was nicht passt."/>
+ <div className="card p-3.5 mb-4" style=${{background:'linear-gradient(160deg,rgba(139,92,246,.16),var(--card) 70%)'}}>
+  <div className="lbl acc mb-2">Core Squad</div><div className="flex gap-2">${CORE.map(id=>html`<div key=${id} className="flex-1 flex flex-col items-center gap-1"><${Tile} a=${ACT0[id]} s=${36}/><span className="text-[10px] mute text-center leading-tight">${ACT0[id].short}</span></div>`)}</div>
+  <div className="lbl acc mt-3.5 mb-2">Development Squad</div><div className="flex gap-2">${lineup.map(id=>html`<div key=${id} className="flex-1 card2 py-2 flex flex-col items-center gap-1"><${Tile} a=${ACT0[id]} s=${32}/><span className="text-[10.5px] font-semibold text-center leading-tight px-1 truncate max-w-full">${actName(id)}</span></div>`)}</div></div>
+ <div className="flex items-center justify-between mb-2"><div className="lbl">Core-Missionen</div><div className="text-[11px] mute num">≈ ${n1(pd)} pro Tag</div></div>
+ <div className="flex flex-col gap-2">${core.map(([m,i])=>row(m,i))}</div>
+ ${dev.length>0&&html`<div className="lbl mt-4 mb-2">Entwicklung</div><div className="flex flex-col gap-2">${dev.map(([m,i])=>row(m,i))}</div>`}
+ ${pd>6&&html`<div className="card2 p-3 mt-3 text-[12px]" style=${{color:'#FBBF24'}}>Das sind viele Aufgaben pro Tag. Ein schlanker Plan, den du durchhältst, schlägt einen perfekten, den du abbrichst.</div>`}
+ ${pool.length>0&&html`<div className="lbl mt-4 mb-2">Ersetzen oder ergänzen</div><div className="flex flex-wrap gap-1.5">${pool.map(k=>html`<button key=${k} type="button" onClick=${()=>u(p=>({missions:[...p.missions,{k,...MP[k]}]}))} className="chip flex items-center gap-1" style=${{fontSize:11.5}}><${Icon} n="plus" s=${11}/>${MP[k].title}</button>`)}</div>`}
+ ${ms.length===0&&html`<div role="alert" className="text-[12px] mt-3" style=${{color:'var(--bad)'}}>Behalte mindestens eine Mission.</div>`}</div>`}
+function StepPotential({ob}){
+ const {cur,pot}=vSelf(ob);const ar=CORE.map(id=>{const c={body:'fit',fin:'fin',rel:'rel',disc:'char',rec:'rec'}[id];return(satOf(ob,c)-1)/4});
+ const ms=obMilestones(ob);const lv=v=>Math.round(30+70*v);
+ return html`<div><${ObHead} k="Dein Gegenüber" t="Triff dein Potenzial"/>
+ <div className="card p-4 relative overflow-hidden" style=${{background:'var(--hero)'}}>
+  <div className="grid grid-cols-2 items-end">
+   <div className="flex flex-col items-center"><${Figure} v=${cur} kind="cur" areas=${ar} size=${112} pulse=${0}/><div className="lbl mt-2">Jetziges Ich</div><div className="num text-[22px] font-bold">${lv(cur)}</div></div>
+   <div className="flex flex-col items-center"><${Figure} v=${pot} kind="pot" areas=${ar.map(x=>Math.min(1,x+.35))} size=${112} pulse=${0}/><div className="lbl acc mt-2">Potenzial</div><div className="num text-[22px] font-bold acc">${lv(pot)}</div></div></div></div>
+ <p className="text-[13.5px] leading-relaxed mt-4">Dein Potenzial zeigt, welchen Fortschritt du schaffen <i>könntest</i>, wenn du einem nachhaltigen Plan konsequent folgst. Es ist kein Gegner, den du besiegen musst, sondern die Version von dir, die du einholen kannst.</p>
+ <div className="lbl mt-5 mb-2">Saison 1 · 4 Wochen · mögliche Meilensteine</div>
+ <div className="flex flex-col gap-2">${ms.map((t,i)=>{const p=cur+(pot-cur)*(i+1)/4;return html`<div key=${i} className="card2 p-3 flex items-center gap-3"><div className="num text-[11px] font-bold mute w-9 shrink-0">W${i+1}</div><div className="flex-1"><div className="text-[12.5px] font-medium leading-snug">${t}</div><div className="mt-1.5"><${Bar} pct=${p} h=${4}/></div></div><div className="num text-[11px] acc w-7 text-right">${lv(p)}</div></div>`})}</div>
+ <div className="text-[11px] mute mt-3 leading-relaxed">Illustration, keine Vorhersage. Die Werte beruhen auf deiner Selbsteinschätzung. Echte Ergebnisse hängen von vielen Faktoren ab, und Rückschläge gehören dazu.</div></div>`}
+function StepReady({ob}){
+ const {cur,pot}=vSelf(ob);const ms=ob.missions||[];
+ const stats=[];ob.pri.filter(id=>STAT_DEF[id]).forEach(c=>STAT_DEF[c].forEach(([k,l,unit,typ,meas])=>{const x=ob.stats[k];if(x&&x.v!==null&&x.v!==''&&x.v!==undefined)stats.push([l.replace(' (optional)','').replace(' (Ziel)',''),x.v+(unit&&unit!=='mm:ss'?' '+(k==='bench'&&ob.units==='imperial'?'lb':unit):''),meas?(x.src||'est'):'target'])}));
+ const Sec=({t,children})=>html`<div className="card p-4 mb-2.5"><div className="lbl mb-2">${t}</div>${children}</div>`;
+ return html`<div><${ObHead} k="Bereit" t=${`Bereit für Saison 1, ${ob.name.trim()||'Krieger'}.`} s="Das ist dein Ausgangspunkt. Das sind deine Ziele. Das ist die Person, die du werden willst."/>
+ <div className="card p-4 mb-2.5 flex items-center gap-2" style=${{background:'var(--hero)'}}><div className="flex-1 flex flex-col items-center"><${Figure} v=${cur} kind="cur" areas=${[.4,.4,.4,.4,.4]} size=${70}/><div className="lbl mt-1">Jetzt</div></div><div className="text-center"><div className="disp text-[30px]">4</div><div className="lbl">Wochen</div></div><div className="flex-1 flex flex-col items-center"><${Figure} v=${pot} kind="pot" areas=${[.8,.8,.8,.8,.8]} size=${70}/><div className="lbl acc mt-1">Potenzial</div></div></div>
+ <${Sec} t="Prioritäten"><div className="flex flex-wrap gap-1.5">${ob.pri.map((id,i)=>html`<span key=${id} className=${`chip ${i===0?'on':''}`}>${i+1}. ${OBC[id].name}</span>`)}</div>${ob.pri[0]&&html`<div className="text-[11px] mute mt-2">Saisonthema: ${OBC[ob.pri[0]].name} (+15 % Punkte)</div>`}<//>
+ <${Sec} t="Ziele">${ob.goals.length?ob.goals.map(g=>html`<div key=${g.t} className="flex justify-between gap-2 text-[13px] py-0.5"><span className="font-medium">${g.t}</span><span className="num mute shrink-0">${g.target} ${g.unit}${g.deadline?' · bis '+new Date(g.deadline).toLocaleDateString('de-DE'):''}</span></div>`):html`<div className="text-[12.5px] mute">Noch keine. Du kannst sie später anlegen.</div>`}<//>
+ <${Sec} t="Startwerte">${stats.length?stats.map(([l,v,s])=>html`<div key=${l} className="flex items-center justify-between gap-2 text-[13px] py-1"><span>${l}</span><span className="flex items-center gap-2"><span className="num font-semibold">${v}</span><${SrcBadge} src=${s}/></span></div>`):html`<div className="text-[12.5px] mute">Keine angegeben. Später über Quick Log.</div>`}<//>
+ <${Sec} t=${`Aktive Missionen · ${ms.length}`}>${ms.map(m=>html`<div key=${m.k} className="flex justify-between gap-2 text-[12.5px] py-0.5"><span className="truncate">${m.title}</span><span className="mute shrink-0">${freqLabel(m)}</span></div>`)}<//></div>`}
+
+/* ───── Konto & Profil (Sheet) ───── */
+const NOTIF=[['daily','Tägliche Erinnerung','Ein kurzer Hinweis auf deine wichtigsten Missionen'],['weekly','Wochenrückblick','Sonntags: After Action Review und Evaluation'],['nemesis','Nachrichten vom Nemesis','Sticheleien und Anerkennung deines Rivalen']];
+const SHARE_L={fit:'Körperwerte',fin:'Finanzen',focus:'Fokus-Stunden',run5k:'5-km-Zeit',swim:'Schwimmzeit',bench:'Bankdrücken',pull:'Klimmzüge',read:'Lesezeit'};
+function Account({c}){
+ const {S}=c;const au=c.auth||{};const P=S.profile||{};const [v,setV]=useState('menu');const [cf,setCf]=useState('');
+ const sess=au.session||{};const name=P.name||sess.name||'Du';const ini=name.trim().slice(0,1).toUpperCase()||'?';
+ const setP=patch=>c.upd(n=>{n.profile={...(n.profile||{}),...patch}});
+ const sub={profile:'Profil bearbeiten',goals:'Ziele bearbeiten',stats:'Startwerte',cats:'Lebensbereiche',missions:'Missionen verwalten',prefs:'Einheiten & Vorlieben',notif:'Benachrichtigungen',privacy:'Privatsphäre & Teilen'};
+ const Row=({k,i,l,d,on,danger})=>html`<button onClick=${on||(()=>setV(k))} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium w-full"><${Icon} n=${i} s=${18} cls=${danger?'bad':'acc'}/><div className="flex-1">${l}${d&&html`<div className="text-[11px] mute font-normal">${d}</div>`}</div>${!on&&html`<${Icon} n="chevR" s=${16} cls="mute"/>`}</button>`;
+ if(v==='menu')return html`<${Sheet} sub=${sess.mode==='guest'?'Gastmodus':'Demo-Konto'} title="Konto & Profil" onClose=${c.closeSheet}>
+  <div className="card2 p-3.5 flex items-center gap-3 mb-3"><div className="w-12 h-12 rounded-full flex items-center justify-center text-[20px] font-bold text-white" style=${{background:'linear-gradient(135deg,#A78BFA,#5B21B6)'}}>${ini}</div><div className="flex-1 min-w-0"><div className="text-[15px] font-bold truncate">${name}</div><div className="text-[12px] mute truncate">${sess.email||'Ohne Konto · nur auf diesem Gerät'}</div></div></div>
+  <div className="flex flex-col gap-2">
+  <${Row} k="profile" i="user" l="Profil bearbeiten"/><${Row} k="goals" i="target" l="Ziele bearbeiten"/><${Row} k="stats" i="activity" l="Startwerte bearbeiten"/>
+  <${Row} k="cats" i="star" l="Lebensbereiche verwalten"/><${Row} k="missions" i="check" l="Missionen verwalten"/><${Row} k="prefs" i="sliders" l="Einheiten & Vorlieben"/>
+  <${Row} k="notif" i="bell" l="Benachrichtigungen"/><${Row} k="privacy" i="eye" l="Privatsphäre & Teilen"/>
+  <${Row} i="plug" l="Verbundene Apps" d="Kalender, Aufgaben, Fitness (geplant)" on=${()=>c.openSheet({t:'integ'})}/>
+  <div className="lbl mt-3">Test & Demo</div>
+  <${Row} i="rotate" l=${cf==='ob'?'Wirklich? Tippe erneut':'Onboarding neu starten'} d="Ersetzt den aktuellen Spielstand durch einen neuen Plan" on=${()=>{if(cf==='ob'){c.closeSheet();au.restartOnboarding&&au.restartOnboarding()}else setCf('ob')}}/>
+  <${Row} i="rotate" l=${cf==='rs'?'Wirklich? Tippe erneut':'Demo zurücksetzen'} d="Beispieldaten wiederherstellen" danger=${true} on=${()=>{if(cf==='rs')c.resetDemo();else setCf('rs')}}/>
+  <${Row} i="logout" l="Abmelden" d="Deine Daten bleiben auf diesem Gerät" danger=${true} on=${()=>{c.closeSheet();au.signOut&&au.signOut()}}/>
+  <${Row} i="x" l=${cf==='wipe'?'Wirklich alles löschen? Tippe erneut':'Lokales Konto & Daten löschen'} danger=${true} on=${()=>{if(cf==='wipe'){c.closeSheet();au.wipe&&au.wipe()}else setCf('wipe')}}/></div>
+  <div className="mt-3"><${DemoNote}/></div><//>`;
+ const back=html`<button onClick=${()=>setV('menu')} className="ghost w-full py-3 mt-4 text-sm font-semibold">Zurück</button>`;
+ const W=(children)=>html`<${Sheet} sub="Konto & Profil" title=${sub[v]} onClose=${c.closeSheet}>${children}${back}<//>`;
+ if(v==='profile')return W(html`<${ProfileEdit} c=${c} P=${P} name=${name} setP=${setP} done=${()=>setV('menu')}/>`);
+ if(v==='goals')return W(html`<div className="flex flex-col gap-2">${S.goals.map(g=>html`<div key=${g.id} className="card2 p-3"><div className="flex items-center gap-2"><input aria-label="Zieltitel" className="inp flex-1" style=${{padding:'8px 10px',fontSize:13,fontWeight:600}} value=${g.title} onChange=${e=>c.upd(n=>{n.goals.find(x=>x.id===g.id).title=e.target.value})}/><button aria-label=${'Ziel löschen: '+g.title} onClick=${()=>c.upd(n=>{n.goals=n.goals.filter(x=>x.id!==g.id)})} className="ghost w-9 h-9 flex items-center justify-center"><${Icon} n="x" s=${14}/></button></div>
+  <div className="flex items-center gap-2 mt-2"><label className="text-[11px] mute w-16" htmlFor=${'eg'+g.id}>Zielwert</label><input id=${'eg'+g.id} type="number" min="1" className="inp" style=${{padding:'7px 10px'}} value=${g.target} onChange=${e=>{const t=Math.max(1,+e.target.value||1);c.upd(n=>{const x=n.goals.find(y=>y.id===g.id);x.target=t;x.ms=[...new Set([.25,.5,.75,1].map(f=>Math.max(1,Math.round(t*f))))];if(x.kind==='save')n.save.goal=t})}}/><span className="text-[11px] mute w-20 truncate">${g.unit}</span></div></div>`)}
+  <button onClick=${()=>c.openSheet({t:'newgoal'})} className="ghost p-3 text-sm font-semibold flex items-center justify-center gap-2"><${Icon} n="plus" s=${15}/>Neues Ziel</button></div>`);
+ if(v==='stats'){const L=P.startStats||[];return W(html`<div>${!L.length&&html`<div className="text-[13px] mute mb-2">Noch keine Startwerte. Lege sie über Quick Log (Plus-Button) an oder starte das Onboarding neu.</div>`}
+  <div className="flex flex-col gap-2">${L.map((x,i)=>html`<div key=${x.k} className="card2 p-3"><div className="flex items-center justify-between mb-1.5"><span className="text-[12.5px] font-semibold">${x.label}</span><${SrcBadge} src=${x.src}/></div>
+  <div className="flex items-center gap-2"><input aria-label=${x.label} className="inp" style=${{padding:'7px 10px'}} value=${x.v} onChange=${e=>{const val=e.target.value;c.upd(n=>{n.profile.startStats[i].v=val})}}/><span className="text-[11px] mute w-10">${x.unit}</span></div>
+  ${x.src!=='target'&&html`<div className="mt-2"><${SrcPick} v=${x.src} on=${s=>c.upd(n=>{n.profile.startStats[i].src=s})}/></div>`}</div>`)}</div>
+  <div className="text-[11px] mute mt-2 leading-relaxed">Startwerte sind deine Ausgangslinie. Neue Messungen trägst du über Quick Log ein, dort fließen sie in Rekorde und Statistiken.</div></div>`)}
+ if(v==='cats')return W(html`<div><div className="text-[12.5px] mute mb-3">Wähle und ordne deine Schwerpunkte. Alle Grundbereiche bleiben aktiv.</div><${PriPicker} pri=${P.priorities||[]} on=${p=>setP({priorities:p})}/>
+  <div className="lbl mt-4 mb-1.5">Weitere Bereiche</div><div className="flex flex-col gap-2">${allCats(S).map(x=>html`<button key=${x.id} onClick=${()=>c.openSheet({t:'cat',id:x.id})} className="ghost p-3 flex items-center gap-3 text-left text-[13px]"><${Icon} n=${x.icon} s=${16} cls="acc"/><span className="flex-1">${x.name}</span><span className="num mute text-[12px]">${Math.round(S.catScore[x.id]??40)}</span></button>`)}
+  <button onClick=${()=>c.openSheet({t:'newcat'})} className="ghost p-3 text-sm font-semibold flex items-center justify-center gap-2"><${Icon} n="plus" s=${15}/>Bereich hinzufügen</button></div></div>`);
+ if(v==='missions')return W(html`<div className="flex flex-col gap-2">${S.missions.map(m=>html`<div key=${m.id} className="card2 p-3 flex items-center gap-3"><${Tile} a=${S.acts[m.act]||{icon:'target'}} s=${32}/><div className="flex-1 min-w-0"><div className="text-[13px] font-semibold truncate">${m.title}</div><div className="text-[11px] mute">${freqLabel(m)} · ${m.pts} Pkt.</div></div><button aria-label=${'Mission entfernen: '+m.title} onClick=${()=>c.upd(n=>{n.missions=n.missions.filter(x=>x.id!==m.id);delete n.done[m.id]})} className="ghost w-9 h-9 flex items-center justify-center"><${Icon} n="x" s=${14}/></button></div>`)}
+  <button onClick=${()=>c.openSheet({t:'add'})} className="ghost p-3 text-sm font-semibold flex items-center justify-center gap-2"><${Icon} n="plus" s=${15}/>Mission hinzufügen</button></div>`);
+ if(v==='prefs'){const tz=P.tz||guessTz();const tzs=TZS.includes(tz)?TZS:[tz,...TZS];return W(html`<div>
+  <div className="lbl mb-1.5">Maßeinheiten</div><${Seg} opts=${[['metric','Metrisch (kg, km)'],['imperial','Imperial (lb, mi)']]} val=${P.units||'metric'} on=${x=>setP({units:x})}/>
+  <div className="text-[11px] mute mt-1 mb-3">Im Prototyp gilt die Einheit für Onboarding und Startwerte; Statistiken zeigen weiterhin kg und km.</div>
+  <label htmlFor="pf-tz" className="lbl block mb-1.5">Zeitzone</label><select id="pf-tz" className="inp mb-3" value=${tz} onChange=${e=>setP({tz:e.target.value})}>${tzs.map(z=>html`<option key=${z} value=${z}>${z.replace(/_/g,' ')}</option>`)}</select>
+  <div className="lbl mb-1.5">Design</div><${Seg} opts=${[['dark','Dunkel'],['light','Hell']]} val=${S.theme} on=${x=>{if(x!==S.theme)c.toggleTheme()}}/></div>`)}
+ if(v==='notif'){const N={daily:true,weekly:true,nemesis:true,time:'08:00',...(P.notif||{})};return W(html`<div className="flex flex-col gap-2">${NOTIF.map(([k,l,d])=>html`<button key=${k} role="switch" aria-checked=${N[k]?'true':'false'} onClick=${()=>setP({notif:{...N,[k]:!N[k]}})} className="ghost p-3.5 flex items-center gap-3 text-left"><div className="flex-1"><div className="text-[14px] font-medium">${l}</div><div className="text-[11px] mute">${d}</div></div><${Toggle} on=${N[k]}/></button>`)}
+  <div className="flex items-center justify-between ghost p-3.5"><label htmlFor="nt-time" className="text-[14px] font-medium">Uhrzeit</label><input id="nt-time" type="time" className="inp" style=${{width:120,padding:'7px 10px'}} value=${N.time} onChange=${e=>setP({notif:{...N,time:e.target.value}})}/></div>
+  <${DemoNote}>Im Prototyp werden noch keine Benachrichtigungen verschickt. Die Einstellungen sind für die echte App vorbereitet.<//></div>`)}
+ if(v==='privacy')return W(html`<div><div className="text-[12.5px] mute mb-3">Was deine Liga sehen darf. Alles andere bleibt privat.</div><div className="flex flex-col gap-2">${Object.keys(SHARE_L).map(k=>html`<button key=${k} role="switch" aria-checked=${S.share[k]?'true':'false'} onClick=${()=>c.toggleShare(k)} className="ghost p-3.5 flex items-center gap-3 text-left"><span className="flex-1 text-[14px] font-medium">${SHARE_L[k]}</span><${Toggle} on=${!!S.share[k]}/></button>`)}</div>
+  <div className="text-[11px] mute mt-3 leading-relaxed">Liga-Mitglieder sind im Prototyp simuliert. Es werden keine Daten an andere übertragen.</div></div>`);
+ return null}
+function Toggle({on}){return html`<span className="w-11 h-6 rounded-full relative shrink-0 transition-colors" style=${{background:on?'var(--acc)':'var(--card2)',border:'1px solid var(--line)'}}><span className="absolute top-[2px] w-[18px] h-[18px] rounded-full bg-white transition-all" style=${{left:on?22:2}}/></span>`}
+function ProfileEdit({c,P,name,setP,done}){const [n,setN]=useState(name);const [age,setAge]=useState(P.ageRange||'');
+ return html`<div><${Field} id="pe-name" label="Anzeigename" value=${n} on=${setN} max=${40} err=${n.trim()?'':'Bitte gib einen Namen ein.'}/>
+ <div className="lbl mb-1.5">Altersgruppe (optional)</div><div className="flex flex-wrap gap-1.5 mb-4">${AGES.map(a=>html`<button key=${a} type="button" aria-pressed=${age===a?'true':'false'} onClick=${()=>setAge(age===a?'':a)} className=${`chip ${age===a?'on':''}`}>${a}</button>`)}</div>
+ ${(c.auth&&c.auth.session&&c.auth.session.email)&&html`<div className="lbl mb-1.5">E-Mail</div><div className="card2 p-3 text-[13px] mb-1">${c.auth.session.email}</div><div className="text-[11px] mute mb-3">Änderung der E-Mail folgt mit echten Konten (Bestätigung per Link).</div>`}
+ <button disabled=${!n.trim()} onClick=${()=>{setP({name:n.trim(),ageRange:age||null});c.auth&&c.auth.rename&&c.auth.rename(n.trim());c.toast('Profil gespeichert','good');done()}} className="btn w-full py-3.5 text-sm">Speichern</button></div>`}
+
+/* ───── Wurzel: Anmeldung → Onboarding → App ───── */
+function Root(){
+ const [A,setA]=useState(loadAuth);const [boot,setBoot]=useState({init:null,key:0});
+ const set=useCallback(fn=>setA(p=>{const n={...p,...fn(p)};saveAuth(n);return n}),[]);
+ const skey=A.session&&A.session.mode!=='guest'?ACC_KEY:GUEST_KEY;
+ const theme=(()=>{try{return(JSON.parse(localStorage.getItem(skey)||'{}').theme)||'dark'}catch(e){return'dark'}})();
+ if(!A.session)return html`<${AuthFlow} A=${A} set=${set} theme=${theme}/>`;
+ const isG=A.session.mode==='guest';
+ if(isG?A.guestOb:!A.onboarded)return html`<${Onboarding} A=${A} set=${set} theme=${theme} onDone=${ob=>{const s=buildState(ob,A.session);try{localStorage.setItem(skey,JSON.stringify(s))}catch(e){}setBoot(b=>({init:s,key:b.key+1}));set(()=>(isG?{guestOb:false,ob:null}:{onboarded:true,ob:null}))}}/>`;
+ const auth={session:A.session,
+  signOut:()=>{authApi.signOut();setBoot(b=>({init:null,key:b.key+1}));set(()=>({session:null}))},
+  restartOnboarding:()=>set(p=>({...(isG?{guestOb:true}:{onboarded:false}),ob:newOb(isG?'':(p.session&&p.session.name)||'')})),
+  rename:name=>set(p=>({session:{...p.session,name},account:p.account&&p.session&&p.session.mode==='demo'?{...p.account,name}:p.account})),
+  wipe:()=>{try{[GUEST_KEY,ACC_KEY,AUTH_KEY].forEach(k=>localStorage.removeItem(k))}catch(e){}setBoot(b=>({init:null,key:b.key+1}));setA({session:null,account:null,onboarded:false,ob:null})}};
+ return html`<${App} key=${skey+boot.key} skey=${skey} init=${boot.init} auth=${auth}/>`}
+
 /* ───── APP ───── */
 const useNow=ms=>{const [n,setN]=useState(Date.now());useEffect(()=>{const t=setInterval(()=>setN(Date.now()),ms);return()=>clearInterval(t)},[ms]);return n};
 const METRICS={'5-km-Lauf':[true,S=>S.stats.run5k.last,fmtT],'Bankdrücken (Verbesserung)':[false,S=>S.stats.bench.ver,x=>n1(x)+' kg'],'100 m Schwimmen':[true,S=>S.stats.swim.pr,fmtT],'Lese-Konstanz':[false,()=>120,x=>Math.round(x)+' Min.'],'Fokus-Stunden':[false,()=>18,x=>n1(x)+' h'],'Spar-Konstanz':[false,()=>5,x=>Math.round(x)+' Tage']};
-function App(){
- const [S,setS]=useState(loadState);
+function App({init,auth,skey='war_within_v5'}){
+ const [S,setS]=useState(()=>init||loadState(skey));
  const [tab,setTab]=useState('home'),[statTab,setStatTab]=useState('gen'),[sheet,setSheet]=useState(null),[sel,setSel]=useState(null),[coreSel,setCoreSel]=useState(null),[freq,setFreq]=useState('all');
  const [toasts,setToasts]=useState([]),[floats,setFloats]=useState([]),[flash,setFlash]=useState({});
  const now=useNow(1000);const scrollRef=useRef(null);const lock=useRef({});
  const upd=useCallback(fn=>setS(p=>{const n=structuredClone(p);fn(n);return n}),[]);
  const D=useMemo(()=>derive(S),[S]);
- useEffect(()=>{try{localStorage.setItem('war_within_v5',JSON.stringify(S))}catch(e){}},[S]);
+ useEffect(()=>{try{localStorage.setItem(skey,JSON.stringify(S))}catch(e){}},[S]);
  useEffect(()=>{if(scrollRef.current)scrollRef.current.scrollTop=0},[tab,statTab]);
  const toast=useCallback((msg,kind)=>{const id=uid();setToasts(t=>[...t.slice(-2),{id,msg,kind}]);setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)),3300)},[]);
  const fx=(pos,text)=>{const id=uid();const p=pos&&pos.currentTarget?pos.currentTarget.getBoundingClientRect():pos&&pos.left!=null?pos:{left:200,top:420,width:0};setFloats(f=>[...f,{id,x:p.left+(p.width||0)/2,y:p.top,text}]);setTimeout(()=>setFloats(f=>f.filter(x=>x.id!==id)),1200)};
@@ -1335,7 +1760,7 @@ function App(){
  const setSave=p=>upd(n=>{Object.assign(n.save,p);if(p.saved!=null)n.save.hist[n.save.hist.length-1]=p.saved});
  const setStudy=p=>upd(n=>{Object.assign(n.study,p)});
  const setQuote=()=>upd(n=>{n.quoteIdx++});
- const resetDemo=()=>{try{localStorage.removeItem('war_within_v5')}catch(e){}setS(initState());setSheet(null);setSel(null);setTab('home');toast('Demo zurückgesetzt')};
+ const resetDemo=()=>{try{localStorage.removeItem(skey)}catch(e){}setS(initState());setSheet(null);setSel(null);setTab('home');toast('Demo zurückgesetzt')};
  /* Liga */
  const simulate=()=>{const o=OTH[rnd(0,OTH.length-1)];const pts=[5,6,7,8,9,12][rnd(0,5)];
   upd(n=>{n.others[o.id]=Math.min(PLAN_CAP,n.others[o.id]+pts);n.oSeason[o.id]+=pts;n.feed.unshift({id:uid(),who:o.id,pts,text:`${o.lineup[rnd(0,2)]} erledigt (simuliert)`,t:Date.now()});n.feed=n.feed.slice(0,12)});
@@ -1397,7 +1822,7 @@ function App(){
  /* Erfolge */
  const newA=S.newAch[0];
  useEffect(()=>{if(!newA)return;const t=setTimeout(()=>upd(n=>{n.newAch=n.newAch.slice(1)}),2600);return()=>clearTimeout(t)},[newA]);
- const c={simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,addGoal,doSwap,toggleRest,toggleTheme,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
+ const c={auth,upd,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,addGoal,doSwap,toggleRest,toggleTheme,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
  const nav=[['home','Start','home'],['tasks','Aufgaben','check'],['solo','Duell','swords'],['league','Liga','trophy'],['stats','Stats','trend']];
  const ach=newA&&ACHS.find(a=>a.id===newA);
  return html`<div data-theme=${S.theme} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(139,92,246,.12)'}}>
@@ -1414,7 +1839,7 @@ function App(){
  <div className="absolute top-3 inset-x-3 z-[70] flex flex-col gap-2 pointer-events-none">${toasts.map(t=>html`<div key=${t.id} className="px-4 py-3 rounded-2xl text-[13px] font-medium border" style=${{animation:'toastIn .25s ease-out',background:'var(--glass)',backdropFilter:'blur(10px)',borderColor:t.kind==='good'?'rgba(52,211,153,.45)':t.kind==='warn'?'rgba(139,92,246,.55)':'var(--line)'}}>${t.msg}</div>`)}</div>
  ${floats.map(f=>html`<div key=${f.id} className="num fixed z-[80] pointer-events-none font-bold text-2xl" style=${{left:f.x,top:f.y,color:'#C4B5FD',animation:'floatUp 1.1s ease-out forwards',textShadow:'0 0 16px rgba(139,92,246,.9)'}}>${f.text}</div>`)}
  </div>`}
-ReactDOM.createRoot(document.getElementById('root')).render(html`<${App}/>`);
+ReactDOM.createRoot(document.getElementById('root')).render(html`<${Root}/>`);
 </script>
 <script>
 if('serviceWorker' in navigator&&location.protocol!=='file:'){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(e=>console.warn('SW:',e)))}
