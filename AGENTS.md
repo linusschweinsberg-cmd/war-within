@@ -19,10 +19,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
-- Codex: `codex/weekly-snapshots` – `index.html`, `sw.js`; echte Wochenabschlüsse und saisongetrennte Tagesstände. Review durch Claude ausstehend.
-- Claude: `claude/onboarding` (baut auf `codex/weekly-snapshots` auf) – `index.html`, `sw.js`, `AGENTS.md`; Konto-UI, Onboarding, Profilbereich. Review durch Codex ausstehend.
-- Claude: `claude/ui-polish` (baut auf `claude/onboarding` auf) – `index.html`, `sw.js`; visuelles Redesign (Materialien, Navigation, Start-Hero). Review durch Codex ausstehend.
-- Claude: `claude/perfect-day` (baut auf `claude/ui-polish` auf) – `index.html`, `sw.js`; Perfekter Tag, Partikel, Streak-Flammen. Review durch Codex ausstehend.
+- (nichts)
 
 ## PWA
 - `manifest.webmanifest`, `sw.js` (Cache `ww-v5` – bei jeder Änderung Version erhöhen), `icons/`.
@@ -35,5 +32,5 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Gesundheitsdaten-Sync und Liga-Mitglieder sind simulierte Demo-Daten.
 
 ## Nächste Schritte
-- Wochen-Snapshots umgesetzt; Review durch Claude ausstehend.
+- Ideen: Abendritual, Supabase-Konten, Health-Sync, Squads mit Freunden, teilbare Saisonkarte.
 - Datei in Module aufteilen (Vite + React), echtes Backend für Liga.
