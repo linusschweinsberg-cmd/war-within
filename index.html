@@ -119,6 +119,7 @@ html,body{background:radial-gradient(1200px 600px at 50% -10%,#1A1230 0%,#050508
 @keyframes sway{0%,100%{transform:rotate(-1.1deg)}50%{transform:rotate(1.1deg)}}.tsw{transform-origin:200px 300px;animation:sway 7s ease-in-out infinite}
 @keyframes obInR{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:none}}@keyframes obInL{from{opacity:0;transform:translateX(-32px)}to{opacity:1;transform:none}}
 input[type=range]{accent-color:#8B5CF6}
+@keyframes flinch{0%{filter:none}35%{filter:brightness(2.2)}100%{filter:none}}
 </style>
 </head>
 <body>
@@ -835,18 +836,44 @@ function Constellations({areas,pot,total,pulse}){const [k,setK]=useState(0);cons
   ${on.map((p,i)=>html`<g key=${'f'+i} style=${{transformBox:'fill-box',transformOrigin:'center',animation:'pop .7s ease-out'}}><circle cx=${p[0]} cy=${p[1]} r="8" fill=${`url(#vg${I})`}/><circle cx=${p[0]} cy=${p[1]} r=${i===fi-1?3.2:2.5} fill="#fff"/></g>`)}
   <text x=${pts[0][0]} y=${Math.max(...pts.map(p=>p[1]))+18} fontSize="10" fontWeight="600" style=${{fill:'var(--mtr)'}} opacity=".85">${names[ci]} · ${fi}/12</text></g>`})}
  </svg>`}
-const VIZ=[['berg','Berg','Der Aufstieg'],['ball','Schneeball','Dein Schneeball'],['stars','Sternbild','Dein Sternbild']];
+/* Schatten: der Widerstand in dir. Krieger wächst mit dem Fortschritt, der Schatten mit dem Rückstand auf das Potenzial. */
+function WarriorShape({fill,stroke}){return html`<g fill=${fill} stroke=${stroke||'none'} strokeWidth="1.2" strokeLinejoin="round">
+ <path d="M-6 -112 L0 -122 L6 -112Z"/><circle cx="0" cy="-98" r="10"/><path d="M-12 -100 Q0 -114 12 -100 L12 -96 L-12 -96Z"/>
+ <path d="M-17 -82 Q-34 -40 -26 0 L-10 -8 L-14 -44Z" opacity=".55"/>
+ <path d="M-20 -82 Q0 -90 20 -82 L17 -44 L-17 -44Z"/><path d="M-20 -82 L-30 -78 L-24 -70 L-17 -76Z"/><path d="M20 -82 L30 -78 L24 -70 L17 -76Z"/>
+ <path d="M-15 -46 L-17 0 L-7 0 L-4 -40Z"/><path d="M15 -46 L17 0 L7 0 L4 -40Z"/>
+ <path d="M-19 -78 L-26 -50 L-20 -48 L-14 -74Z"/><path d="M19 -80 L32 -64 L28 -60 L16 -74Z"/>
+ <path d="M28 -62 L50 -108 L53 -106 L32 -60Z"/><rect x="24" y="-66" width="12" height="3" rx="1.5" transform="rotate(-26 30 -64)"/></g>`}
+function Shadow({cur,pot,pulse,rest}){const [k,setK]=useState(0);const first=useRef(true);const I=useId().replace(/:/g,'');
+ useEffect(()=>{if(first.current){first.current=false;return}setK(x=>x+1)},[pulse]);
+ const c=clamp(cur,0,1),gap=Math.max(0,(pot||0)-c),ms=.62+.55*c,ss=clamp(ms*(.8+3.5*gap+.6*(1-c)),ms*.8,2.3),so=clamp(.28+gap*2.2+.3*(1-c),.25,.78);
+ const tr='transform .9s cubic-bezier(.3,.8,.3,1),opacity .9s';
+ return html`<svg viewBox="0 0 360 250" className="w-full block" style=${{borderRadius:20}} role="img" aria-label=${`Dein Krieger bei ${Math.round(c*100)} Prozent, der Schatten des Widerstands ${ss>ms*1.15?'ist größer als du':'ist nicht größer als du'}`}>
+ <defs><filter id=${'sb'+I} x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter><radialGradient id=${'tl'+I}><stop offset="0" stopColor="#FBBF24" stopOpacity=".55"/><stop offset="1" stopColor="#FBBF24" stopOpacity="0"/></radialGradient></defs>
+ <rect width="360" height="250" style=${{fill:'var(--mr1)'}}/>
+ <g opacity=".35" style=${{stroke:'var(--mr2)'}} strokeWidth="1"><path d="M0 40 H360 M0 80 H360 M0 120 H360 M0 160 H360 M40 0 V40 M120 0 V40 M200 0 V40 M280 0 V40 M80 40 V80 M160 40 V80 M240 40 V80 M320 40 V80 M40 80 V120 M120 80 V120 M200 80 V120 M280 80 V120 M80 120 V160 M160 120 V160 M240 120 V160 M320 120 V160 M40 160 V196 M120 160 V196 M200 160 V196 M280 160 V196"/></g>
+ <rect y="196" width="360" height="54" style=${{fill:'var(--mr3)'}}/>
+ <circle cx="34" cy="150" r="64" fill=${`url(#tl${I})`} style=${{animation:'glow 2.6s ease-in-out infinite'}}/>
+ <path d="M30 196 V160" stroke="#5F5E5A" strokeWidth="4"/><path d="M26 160 Q34 140 38 160Z" fill="#F59E0B"/><path d="M29 158 Q34 146 36 158Z" fill="#FDE68A"/>
+ <text x="344" y="24" textAnchor="end" fontSize="11" fontWeight="700" fill="#FF6B86">Schatten</text>
+ <g style=${{transform:`translate(${200+18*(1-c)}px,${196-4*(1-c)}px) scale(${ss},${ss*1.04})`,opacity:so,transition:tr}}><g key=${'f'+k} style=${{animation:k?'flinch .5s ease-out':'none'}}><g filter=${`url(#sb${I})`}><${WarriorShape} fill="#3B0B22"/></g><ellipse cx="-4" cy="-98" rx="3.2" ry="1.3" fill="#FF2D55" style=${{animation:'glow 2.4s ease-in-out infinite'}}/><ellipse cx="4" cy="-98" rx="3.2" ry="1.3" fill="#FF2D55" style=${{animation:'glow 2.4s ease-in-out infinite'}}/></g></g>
+ <ellipse cx="160" cy="198" rx=${18+20*c} ry="4" fill="#000" opacity=".3" style=${{transition:'rx .9s'}}/>
+ <g style=${{transform:`translate(160px,198px) scale(${ms})`,transition:tr}}><circle cy="-55" r="58" fill="#8B5CF6" opacity=${.08+.3*c}/><g key=${'c'+k} className=${k?'cheer':''}><${WarriorShape} fill="#EDE9FE" stroke="#6D28D9"/></g>${rest&&html`<text x="22" y="-104" fontSize="16" fontWeight="800" fill="#C4B5FD">Zzz</text>`}</g>
+ <text x="160" y=${198-120*ms-10} textAnchor="middle" fontSize="11" fontWeight="800" style=${{fill:'var(--ink)',transition:'y .9s'}}>Du</text>
+ ${k>0&&html`<g key=${'s'+k}>${Array.from({length:10},(_,i)=>{const a=Math.PI*(1.1+i/11);return html`<circle key=${i} cx="160" cy=${198-60*ms} r="2.6" fill="#C4B5FD" style=${{'--dx':Math.cos(a)*55+'px','--dy':Math.sin(a)*55+'px',animation:'burst .8s ease-out forwards'}}/>`})}</g>`}
+ </svg>`}
+const VIZ=[['ball','Schneeball','Dein Schneeball'],['shadow','Schatten','Dein Schatten'],['stars','Sternbild','Dein Sternbild'],['berg','Berg','Der Aufstieg']];
 function MountainCard({c}){const {S,D}=c;
  const gapPts=Math.max(0,(D.pot-D.cur)*D.seasonPlan),avgP=D.allM.length?D.allM.reduce((a,m)=>a+m.pts,0)/D.allM.length:6,need=Math.ceil(gapPts/Math.max(1,avgP));
  return html`<div className="card p-3 mb-4 relative overflow-hidden" style=${{borderRadius:26}}>
  <div className="flex items-start justify-between px-1.5 pt-1 pb-2.5 gap-2"><div className="min-w-0"><div className="lbl acc">${(VIZ.find(v=>v[0]===(S.viz||'ball'))||VIZ[0])[2]} · Saison ${S.season}</div><div className="text-[15px] font-bold mt-0.5 leading-snug">${need<=0?'Du gehst Seite an Seite mit deinem Potenzial':need<=12?`≈ ${need} Missionen bis zu deinem Potenzial`:`Dein Potenzial ist ${Math.round(D.gap)} % voraus. Der nächste Schritt zählt.`}</div></div><button aria-label="Was bedeuten die Figuren?" onClick=${()=>c.openSheet({t:'info',k:'self'})} className="bg-transparent border-0 mute p-0 shrink-0"><${Icon} n="info" s=${16}/></button></div>
  <div role="group" aria-label="Darstellung" className="flex gap-1 px-1.5 pb-2.5">${VIZ.map(([k,l])=>{const on=(S.viz||'ball')===k;return html`<button key=${k} aria-pressed=${on} onClick=${()=>c.setViz(k)} className="border-0 rounded-full px-3 py-1.5 text-[12px] font-semibold" style=${{background:on?'var(--acc)':'var(--ghost)',color:on?'#fff':'var(--mute)',transition:'background .2s'}}>${l}</button>`})}</div>
- ${(S.viz||'ball')==='ball'?html`<${Snowball} cur=${D.cur} pot=${D.pot} pulse=${S.pulse} goal=${S.sGoal||.85}/>`:(S.viz||'ball')==='stars'?html`<${Constellations} areas=${CORE.map(id=>((S.sAreaPts||{})[id]||0)/(S.acts[id].cap*SL(S)))} pot=${D.pot} total=${Object.values(S.tally||{}).reduce((a,b)=>a+b,0)} pulse=${S.pulse}/>`:html`<${Mountain} cur=${D.cur} pot=${D.pot} areas=${D.areas} rest=${D.restToday} pulse=${S.pulse} labels=${false}/>`}
+ ${(S.viz||'ball')==='ball'?html`<${Snowball} cur=${D.cur} pot=${D.pot} pulse=${S.pulse} goal=${S.sGoal||.85}/>`:(S.viz||'ball')==='shadow'?html`<${Shadow} cur=${D.cur} pot=${D.pot} pulse=${S.pulse} rest=${D.restToday}/>`:(S.viz||'ball')==='stars'?html`<${Constellations} areas=${CORE.map(id=>((S.sAreaPts||{})[id]||0)/(S.acts[id].cap*SL(S)))} pot=${D.pot} total=${Object.values(S.tally||{}).reduce((a,b)=>a+b,0)} pulse=${S.pulse}/>`:html`<${Mountain} cur=${D.cur} pot=${D.pot} areas=${D.areas} rest=${D.restToday} pulse=${S.pulse} labels=${false}/>`}
  <div className="px-1.5 pt-3 pb-1">
   <div className="flex items-end justify-between"><div><div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style=${{background:'#8B5CF6',boxShadow:'0 0 8px #8B5CF6'}}/><span className="lbl">Current Self</span></div><div className="disp text-[26px] mt-1 leading-none"><${CountUp} v=${Math.round(D.cur*100)}/> %</div></div>
    <div className="text-right"><div className="flex items-center gap-1.5 justify-end"><span className="lbl">Potential Self</span><span className="w-2 h-2 rounded-full" style=${{border:'1.5px dashed #C4B5FD'}}/></div><div className="disp text-[26px] mt-1 leading-none acc">${Math.round(D.pot*100)} %</div></div></div>
   <div className="relative mt-2.5 h-2 rounded-full overflow-hidden" style=${{background:'var(--ghost)'}}><div className="absolute inset-y-0 left-0 rounded-full" style=${{width:clamp(D.pot,0,1)*100+'%',background:'repeating-linear-gradient(90deg,rgba(196,181,253,.45) 0 4px,transparent 4px 7px)'}}/><div className="absolute inset-y-0 left-0 rounded-full bar-fill" style=${{width:clamp(D.cur,0,1)*100+'%',background:'linear-gradient(90deg,#6D28D9,#A78BFA)',transition:'width .8s cubic-bezier(.2,.8,.2,1)'}}/></div>
-  <div className="text-[11px] mute mt-2 leading-snug">${(S.viz||'ball')==='ball'?'Jede Mission macht den Ball größer, und ein größerer Ball sammelt mehr. Kleine Schritte summieren sich.':(S.viz||'ball')==='stars'?'Jede Mission lässt Sterne leuchten. Die blassen Sterne stammen aus früheren Saisons und bleiben für immer.':'Anteil deines Saisonplans. Ein verpasster Tag nimmt dir nichts weg.'}</div></div></div>`}
+  <div className="text-[11px] mute mt-2 leading-snug">${(S.viz||'ball')==='shadow'?'Der Schatten ist der Widerstand in dir: Aufschieben, Bequemlichkeit, Ablenkung. Jede Mission macht ihn kleiner, an Ruhetagen wächst er nicht.':(S.viz||'ball')==='ball'?'Jede Mission macht den Ball größer, und ein größerer Ball sammelt mehr. Kleine Schritte summieren sich.':(S.viz||'ball')==='stars'?'Jede Mission lässt Sterne leuchten. Die blassen Sterne stammen aus früheren Saisons und bleiben für immer.':'Anteil deines Saisonplans. Ein verpasster Tag nimmt dir nichts weg.'}</div></div></div>`}
 function DailyBriefing({c}){
  const {S,D}=c;const b=briefToday(S);const [edit,setEdit]=useState(false);
  const cand=briefCands(S,D),byId=id=>D.allM.find(m=>m.id===id);
@@ -1044,12 +1071,13 @@ function Solo({c}){
  const stages=[[0,'Rekrut','Grundform'],[.45,'Schulterplatten','Struktur'],[.6,'Kern-Emblem','Fokus'],[.8,'Halo-Ring','Meisterschaft']];
  const rows=[['Form',form(D.lvC),form(D.lvP),x=>x+' %'],['Saisonreise',Math.round(D.cur*100),Math.round(D.pot*100),x=>x+' %'],['Wochenpunkte',D.wk,Math.round(D.plan*(D.di+1)/7),x=>x]];
  return html`<div className="screen px-4 pb-6">
- <div className="pt-5"><div className="lbl">Solo-Duell · Saison ${S.season}</div><h1 className="disp text-[40px] mt-1">Du gegen deinen Nemesis</h1><div className="text-[13px] mute mt-1">Dein größter Gegner ist die Person, die du werden könntest.</div></div>
+ <div className="pt-5"><div className="lbl">Solo-Duell · Saison ${S.season}</div><h1 className="disp text-[40px] mt-1">Du gegen deinen Schatten</h1><div className="text-[13px] mute mt-1">Dein Gegner ist der Widerstand in dir: Aufschieben, Bequemlichkeit, Ablenkung.</div></div>
  <div className="card mt-4 p-4" style=${{background:'var(--hero)'}}>
-  <div className="grid grid-cols-2 gap-2 items-end"><div className="text-center"><${LifeTree} cats=${duCats} vals=${duV} streak=${S.streak} wilt=${!!S.comeback} h=${230}/><div className="lbl mt-1">Du</div><div className="disp text-[34px]">${form(D.lvC)} %</div></div><div className="text-center"><${LifeTree} cats=${duCats} vals=${foeV} streak=${30} foe=${true} h=${230}/><div className="lbl mt-1" style=${{color:'#FF6B86'}}>Nemesis</div><div className="disp text-[34px]" style=${{color:'#FF6B86'}}>${form(D.lvP)} %</div></div></div>
-  <div className="mt-4 flex flex-col gap-3">${rows.map(([l,a,b,f])=>html`<div key=${l}><div className="flex justify-between text-[12px]"><span className="mute">${l}</span><span className="num font-semibold">${f(a)} <span className="mute">vs</span> <span style=${{color:'#FF6B86'}}>${f(b)}</span></span></div>
-   <div className="relative mt-1.5"><${Bar} pct=${a/Math.max(a,b,1)} h=${6}/><div className="absolute -top-1 w-1 h-3 rounded" style=${{left:`calc(${b/Math.max(a,b,1)*100}% - 2px)`,background:'#FF6B86',boxShadow:'0 0 6px rgba(255,45,85,.6)'}}/></div></div>`)}</div>
-  <div className="text-[11.5px] mute mt-3 leading-relaxed">Das Potenzial ist realistisch: Es folgt deinem nachhaltigen Plan, pausiert an bewussten Ruhetagen und rückt nie dauerhaft weg. Du kannst es überholen.</div></div>
+  <${Shadow} cur=${D.cur} pot=${D.pot} pulse=${S.pulse} rest=${D.restToday}/>
+  <div className="grid grid-cols-3 gap-2 mt-3 text-center items-end"><div><div className="lbl">Du · Form</div><div className="disp text-[30px] mt-0.5">${form(D.lvC)} %</div></div><div><div className="lbl" style=${{color:'#FF6B86'}}>Schatten</div><div className="disp text-[30px] mt-0.5" style=${{color:'#FF6B86'}}><${CountUp} v=${D.gap} d=${1}/> %</div><div className="text-[10.5px] mute">Vorsprung</div></div><div><div className="lbl acc">Potenzial</div><div className="disp text-[30px] mt-0.5 acc">${form(D.lvP)} %</div></div></div>
+  <div className="mt-4 flex flex-col gap-3">${rows.map(([l,a,b,f])=>html`<div key=${l}><div className="flex justify-between text-[12px]"><span className="mute">${l}</span><span className="num font-semibold">${f(a)} <span className="mute">vs</span> <span className="acc">${f(b)}</span></span></div>
+   <div className="relative mt-1.5"><${Bar} pct=${a/Math.max(a,b,1)} h=${6}/><div className="absolute -top-1 w-1 h-3 rounded" style=${{left:`calc(${b/Math.max(a,b,1)*100}% - 2px)`,background:'#C4B5FD'}}/></div></div>`)}</div>
+  <div className="text-[11.5px] mute mt-3 leading-relaxed">Der Schatten ist so groß wie dein Rückstand auf dein Potenzial. Er steht für den Widerstand, nicht für dich. Das Potenzial ist dein Verbündeter: Es folgt deinem nachhaltigen Plan, pausiert an Ruhetagen und ist erreichbar.</div></div>
 <${SelfCompare} c=${c}/>
 <div className="card p-4 mt-3"><div className="flex items-center justify-between"><div><div className="lbl acc">Gipfelziel · Saison ${S.season}</div><div className="text-[15px] font-bold mt-0.5">${Math.round((S.sGoal||.85)*100)} % der Saisonreise</div></div><span className="chip">${S.acts[S.sTheme]?S.acts[S.sTheme].short:''}-Thema</span></div>
   <div className="relative mt-3"><${Bar} pct=${clamp(D.cur/(S.sGoal||.85),0,1)} h=${7}/></div>
