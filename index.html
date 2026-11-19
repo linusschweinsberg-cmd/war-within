@@ -722,7 +722,7 @@ function SeasonStrip({c}){const {S}=c;const ph=phaseOf(S),lv=Math.min(S.sLevel||
   <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style=${{background:ph.col+'22',color:ph.col,boxShadow:`0 0 0 1px ${ph.col}44 inset`}}><${Icon} n=${ph.ic} s=${20}/></div>
   <div className="flex-1 min-w-0"><div className="flex items-center justify-between gap-2"><div className="text-[13px] font-bold truncate">Saison ${S.season} · <span style=${{color:ph.col}}>${ph.n}</span>${ph.bonus?html` <span className="num text-[11px]" style=${{color:ph.col}}>+10 %</span>`:''}</div><div className="num text-[11px] mute shrink-0">W${w}/${SL(S)} · <b className="ink">${weekScore(S,c.D).total}</b>/100</div></div>
    <div className="mt-1.5"><${Bar} pct=${p} h=${5} color=${`linear-gradient(90deg,${ph.col},#8B5CF6)`}/></div>
-   <div className="text-[11px] mute mt-1 truncate">${done?'Pfad abgeschlossen · Gipfel erreicht':`Pfad ${lv}/${PATH.length} · nächste Belohnung: ${PATH[lv][1]} (noch ${Math.max(0,need-S.seasonPts)} Pkt.)`}</div></div>
+   <div className="text-[11px] mute mt-1 truncate">${done?'Pfad abgeschlossen · Gipfel erreicht':`${PATH[lv][1]} in ${Math.max(0,need-S.seasonPts)} Pkt. · Stufe ${lv+1}/${PATH.length}`}</div></div>
   <${Icon} n="chevR" s=${16} cls="mute"/></button>`}
 function SeasonPath({c}){const {S}=c;const ph=phaseOf(S),lv=S.sLevel||0,L=SL(S),w=Math.floor(S.day/7);
  const ic={badge:'award',freeze:'shield',title:'star',crown:'crown'};
@@ -1036,11 +1036,11 @@ function Home({c}){
    <div className="text-[12.5px] mute mt-1.5">Gewinne heute. Werde morgen mehr.</div></div>
    <div title=${fl.t} className="flex items-center gap-1 shrink-0 rounded-full px-2.5 py-1" style=${{background:fl.c+'1F',color:fl.c,boxShadow:`0 0 0 1px ${fl.c}44 inset`}}><${Icon} n="flame" s=${14}/><span className="num text-[13px] font-bold">${S.streak}</span><span className="sr-only">Tage Serie</span></div></div>
   <div className="relative grid grid-cols-3 gap-2 mt-4">${tiles.map(([ic,v,l,on,col,k])=>html`<button key=${l} onClick=${on} className="rounded-2xl p-3 text-left border-0" style=${{background:'var(--ghost)',boxShadow:'0 0 0 1px var(--line) inset'}}><span className="w-7 h-7 rounded-lg flex items-center justify-center" style=${{background:col+'22',color:col}}><${Icon} n=${ic} s=${15}/></span><span key=${k} className="num block text-[20px] font-bold ink mt-2 leading-none" style=${k?{animation:'pop .45s ease-out'}:null}>${v}</span><span className="block text-[10.5px] mute mt-1 tracking-wide uppercase">${l}</span></button>`)}</div></div>
- <${SeasonStrip} c=${c}/>
  ${D.di===6&&html`<${Finale} c=${c}/>`}
- <${MountainCard} c=${c}/>
  <${Title} mt=${2} right=${html`<span className="flex items-center gap-1.5">${D.di===6&&html`<button onClick=${c.advance} className="chip on">Woche abschließen</button>`}<button onClick=${c.toggleRest} className=${`chip flex items-center gap-1 ${D.restToday?'on':''}`}><${Icon} n="moon" s=${12}/>${D.restToday?'Ruhetag aktiv':'Ruhetag'}</button></span>`}>Heute<//>
  <${DailyBriefing} key=${dayKey(S)} c=${c}/>
+ <div className="mt-4"><${MountainCard} c=${c}/></div>
+ <${SeasonStrip} c=${c}/>
  <${Routines} c=${c}/>
  <${EveningCard} c=${c}/>
  <${Suggest} c=${c}/>
@@ -1052,8 +1052,9 @@ function Home({c}){
 function Tasks({c}){
  const {S,D}=c;
  const [grp,setGrp]=useState('today');
+ const bIds=(briefToday(S)||{ids:[]}).ids,pr=id=>bIds.includes(id)?bIds.indexOf(id)-10:ESS.indexOf(id);
  const gOf=m=>{const g=GROUPS.find(x=>x.core.includes(m.act));return g?g.id:GROUPS[GROUPS.length-1].id};
- const fm=[...D.allM].filter(m=>grp==='all'||(grp==='today'?(S.comeback?cbList(S,D).some(x=>x.id===m.id):ESS.includes(m.id)):(gOf(m)===grp||m.act===grp))).sort((a,b)=>(isDone(S,a)-isDone(S,b))||(grp==='today'?ESS.indexOf(a.id)-ESS.indexOf(b.id):0));
+ const fm=[...D.allM].filter(m=>grp==='all'||(grp==='today'?(S.comeback?cbList(S,D).some(x=>x.id===m.id):(ESS.includes(m.id)||bIds.includes(m.id))):(gOf(m)===grp||m.act===grp))).sort((a,b)=>(isDone(S,a)-isDone(S,b))||(grp==='today'?pr(a.id)-pr(b.id):0));
  const base=new Date();
  return html`<div className="screen px-4 pb-6"><div className="pt-5 flex items-end justify-between gap-3"><div><div className="lbl">${DAYS_L[D.di]} · ${phaseOf(S).n}</div><h1 className="disp text-[40px] mt-1">Aufgaben</h1></div><button aria-label="Aufgabe hinzufügen" onClick=${()=>c.openSheet({t:'add'})} className="btn w-11 h-11 mb-1 flex items-center justify-center shrink-0" style=${{borderRadius:14}}><${Icon} n="plus" s=${22} sw=${2.6}/></button></div>
  ${(()=>{const dm=D.allM.filter(m=>m.freq==='daily'||m.freq==='multi'),dn=dm.filter(m=>isDone(S,m)).length,pc=dm.length?dn/dm.length:0;return html`<div className="card p-3.5 mt-3 flex items-center gap-3.5" style=${{borderRadius:20}}><${Ring} pct=${pc} size=${46} stroke=${5} grad=${true}><span className="num text-[11px] font-bold">${Math.round(pc*100)}%</span><//><div className="flex-1 min-w-0"><div className="text-[14px] font-semibold">${dn} von ${dm.length} Tagesmissionen</div><div className="text-[11.5px] mute">+${D.td} Punkte heute · Serie ${S.streak} Tage</div></div></div>`})()}
@@ -1521,15 +1522,15 @@ function AddMission({c}){
  const have=new Set(S.missions.map(m=>m.title));
  return html`<div><div className="flex items-start justify-between"><div><div className="lbl acc">Neue Mission</div><h2 className="text-xl font-bold mt-1">Was nimmst du dir vor?</h2></div><button onClick=${c.closeSheet} className="ghost w-9 h-9 flex items-center justify-center"><${Icon} n="x" s=${16}/></button></div>
  <div className="flex gap-1.5 mt-3"><button onClick=${()=>setTab('lib')} className=${`chip ${tab==='lib'?'on':''}`}>Bibliothek</button><button onClick=${()=>setTab('own')} className=${`chip ${tab==='own'?'on':''}`}>Eigene Mission</button></div>
- ${tab==='lib'?html`<div className="flex flex-col gap-2 mt-3">${LIB.map(l=>{const has=have.has(l.title);const ct=cats.find(x=>x.id===l.cat);return html`<button key=${l.title} disabled=${has} onClick=${()=>c.addMission({title:l.title,cat:l.cat,pts:l.pts,freq:'daily',log:l.log,act:(Object.values(S.acts).find(a=>a.cat===l.cat&&isActive(S,a.id))||Object.values(S.acts).find(a=>a.cat===l.cat)||S.acts.disc).id})} className="card p-3 flex items-center gap-3 text-left" style=${{borderRadius:16,opacity:has?.5:1}}><${Tile} a=${ct} s=${36}/><div className="flex-1"><div className="text-[13.5px] font-medium">${l.title}</div><div className="text-[11px] mute">${ct.name}${l.log?' · mit Eingabe':''}</div></div><div className="num text-sm font-semibold acc">${has?'aktiv':'+'+l.pts}</div></button>`})}</div>`:
+ ${tab==='lib'?html`<div className="flex flex-col gap-2 mt-3">${[...LIB].sort((x,y)=>have.has(x.title)-have.has(y.title)).map(l=>{const has=have.has(l.title);const ct=cats.find(x=>x.id===l.cat);return html`<button key=${l.title} disabled=${has} onClick=${()=>c.addMission({title:l.title,cat:l.cat,pts:l.pts,freq:'daily',log:l.log,act:(Object.values(S.acts).find(a=>a.cat===l.cat&&isActive(S,a.id))||Object.values(S.acts).find(a=>a.cat===l.cat)||S.acts.disc).id})} className="card p-3 flex items-center gap-3 text-left" style=${{borderRadius:16,opacity:has?.5:1}}><${Tile} a=${ct} s=${36}/><div className="flex-1"><div className="text-[13.5px] font-medium">${l.title}</div><div className="text-[11px] mute">${ct.name}${l.log&&S.ui==='adv'?' · mit Eingabe':''}</div></div><div className="num text-sm font-semibold acc">${has?'aktiv':'+'+l.pts}</div></button>`})}</div>`:
  html`<div className="mt-3"><label className="lbl">Titel</label><input className="inp mt-1.5" maxLength=${60} value=${title} onChange=${e=>setTitle(e.target.value)} placeholder="z. B. 10 Minuten Gitarre üben"/>
  <div className="lbl mt-4 mb-1.5">Lebensbereich</div><div className="flex flex-wrap gap-1.5">${cats.map(x=>html`<button key=${x.id} onClick=${()=>{setCat(x.id);setAct(null)}} className=${`chip ${cat===x.id?'on':''}`}>${x.name.split(' ')[0]}</button>`)}</div>
  <div className="lbl mt-4 mb-1.5">Häufigkeit</div><${Seg} opts=${Object.entries(FREQ)} val=${freq} on=${setFreq}/>${freq==='multi'&&html`<${Step} label="Mal pro Woche" v=${times} on=${setTimes} min=${2} max=${6}/>`}
- <div className="lbl mt-3 mb-1.5">Eingabeart</div><${Seg} opts=${[['check','Ein Tipp'],['log','Messwert']]} val=${kind} on=${setKind}/>
- ${kind==='log'&&html`<div className="mt-2"><${Seg} opts=${[['study','Minuten lernen'],['read','Minuten lesen'],['focus','Fokus-Minuten'],['save','Betrag sparen']]} val=${lg} on=${setLg}/></div>`}
+ ${S.ui==='adv'&&html`<div className="lbl mt-3 mb-1.5">Eingabeart</div><${Seg} opts=${[['check','Ein Tipp'],['log','Messwert']]} val=${kind} on=${setKind}/>`}
+ ${S.ui==='adv'&&kind==='log'&&html`<div className="mt-2"><${Seg} opts=${[['study','Minuten lernen'],['read','Minuten lesen'],['focus','Fokus-Minuten'],['save','Betrag sparen']]} val=${lg} on=${setLg}/></div>`}
  <div className="lbl mt-3 mb-1.5">Schwierigkeit (Punkte)</div><${Seg} opts=${[[4,'Leicht · 4'],[8,'Mittel · 8'],[12,'Schwer · 12']]} val=${pts} on=${setPts}/>
- <div className="lbl mt-3 mb-1.5">Zugeordnete Aktivität</div><${Seg} opts=${Object.values(S.acts).map(a=>[a.id,a.short+(isActive(S,a.id)?'':' (Bank)')])} val=${use} on=${setAct}/>
- <button disabled=${title.trim().length<3} onClick=${()=>c.addMission({title:title.trim(),cat,pts,freq,times:freq==='multi'?times:undefined,log:kind==='log'?lg:undefined,act:use})} className="btn w-full py-3.5 mt-4 text-sm">Mission speichern</button></div>`}
+ ${S.ui==='adv'&&html`<div className="lbl mt-3 mb-1.5">Zugeordnete Aktivität</div><${Seg} opts=${Object.values(S.acts).map(a=>[a.id,a.short+(isActive(S,a.id)?'':' (Bank)')])} val=${use} on=${setAct}/>`}
+ <button disabled=${title.trim().length<3} onClick=${()=>c.addMission({title:title.trim(),cat,pts,freq,times:freq==='multi'?times:undefined,log:S.ui==='adv'&&kind==='log'?lg:undefined,act:use})} className="btn w-full py-3.5 mt-4 text-sm">Mission speichern</button></div>`}
  </div>`}
 /* ───── Weitere Sheets ───── */
 function Sheet({title,sub,onClose,children}){return html`<div><div className="flex items-start justify-between"><div><div className="lbl acc">${sub}</div><h2 className="text-xl font-bold mt-1">${title}</h2></div><button aria-label="Schließen" onClick=${onClose} className="ghost w-9 h-9 flex items-center justify-center"><${Icon} n="x" s=${16}/></button></div><div className="mt-3">${children}</div></div>`}
@@ -2409,7 +2410,7 @@ function App({init,auth,skey='war_within_v5'}){
  const newA=S.newAch[0];
  useEffect(()=>{if(!newA)return;const t=setTimeout(()=>upd(n=>{n.newAch=n.newAch.slice(1)}),2600);return()=>clearTimeout(t)},[newA]);
  const c={auth,upd,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,addGoal,doSwap,toggleRest,toggleTheme,setViz,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
- const nav=[['home','Start','home'],['tasks','Aufgaben','check'],['solo','Duell','swords'],['league','Liga','trophy'],['stats','Stats','trend']];
+ const nav=[['home','Start','home'],['tasks','Aufgaben','check'],['solo','Duell','swords'],['league','Liga','trophy'],['stats','Fortschritt','trend']];
  const ach=newA&&ACHS.find(a=>a.id===newA);
  return html`<div data-theme=${S.theme} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(139,92,246,.12)'}}>
  <div className="absolute inset-0 pointer-events-none overflow-hidden"><div className="absolute rounded-full" style=${{top:-110,left:-80,width:300,height:300,background:'rgba(139,92,246,.20)',filter:'blur(70px)',animation:'heroGlow 9s ease-in-out infinite'}}/><div className="absolute rounded-full" style=${{top:260,right:-140,width:260,height:260,background:'rgba(56,189,248,.07)',filter:'blur(80px)',animation:'heroGlow 12s ease-in-out infinite reverse'}}/></div>
