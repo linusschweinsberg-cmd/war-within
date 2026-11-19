@@ -310,11 +310,19 @@ function checkAch(n){
  if(D.gap>10)F.wasWide=true;
  t('fin500',n.save.saved>=500);t('intel',n.study.hours>=21);t('balance',CORE.every(id=>(n.todayPts[id]||0)>0));t('champ',!!F.champ);t('improved',!!F.improved);
  if(add.length)n.newAch=[...n.newAch,...add]}
+// Only identified week closures are used as measured history; legacy demo values stay excluded.
+const completedWeeks=S=>(S.weekHist||[]).filter(w=>Number.isInteger(w.season)&&Number.isInteger(w.week)&&Number.isFinite(w.pts));
+function recordWeek(S,rank){
+ const week=Math.floor(S.day/7)+1;
+ const snapshot={season:S.season,week,day:S.day,pts:weekTotal(S),rank,cats:{...S.catScore},streak:S.streak,areas:{...S.weekPts},savedAt:new Date().toISOString()};
+ S.weekHist=[...(S.weekHist||[]).filter(w=>w.season!==S.season||w.week!==week),snapshot];
+}
 function loadState(){try{const r=localStorage.getItem('war_within_v5');if(r){const s=JSON.parse(r);if(s&&s.v===5){const d=JSON.parse(JSON.stringify(SEASON_DEF));Object.keys(d).forEach(k=>{if(s[k]===undefined)s[k]=d[k]});
    if(s.acts&&!s.acts.read)s.acts.read=JSON.parse(JSON.stringify(ACT0.read));
    if(s.weekPts&&s.weekPts.read===undefined)s.weekPts.read=0;
    if(s.bench)s.bench=s.bench.filter(x=>x!=='read');
    if(Array.isArray(s.missions)){['m_cal','m_read'].forEach(id=>{if(!s.missions.some(m=>m.id===id)){const m0=M0.find(m=>m.id===id);if(m0)s.missions.push(JSON.parse(JSON.stringify(m0)))}});const mm=s.missions.find(m=>m.id==='m_morn');if(mm&&mm.title==='Ohne Snooze aufstehen')mm.title='Früh aufstehen'}
+   if(!Array.isArray(s.weekHist))s.weekHist=[];
    return s}}}catch(e){}return initState()}
 
 /* ───── PUNKTE-KATALOG ───── */
@@ -680,10 +688,10 @@ function Tasks({c}){
 function SelfCompare({c}){
  const {S,D}=c;const cats=allCats(S);const [tp,setTp]=useState(0);
  const now=cats.map(x=>Math.round(S.catScore[x.id]??40)),old=cats.map(x=>Math.round((S.baseCat&&S.baseCat[x.id])??CAT_INIT[x.id]??40));
- const short=cats.map(x=>x.name.split(/[ &]/)[0]);const pts=[{day:0,cats:S.baseCat||{},streak:0},...(S.snaps||[]).filter(x=>x.day>0&&x.day<S.day),{day:S.day,cats:S.catScore,streak:S.streak}],real=pts.length>2,tDay=Math.round(S.day*tp/100),ia=(()=>{let k=0;while(k<pts.length-2&&pts[k+1].day<=tDay)k++;return k})(),A0=pts[ia],A1=pts[ia+1],u=A1.day>A0.day?clamp((tDay-A0.day)/(A1.day-A0.day),0,1):1,gv=(x,id,fb)=>x.cats[id]??fb,tv=cats.map((x,i)=>Math.round(gv(A0,x.id,old[i])+(gv(A1,x.id,now[i])-gv(A0,x.id,old[i]))*u)),tStreak=Math.round(A0.streak+(A1.streak-A0.streak)*u),tAvg=Math.round(tv.reduce((a,b)=>a+b,0)/Math.max(1,tv.length)),nAvg=Math.round(now.reduce((a,b)=>a+b,0)/Math.max(1,now.length));
+ const short=cats.map(x=>x.name.split(/[ &]/)[0]);const pts=[{day:0,cats:S.baseCat||{},streak:0},...(S.snaps||[]).filter(x=>x.season===S.season&&x.day>0&&x.day<S.day),{day:S.day,cats:S.catScore,streak:S.streak}],real=pts.length>2,tDay=Math.round(S.day*tp/100),ia=(()=>{let k=0;while(k<pts.length-2&&pts[k+1].day<=tDay)k++;return k})(),A0=pts[ia],A1=pts[ia+1],u=A1.day>A0.day?clamp((tDay-A0.day)/(A1.day-A0.day),0,1):1,gv=(x,id,fb)=>x.cats[id]??fb,tv=cats.map((x,i)=>Math.round(gv(A0,x.id,old[i])+(gv(A1,x.id,now[i])-gv(A0,x.id,old[i]))*u)),tStreak=Math.round(A0.streak+(A1.streak-A0.streak)*u),tAvg=Math.round(tv.reduce((a,b)=>a+b,0)/Math.max(1,tv.length)),nAvg=Math.round(now.reduce((a,b)=>a+b,0)/Math.max(1,now.length));
  const diff=cats.map((x,i)=>[x,now[i]-old[i]]);
  const best=[...diff].sort((a,b)=>b[1]-a[1])[0],worst=[...diff].sort((a,b)=>a[1]-b[1])[0];
- const hist=S.hist,last4=hist.slice(-4),prev4=hist.slice(-8,-4);
+ const hist=completedWeeks(S).map(w=>w.pts),last4=hist.slice(-4),prev4=hist.slice(-8,-4);
  const av=l=>l.length?Math.round(l.reduce((a,x)=>a+x,0)/l.length):0;
  const a1=av(last4),a0=av(prev4),pc=a0?Math.round((a1-a0)/a0*100):0;
  const tot=diff.reduce((a,x)=>a+x[1],0),avg=Math.round(tot/Math.max(1,diff.length)*10)/10;
@@ -693,15 +701,15 @@ function SelfCompare({c}){
   <div className="flex items-center justify-between"><div className="lbl acc">Du gegen dein früheres Ich</div><span className="chip">Zeitreise</span></div>
   <div className="grid grid-cols-2 gap-2 items-end mt-1"><div className="text-center"><${LifeTree} cats=${cats} vals=${tv} streak=${tStreak} h=${200}/><div className="lbl mt-1">${tp===0?'Saisonstart':tp===100?'Heute':'Tag '+(tDay+1)}</div><div className="disp text-[28px]">${tAvg} %</div></div><div className="text-center"><${LifeTree} cats=${cats} vals=${now} streak=${S.streak} h=${200}/><div className="lbl mt-1 acc">Heute</div><div className="disp text-[28px]">${nAvg} %</div></div></div>
   <div className="flex items-center gap-3 mt-3"><span className="text-[11px] mute">Start</span><input type="range" min="0" max="100" step="1" value=${tp} onChange=${e=>setTp(+e.target.value)} aria-label="Zeitachse" className="flex-1" style=${{accentColor:'var(--acc2)'}}/><span className="text-[11px] mute">Heute</span></div>
-  <div className="text-[11px] mute mt-1">${real?`Echte Tagesstände (${pts.length-1} gespeichert).`:'Noch wenig Verlauf: Zwischenstände sind geschätzt. Jeder neue Tag wird ab jetzt gespeichert.'}</div>
+  <div className="text-[11px] mute mt-1">${real?`Gespeicherte Tagesstände dieser Saison; Zwischenstände interpoliert.`:'Noch wenig Verlauf: Zwischenstände sind geschätzt. Jeder neue Tag wird ab jetzt gespeichert.'}</div>
   <div className="disp text-[28px] mt-3">${avg>0?'+':''}${avg} <span className="text-[14px] mute">Ø pro Bereich</span></div>
   <div className="text-[12.5px] mt-1 leading-snug">${verdict}</div>
   <div className="grid grid-cols-2 gap-2 mt-3"><div className="card2 p-3"><div className="lbl" style=${{color:'var(--good)'}}>Größter Sprung</div><div className="text-[13px] font-semibold mt-1 truncate">${best[0].name}</div><div className="num font-bold">${best[1]>0?'+':''}${best[1]}</div></div><div className="card2 p-3"><div className="lbl" style=${{color:'#F59E0B'}}>Am wenigsten bewegt</div><div className="text-[13px] font-semibold mt-1 truncate">${worst[0].name}</div><div className="num font-bold">${worst[1]>0?'+':''}${worst[1]}</div></div></div>
   <div className="mt-3">${diff.map(([x,dv],i)=>html`<div key=${x.id} className="flex items-center gap-2 py-1"><span className="text-[12px] flex-1 truncate">${x.name}</span><span className="num text-[11px] mute w-14 text-right">${old[i]} → ${now[i]}</span><span className="num text-[12px] font-bold w-9 text-right" style=${{color:dv>0?'var(--good)':dv<0?'#F87171':'var(--mute)'}}>${dv>0?'+':''}${dv}</span></div>`)}</div>
   <div className="lbl mt-3 mb-1.5">Wochenpunkte</div>
-  <div className="grid grid-cols-2 gap-2"><div className="card2 p-3"><div className="text-[10.5px] mute">Vorherige 4 Wochen</div><div className="disp text-[26px]">${a0}</div></div><div className="card2 p-3"><div className="text-[10.5px] mute">Letzte 4 Wochen</div><div className="disp text-[26px]">${a1} <span className="text-[13px]" style=${{color:pc>=0?'var(--good)':'#F87171'}}>${pc>0?'+':''}${pc} %</span></div></div></div>
+  <div className="grid grid-cols-2 gap-2"><div className="card2 p-3"><div className="text-[10.5px] mute">Vorherige 4 Wochen</div><div className="disp text-[26px]">${prev4.length?a0:'–'}</div></div><div className="card2 p-3"><div className="text-[10.5px] mute">Letzte 4 Wochen</div><div className="disp text-[26px]">${last4.length?a1:'–'} <span className="text-[13px]" style=${{color:pc>=0?'var(--good)':'#F87171'}}>${prev4.length===4&&last4.length===4&&a0?(pc>0?'+':'')+pc+' %':'–'}</span></div></div></div>
   <div className="grid grid-cols-2 gap-2 mt-2"><div className="card2 p-3"><div className="text-[10.5px] mute">Streak jetzt / Best</div><div className="disp text-[26px]">${S.streak} <span className="text-[14px] mute">/ ${Math.max(S.streak,S.bestStreak||0)}</span></div></div><div className="card2 p-3"><div className="text-[10.5px] mute">Ø Erfolgsgrad</div><div className="disp text-[26px]">${q?q.avg:'–'}</div></div></div>
-  <div className="text-[10.5px] mute mt-3 leading-relaxed">Vergleich mit deinen Startwerten (im Prototyp Demo-Werte). Wochenpunkte-Verlauf teils Demo. Vergleiche dich mit dir, nicht mit anderen.</div></div>`}
+  <div className="text-[10.5px] mute mt-3 leading-relaxed">Vergleich mit deinen Startwerten (im Prototyp Demo-Werte). Wochenpunkte: nur gespeicherte Abschlüsse, ohne laufende Woche. Ø je Zeitraum; Prozentvergleich ab acht Wochen. Vergleiche dich mit dir, nicht mit anderen.</div></div>`}
 function Solo({c}){
  const {S,D}=c;const plan=D.seasonPlan;
  const N=SDAYS(S);const planned=Array.from({length:N},(_,i)=>Math.round(plan*i/(N-1)));
@@ -799,7 +807,7 @@ function Over({c}){
  const {S,D}=c;const cats=allCats(S);const [m,setM]=useState('pts');
  const vals=cats.map(x=>Math.round(S.catScore[x.id]??40));
  const short=cats.map(x=>x.name.split(/[ &]/)[0]);
- const ser={pts:{d:[...S.hist,D.wk],col:'#8B5CF6',l:'Wochenpunkte',f:x=>x+' Pkt.'},focus:{d:[...S.stats.focus.hist],col:'#A78BFA',l:'Fokus-Stunden',f:x=>n1(x)+' h'},save:{d:[...S.save.hist],col:'#34D399',l:'Gespart (kumuliert)',f:x=>eur(x)}}[m];
+ const ser={pts:{d:[...completedWeeks(S).map(w=>w.pts),D.wk],col:'#8B5CF6',l:'Wochenpunkte',f:x=>x+' Pkt.'},focus:{d:[...S.stats.focus.hist],col:'#A78BFA',l:'Fokus-Stunden',f:x=>n1(x)+' h'},save:{d:[...S.save.hist],col:'#34D399',l:'Gespart (kumuliert)',f:x=>eur(x)}}[m];
  const labels=ser.d.map((_,i)=>i===0?'früh':i===ser.d.length-1?'jetzt':'');
  return html`<div>
  <div className="card p-4"><div className="flex items-center justify-between"><div className="lbl acc">Lebensmatrix · 10 Bereiche</div><button onClick=${()=>c.openSheet({t:'info',k:'matrix'})} className="bg-transparent border-0 mute"><${Icon} n="info" s=${16}/></button></div><${Radar} vals=${vals} names=${short}/>
@@ -810,7 +818,7 @@ function Over({c}){
   <${Tile} a=${x} s=${40}/><div className="flex-1 min-w-0"><div className="flex items-center justify-between"><span className="text-[13.5px] font-semibold truncate">${x.name}</span><span className="flex items-center gap-2"><span className="num font-bold">${Math.round(v)}</span><${Delta} n=${d}/></span></div>
   <div className="mt-1.5"><${Bar} pct=${v/100} h=${5}/></div><div className="flex items-center gap-2 mt-1.5"><${Src} s=${x.src}/><span className="text-[10px] mute">${acts.length?acts.map(a=>a.short).join(', '):'Noch keine Aktivität'}</span></div></div></button>`})}</div>
  <${Title} right=${html`<div className="flex gap-1">${[['pts','Punkte'],['focus','Fokus'],['save','Sparen']].map(([k,l])=>html`<button key=${k} onClick=${()=>setM(k)} className=${`chip ${m===k?'on':''}`} style=${{padding:'4px 10px'}}>${l}</button>`)}</div>`}>Verlauf<//>
- <div className="card p-4"><div className="text-[12px] mute mb-1">${ser.l} · tippe oder ziehe über das Diagramm</div><${Chart} h=${150} series=${[{data:ser.d,color:ser.col}]} labels=${labels} fmt=${ser.f}/></div>
+ <div className="card p-4"><div className="text-[12px] mute mb-1">${ser.l}${m==='pts'?' · gespeicherte Wochen + laufende Woche':''} · tippe oder ziehe über das Diagramm</div><${Chart} h=${150} series=${[{data:ser.d,color:ser.col}]} labels=${labels} fmt=${ser.f}/></div>
  <${Title}>Fairness-Check<//><${RelCompare}/>
  <div className="card p-4 mt-3"><div className="lbl mb-2">Vier getrennte Ebenen</div>${[['A','Reale Leistung','Gemessene Ergebnisse (PRs, Zeiten)'],['B','Disziplin','Erfüllung deiner realistischen Zusagen'],['C','Liga-Punkte','Wöchentlich, gedeckelt, setzt zurück'],['D','Aktivitäts-Rating','Langfristig, bleibt bestehen']].map(([k,t,s])=>html`<div key=${k} className="flex gap-3 py-1.5"><div className="w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-bold num acc" style=${{background:'rgba(139,92,246,.14)'}}>${k}</div><div><div className="text-[13px] font-semibold">${t}</div><div className="text-[11.5px] mute">${s}</div></div></div>`)}</div></div>`}
 function RecCard({k,c}){
@@ -905,7 +913,7 @@ function Goals({c}){
  <button onClick=${()=>c.openSheet({t:'newgoal'})} className="card p-4 flex items-center justify-center gap-2 text-sm font-semibold" style=${{borderStyle:'dashed'}}><${Icon} n="plus" s=${16}/> Neues Ziel erstellen</button></div>`}
 function Gen({c}){
  const {S,D}=c;
- const hist=[...S.hist,D.wk],avg=Math.round(hist.reduce((a,x)=>a+x,0)/hist.length),best=Math.max(...hist);
+ const hist=[...completedWeeks(S).map(w=>w.pts),D.wk],avg=Math.round(hist.reduce((a,x)=>a+x,0)/hist.length),best=Math.max(...hist);
  const q=avgQ(S),ql=S.qLog||[];
  const Z=[['Unter Standard',0,29],['Knapp',30,59],['Standard',60,84],['Übertroffen',85,100]].map(([l,a,b])=>[l,ql.filter(x=>x.q>=a&&x.q<=b).length]);
  const zmax=Math.max(1,...Z.map(z=>z[1]));
@@ -1347,14 +1355,14 @@ function App(){
   const di=n.day%7,week=Math.floor(n.day/7);const was=derive(n);
   if((n.todayPts[n.mArea]||0)>0)n.mDays=(n.mDays||0)+1;
   const had=todayTotal(n)>0||n.rest.includes(n.day),lose=!had&&!((n.freezes||0)>0)&&n.streak>0;
-  n.snaps=[...(n.snaps||[]),{day:n.day,cats:{...n.catScore},streak:n.streak}].slice(-120);
+  n.snaps=[...(n.snaps||[]),{season:n.season,day:n.day,cats:{...n.catScore},streak:n.streak}].slice(-120);
   if(had)n.idle=0;else{n.idle=(n.idle||0)+1;if(n.idle>=3&&!n.comeback){n.comeback=true;n.cbDone=0;n.nemMsg={t:'Drei Tage Pause. Ich habe keinen verpasst. Fang klein an.',ts:Date.now()}}}
   if(lose&&!(n.nemMsg&&n.nemMsg.ts>Date.now()-1000))n.nemMsg={t:'Dein Streak ist weg. Meiner läuft weiter.',ts:Date.now()};
   if(todayTotal(n)>0||n.rest.includes(n.day)){n.streak++;n.bestStreak=Math.max(n.bestStreak||0,n.streak);if(n.streak%7===0&&(n.freezes||0)<3)n.freezes=(n.freezes||0)+1}else if((n.freezes||0)>0){n.freezes--}else n.streak=0;
   OTH.forEach(o=>{const add=rnd(22,46)+(n.tier||0)*2;n.others[o.id]=Math.min(PLAN_CAP,n.others[o.id]+add);n.oSeason[o.id]+=add});
   if(di===6){
    if(was.wk>=was.plan)n.nemMsg={t:'Diese Woche warst du besser als mein Plan. Nächste Woche werde ich stärker.',ts:Date.now()};
-   const st=standingsOf(n),me=st.find(r=>r.id==='me');n.weekHist.push({pts:weekTotal(n),rank:me.rank});if(me.rank===1)n.flags.league=true;
+   const st=standingsOf(n),me=st.find(r=>r.id==='me');recordWeek(n,me.rank);if(me.rank===1)n.flags.league=true;
    const lag=[...was.active].sort((a,b)=>(n.weekPts[a]||0)/n.acts[a].cap-(n.weekPts[b]||0)/n.acts[b].cap)[0];
    const bestA=[...was.active].sort((a,b)=>(n.weekPts[b]||0)/n.acts[b].cap-(n.weekPts[a]||0)/n.acts[a].cap)[0];
    n.evalDone=false;n.aar={week:week+1,pts:weekTotal(n),rank:me.rank,leader:st[0].full,leaderPts:st[0].pts,best:n.acts[bestA].name,weak:n.acts[lag].name,reached:Math.round(weekTotal(n)/was.plan*100),done:was.doneN};
@@ -1373,7 +1381,7 @@ function App(){
     n.gear=[...(n.gear||[]),...badges.map(x=>x+' · S'+n.season)].slice(-12);
     n.tier=tier1;n.potOff=potNext;n.sThemePts=0;n.sAreaPts={};n.mDays=0;n.sLocked=false;n.setup=true;
     if(rank===1)n.flags.champ=true;if(was.cur>=.8)n.flags.improved=true;
-    n.missions.filter(m=>m.freq==='monthly').forEach(m=>delete n.done[m.id]);n.season++;n.seasonPts=0;OTH.forEach(o=>n.oSeason[o.id]=0);n.seasonCum=[0];n.rest=[];n.day=0;n.seasonMissions=0;n.flags.wasWide=false;
+    n.missions.filter(m=>m.freq==='monthly').forEach(m=>delete n.done[m.id]);n.season++;n.baseCat={...n.catScore};n.snaps=[];n.seasonPts=0;OTH.forEach(o=>n.oSeason[o.id]=0);n.seasonCum=[0];n.rest=[];n.day=0;n.seasonMissions=0;n.flags.wasWide=false;
    }else n.day++;
   }else n.day++;
   n.todayPts={};n.missions.filter(m=>m.freq==='daily'||m.freq==='multi').forEach(m=>delete n.done[m.id]);
