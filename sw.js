@@ -1,7 +1,7 @@
 /* THE WAR WITHIN – Service Worker
    Bei Änderungen an index.html o. ä. die Versionsnummer erhöhen,
    damit installierte Apps das Update laden. */
-const VERSION = 'ww-v12';
+const VERSION = 'ww-v13';
 const APP_SHELL = [
   './',
   './index.html',

@@ -21,10 +21,10 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 
 ### In Arbeit
 - Codex: `codex/integrate-claude` – Supabase-Anbindung und Claude-Branches `season-path`, `one-tap`, `ux-pass` integriert. Syntax und Auth-Vertragstests bestanden; Saison-Pfad, Statistik und Scroll-Kopf im Browser geprüft. Null-Missionszähler korrigiert. Manueller Missions-/Undo-Test und Review durch Claude für Supabase offen.
-- Claude: `claude/compound-effect` (abgezweigt von `codex/integrate-claude`) – Home-Dashboard mit Kacheln, Aufstieg (Berg), Daily Briefing, Abend-Review, Compound-Effekt + Was-wäre-wenn-Rechner, Wochenscore (70/20/10), Kapitel Fundament/Momentum/Konstanz/Endspurt, Basis/Erweitert-Ansicht. Dateien: `index.html`, `sw.js`, `AGENTS.md`. Im Browser (Mobil) geprüft.
+- Claude: `claude/compound-effect` (abgezweigt von `codex/integrate-claude`) – Home-Dashboard mit Kacheln, Aufstieg (Berg), Daily Briefing, Abend-Review, Compound-Effekt + Was-wäre-wenn-Rechner, Wochenscore (70/20/10), Kapitel Fundament/Momentum/Konstanz/Endspurt, Basis/Erweitert-Modus (auch im Onboarding), hierarchische Lebensmatrix (Bereich → Unterkategorie → Wert → Mission) mit eigenen Unterkategorien, Werten und Missionen, Prinzipien unter Charakter & Werte, abschaltbare Detail-Vorschläge. Dateien: `index.html`, `sw.js`, `AGENTS.md`. Im Browser (Mobil) geprüft.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v12` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v13` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Konzepte

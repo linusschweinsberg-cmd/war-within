@@ -331,7 +331,7 @@ function initState(){
               {id:'c2',kind:'pb',metric:'Lesezeit (Min./Woche)',who:'lena',stake:10,deadline:6,status:'incoming',src:'Selbst gemeldet'}],
   ach:{first:true,streak7:true},newAch:[],flags:{wasWide:true},share:{fin:false,fit:false,focus:true,run5k:true,swim:true,bench:true,pull:true,read:true},
   pulse:0,aar:null,sreport:null,quoteIdx:0,
-  ui:'basic',tally:{...TALLY_ALL},sTally:{...TALLY_S},tallyDemo:true,wlog:{'4-0':{b:1,r:1,ps:3,pd:3,g:1},'4-1':{b:1,r:0,ps:3,pd:2,g:1}},brief:null,nextPrio:null,reviews:[]};
+  ui:'basic',tally:{...TALLY_ALL},sTally:{...TALLY_S},tallyDemo:true,wlog:{'4-0':{b:1,r:1,ps:3,pd:3,g:1},'4-1':{b:1,r:0,ps:3,pd:2,g:1}},brief:null,nextPrio:null,reviews:[],mxv:mxvDemo(),principles:PRINC_DEMO.map(x=>({...x})),tradition:'Stoizismus',mx:{},sugg:{},detail:{}};
  return st;
 }
 /* ───── Berechnungen ───── */
@@ -378,7 +378,7 @@ function loadState(key='war_within_v5'){try{const r=localStorage.getItem(key);if
    if(s.bench)s.bench=s.bench.filter(x=>x!=='read');
    if(Array.isArray(s.missions)){['m_cal','m_read'].forEach(id=>{if(!s.missions.some(m=>m.id===id)){const m0=M0.find(m=>m.id===id);if(m0)s.missions.push(JSON.parse(JSON.stringify(m0)))}});const mm=s.missions.find(m=>m.id==='m_morn');if(mm&&mm.title==='Ohne Snooze aufstehen')mm.title='Früh aufstehen'}
    if(!Array.isArray(s.weekHist))s.weekHist=[];
-   if(!s.ui)s.ui='basic';if(!s.tally){s.tally={...TALLY_ALL};s.sTally={...TALLY_S};s.tallyDemo=true}if(!s.sTally)s.sTally={};if(!s.wlog)s.wlog={};if(!Array.isArray(s.reviews))s.reviews=[];
+   if(!s.ui)s.ui='basic';if(!s.tally){s.tally={...TALLY_ALL};s.sTally={...TALLY_S};s.tallyDemo=true}if(!s.sTally)s.sTally={};if(!s.wlog)s.wlog={};if(!Array.isArray(s.reviews))s.reviews=[];if(!s.mxv)s.mxv=mxvDemo();if(!s.principles){s.principles=PRINC_DEMO.map(x=>({...x}));s.tradition='Stoizismus'}if(!s.mx)s.mx={};if(!s.sugg)s.sugg={};if(!s.detail)s.detail={};
    return s}}}catch(e){}return initState()}
 
 /* ───── PUNKTE-KATALOG ───── */
@@ -625,13 +625,13 @@ function MRow({m,c,big}){
  const sz=big?54:46;
  return html`<div className="relative rounded-[26px] overflow-hidden rise" style=${{touchAction:'pan-y'}}>
  <div className="absolute inset-0 flex items-center pl-5 text-white" style=${{background:col,opacity:dx>0?1:0}}><${Icon} n="check" s=${26} sw=${3}/><span className="ml-2 text-sm font-bold">${dx>90?'Loslassen':'Weiter wischen'}</span></div>
- <div onPointerDown=${down} onPointerMove=${move} onPointerUp=${up} onPointerCancel=${()=>{st.current=null;clr();setDx(0)}} onPointerLeave=${clr} onContextMenu=${e=>e.preventDefault()} onClick=${tap} role="button" aria-label=${`${m.title}: ${done?'erledigt':m.log?'öffnen, um Werte einzutragen':'antippen zum Abhaken, lange drücken für Details'}`} className="flex items-center gap-3.5 relative cursor-pointer" style=${{borderRadius:26,padding:big?'20px 16px 16px 18px':'16px 14px 14px 16px',background:done?`linear-gradient(135deg,${col},color-mix(in srgb, ${col} 70%, #000))`:`linear-gradient(135deg,color-mix(in srgb, ${col} 20%, var(--card)),color-mix(in srgb, ${col} 9%, var(--card)))`,boxShadow:done?`0 10px 26px -12px ${col}`:'0 1px 0 var(--hi) inset',border:done?`1px solid ${col}`:`1px solid color-mix(in srgb, ${col} 36%, transparent)`,transform:`translateX(${dx}px)`,transition:dx?'none':'transform .25s',userSelect:'none',color:done?'#fff':'var(--ink)'}}>
+ <div onPointerDown=${down} onPointerMove=${move} onPointerUp=${up} onPointerCancel=${()=>{st.current=null;clr();setDx(0)}} onPointerLeave=${clr} onContextMenu=${e=>e.preventDefault()} onClick=${tap} role="button" aria-label=${`${m.title}: ${done?'erledigt':wantsLog(S,m)?'öffnen, um Werte einzutragen':'antippen zum Abhaken, lange drücken für Details'}`} className="flex items-center gap-3.5 relative cursor-pointer" style=${{borderRadius:26,padding:big?'20px 16px 16px 18px':'16px 14px 14px 16px',background:done?`linear-gradient(135deg,${col},color-mix(in srgb, ${col} 70%, #000))`:`linear-gradient(135deg,color-mix(in srgb, ${col} 20%, var(--card)),color-mix(in srgb, ${col} 9%, var(--card)))`,boxShadow:done?`0 10px 26px -12px ${col}`:'0 1px 0 var(--hi) inset',border:done?`1px solid ${col}`:`1px solid color-mix(in srgb, ${col} 36%, transparent)`,transform:`translateX(${dx}px)`,transition:dx?'none':'transform .25s',userSelect:'none',color:done?'#fff':'var(--ink)'}}>
   ${hold&&html`<span aria-hidden="true" className="absolute left-0 bottom-0 h-[3px] rounded-full" style=${{background:col,animation:'holdBar .48s linear forwards'}}/>`}<span className="num absolute text-[12px] font-bold" style=${{left:18,top:6,color:done?'rgba(255,255,255,.9)':col}}>${capped?'Limit':'+'+m.pts}</span>
   <button aria-label="Aktivität öffnen" onClick=${e=>{e.stopPropagation();c.openSheet({t:'act',id:a.id})}} className="bg-transparent border-0 p-0 shrink-0 mt-2" style=${{color:done?'#fff':col}}><${Icon} n=${a.icon} s=${big?32:28}/></button>
   <div className="flex-1 min-w-0 mt-1"><div className=${`${big?'text-[18px]':'text-[16px]'} font-semibold leading-tight`}>${m.title}</div>
-  <div className="text-[13px] mt-0.5" style=${{opacity:.72}}>${m.freq==='multi'?`${cnt} von ${m.times} diese Woche`:freqLabel(m)}${m.log&&!done?' · mit Eingabe':''}${done&&S.autoDone&&S.autoDone[m.id]?' · Auto (Demo)':''}</div></div>
+  <div className="text-[13px] mt-0.5" style=${{opacity:.72}}>${m.desc?m.desc+' · ':''}${m.freq==='multi'?`${cnt} von ${m.times} diese Woche`:freqLabel(m)}${wantsLog(S,m)&&!done?' · mit Eingabe':''}${done&&S.autoDone&&S.autoDone[m.id]?' · Auto (Demo)':''}</div></div>
   <div className="rounded-full flex items-center justify-center shrink-0 transition-all" style=${{width:sz,height:sz,background:done?'#fff':'transparent',border:done?'none':`5px solid color-mix(in srgb, ${col} 38%, transparent)`,color:done?col:col}}>
-   ${done?html`<${Icon} n="check" s=${big?28:24} sw=${3}/>`:m.log?html`<${Icon} n="chevR" s=${big?26:22} sw=${2.4}/>`:html`<${Icon} n="check" s=${big?24:20} sw=${2.6} style=${{opacity:.45}}/>`}</div></div></div>`}
+   ${done?html`<${Icon} n="check" s=${big?28:24} sw=${3}/>`:wantsLog(S,m)?html`<${Icon} n="chevR" s=${big?26:22} sw=${2.4}/>`:html`<${Icon} n="check" s=${big?24:20} sw=${2.6} style=${{opacity:.45}}/>`}</div></div></div>`}
 /* ───── Ripple-Effekt ───── */
 function Ripple({c}){
  const {S,D}=c;const [sc,setSc]=useState('miss');const [k,setK]=useState(0);
@@ -933,6 +933,7 @@ function Home({c}){
  <${DailyBriefing} key=${dayKey(S)} c=${c}/>
  <${Routines} c=${c}/>
  <${EveningCard} c=${c}/>
+ <${Suggest} c=${c}/>
  <${CompoundPeek} c=${c}/>
  <div className="mt-6"><${QuoteSlider}/></div>
  ${S.ui==='adv'&&html`<${TreeCard} c=${c}/>`}
@@ -946,7 +947,7 @@ function Tasks({c}){
  const base=new Date();
  return html`<div className="screen px-4 pb-6"><div className="pt-5 flex items-center justify-between"><span className="w-9"/><h1 className="text-[20px] font-bold">Heute</h1><button aria-label="Aufgabe hinzufügen" onClick=${()=>c.openSheet({t:'add'})} className="w-9 h-9 bg-transparent border-0 acc flex items-center justify-center"><${Icon} n="plus" s=${26} sw=${2.4}/></button></div>
  <div className="flex justify-between mt-4 mb-5">${DAYS.map((x,i)=>{const today=i===D.di,past=i<D.di,p=today?(D.allM.length?D.doneN/D.allM.length:0):past?1:0;const dt=new Date(base.getTime()+(i-D.di)*864e5).getDate();return html`<div key=${x} className="flex flex-col items-center gap-1.5 pt-2 pb-2 rounded-[26px]" style=${{background:today?'var(--acc)':'transparent',width:44}}><span className="text-[12px]" style=${{color:today?'#fff':'var(--mute)'}}>${x}</span><${Ring} pct=${p} size=${34} stroke=${3.5} color=${today?'#fff':'var(--acc2)'}><span className="text-[13px] font-bold" style=${{color:today||past?'#fff':'var(--mute)'}}>${dt}</span><//></div>`})}</div>
- <div className="mb-4"><${Seg} opts=${[['today','Heute'],['all','Alle'],...GROUPS.map(g=>[g.id,g.name]),...Object.keys(S.acts).filter(id=>D.allM.some(m=>m.act===id)).map(id=>[id,S.acts[id].name])]} val=${grp} on=${setGrp}/></div>
+ <div className="mb-4"><${Seg} opts=${S.ui!=='adv'?[['today','Heute'],['all','Alle']]:[['today','Heute'],['all','Alle'],...GROUPS.map(g=>[g.id,g.name]),...Object.keys(S.acts).filter(id=>D.allM.some(m=>m.act===id)).map(id=>[id,S.acts[id].name])]} val=${grp} on=${setGrp}/>${S.ui!=='adv'&&html`<div className="text-[11px] mute mt-2 px-1">Antippen = erledigt. Lange drücken = bearbeiten. Mit + legst du eigene Missionen an.</div>`}</div>
  <div className="flex flex-col gap-3">${fm.map(m=>html`<${MRow} key=${m.id} m=${m} c=${c}/>`)}</div>
  ${fm.length===0&&html`<div className="card p-4 text-sm mute">Heute keine Aufgaben.</div>`}
  <div className="text-center text-[13px] mute mt-4"><button onClick=${()=>c.openSheet({t:'catalog'})} className="acc font-semibold bg-transparent border-0 text-[13px] mb-2 block mx-auto">Punkte-Katalog</button>${fm.filter(m=>isDone(S,m)).length} von ${fm.length} erledigt${avgQ(S)?` · Ø Erfolgsgrad ${avgQ(S).avg}`:''}</div></div>`}
@@ -1188,7 +1189,7 @@ function Gen({c}){
  const rk=cats.map((x,i)=>[x,vals[i]]).sort((a,b)=>b[1]-a[1]),top=rk.slice(0,3),low=rk.slice(-3).reverse();
  const Row=({l,list,col})=>html`<div className="mt-3"><div className="lbl mb-1.5" style=${{color:col}}>${l}</div><div className="flex flex-col gap-1.5">${list.map(([x,v])=>html`<button key=${x.id} onClick=${()=>c.openSheet({t:'cat',id:x.id})} className="card2 px-3 py-2.5 flex items-center gap-3 text-left border-0" style=${{borderRadius:14}}><${Tile} a=${x} s=${28}/><span className="flex-1 text-[13px] font-medium truncate ink">${x.name}</span><span className="num font-bold ink">${v}</span><div style=${{width:54}}><${Bar} pct=${v/100} h=${4} color=${col}/></div></button>`)}</div></div>`;
  return html`<div>
- <div className="card p-4 mb-3"><div className="flex items-center justify-between"><div className="lbl acc">Lebensmatrix · ${cats.length} Bereiche</div><button aria-label="Info" onClick=${()=>c.openSheet({t:'info',k:'matrix'})} className="bg-transparent border-0 mute"><${Icon} n="info" s=${16}/></button></div><${Radar} vals=${vals} names=${short}/>
+ <div className="card p-4 mb-3"><div className="flex items-center justify-between"><div className="lbl acc">Bereichswerte · ${cats.length} Bereiche</div><button aria-label="Info" onClick=${()=>c.openSheet({t:'info',k:'matrix'})} className="bg-transparent border-0 mute"><${Icon} n="info" s=${16}/></button></div><${Radar} vals=${vals} names=${short}/>
   <${Row} l="Stärken" list=${top} col="var(--good)"/><${Row} l="Schwächen · hier lohnt sich Fokus" list=${low} col="#F59E0B"/></div>
  <div className="grid grid-cols-3 gap-2 mb-3">${[[S.streak,'Serie','flame','#FB923C'],[form(D.lvC)+' %','Form','trend','#A78BFA'],[S.seasonPts,'Saisonpunkte','zap','#C4B5FD']].map(([v,l,ic,col])=>html`<div key=${l} className="card p-3.5" style=${{borderRadius:20}}><div className="w-8 h-8 rounded-xl flex items-center justify-center" style=${{background:col+'22',color:col}}><${Icon} n=${ic} s=${16}/></div><div className="disp text-[30px] mt-2 leading-none">${v}</div><div className="text-[12px] mute mt-1">${l}</div></div>`)}</div>
  <div className="card overflow-hidden">${[['Konstanz',[[Math.max(S.streak,S.bestStreak||0)+' Tage','Bester Streak','award'],[S.seasonMissions??12,'Missionen diese Saison','check'],[q?q.avg:'–','Ø Erfolgsgrad','target']]],['Leistung',[[avg,'Ø Wochenpunkte','activity'],[best,'Beste Woche','star'],[(S.sHist||[]).length+1,'Saisons gespielt','flag']]],['Leben',[[n1(S.study.hours)+' h','Lernzeit','book'],[eur(S.save.saved),'Gespart','wallet'],[Object.keys(S.acts).length,'Aktive Bereiche','users']]]].map(([g,rows],gi)=>html`<div key=${g} className=${gi?'border-t ln':''}><div className="lbl px-4 pt-3 pb-1">${g}</div>${rows.map(([v,l,ic])=>html`<div key=${l} className="flex items-center gap-3 px-4 py-2.5"><span className="acc"><${Icon} n=${ic} s=${17}/></span><span className="flex-1 text-[14px]">${l}</span><span className="num text-[15px] font-semibold">${v}</span></div>`)}</div>`)}</div>
@@ -1197,13 +1198,141 @@ function Gen({c}){
  <${Title}>Erfolgsgrade<//>
  <div className="card p-4">${ql.length===0?html`<div className="text-[12.5px] mute">Noch keine Bewertungen. Schließe eine Aufgabe mit dem Erfolgsgrad-Slider ab.</div>`:Z.map(([l,n],i)=>html`<div key=${l} className=${i?'mt-3':''}><div className="flex justify-between text-[12.5px]"><span>${l}</span><span className="num font-semibold">${n}</span></div><div className="mt-1"><${Bar} pct=${n/zmax} h=${5}/></div></div>`)}${ql.length>0&&html`<div className="text-[10.5px] mute mt-3">Basis: deine letzten ${ql.length} Bewertungen.</div>`}</div>
  <div className="text-[10.5px] mute mt-3 leading-relaxed">Ein Teil der Verlaufsdaten stammt aus der Demo. Neue Aktivität fließt live ein.</div></div>`}
+/* ───── LEBENSMATRIX: Bereich → Unterkategorie → Wert → Mission ───── */
+const SRCK={mess:['Gemessen','#34D399'],self:['Selbst gemeldet','#60A5FA'],assess:['Einschätzung','#FBBF24'],game:['Spielwertung','#A78BFA'],est:['Schätzung','#A78BFA']};
+function SrcTag({k}){const [l,col]=SRCK[k]||SRCK.self;return html`<span className="inline-flex items-center text-[10px] font-semibold px-1.5 py-0.5 rounded-md shrink-0" style=${{background:col+'1F',color:col}}>${l}</span>`}
+const mv=(S,id)=>((S.mxv||{})[id])||[];
+const X=(id,n,u,src,o={})=>({id,n,u,src,...o});
+const MX=[
+{id:'health',n:'Gesundheit & Fitness',ic:'dumbbell',cats:['fit','rec'],subs:[
+ {id:'str',n:'Kraft',act:'body',stats:[
+  X('bench','Bankdrücken','kg','mess',{get:S=>S.stats.bench.ver,hist:S=>S.stats.bench.hist,rec:'lift',ms:['m_train'],extra:S=>S.stats.bench.est?`Geschätzter 1RM (Epley): ${n1(S.stats.bench.est)} kg · Schätzung, ersetzt nie den verifizierten PR`:'Verifizierter PR. Schätzungen aus Sätzen werden getrennt geführt.'}),
+  X('squat','Kniebeuge','kg','mess',{get:S=>S.stats.squat.ver,hist:S=>S.stats.squat.hist,rec:'squat'}),
+  X('pull','Klimmzüge','Wdh.','mess',{get:S=>S.stats.pull.pr,hist:S=>S.stats.pull.hist,rec:'pull'})]},
+ {id:'end',n:'Ausdauer',act:'run',stats:[
+  X('run5k','5-km-Lauf','','mess',{get:S=>S.stats.run5k.pr,hist:S=>S.stats.run5k.hist,fmt:fmtT,lower:true,rec:'run',ms:['m_run']}),
+  X('swim','100 m Schwimmen','','mess',{get:S=>S.stats.swim.pr,hist:S=>S.stats.swim.hist,fmt:fmtT,lower:true,rec:'swim'})]},
+ {id:'sleep',n:'Schlaf & Erholung',act:'rec',stats:[X('sleeph','Ø Schlaf','h','self',{step:.5,ms:['m_sleep','m_wind']})]},
+ {id:'food',n:'Ernährung',act:'body',stats:[X('meals','Ausgewogene Mahlzeiten','pro Woche','self',{ms:['m_eat','m_cal']})]}]},
+{id:'pd',n:'Persönliche Entwicklung',ic:'book',cats:['intel','time','goals'],subs:[
+ {id:'intel',n:'Intellektuelles Wachstum',act:'read',stats:[
+  X('readh','Lesezeit','h/Monat','self',{get:S=>S.stats.read.month,hist:S=>S.stats.read.hist,rec:'read',ms:['m_read']}),
+  X('learnh','Lernzeit gesamt','h','self',{get:S=>S.study.hours,rec:'study'}),
+  X('tests','Wissenstests','%','mess',{note:'Ergebnisse echter Tests oder Prüfungen.'}),
+  X('courses','Abgeschlossene Kurse','','self')]},
+ {id:'skill',n:'Fähigkeiten',act:'lang',stats:[
+  X('spanish','Spanisch','h','self',{get:S=>S.study.hours,rec:'study',ms:['m_lang'],goal:S=>{const g=S.goals.find(x=>x.kind==='learn');return g&&{t:g.target,l:g.title}}}),
+  X('codeh','Programmieren','h','self',{ms:['m_code']}),
+  X('speak','Öffentlich sprechen','Reden','self'),
+  X('creative','Kreatives','h','self')]},
+ {id:'time',n:'Zeit & Produktivität',act:'deep',stats:[
+  X('deep','Tiefenarbeit','h/Woche','mess',{get:S=>S.stats.focus.week,hist:S=>S.stats.focus.hist,rec:'focus',ms:['m_focus'],extra:S=>{const m=S.missions.find(x=>x.id==='m_focus');return m?`Geplant: ${perWk(m)} Fokusblöcke à 60 Min. pro Woche`:''}}),
+  X('prio','Erledigte Prioritäten','%','mess',{get:S=>{const l=Object.values(S.wlog||{}),ps=l.reduce((a,x)=>a+(x.ps||0),0);return ps?Math.round(l.reduce((a,x)=>a+(x.pd||0),0)/ps*100):null},note:'Aus deinen bestätigten Daily Briefings dieser Saison.'}),
+  X('projp','Wichtiges Projekt','%','assess')]},
+ {id:'mast',n:'Selbstführung',act:'disc',stats:[
+  X('plandays','Tage mit Plan','%','mess',{get:S=>{const l=Object.values(S.wlog||{});return l.length?Math.round(l.filter(x=>x.b).length/l.length*100):null},note:'Anteil der Tage mit bestätigtem Briefing.'}),
+  X('hard','Unbequemes zuerst','mal','mess',{get:S=>(S.tally||{}).m_hard||0,ms:['m_hard','m_brave'],note:'Gezählte Missionen, keine Bewertung deines Charakters.'}),
+  X('resist','Umgang mit Widerstand','/10','assess',{note:'Deine eigene, private Einschätzung. Kein objektiver Messwert.'}),
+  X('habit','Aktuelle Serie','Tage','mess',{get:S=>S.streak})]},
+ {id:'prac',n:'Praktische Fähigkeiten',act:'disc',stats:[X('org','Organisation','/10','assess'),X('solve','Probleme selbst gelöst','','self'),X('everyday','Neue Alltagskompetenzen','','self')]}]},
+{id:'career',n:'Karriere & Sinn',ic:'briefcase',cats:['career'],subs:[
+ {id:'work',n:'Projekte & Netzwerk',act:'biz',stats:[X('mainproj','Hauptprojekt','%','assess'),X('contacts','Kontakte geknüpft','','self',{ms:['m_biz']})]},
+ {id:'purpose',n:'Sinn & Richtung',act:'disc',stats:[X('meaning','Sinnerleben','/10','assess',{note:'Private Einschätzung.'})]}]},
+{id:'fin',n:'Finanzielle Unabhängigkeit',ic:'wallet',cats:['fin'],subs:[
+ {id:'save',n:'Sparen',act:'fin',stats:[
+  X('saved','Ersparnisse','','self',{get:S=>S.save.saved,hist:S=>S.save.hist,fmt:eur,rec:'save',ms:['m_save'],goal:S=>({t:S.save.goal,l:'Sparziel'}),extra:S=>`Regelmäßig ${eur(S.save.weekly)} pro Woche · Prognose Saisonende ${eur(S.save.saved+S.save.weekly*Math.max(0,(SDAYS(S)-1-S.day)/7))} (ohne Zinsen)`}),
+  X('srate','Sparquote','%','self',{note:'Optional: nur, wenn du dein Einkommen freiwillig angibst.'})]},
+ {id:'budget',n:'Ausgaben',act:'fin',stats:[X('spendck','Ausgaben geprüft','mal','mess',{get:S=>(S.tally||{}).m_spend||0,ms:['m_spend','m_mfin']})]}]},
+{id:'rel',n:'Beziehungen',ic:'heart',cats:['rel'],subs:[
+ {id:'close',n:'Familie & Freunde',act:'rel',stats:[X('social','Gehaltene Zusagen','','mess',{get:S=>tal(S,m=>m.act==='rel',1),ms:['m_rel','m_call','m_mrel']}),X('quality','Bewusste gemeinsame Zeit','h/Woche','self')]}]},
+{id:'char',n:'Charakter & Werte',ic:'shield',cats:['char'],values:true,subs:[
+ {id:'refl',n:'Reflexion',act:'disc',stats:[X('aarN','Abend-Reviews','','mess',{get:S=>(S.reviews||[]).length,ms:['m_ref']}),X('evalN','Wochen-Evaluationen','','mess',{get:S=>(S.evalHist||[]).length})]}]},
+{id:'prep',n:'Lebenskompetenz & Vorsorge',ic:'flag',cats:['prep'],opt:true,subs:[
+ {id:'ready',n:'Vorbereitung',act:'disc',stats:[X('kit','Notfallvorrat geprüft','mal','self'),X('firstaid','Erste-Hilfe-Kurs','Jahr','self',{fmt:x=>String(x)})]}]}];
+const MXV_DEMO={sleeph:[6.8,7.1,6.9,7.3,7,7.4],meals:[9,11,10,12,13],tests:[62,70,74,81],courses:[1,2,2,3],codeh:[4,9,15,22,30],speak:[1,2,3],creative:[2,4,5],projp:[20,35,45,55],resist:[5,5,6,6,7],org:[5,6,6,7],solve:[2,5,8],everyday:[1,2,4],mainproj:[10,25,40],contacts:[6,14,25,31],meaning:[6,7,7],srate:[12,14,15],quality:[4,5,6,5,7],kit:[1,2],firstaid:[2023]};
+const mxvDemo=()=>{const t=Date.now(),o={};Object.entries(MXV_DEMO).forEach(([k,a])=>{o[k]=a.map((v,i)=>({v,t:t-(a.length-1-i)*7*864e5}))});return o};
+const PRINC_DEMO=[{id:'p1',n:'Integrität',acts:6},{id:'p2',n:'Mut',acts:3},{id:'p3',n:'Verantwortung',acts:9}];
+const PRINC_SUG=['Integrität','Mut','Respekt','Demut','Mitgefühl','Verantwortung','Disziplin','Dankbarkeit'];
+const TRADS=['Keine','Stoizismus','Bushidō','Religiöse Ethik','Eigene'];
+function mxTree(S){const cu=S.mx||{};const statOf=x=>({...x,auto:!!x.get&&!x.rec,get:x.get||(Z=>{const a=mv(Z,x.id);return a.length?a[a.length-1].v:null}),hist:x.hist||(Z=>{const a=mv(Z,x.id);return a.length>1?a.map(y=>y.v):null})});
+ return MX.map(cat=>({...cat,subs:[...cat.subs,...((cu.subs||{})[cat.id]||[])].map(sb=>({...sb,stats:[...(sb.stats||[]),...((cu.stats||{})[sb.id]||[])].map(statOf)}))}))}
+function mxFind(S,id){for(const cat of mxTree(S))for(const sub of cat.subs)for(const st of sub.stats)if(st.id===id)return{cat,sub,st};return null}
+const mxFmt=(st,v)=>v==null?'–':(st.fmt?st.fmt(v):(typeof v==='number'?(Number.isInteger(v)?v.toLocaleString('de-DE'):n1(v)):v)+(st.u&&!/^\//.test(st.u)?' '+st.u:st.u||''));
+const mxMissions=(S,st)=>S.missions.filter(m=>(st.ms||[]).includes(m.id)||m.stat===st.id);
+const mxRating=(S,cat)=>{const v=cat.cats.map(k=>S.catScore[k]??40),b=cat.cats.map(k=>(S.baseCat||{})[k]??CAT_INIT[k]??40);const avg=a=>a.reduce((x,y)=>x+y,0)/Math.max(1,a.length);return{r:Math.round(avg(v)),d:Math.round(avg(v)-avg(b))}};
+const actFor=(S,a)=>S.acts[a]?a:'disc';
+function LifeMatrix({c}){const {S}=c;const [cid,setCid]=useState(null),[open,setOpen]=useState({}),[nsub,setNsub]=useState('');const T=mxTree(S);
+ const cat=T.find(x=>x.id===cid);
+ if(!cat)return html`<div><div className="card p-4 mb-3" style=${{background:'var(--hero)'}}><div className="lbl acc">Lebensmatrix</div><div className="disp text-[28px] mt-1 leading-[.95]">Werde ein fähigerer Mensch.</div><div className="text-[12.5px] mute mt-2 leading-snug">Bereich → Unterkategorie → Wert → Mission. Tippe einen Bereich an, um tiefer zu gehen.</div></div>
+  <div className="grid grid-cols-2 gap-2.5">${T.map((x,i)=>{const R=mxRating(S,x),n=x.subs.reduce((a,s)=>a+s.stats.length,0);return html`<button key=${x.id} onClick=${()=>setCid(x.id)} className=${`card p-3.5 text-left rise ${x.opt?'col-span-2':''}`} style=${{borderRadius:20,animationDelay:i*.04+'s'}}>
+   <div className="flex items-center justify-between"><span className="w-9 h-9 rounded-xl flex items-center justify-center" style=${{background:'rgba(139,92,246,.14)',color:'var(--acc2)'}}><${Icon} n=${x.ic} s=${18}/></span>${x.opt||x.values?html`<span className="chip" style=${{minHeight:24,padding:'2px 8px',fontSize:10}}>${x.values?'Privat':'Optional'}</span>`:html`<${Delta} n=${R.d}/>`}</div>
+   <div className="text-[13.5px] font-semibold mt-2.5 leading-tight">${x.n}</div>
+   ${x.values?html`<div className="text-[11px] mute mt-2">${(S.principles||[]).length} Prinzipien · keine Wertung</div>`:html`<div className="flex items-center gap-2 mt-2"><div className="flex-1"><${Bar} pct=${R.r/100} h=${4}/></div><span className="num text-[12px] font-bold">${R.r}</span></div>`}
+   <div className="text-[10.5px] mute mt-1">${x.subs.length} Unterkategorien · ${n} Werte</div></button>`})}</div>
+  <div className="text-[11px] mute mt-3 px-1 leading-relaxed">Balken = Spielwertung (0–100) aus deinen Missionen, Pfeil = Veränderung seit Saisonstart. Echte Messwerte findest du in den Unterkategorien, getrennt gekennzeichnet.</div></div>`;
+ const R=mxRating(S,cat);
+ return html`<div key=${cat.id} className="rise">
+ <button onClick=${()=>setCid(null)} className="bg-transparent border-0 p-0 flex items-center gap-1 text-[13px] font-semibold acc mb-3"><${Icon} n="chevL" s=${16}/>Lebensmatrix</button>
+ <div className="card p-4 flex items-center gap-3" style=${{background:'var(--hero)'}}><span className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style=${{background:'rgba(139,92,246,.18)',color:'var(--acc2)'}}><${Icon} n=${cat.ic} s=${24}/></span><div className="flex-1 min-w-0"><div className="disp text-[24px] leading-none">${cat.n}</div>${cat.values?html`<div className="text-[11.5px] mute mt-1.5">Persönliche Reflexion, ohne Bewertung</div>`:html`<div className="text-[11.5px] mute mt-1.5 flex items-center gap-2">Spielwertung <b className="num ink"><${CountUp} v=${R.r}/></b><${Delta} n=${R.d}/><span>seit Saisonstart</span></div>`}</div></div>
+ ${cat.values&&html`<${ValuesCard} c=${c}/>`}
+ <div className="flex flex-col gap-2 mt-3">${cat.subs.map(sb=>{const on=!!open[sb.id];return html`<div key=${sb.id} className="card overflow-hidden" style=${{borderRadius:20}}>
+  <button onClick=${()=>setOpen({...open,[sb.id]:!on})} aria-expanded=${on} className="w-full bg-transparent border-0 p-3.5 flex items-center gap-3 text-left"><div className="flex-1"><div className="text-[14px] font-semibold">${sb.n}${sb.custom?html` <span className="text-[10px] mute font-normal">· eigene</span>`:''}</div><div className="text-[11px] mute">${sb.stats.length} Werte · ${sb.stats.reduce((a,st)=>a+mxMissions(S,st).length,0)} Missionen</div></div><span className="mute" style=${{transform:on?'rotate(90deg)':'none',transition:'transform .25s'}}><${Icon} n="chevR" s=${16}/></span></button>
+  ${on&&html`<div className="px-2 pb-2 rise">${sb.stats.map(st=>{const v=st.get(S),h=st.hist(S);return html`<button key=${st.id} onClick=${()=>c.openSheet({t:'stat',id:st.id})} className="w-full card2 border-0 px-3 py-2.5 mb-1.5 flex items-center gap-2.5 text-left" style=${{borderRadius:14}}><div className="flex-1 min-w-0"><div className="text-[13px] font-medium truncate ink">${st.n}</div><div className="mt-0.5"><${SrcTag} k=${st.src}/></div></div>${h&&h.length>1&&html`<${Spark} data=${h} w=${54} h=${22} inv=${st.lower}/>`}<span className="num text-[14px] font-bold ink text-right">${mxFmt(st,v)}</span><${Icon} n="chevR" s=${14} cls="mute"/></button>`})}
+   <button onClick=${()=>c.openSheet({t:'newstat',sub:sb.id})} className="ghost w-full py-2.5 text-[12.5px] font-semibold flex items-center justify-center gap-1.5"><${Icon} n="plus" s=${14}/>Wert hinzufügen</button></div>`}</div>`})}</div>
+ <div className="flex gap-2 mt-3"><input className="inp" maxLength=${32} value=${nsub} onChange=${e=>setNsub(e.target.value)} placeholder="Eigene Unterkategorie, z. B. Gitarre"/><button disabled=${nsub.trim().length<2} onClick=${()=>{c.addSub(cat.id,nsub.trim(),cat.subs[0]?cat.subs[0].act:'disc');setNsub('')}} className="btn px-4 text-sm shrink-0">Anlegen</button></div></div>`}
+function ValuesCard({c}){const {S}=c;const [nw,setNw]=useState('');const P=S.principles||[];const today=dayKey(S);
+ return html`<div className="card p-4 mt-3"><div className="flex items-center justify-between"><div className="lbl acc">Meine Prinzipien</div><span className="text-[10.5px] mute flex items-center gap-1"><${Icon} n="lock" s=${11}/>Privat</span></div>
+ <div className="text-[12px] mute mt-1 leading-snug">Keine Bewertung, kein Ranking. Nur deine Werte und wie oft du bewusst danach gehandelt hast.</div>
+ <div className="lbl mt-3 mb-1.5">Inspiration (optional)</div><${Seg} opts=${TRADS.map(t=>[t,t])} val=${S.tradition||'Keine'} on=${v=>c.setTradition(v)}/>
+ <div className="flex flex-col gap-1.5 mt-3">${P.map(p=>{const on=p.last===today;return html`<div key=${p.id} className="card2 p-3 flex items-center gap-3"><div className="flex-1"><div className="text-[13.5px] font-semibold">${p.n}</div><div className="text-[11px] mute">${p.acts} bewusste Handlungen</div></div><button onClick=${()=>c.actPrinciple(p.id)} disabled=${on} className=${`chip ${on?'on':''}`}>${on?'Heute ✓':'Heute gelebt'}</button><button aria-label=${p.n+' entfernen'} onClick=${()=>c.delPrinciple(p.id)} className="bg-transparent border-0 mute p-0"><${Icon} n="x" s=${14}/></button></div>`})}</div>
+ <div className="flex flex-wrap gap-1.5 mt-3">${PRINC_SUG.filter(x=>!P.some(p=>p.n===x)).map(x=>html`<button key=${x} onClick=${()=>c.addPrinciple(x)} className="chip">+ ${x}</button>`)}</div>
+ <div className="flex gap-2 mt-2"><input className="inp" maxLength=${28} value=${nw} onChange=${e=>setNw(e.target.value)} placeholder="Eigenes Prinzip"/><button disabled=${nw.trim().length<2} onClick=${()=>{c.addPrinciple(nw.trim());setNw('')}} className="btn px-4 text-sm shrink-0">Hinzufügen</button></div></div>`}
+function StatSheet({c,id}){const {S}=c;const f=mxFind(S,id);const [val,setVal]=useState(()=>{const v=f&&f.st.get(S);return typeof v==='number'?v:0});
+ if(!f)return html`<${Sheet} sub="Lebensmatrix" title="Nicht gefunden" onClose=${c.closeSheet}><div className="text-[13px] mute">Dieser Wert existiert nicht mehr.</div></${Sheet}>`;
+ const {cat,sub,st}=f,v=st.get(S),h=st.hist(S),g=st.goal&&st.goal(S),ms=mxMissions(S,st);
+ return html`<${Sheet} sub=${`${cat.n} · ${sub.n}`} title=${st.n} onClose=${c.closeSheet}>
+ <div className="flex items-end justify-between gap-3"><div><div className="disp text-[44px] leading-none" style=${{textTransform:'none'}}>${mxFmt(st,v)}</div><div className="mt-2"><${SrcTag} k=${st.src}/></div></div>${h&&h.length>1&&html`<div className="text-right"><${Spark} data=${h} w=${120} h=${44} inv=${st.lower}/><div className="text-[10.5px] mute">Verlauf · ${h.length} Einträge</div></div>`}</div>
+ ${st.extra&&st.extra(S)&&html`<div className="text-[12px] mute mt-3 leading-snug">${st.extra(S)}</div>`}
+ ${st.note&&html`<div className="text-[11.5px] mute mt-2 leading-snug">${st.note}</div>`}
+ ${g&&v!=null&&html`<div className="card2 p-3 mt-3"><div className="flex justify-between text-[12px]"><span className="mute">${g.l}</span><span className="num">${mxFmt(st,v)} / ${mxFmt(st,g.t)}</span></div><div className="mt-1.5"><${Bar} pct=${v/g.t} h=${6}/></div></div>`}
+ <div className="lbl mt-4 mb-2">Neuen Wert erfassen</div>
+ ${st.rec?html`<button onClick=${()=>c.openSheet({t:'log',kind:st.rec,rec:true})} className="btn w-full py-3 text-sm">${LOGNAME[st.rec]} erfassen</button><div className="text-[11px] mute mt-1.5">Vorausgefüllt mit deinen letzten Werten.</div>`
+ :st.auto?html`<div className="text-[12px] mute">Wird automatisch aus deinen Missionen und Reviews berechnet.</div>`
+ :html`<div className="card2 px-3"><${Step} label=${st.u?'Wert ('+st.u.replace(/^\//,'von ')+')':'Wert'} v=${val} on=${setVal} step=${st.step||1} min=${0} max=${100000}/></div><button onClick=${()=>c.recordStat(st.id,val)} className="btn w-full py-3 mt-2 text-sm">Speichern</button>`}
+ <div className="flex items-center justify-between mt-5 mb-2"><div className="lbl">Missionen zu diesem Wert</div><button onClick=${()=>c.openSheet({t:'medit',stat:st.id,act:sub.act})} className="text-xs acc font-semibold bg-transparent border-0 flex items-center gap-1"><${Icon} n="plus" s=${13} sw=${2.4}/>Neu</button></div>
+ <div className="flex flex-col gap-1.5">${ms.length?ms.map(m=>{const d=isDone(S,m);return html`<div key=${m.id} className="card2 p-3 flex items-center gap-3"><div className="flex-1 min-w-0"><div className=${`text-[13px] ${d?'line-through mute':''}`}>${m.title}</div><div className="text-[10.5px] mute">${freqLabel(m)} · +${m.pts}</div></div><button aria-label="Bearbeiten" onClick=${()=>c.openSheet({t:'medit',mid:m.id})} className="ghost w-8 h-8 flex items-center justify-center"><${Icon} n="edit" s=${14}/></button><button aria-label="Abhaken" onClick=${e=>c.start(m.id,e)} disabled=${d} className="w-8 h-8 rounded-full flex items-center justify-center" style=${{background:d?'var(--acc)':'transparent',border:'2px solid '+(d?'var(--acc)':'var(--line)'),color:d?'#fff':'var(--mute)'}}><${Icon} n="check" s=${14} sw=${3}/></button></div>`}):html`<div className="text-[12px] mute">Noch keine Mission. Lege eine an, damit dieser Wert im Alltag wächst.</div>`}</div>
+ <div className="text-[10.5px] mute mt-4 leading-relaxed">Eine Mission abzuhaken bringt Punkte, verändert aber keinen Messwert. Messwerte ändern sich nur, wenn du neue Daten einträgst.</div>
+ ${st.custom&&html`<button onClick=${()=>c.delStat(sub.id,st.id)} className="ghost w-full py-3 mt-3 text-[13px] font-semibold bad">Wert entfernen</button>`}</${Sheet}>`}
+function NewStat({c,sub}){const [n,setN]=useState(''),[u,setU]=useState(''),[src,setSrc]=useState('self');
+ return html`<${Sheet} sub="Lebensmatrix" title="Neuer Wert" onClose=${c.closeSheet}>
+ <label className="lbl">Name</label><input className="inp mt-1.5" maxLength=${32} value=${n} onChange=${e=>setN(e.target.value)} placeholder="z. B. Gitarre üben"/>
+ <label className="lbl mt-3 block">Einheit (optional)</label><input className="inp mt-1.5" maxLength=${12} value=${u} onChange=${e=>setU(e.target.value)} placeholder="h, km, Seiten …"/>
+ <div className="lbl mt-3 mb-1.5">Art des Werts</div><${Seg} opts=${[['mess','Gemessen'],['self','Selbst gemeldet'],['assess','Einschätzung']]} val=${src} on=${setSrc}/>
+ <button disabled=${n.trim().length<2} onClick=${()=>c.addStat(sub,{n:n.trim(),u:u.trim(),src})} className="btn w-full py-3.5 mt-4 text-sm">Wert anlegen</button></${Sheet}>`}
+function MissionEdit({c,sh}){const {S}=c;const m=sh.mid?S.missions.find(x=>x.id===sh.mid):null;
+ const [title,setTitle]=useState(m?m.title:''),[desc,setDesc]=useState(m&&m.desc||''),[freq,setFreq]=useState(m?(m.freq==='monthly'?'weekly':m.freq):'daily'),[times,setTimes]=useState(m&&m.times||3),[pts,setPts]=useState(m?m.pts:5);
+ return html`<${Sheet} sub=${m?'Mission bearbeiten':'Neue Mission'} title=${m?m.title:'Was nimmst du dir vor?'} onClose=${c.closeSheet}>
+ <label className="lbl">Titel</label><input className="inp mt-1.5" maxLength=${60} value=${title} onChange=${e=>setTitle(e.target.value)} placeholder="z. B. 20 Minuten üben"/>
+ <label className="lbl mt-3 block">Kurzbeschreibung (optional)</label><input className="inp mt-1.5" maxLength=${60} value=${desc} onChange=${e=>setDesc(e.target.value)} placeholder="z. B. direkt nach dem Frühstück"/>
+ <div className="lbl mt-3 mb-1.5">Häufigkeit</div><${Seg} opts=${[['daily','Täglich'],['multi','Mehrmals/Woche'],['weekly','Wöchentlich']]} val=${freq} on=${setFreq}/>${freq==='multi'&&html`<${Step} label="Mal pro Woche" v=${times} on=${setTimes} min=${2} max=${6}/>`}
+ <div className="lbl mt-3 mb-1.5">Aufwand (Punkte)</div><${Seg} opts=${[[3,'Leicht · 3'],[5,'Standard · 5'],[8,'Fordernd · 8'],[12,'Intensiv · 12']]} val=${pts} on=${setPts}/>
+ <button disabled=${title.trim().length<3} onClick=${()=>c.saveMission({id:m?m.id:null,title:title.trim(),desc:desc.trim()||undefined,freq,times:freq==='multi'?times:undefined,pts,act:m?m.act:actFor(S,sh.act||'disc'),stat:m?m.stat:sh.stat})} className="btn w-full py-3.5 mt-4 text-sm">Speichern</button>
+ ${m&&html`<button onClick=${()=>c.delMission(m.id)} className="ghost w-full py-3 mt-2 text-[13px] font-semibold bad">Mission löschen</button><div className="text-[10.5px] mute mt-2">Bereits verdiente Punkte bleiben erhalten.</div>`}</${Sheet}>`}
+/* Fortschreitende Freischaltung: höchstens ein Vorschlag, jederzeit abweisbar */
+function Suggest({c}){const {S}=c;if(S.ui==='adv')return null;const dis=S.sugg||{};const t=S.tally||{};
+ const L=[['train',(t.m_train||0)+(t.m_run||0)>=12,'dumbbell','Willst du deinen echten Kraftfortschritt sehen?','Du trainierst seit Wochen konstant. Detaillierte Trainingswerte zeigen Gewicht, Wiederholungen und geschätzten 1RM.'],['learn',(t.m_lang||0)+(t.m_read||0)>=15,'book','Lernzeit genauer erfassen?','Du lernst regelmäßig. Mit Minuten pro Einheit siehst du deine echten Lernstunden wachsen.']];
+ const s=L.find(x=>x[1]&&!dis[x[0]]&&!(S.detail||{})[x[0]]);if(!s)return null;
+ return html`<div className="card p-4 mt-4 rise" style=${{background:'linear-gradient(135deg,rgba(139,92,246,.14),var(--card) 70%)'}}><div className="flex items-start gap-3"><span className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style=${{background:'rgba(139,92,246,.18)',color:'var(--acc2)'}}><${Icon} n=${s[2]} s=${18}/></span><div className="flex-1"><div className="text-[14px] font-semibold leading-snug">${s[3]}</div><div className="text-[12px] mute mt-1 leading-snug">${s[4]}</div></div></div>
+ <div className="flex gap-2 mt-3"><button onClick=${()=>c.dismissSugg(s[0])} className="ghost flex-1 py-2.5 text-[13px] font-semibold">Nicht jetzt</button><button onClick=${()=>c.enableDetail(s[0])} className="btn flex-[1.5] py-2.5 text-[13px]">Details aktivieren</button></div></div>`}
+const DETAIL_LOGS={train:['lift','squat','run','swim','pull'],learn:['study','read']};
+const wantsLog=(S,m)=>!!m.log&&(S.ui==='adv'||Object.entries(DETAIL_LOGS).some(([k,l])=>(S.detail||{})[k]&&l.includes(m.log)));
 function Stats({c}){
- const adv=c.S.ui==='adv',opts=adv?[['compound','Wirkung'],['gen','Lebensmatrix'],['over','Verlauf'],['rec','Rekorde'],['calc','Rechner'],['proj','Prognose'],['goals','Ziele']]:[['compound','Wirkung'],['goals','Ziele']];
+ const adv=c.S.ui==='adv',opts=adv?[['compound','Wirkung'],['matrix','Lebensmatrix'],['gen','Gesamt'],['over','Verlauf'],['rec','Rekorde'],['calc','Rechner'],['proj','Prognose'],['goals','Ziele']]:[['compound','Wirkung'],['goals','Ziele']];
  const t=opts.some(o=>o[0]===c.statTab)?c.statTab:'compound',set=c.setStatTab;
  return html`<div className="screen px-4 pb-6"><div className="pt-5 flex items-end justify-between gap-2"><div><div className="lbl">Dein Weg</div><h1 className="disp text-[40px] mt-1">Fortschritt</h1></div><div className="pb-1"><${ModeToggle} c=${c}/></div></div>
  <div className="mt-3 mb-3"><${Seg} opts=${opts} val=${t} on=${set}/></div>
- ${!adv&&t==='compound'&&html`<div className="text-[11.5px] mute mb-3 px-1">Basis-Ansicht. Unter „Erweitert“ findest du Lebensmatrix, Rekorde, Rechner und Prognosen.</div>`}
- ${t==='compound'&&html`<${Compound} c=${c}/>`}${t==='gen'&&html`<${Gen} c=${c}/>`}${t==='over'&&html`<${Over} c=${c}/>`}${t==='rec'&&html`<${Recs} c=${c}/>`}${t==='calc'&&html`<${Calc} c=${c}/>`}${t==='proj'&&html`<${Proj} c=${c}/>`}${t==='goals'&&html`<${Goals} c=${c}/>`}</div>`}
+ ${!adv&&t==='compound'&&html`<div className="text-[11.5px] mute mb-3 px-1">Basis-Ansicht. Unter „Erweitert“ findest du die Lebensmatrix mit Unterkategorien, Messwerten, Rekorden und Prognosen.</div>`}
+ ${t==='compound'&&html`<${Compound} c=${c}/>`}${t==='matrix'&&html`<${LifeMatrix} c=${c}/>`}${t==='gen'&&html`<${Gen} c=${c}/>`}${t==='over'&&html`<${Over} c=${c}/>`}${t==='rec'&&html`<${Recs} c=${c}/>`}${t==='calc'&&html`<${Calc} c=${c}/>`}${t==='proj'&&html`<${Proj} c=${c}/>`}${t==='goals'&&html`<${Goals} c=${c}/>`}</div>`}
 /* ───── Log-Berechnung ───── */
 function calcBonus(k,v,S){
  if(k==='lift'){const e=epley(v.w,v.r),ver=S.stats.bench.ver,rel=(e-ver)/ver*100;return{bonus:clamp(Math.round(rel),0,20),label:`Qualität ${rel>=0?'+':''}${n1(rel)} % zur Baseline`}}
@@ -1242,7 +1371,8 @@ function LogSheet({c,sh}){
  <div className="mt-3">${body}</div>
  ${m&&html`<div className="flex items-center justify-between mt-3 text-[12px]"><span className="mute">${label}</span><span className="num font-bold acc">+${pts} Pkt.</span></div>`}
  ${m&&html`<div className="mt-4"><${QSlider} q=${q} setQ=${setQ} m=${m} c=${c}/></div>`}
- <button className="btn w-full py-3.5 mt-4 text-sm" onClick=${()=>c.logSave(k,v,sh.mid,false,m?q:undefined)}>${m?'Speichern & Mission abschließen':'Speichern'}</button></div>`}
+ <button className="btn w-full py-3.5 mt-4 text-sm" onClick=${()=>c.logSave(k,v,sh.mid,false,m?q:undefined)}>${m?'Speichern & Mission abschließen':'Speichern'}</button>
+ ${m&&html`<button className="ghost w-full py-3 mt-2 text-[13px] font-semibold" onClick=${()=>c.complete(m.id,null,{})}>Ohne Werte abhaken</button>`}</div>`}
 /* ───── Mission hinzufügen (+) ───── */
 function AddMission({c}){
  const {S}=c;const cats=allCats(S);const [tab,setTab]=useState('lib');
@@ -1417,7 +1547,7 @@ function Integ({c}){const S=c.S;return html`<${Sheet} sub="Zukunft" title="Integ
 function Settings({c}){const {S}=c;
  return html`<${Sheet} sub="Einstellungen & Demo" title="Optionen" onClose=${c.closeSheet}>
  <div className="flex flex-col gap-2">
- <div className="ghost p-3.5 flex items-center gap-3 text-[14px] font-medium"><${Icon} n="eye" s=${18} cls="acc"/><div className="flex-1">Ansicht<div className="text-[11px] mute font-normal">Beide nutzen dieselben Daten</div></div><${ModeToggle} c=${c}/></div>
+ <div className="ghost p-3.5 flex items-center gap-3 text-[14px] font-medium"><${Icon} n="eye" s=${18} cls="acc"/><div className="flex-1">Erlebnismodus<div className="text-[11px] mute font-normal">Beide nutzen dieselben Daten, nichts geht verloren</div></div><${ModeToggle} c=${c}/></div>
  <button onClick=${()=>c.openSheet({t:'account'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="user" s=${18} cls="acc"/>Konto & Profil</button>
  <button onClick=${()=>c.openSheet({t:'catalog'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="info" s=${18} cls="acc"/>Punkte-Katalog ansehen</button>
  <button onClick=${c.simComeback} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="moon" s=${18} cls="acc"/>Rückfall-Modus simulieren (Demo)</button>
@@ -1511,6 +1641,9 @@ function SheetHost({c}){
   case'swap':b=html`<${Swap} c=${c} sh=${sh}/>`;break;
   case'aar':b=html`<${Aar} c=${c}/>`;break;
   case'review':b=html`<${Review} c=${c}/>`;break;
+  case'stat':b=html`<${StatSheet} key=${sh.id} c=${c} id=${sh.id}/>`;break;
+  case'newstat':b=html`<${NewStat} c=${c} sub=${sh.sub}/>`;break;
+  case'medit':b=html`<${MissionEdit} key=${sh.mid||sh.stat||'n'} c=${c} sh=${sh}/>`;break;
   case'season':b=html`<${SeasonRep} c=${c}/>`;break;
   case'spath':b=html`<${SeasonPath} c=${c}/>`;break;
  }
@@ -1594,7 +1727,7 @@ function devLineup(ob,missions){
  ob.pri.forEach(p=>{if(p==='intel'){push('read');if(uses('lang'))push('lang')}if(p==='career')push('biz');if(p==='time')push('deep');if(p==='fit'&&uses('run'))push('run')});
  missions.forEach(m=>{if(!CORE.includes(m.act))push(m.act)});
  ['deep','read','run'].forEach(push);return L}
-const newOb=name=>({step:0,dir:1,name:name||'',age:'',units:'metric',tz:guessTz(),pri:[],sat:{},goals:[],stats:{},missions:null,mKey:''});
+const newOb=name=>({step:0,dir:1,name:name||'',age:'',units:'metric',tz:guessTz(),pri:[],sat:{},goals:[],stats:{},missions:null,mKey:'',ui:'basic'});
 const satOf=(ob,id)=>ob.sat[id]||3;
 function vSelf(ob){const ids=ob.pri.length?ob.pri:['fit','rec','fin'];const avg=ids.reduce((a,id)=>a+satOf(ob,id),0)/ids.length;const cur=clamp(.15+.5*(avg-1)/4,.12,.7);return{cur,pot:clamp(cur+.22,0,.95)}}
 function obMilestones(ob){
@@ -1639,7 +1772,7 @@ function buildState(ob,session){
   lineup,bench:Object.keys(acts).filter(k=>!CORE.includes(k)&&!lineup.includes(k)),subs:3,
   missions:missions.map(m=>{const {k,...r}=m;return{...r,id:MID[k]&&!missions.some(o=>o!==m&&MID[o.k]===MID[k])?MID[k]:'m_'+k+'_'+uid()}}),
   done:{},counts:{},seasonCum:[0],others,oSeason:{...others},weekHist:[],hist:[],snaps:[],sHist:[],gear:[],evalHist:[],codeCk:{},qLog:[],
-  feed:[],events:[],challenges:[],leagues:[],ach:{},newAch:[],flags:{},pulse:0,aar:null,sreport:null,ui:'basic',tally:{},sTally:{},tallyDemo:false,wlog:{},brief:null,nextPrio:null,reviews:[],
+  feed:[],events:[],challenges:[],leagues:[],ach:{},newAch:[],flags:{},pulse:0,aar:null,sreport:null,ui:ob.ui==='adv'?'adv':'basic',tally:{},sTally:{},tallyDemo:false,wlog:{},brief:null,nextPrio:null,reviews:[],mxv:{},principles:[],tradition:'Keine',mx:{},sugg:{},detail:{},
   sTheme:theme,mArea:theme,mDays:0,mTarget:20,sLen:4,sGoal:.7,sFocus:'Kleine Schritte, jeden Tag',sSigned:{season:1,t:'Kleine Schritte, jeden Tag'},sAreaPts:{},sThemePts:0,sAreaGoals:Object.fromEntries(CORE.map(id=>[id,.7])),
   setup:false,sLocked:true,evalDone:false,freezes:1,tier:0,potOff:.12,
   stats:st,save,study:{hours:0,weekly:sw||s.study.weekly,target:sw||s.study.target},
@@ -1721,16 +1854,16 @@ function AuthFlow({A,set,theme}){
   ${err&&html`<div role="alert">${err}</div>`}${msg?html`<div role="status" className="mt-2">${msg}</div>`:html`<button type="submit" disabled=${busy} className="btn w-full py-4 text-[15px]">Link anfordern</button>`}</form><//>`}
 
 /* ───── Onboarding ───── */
-const OB_N=9;
+const OB_N=10;
 function Onboarding({A,set,theme,onDone}){
  const [ob,setOb]=useState(()=>A.ob||newOb(A.session&&A.session.name));
  const u=fn=>setOb(p=>{const n={...p,...fn(p)};set(()=>({ob:n}));return n});
  const st=ob.step;
  const mk=JSON.stringify([ob.pri,sv(ob,'trainFreq'),sv(ob,'saveMonthly'),sv(ob,'focusWeekly'),sv(ob,'project'),sv(ob,'run5k'),ob.goals.map(g=>g.kind)]);
  const goTo=s=>u(p=>{const n={step:clamp(s,0,OB_N-1),dir:s>p.step?1:-1};if(s===6&&(!p.missions||p.mKey!==mk)){n.missions=genMissions(p);n.mKey=mk}return n});
- const ok=[true,ob.name.trim().length>=1,ob.pri.length>=1,true,true,true,(ob.missions||[]).length>=1,true,true][st];
+ const ok=[true,ob.name.trim().length>=1,ob.pri.length>=1,true,true,true,(ob.missions||[]).length>=1,true,true,true][st];
  const optional=[3,4,5].includes(st);
- const body=[StepWelcome,StepPersonal,StepPri,StepNow,StepGoals,StepStats,StepPlan,StepPotential,StepReady][st];
+ const body=[StepWelcome,StepPersonal,StepPri,StepNow,StepGoals,StepStats,StepPlan,StepPotential,StepMode,StepReady][st];
  const scroller=useRef(null);useEffect(()=>{if(scroller.current)scroller.current.scrollTop=0},[st]);
  return html`<${Shell} theme=${theme}>
  <div className="relative px-5 pb-2" style=${{paddingTop:'max(16px,env(safe-area-inset-top))'}}>
@@ -1841,6 +1974,13 @@ function StepPotential({ob}){
  <div className="lbl mt-5 mb-2">Saison 1 · 4 Wochen · mögliche Meilensteine</div>
  <div className="flex flex-col gap-2">${ms.map((t,i)=>{const p=cur+(pot-cur)*(i+1)/4;return html`<div key=${i} className="card2 p-3 flex items-center gap-3"><div className="num text-[11px] font-bold mute w-9 shrink-0">W${i+1}</div><div className="flex-1"><div className="text-[12.5px] font-medium leading-snug">${t}</div><div className="mt-1.5"><${Bar} pct=${p} h=${4}/></div></div><div className="num text-[11px] acc w-7 text-right">${lv(p)}</div></div>`})}</div>
  <div className="text-[11px] mute mt-3 leading-relaxed">Illustration, keine Vorhersage. Die Werte beruhen auf deiner Selbsteinschätzung. Echte Ergebnisse hängen von vielen Faktoren ab, und Rückschläge gehören dazu.</div></div>`}
+function StepMode({ob,u}){const v=ob.ui==='adv'?'adv':'basic';
+ const C=[['basic','Basis','Einfache Gewohnheiten. Tägliche Disziplin. Sichtbarer Fortschritt.','check',['Ein Tipp pro Mission','Punkte, Serie und Aufstieg','Liga und Saison optional']],['adv','Erweitert','Detaillierte Werte. Persönliche Entwicklung. Tiefere Einblicke.','activity',['Lebensmatrix mit Unterkategorien','Messwerte, Verläufe und Prognosen','Alles aus Basis']]];
+ return html`<div><${ObHead} k="Dein Erlebnis" t="Wähle dein Erlebnis." s="Du kannst jederzeit in den Einstellungen wechseln. Deine Daten bleiben dabei immer erhalten."/>
+ <div className="flex flex-col gap-3">${C.map(([k,t,d,ic,f])=>{const on=v===k;return html`<button key=${k} type="button" onClick=${()=>u(()=>({ui:k}))} aria-pressed=${on} className="card p-4 text-left relative overflow-hidden" style=${{borderRadius:24,borderColor:on?'rgba(167,139,250,.8)':'var(--line)',background:on?'linear-gradient(150deg,rgba(139,92,246,.26),var(--card) 65%)':undefined,boxShadow:on?'0 0 0 1px rgba(167,139,250,.6) inset,0 14px 34px -14px rgba(124,58,237,.7)':undefined,transition:'all .25s'}}>
+  <div className="flex items-center justify-between"><span className="w-11 h-11 rounded-2xl flex items-center justify-center" style=${{background:'rgba(139,92,246,.18)',color:'var(--acc2)'}}><${Icon} n=${ic} s=${22}/></span><span className="flex items-center gap-2">${k==='basic'&&html`<span className="text-[10px] font-bold acc tracking-wider">EMPFOHLEN</span>`}<span className="w-6 h-6 rounded-full flex items-center justify-center" style=${{background:on?'var(--acc)':'transparent',border:on?'none':'1.5px solid var(--line)'}}>${on&&html`<${Icon} n="check" s=${14} sw=${3} cls="text-white"/>`}</span></span></div>
+  <div className="disp text-[30px] mt-3">${t}</div><div className="text-[13px] mt-1 leading-snug">${d}</div>
+  <div className="flex flex-col gap-1 mt-3">${f.map(x=>html`<div key=${x} className="text-[12px] mute flex items-center gap-2"><span className="acc"><${Icon} n="check" s=${12} sw=${2.6}/></span>${x}</div>`)}</div></button>`})}</div></div>`}
 function StepReady({ob}){
  const {cur,pot}=vSelf(ob);const ms=ob.missions||[];
  const stats=[];ob.pri.filter(id=>STAT_DEF[id]).forEach(c=>STAT_DEF[c].forEach(([k,l,unit,typ,meas])=>{const x=ob.stats[k];if(x&&x.v!==null&&x.v!==''&&x.v!==undefined)stats.push([l.replace(' (optional)','').replace(' (Ziel)',''),x.v+(unit&&unit!=='mm:ss'?' '+(k==='bench'&&ob.units==='imperial'?'lb':unit):''),meas?(x.src||'est'):'target'])}));
@@ -1995,10 +2135,11 @@ function App({init,auth,skey='war_within_v5'}){
  const start=(mid,ev,opt={})=>{const m=S.missions.find(x=>x.id===mid);if(isDone(S,m)){toast(m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
   if(!isActive(S,m.act)){toast(`${S.acts[m.act].name} sitzt auf der Bank. Wechsle sie im Squad ein.`,'warn');return}
   const pos=ev&&ev.currentTarget?ev.currentTarget.getBoundingClientRect():null;
-  if(m.log){openSheet({t:'log',kind:m.log,mid});return}
+  if(opt.detail&&S.ui!=='adv'){openSheet({t:'medit',mid});return}
+  if(wantsLog(S,m)){openSheet({t:'log',kind:m.log,mid});return}
   if(opt.detail){openSheet({t:'rate',mid});return}
   setUndo({prev:S,title:m.title,id:uid()});complete(mid,ev,{keep:true});
-  if(!S.tipHold){upd(n=>{n.tipHold=true});setTimeout(()=>toast('Tipp: Lange drücken, um Erfolgsgrad und Details anzugeben.'),1600)}};
+  if(!S.tipHold){upd(n=>{n.tipHold=true});setTimeout(()=>toast(S.ui==='adv'?'Tipp: Lange drücken, um Erfolgsgrad und Details anzugeben.':'Tipp: Lange drücken, um eine Mission zu bearbeiten.'),1600)}};
  const logSave=(kind,v,mid,keep,q)=>{
   const cb=calcBonus(kind,v,S);const bonus=cb.bonus+(q!=null?qBonus(q):0);let msg='';
   const apply=n=>{const st=n.stats;
@@ -2043,6 +2184,18 @@ function App({init,auth,skey='war_within_v5'}){
  const setHero=v=>upd(n=>{n.heroView=v});
  const toggleTheme=()=>upd(n=>{n.theme=n.theme==='dark'?'light':'dark'});
  const setUi=v=>{if((S.ui||'basic')===v)return;upd(n=>{n.ui=v});toast(v==='adv'?'Erweitert: Lebensmatrix, Rekorde, Rechner und Prognosen sichtbar. Deine Daten bleiben gleich.':'Basis: nur das Wichtigste. Es geht nichts verloren.','good')};
+ const recordStat=(id,v)=>{upd(n=>{n.mxv=n.mxv||{};n.mxv[id]=[...(n.mxv[id]||[]),{v,t:Date.now()}].slice(-40)});toast('Wert gespeichert. Punkte gibt es für Missionen, nicht für Einträge.','good')};
+ const saveMission=x=>{const isNew=!x.id;upd(n=>{if(isNew)n.missions.push({...x,id:'x'+uid(),sub:undefined});else{const m=n.missions.find(y=>y.id===x.id);if(m){m.title=x.title;m.desc=x.desc;m.freq=x.freq;m.times=x.times;m.pts=x.pts}}});setSheet(x.stat&&isNew?{t:'stat',id:x.stat}:null);toast(isNew?'Mission angelegt':'Mission gespeichert','good')};
+ const delMission=id=>{upd(n=>{n.missions=n.missions.filter(m=>m.id!==id);delete n.done[id];if(n.brief)n.brief.ids=n.brief.ids.filter(x=>x!==id)});setSheet(null);toast('Mission gelöscht. Verdiente Punkte bleiben.')};
+ const addSub=(cat,name,act)=>{upd(n=>{n.mx=n.mx||{};n.mx.subs=n.mx.subs||{};n.mx.subs[cat]=[...(n.mx.subs[cat]||[]),{id:'s'+uid(),n:name,act,custom:true,stats:[]}]});toast('Unterkategorie angelegt. Füge jetzt Werte hinzu.','good')};
+ const addStat=(sub,st)=>{const id='v'+uid();upd(n=>{n.mx=n.mx||{};n.mx.stats=n.mx.stats||{};n.mx.stats[sub]=[...(n.mx.stats[sub]||[]),{id,...st,custom:true}]});setSheet({t:'stat',id});toast('Wert angelegt','good')};
+ const delStat=(sub,id)=>{upd(n=>{n.mx.stats[sub]=(n.mx.stats[sub]||[]).filter(x=>x.id!==id)});setSheet(null);toast('Wert entfernt')};
+ const addPrinciple=nm=>upd(n=>{n.principles=[...(n.principles||[]),{id:'p'+uid(),n:nm,acts:0}]});
+ const delPrinciple=id=>upd(n=>{n.principles=(n.principles||[]).filter(x=>x.id!==id)});
+ const actPrinciple=id=>{upd(n=>{const x=(n.principles||[]).find(y=>y.id===id);if(x){x.acts++;x.last=dayKey(n)}});toast('Notiert. Nur für dich sichtbar.','good')};
+ const setTradition=v=>upd(n=>{n.tradition=v});
+ const dismissSugg=k=>upd(n=>{n.sugg={...(n.sugg||{}),[k]:Date.now()}});
+ const enableDetail=k=>{upd(n=>{n.detail={...(n.detail||{}),[k]:true}});toast(k==='train'?'Trainingswerte aktiv: Beim Abhaken kannst du Gewicht und Wiederholungen eintragen, musst aber nicht.':'Lernzeit aktiv: Beim Abhaken kannst du Minuten eintragen, musst aber nicht.','good')};
  const confirmBrief=ids=>{upd(n=>{const k=dayKey(n);n.brief={k,ids};n.wlog=n.wlog||{};n.wlog[k]={...(n.wlog[k]||{}),b:1}});toast('Briefing steht. Fang mit Nummer 1 an.','good')};
  const saveReview=({done,block,next})=>{upd(n=>{const k=dayKey(n);n.reviews=[{k,done,block,next,t:Date.now()},...(n.reviews||[]).filter(x=>x.k!==k)].slice(0,30);n.wlog=n.wlog||{};n.wlog[k]={...(n.wlog[k]||{}),r:1};n.nextPrio=next?{k:n.season+'-'+(n.day+1),mid:next}:null});setSheet(null);
   const rm=S.missions.find(m=>m.id==='m_ref');if(rm&&!isDone(S,rm))setTimeout(()=>cref.current('m_ref',null,{keep:true,msg:'über das Review'}),400);
@@ -2114,7 +2267,7 @@ function App({init,auth,skey='war_within_v5'}){
  /* Erfolge */
  const newA=S.newAch[0];
  useEffect(()=>{if(!newA)return;const t=setTimeout(()=>upd(n=>{n.newAch=n.newAch.slice(1)}),2600);return()=>clearTimeout(t)},[newA]);
- const c={auth,upd,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,addGoal,doSwap,toggleRest,toggleTheme,setUi,confirmBrief,saveReview,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
+ const c={auth,upd,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,addGoal,doSwap,toggleRest,toggleTheme,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
  const nav=[['home','Start','home'],['tasks','Aufgaben','check'],['solo','Duell','swords'],['league','Liga','trophy'],['stats','Stats','trend']];
  const ach=newA&&ACHS.find(a=>a.id===newA);
  return html`<div data-theme=${S.theme} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(139,92,246,.12)'}}>
