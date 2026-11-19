@@ -783,16 +783,70 @@ function impactOf(S,m){
 function ScoreBars({sc}){return html`<div className="flex flex-col gap-2.5">${[['Umsetzung',sc.exec,70,'Punkte im Verhältnis zum Plan und erledigte Prioritäten'],['Zielfortschritt',sc.goal,20,'Tage mit einer Aktion für deine Ziele'],['Planung & Reflexion',sc.plan,10,'Briefing am Morgen, Review am Abend']].map(([l,v,m,d])=>html`<div key=${l}><div className="flex justify-between text-[12.5px]"><span className="font-medium">${l}</span><span className="num"><b>${v}</b><span className="mute">/${m}</span></span></div><div className="mt-1"><${Bar} pct=${v/m} h=${5}/></div><div className="text-[10.5px] mute mt-0.5">${d}</div></div>`)}</div>`}
 function ModeToggle({c}){const v=c.S.ui==='adv'?'adv':'basic';
  return html`<div role="group" aria-label="Ansicht" className="inline-flex p-0.5 rounded-full shrink-0" style=${{background:'var(--ghost)',boxShadow:'0 0 0 1px var(--line) inset'}}>${[['basic','Basis'],['adv','Erweitert']].map(([k,l])=>html`<button key=${k} aria-pressed=${v===k} onClick=${()=>c.setUi(k)} className="border-0 rounded-full px-3 py-1.5 text-[12px] font-semibold" style=${{background:v===k?'var(--acc)':'transparent',color:v===k?'#fff':'var(--mute)',transition:'background .2s'}}>${l}</button>`)}</div>`}
+/* ───── Alternative Fortschritts-Bilder: Schneeball & Sternbild ───── */
+const SB_X=t=>22+336*t,SB_Y=t=>58+170*Math.pow(t,1.55),SB_R=t=>8+40*Math.pow(clamp(t,0,1),1.6);
+function VizSky({I}){return html`<defs><linearGradient id=${'vs'+I} x1="0" x2="0" y1="0" y2="1"><stop offset="0" style=${{stopColor:'var(--mt1)'}}/><stop offset=".65" style=${{stopColor:'var(--mt2)'}}/><stop offset="1" style=${{stopColor:'var(--mt3)'}}/></linearGradient>
+ <radialGradient id=${'vb'+I} cx="38%" cy="32%" r="70%"><stop offset="0" stopColor="#FFFFFF"/><stop offset=".7" stopColor="#E9E4FF"/><stop offset="1" stopColor="#B9ACEB"/></radialGradient>
+ <radialGradient id=${'vg'+I}><stop offset="0" stopColor="#C4B5FD" stopOpacity=".85"/><stop offset="1" stopColor="#C4B5FD" stopOpacity="0"/></radialGradient></defs>`}
+function Snowball({cur,pot,pulse,goal=.85}){const [k,setK]=useState(0);const first=useRef(true);const I=useId().replace(/:/g,'');
+ useEffect(()=>{if(first.current){first.current=false;return}setK(x=>x+1)},[pulse]);
+ const a=clamp(cur,0,1),b=clamp(Math.max(pot,cur),0,1),N=48,T=Array.from({length:N+1},(_,i)=>i/N);
+ const slope=T.map(t=>`${SB_X(t).toFixed(1)} ${SB_Y(t).toFixed(1)}`);
+ const ground=`M0 ${SB_Y(0)} L${slope.join(' L')} L380 ${SB_Y(1).toFixed(1)} L380 270 L0 270Z`;
+ const tt=T.filter(t=>t<=a).concat(a>0?[a]:[]);
+ const trail=tt.length>1?`M${tt.map(t=>`${SB_X(t).toFixed(1)} ${(SB_Y(t)-SB_R(t)*1.15).toFixed(1)}`).join(' L')} L${[...tt].reverse().map(t=>`${SB_X(t).toFixed(1)} ${SB_Y(t).toFixed(1)}`).join(' L')}Z`:'';
+ const r=SB_R(a),cx=SB_X(a),cy=SB_Y(a)-r*.9,rg=SB_R(b),gx=SB_X(b),gy=SB_Y(b)-rg*.9;
+ const flags=[.25,.5,.75,1];const gT=clamp(goal,0,1),gR=SB_R(gT),gX=SB_X(gT),gY=SB_Y(gT)-gR*.9;
+ return html`<svg viewBox="0 0 380 270" className="w-full block" style=${{borderRadius:20}} role="img" aria-label=${`Schneeball: ${Math.round(a*100)} Prozent des Saisonplans, Potenzial ${Math.round(b*100)} Prozent`}>
+ <${VizSky} I=${I}/>
+ <rect width="380" height="270" fill=${`url(#vs${I})`}/>
+ <g style=${{opacity:'calc(var(--mst) * .8)'}}>${STARS.map((s,i)=>html`<circle key=${i} cx=${s[0]} cy=${s[1]*.6} r=${s[2]*.8} fill="#fff"/>`)}</g>
+ <path d="M-10 150 L40 104 L82 132 L130 88 L190 140 L240 110 L300 150 L390 118 L390 270 L-10 270Z" style=${{fill:'var(--mr1)'}} opacity=".7"/>
+ <path d=${ground} style=${{fill:'var(--mr2)'}}/>
+ <path d=${ground} style=${{fill:'var(--mgr)'}} opacity=".45" transform="translate(0 26)"/>
+ <path d=${'M'+slope.join(' L')} fill="none" style=${{stroke:'var(--msn)'}} strokeWidth="5" strokeLinecap="round" opacity=".95"/>
+ ${[[60,200],[150,232],[250,256],[34,168]].map(([x,y],i)=>html`<path key=${'t'+i} d=${`M${x} ${y} l9 0 l-9 -22 l-9 22Z M${x} ${y-10} l7 0 l-7 -16 l-7 16Z`} style=${{fill:'var(--mgr)'}} opacity=".7"/>`)}
+ ${flags.map((t,i)=>html`<g key=${'f'+i} opacity=${a>=t?1:.45}><line x1=${SB_X(t)} y1=${SB_Y(t)} x2=${SB_X(t)} y2=${SB_Y(t)-22} stroke=${a>=t?'#A78BFA':'var(--mtr)'} strokeWidth="1.4" style=${{stroke:a>=t?'#A78BFA':'var(--mr3)'}}/><path d=${`M${SB_X(t)} ${SB_Y(t)-22} l11 3.5 l-11 3.5Z`} fill=${a>=t?'#8B5CF6':'#9D8FD6'}/><text x=${SB_X(t)-5} y=${SB_Y(t)+15} fontSize="10" fontWeight="700" style=${{fill:'var(--mtr)'}}>W${i+1}</text></g>`)}
+ ${trail&&html`<path d=${trail} fill="#C4B5FD" opacity=".45" style=${{transition:'d 1.1s'}}/>`}
+ <circle cx=${gX} cy=${gY} r=${gR} fill="#fff" opacity=".1" stroke="#fff" strokeOpacity=".45" strokeWidth="1.2" strokeDasharray="2 5"/>
+ <text x=${gX} y=${gY+4} textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#fff" opacity=".75">Saisonziel</text>
+ <circle cx=${gx} cy=${gy} r=${rg} fill="none" strokeWidth="1.8" strokeDasharray="4 4" style=${{stroke:'var(--acc2)'}}/>
+ <text x=${gx+rg+5} y=${gy-rg-2} fontSize="10.5" fontWeight="700" style=${{fill:'var(--acc2)'}}>Potenzial</text>
+ <g style=${{transform:`translate(${cx}px,${cy}px)`,transition:'transform 1.1s cubic-bezier(.3,.8,.3,1)'}}>
+  <circle r=${r+10} fill=${`url(#vg${I})`} opacity=".7"/>
+  <text y=${-r-8} textAnchor="middle" fontSize="11" fontWeight="800" style=${{fill:'var(--ink)'}}>Du</text>
+  <g style=${{transform:`rotate(${Math.round(a*1080)}deg)`,transition:'transform 1.1s cubic-bezier(.3,.8,.3,1)'}}><circle r=${r} fill=${`url(#vb${I})`} stroke="#7C3AED" strokeOpacity=".6" strokeWidth="1.5" style=${{transition:'r 1.1s'}}/>${[[-.4,-.2,.13],[.3,.35,.1],[.15,-.5,.08],[-.2,.45,.07]].map(([x,y,s],i)=>html`<circle key=${i} cx=${x*r} cy=${y*r} r=${Math.max(1,s*r)} fill="#B9ACEB" opacity=".55"/>`)}</g>
+  ${k>0&&html`<g key=${k}>${Array.from({length:10},(_,i)=>{const an=Math.PI*(1+i/9),d=r+16+(i%3)*8;return html`<circle key=${i} r="2.6" fill="#fff" style=${{'--dx':Math.cos(an)*d+'px','--dy':Math.sin(an)*d*.8+'px',animation:'burst .9s ease-out forwards'}}/>`})}</g>`}
+ </g></svg>`}
+const STAR_C=(()=>{let s=11;const rn=()=>{s=(s*16807)%2147483647;return s/2147483647};return[[30,72],[150,58],[272,80],[78,180],[222,186]].map(([x0,cy])=>{let x=x0,y=cy+(rn()-.5)*24;const p=[];for(let i=0;i<12;i++){p.push([+x.toFixed(1),+y.toFixed(1)]);x+=6.5+rn()*4.5;y=clamp(y+(rn()-.5)*30,cy-38,cy+38)}return p})})();
+const STAR_BG=(()=>{let s=29;const rn=()=>{s=(s*16807)%2147483647;return s/2147483647};return Array.from({length:120},()=>[+(rn()*380).toFixed(1),+(rn()*240).toFixed(1),+(.5+rn()*.9).toFixed(2)])})();
+function Constellations({areas,pot,total,pulse}){const [k,setK]=useState(0);const first=useRef(true);const I=useId().replace(/:/g,'');
+ useEffect(()=>{if(first.current){first.current=false;return}setK(x=>x+1)},[pulse]);
+ const names=['Körper','Finanzen','Beziehung','Disziplin','Erholung'],gi=Math.round(clamp(pot,0,1)*12),bg=Math.min(STAR_BG.length,Math.round(total/4));
+ return html`<svg viewBox="0 0 380 260" className="w-full block" style=${{borderRadius:20}} role="img" aria-label="Sternbild: jede Mission lässt einen Stern leuchten">
+ <${VizSky} I=${I}/>
+ <rect width="380" height="260" fill=${`url(#vs${I})`}/>
+ <g>${STAR_BG.slice(0,bg).map((p,i)=>html`<circle key=${i} cx=${p[0]} cy=${p[1]} r=${p[2]*.7} fill="#fff" opacity=".42"/>`)}</g>
+ ${k>0&&html`<g key=${'s'+k}><line x1="380" y1="10" x2="300" y2="50" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" style=${{'--dx':'-260px','--dy':'130px',animation:'burst 1.1s ease-in forwards'}}/></g>`}
+ ${STAR_C.map((pts,ci)=>{const fi=Math.round(clamp(areas[ci]||0,0,1)*12),on=pts.slice(0,fi);return html`<g key=${ci}>
+  <path d=${'M'+pts.map(p=>p.join(' ')).join(' L')} fill="none" stroke="#C4B5FD" strokeWidth=".8" strokeDasharray="2 3" opacity=".22"/>${pts.map((p,i)=>i>=Math.max(fi,gi)?html`<circle key=${'o'+i} cx=${p[0]} cy=${p[1]} r="1.3" fill="#fff" opacity=".3"/>`:null)}
+  ${pts.map((p,i)=>i<gi&&i>=fi?html`<circle key=${'g'+i} cx=${p[0]} cy=${p[1]} r="2.8" fill="none" stroke="#C4B5FD" strokeWidth="1.2" strokeDasharray="1.5 1.5" opacity=".85"/>`:null)}
+  ${on.length>1&&html`<path d=${'M'+on.map(p=>p.join(' ')).join(' L')} fill="none" stroke="#A78BFA" strokeWidth="1.1" opacity=".75"/>`}
+  ${on.map((p,i)=>html`<g key=${'f'+i} style=${{transformBox:'fill-box',transformOrigin:'center',animation:'pop .7s ease-out'}}><circle cx=${p[0]} cy=${p[1]} r="8" fill=${`url(#vg${I})`}/><circle cx=${p[0]} cy=${p[1]} r=${i===fi-1?3.2:2.5} fill="#fff"/></g>`)}
+  <text x=${pts[0][0]} y=${Math.max(...pts.map(p=>p[1]))+18} fontSize="10" fontWeight="600" style=${{fill:'var(--mtr)'}} opacity=".85">${names[ci]} · ${fi}/12</text></g>`})}
+ </svg>`}
+const VIZ=[['berg','Berg','Der Aufstieg'],['ball','Schneeball','Dein Schneeball'],['stars','Sternbild','Dein Sternbild']];
 function MountainCard({c}){const {S,D}=c;
  const gapPts=Math.max(0,(D.pot-D.cur)*D.seasonPlan),avgP=D.allM.length?D.allM.reduce((a,m)=>a+m.pts,0)/D.allM.length:6,need=Math.ceil(gapPts/Math.max(1,avgP));
  return html`<div className="card p-3 mb-4 relative overflow-hidden" style=${{borderRadius:26}}>
- <div className="flex items-start justify-between px-1.5 pt-1 pb-2.5 gap-2"><div className="min-w-0"><div className="lbl acc">Der Aufstieg · Saison ${S.season}</div><div className="text-[15px] font-bold mt-0.5 leading-snug">${need<=0?'Du gehst Seite an Seite mit deinem Potenzial':need<=12?`≈ ${need} Missionen bis zu deinem Potenzial`:`Dein Potenzial ist ${Math.round(D.gap)} % voraus. Der nächste Schritt zählt.`}</div></div><button aria-label="Was bedeuten die Figuren?" onClick=${()=>c.openSheet({t:'info',k:'self'})} className="bg-transparent border-0 mute p-0 shrink-0"><${Icon} n="info" s=${16}/></button></div>
- <${Mountain} cur=${D.cur} pot=${D.pot} areas=${D.areas} rest=${D.restToday} pulse=${S.pulse} labels=${false}/>
+ <div className="flex items-start justify-between px-1.5 pt-1 pb-2.5 gap-2"><div className="min-w-0"><div className="lbl acc">${(VIZ.find(v=>v[0]===(S.viz||'ball'))||VIZ[0])[2]} · Saison ${S.season}</div><div className="text-[15px] font-bold mt-0.5 leading-snug">${need<=0?'Du gehst Seite an Seite mit deinem Potenzial':need<=12?`≈ ${need} Missionen bis zu deinem Potenzial`:`Dein Potenzial ist ${Math.round(D.gap)} % voraus. Der nächste Schritt zählt.`}</div></div><button aria-label="Was bedeuten die Figuren?" onClick=${()=>c.openSheet({t:'info',k:'self'})} className="bg-transparent border-0 mute p-0 shrink-0"><${Icon} n="info" s=${16}/></button></div>
+ <div role="group" aria-label="Darstellung" className="flex gap-1 px-1.5 pb-2.5">${VIZ.map(([k,l])=>{const on=(S.viz||'ball')===k;return html`<button key=${k} aria-pressed=${on} onClick=${()=>c.setViz(k)} className="border-0 rounded-full px-3 py-1.5 text-[12px] font-semibold" style=${{background:on?'var(--acc)':'var(--ghost)',color:on?'#fff':'var(--mute)',transition:'background .2s'}}>${l}</button>`})}</div>
+ ${(S.viz||'ball')==='ball'?html`<${Snowball} cur=${D.cur} pot=${D.pot} pulse=${S.pulse} goal=${S.sGoal||.85}/>`:(S.viz||'ball')==='stars'?html`<${Constellations} areas=${CORE.map(id=>((S.sAreaPts||{})[id]||0)/(S.acts[id].cap*SL(S)))} pot=${D.pot} total=${Object.values(S.tally||{}).reduce((a,b)=>a+b,0)} pulse=${S.pulse}/>`:html`<${Mountain} cur=${D.cur} pot=${D.pot} areas=${D.areas} rest=${D.restToday} pulse=${S.pulse} labels=${false}/>`}
  <div className="px-1.5 pt-3 pb-1">
   <div className="flex items-end justify-between"><div><div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style=${{background:'#8B5CF6',boxShadow:'0 0 8px #8B5CF6'}}/><span className="lbl">Current Self</span></div><div className="disp text-[26px] mt-1 leading-none"><${CountUp} v=${Math.round(D.cur*100)}/> %</div></div>
    <div className="text-right"><div className="flex items-center gap-1.5 justify-end"><span className="lbl">Potential Self</span><span className="w-2 h-2 rounded-full" style=${{border:'1.5px dashed #C4B5FD'}}/></div><div className="disp text-[26px] mt-1 leading-none acc">${Math.round(D.pot*100)} %</div></div></div>
   <div className="relative mt-2.5 h-2 rounded-full overflow-hidden" style=${{background:'var(--ghost)'}}><div className="absolute inset-y-0 left-0 rounded-full" style=${{width:clamp(D.pot,0,1)*100+'%',background:'repeating-linear-gradient(90deg,rgba(196,181,253,.45) 0 4px,transparent 4px 7px)'}}/><div className="absolute inset-y-0 left-0 rounded-full bar-fill" style=${{width:clamp(D.cur,0,1)*100+'%',background:'linear-gradient(90deg,#6D28D9,#A78BFA)',transition:'width .8s cubic-bezier(.2,.8,.2,1)'}}/></div>
-  <div className="text-[11px] mute mt-2 leading-snug">Anteil deines Saisonplans. Ein verpasster Tag nimmt dir nichts weg.</div></div></div>`}
+  <div className="text-[11px] mute mt-2 leading-snug">${(S.viz||'ball')==='ball'?'Jede Mission macht den Ball größer, und ein größerer Ball sammelt mehr. Kleine Schritte summieren sich.':(S.viz||'ball')==='stars'?'Jede Mission lässt Sterne leuchten. Die blassen Sterne stammen aus früheren Saisons und bleiben für immer.':'Anteil deines Saisonplans. Ein verpasster Tag nimmt dir nichts weg.'}</div></div></div>`}
 function DailyBriefing({c}){
  const {S,D}=c;const b=briefToday(S);const [edit,setEdit]=useState(false);
  const cand=briefCands(S,D),byId=id=>D.allM.find(m=>m.id===id);
@@ -2214,6 +2268,7 @@ function App({init,auth,skey='war_within_v5'}){
  const toggleRest=()=>{const on=S.rest.includes(S.day);upd(n=>{n.rest=on?n.rest.filter(d=>d!==n.day):[...n.rest,n.day]});toast(on?'Pause beendet.':'Bewusste Pause: dein Potenzial wartet auf dich. Kein Rückstand.','good')};
  const setHero=v=>upd(n=>{n.heroView=v});
  const toggleTheme=()=>upd(n=>{n.theme=n.theme==='dark'?'light':'dark'});
+ const setViz=v=>upd(n=>{n.viz=v});
  const setUi=v=>{if((S.ui||'basic')===v)return;upd(n=>{n.ui=v});toast(v==='adv'?'Erweitert: Lebensmatrix, Rekorde, Rechner und Prognosen sichtbar. Deine Daten bleiben gleich.':'Basis: nur das Wichtigste. Es geht nichts verloren.','good')};
  const recordStat=(id,v)=>{upd(n=>{n.mxv=n.mxv||{};n.mxv[id]=[...(n.mxv[id]||[]),{v,t:Date.now()}].slice(-40)});toast('Wert gespeichert. Punkte gibt es für Missionen, nicht für Einträge.','good')};
  const saveMission=x=>{const isNew=!x.id;upd(n=>{if(isNew)n.missions.push({...x,id:'x'+uid(),sub:undefined});else{const m=n.missions.find(y=>y.id===x.id);if(m){m.title=x.title;m.desc=x.desc;m.freq=x.freq;m.times=x.times;m.pts=x.pts}}});setSheet(x.stat&&isNew?{t:'stat',id:x.stat}:null);toast(isNew?'Mission angelegt':'Mission gespeichert','good')};
@@ -2298,7 +2353,7 @@ function App({init,auth,skey='war_within_v5'}){
  /* Erfolge */
  const newA=S.newAch[0];
  useEffect(()=>{if(!newA)return;const t=setTimeout(()=>upd(n=>{n.newAch=n.newAch.slice(1)}),2600);return()=>clearTimeout(t)},[newA]);
- const c={auth,upd,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,addGoal,doSwap,toggleRest,toggleTheme,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
+ const c={auth,upd,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,addGoal,doSwap,toggleRest,toggleTheme,setViz,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
  const nav=[['home','Start','home'],['tasks','Aufgaben','check'],['solo','Duell','swords'],['league','Liga','trophy'],['stats','Stats','trend']];
  const ach=newA&&ACHS.find(a=>a.id===newA);
  return html`<div data-theme=${S.theme} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(139,92,246,.12)'}}>
