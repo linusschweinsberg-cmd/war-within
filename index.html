@@ -119,6 +119,7 @@ html,body{background:radial-gradient(1200px 600px at 50% -10%,#1A1230 0%,#050508
 @keyframes sway{0%,100%{transform:rotate(-1.1deg)}50%{transform:rotate(1.1deg)}}.tsw{transform-origin:200px 300px;animation:sway 7s ease-in-out infinite}
 @keyframes obInR{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:none}}@keyframes obInL{from{opacity:0;transform:translateX(-32px)}to{opacity:1;transform:none}}
 input[type=range]{accent-color:#8B5CF6}
+@keyframes drift{0%,100%{transform:translateX(-3px)}50%{transform:translateX(3px)}}
 @keyframes flinch{0%{filter:none}35%{filter:brightness(2.2)}100%{filter:none}}
 </style>
 </head>
@@ -837,13 +838,13 @@ function Constellations({areas,pot,total,pulse}){const [k,setK]=useState(0);cons
   <text x=${pts[0][0]} y=${Math.max(...pts.map(p=>p[1]))+18} fontSize="10" fontWeight="600" style=${{fill:'var(--mtr)'}} opacity=".85">${names[ci]} · ${fi}/12</text></g>`})}
  </svg>`}
 /* Schatten: der Widerstand in dir. Krieger wächst mit dem Fortschritt, der Schatten mit dem Rückstand auf das Potenzial. */
-function WarriorShape({fill,stroke}){return html`<g fill=${fill} stroke=${stroke||'none'} strokeWidth="1.2" strokeLinejoin="round">
- <path d="M-6 -112 L0 -122 L6 -112Z"/><circle cx="0" cy="-98" r="10"/><path d="M-12 -100 Q0 -114 12 -100 L12 -96 L-12 -96Z"/>
- <path d="M-17 -82 Q-34 -40 -26 0 L-10 -8 L-14 -44Z" opacity=".55"/>
- <path d="M-20 -82 Q0 -90 20 -82 L17 -44 L-17 -44Z"/><path d="M-20 -82 L-30 -78 L-24 -70 L-17 -76Z"/><path d="M20 -82 L30 -78 L24 -70 L17 -76Z"/>
- <path d="M-15 -46 L-17 0 L-7 0 L-4 -40Z"/><path d="M15 -46 L17 0 L7 0 L4 -40Z"/>
- <path d="M-19 -78 L-26 -50 L-20 -48 L-14 -74Z"/><path d="M19 -80 L32 -64 L28 -60 L16 -74Z"/>
- <path d="M28 -62 L50 -108 L53 -106 L32 -60Z"/><rect x="24" y="-66" width="12" height="3" rx="1.5" transform="rotate(-26 30 -64)"/></g>`}
+function WarriorShape({fill,stroke,hood}){const h=hood||'#2E2063';return html`<g fill=${fill} stroke=${stroke||'none'} strokeWidth="1.2" strokeLinejoin="round">
+ <path d="M-12 -26 L-14 -2 L-5 -2 L-4 -26Z M12 -26 L14 -2 L5 -2 L4 -26Z"/>
+ <path d="M-15 -3 H-3 V0 H-17Z M15 -3 H3 V0 H17Z" fill=${h} stroke="none"/>
+ <path d="M0 -126 C-10 -125 -16 -118 -17 -106 L-29 -92 C-33 -89 -34 -85 -34 -80 L-31 -24 L-22 -20 L-12 -24 L-6 -22 H6 L12 -24 L22 -20 L31 -24 L34 -80 C34 -85 33 -89 29 -92 L17 -106 C16 -118 10 -125 0 -126Z"/>
+ <path d="M-7 -86 L-9 -24 L9 -24 L7 -86Z" fill=${h} stroke="none" opacity=".85"/>
+ <path d="M-11 -106 Q0 -118 11 -106 Q9 -94 0 -92 Q-9 -94 -11 -106Z" fill=${h} stroke="none"/>
+ ${stroke&&html`<g fill="none" strokeWidth="1" opacity=".45"><path d="M-20 -78 Q-23 -50 -24 -24"/><path d="M20 -78 Q23 -50 24 -24"/><path d="M-29 -92 Q-14 -84 -7 -86 M29 -92 Q14 -84 7 -86"/></g><circle cx="0" cy="-88" r="2.4" fill=${stroke} stroke="none"/>`}</g>`}
 function Shadow({cur,pot,pulse,rest}){const [k,setK]=useState(0);const first=useRef(true);const I=useId().replace(/:/g,'');
  useEffect(()=>{if(first.current){first.current=false;return}setK(x=>x+1)},[pulse]);
  const c=clamp(cur,0,1),gap=Math.max(0,(pot||0)-c),ms=.62+.55*c,ss=clamp(ms*(.8+3.5*gap+.6*(1-c)),ms*.8,2.3),so=clamp(.28+gap*2.2+.3*(1-c),.25,.78);
@@ -856,24 +857,50 @@ function Shadow({cur,pot,pulse,rest}){const [k,setK]=useState(0);const first=use
  <circle cx="34" cy="150" r="64" fill=${`url(#tl${I})`} style=${{animation:'glow 2.6s ease-in-out infinite'}}/>
  <path d="M30 196 V160" stroke="#5F5E5A" strokeWidth="4"/><path d="M26 160 Q34 140 38 160Z" fill="#F59E0B"/><path d="M29 158 Q34 146 36 158Z" fill="#FDE68A"/>
  <text x="344" y="24" textAnchor="end" fontSize="11" fontWeight="700" fill="#FF6B86">Schatten</text>
- <g style=${{transform:`translate(${200+18*(1-c)}px,${196-4*(1-c)}px) scale(${ss},${ss*1.04})`,opacity:so,transition:tr}}><g key=${'f'+k} style=${{animation:k?'flinch .5s ease-out':'none'}}><g filter=${`url(#sb${I})`}><${WarriorShape} fill="#3B0B22"/></g><ellipse cx="-4" cy="-98" rx="3.2" ry="1.3" fill="#FF2D55" style=${{animation:'glow 2.4s ease-in-out infinite'}}/><ellipse cx="4" cy="-98" rx="3.2" ry="1.3" fill="#FF2D55" style=${{animation:'glow 2.4s ease-in-out infinite'}}/></g></g>
+ <g style=${{transform:`translate(${200+18*(1-c)}px,${196-4*(1-c)}px) scale(${ss},${ss*1.04})`,opacity:so,transition:tr}}><g key=${'f'+k} style=${{animation:k?'flinch .5s ease-out':'none'}}><g filter=${`url(#sb${I})`}><${WarriorShape} fill="#3B0B22" hood="#1A0510"/></g><ellipse cx="-4" cy="-100" rx="3.2" ry="1.3" fill="#FF2D55" style=${{animation:'glow 2.4s ease-in-out infinite'}}/><ellipse cx="4" cy="-100" rx="3.2" ry="1.3" fill="#FF2D55" style=${{animation:'glow 2.4s ease-in-out infinite'}}/></g></g>
  <ellipse cx="160" cy="198" rx=${18+20*c} ry="4" fill="#000" opacity=".3" style=${{transition:'rx .9s'}}/>
- <g style=${{transform:`translate(160px,198px) scale(${ms})`,transition:tr}}><circle cy="-55" r="58" fill="#8B5CF6" opacity=${.08+.3*c}/><g key=${'c'+k} className=${k?'cheer':''}><${WarriorShape} fill="#EDE9FE" stroke="#6D28D9"/></g>${rest&&html`<text x="22" y="-104" fontSize="16" fontWeight="800" fill="#C4B5FD">Zzz</text>`}</g>
+ <g style=${{transform:`translate(160px,198px) scale(${ms})`,transition:tr}}><circle cy="-55" r="58" fill="#8B5CF6" opacity=${.08+.3*c}/><g key=${'c'+k} className=${k?'cheer':''}><${WarriorShape} fill="#DDD6FE" stroke="#6D28D9" hood="#3B1D7A"/></g>${rest&&html`<text x="22" y="-104" fontSize="16" fontWeight="800" fill="#C4B5FD">Zzz</text>`}</g>
  <text x="160" y=${198-120*ms-10} textAnchor="middle" fontSize="11" fontWeight="800" style=${{fill:'var(--ink)',transition:'y .9s'}}>Du</text>
  ${k>0&&html`<g key=${'s'+k}>${Array.from({length:10},(_,i)=>{const a=Math.PI*(1.1+i/11);return html`<circle key=${i} cx="160" cy=${198-60*ms} r="2.6" fill="#C4B5FD" style=${{'--dx':Math.cos(a)*55+'px','--dy':Math.sin(a)*55+'px',animation:'burst .8s ease-out forwards'}}/>`})}</g>`}
  </svg>`}
-const VIZ=[['ball','Schneeball','Dein Schneeball'],['shadow','Schatten','Dein Schatten'],['stars','Sternbild','Dein Sternbild'],['berg','Berg','Der Aufstieg']];
+/* Spiegelbild: oben du, unten im Wasser der Widerstand. Je näher am Potenzial, desto ruhiger das Wasser und desto mehr wird das Spiegelbild zu deinem Abbild. */
+function Reflection({cur,pot,pulse,rest}){const [k,setK]=useState(0);const first=useRef(true);const I=useId().replace(/:/g,'');
+ useEffect(()=>{if(first.current){first.current=false;return}setK(x=>x+1)},[pulse]);
+ const c=clamp(cur,0,1),gap=Math.max(0,(pot||0)-c),q=clamp(Math.pow(c/Math.max(.01,pot||.01),1.4),0,1),ms=.66+.3*c,rs=clamp(ms*(.95+2.4*gap+.45*(1-c)),ms*.85,1.7),Hy=150;
+ const tr='transform 1s cubic-bezier(.3,.8,.3,1),opacity 1s';const lines=[18,34,52,70,88,104];
+ return html`<svg viewBox="0 0 380 260" className="w-full block" style=${{borderRadius:20}} role="img" aria-label=${`Spiegelbild: Du bei ${Math.round(c*100)} Prozent, das Spiegelbild ist ${rs>ms*1.08?'größer als du':'so groß wie du'}`}>
+ <defs><linearGradient id=${'rs'+I} x1="0" x2="0" y1="0" y2="1"><stop offset="0" style=${{stopColor:'var(--mt1)'}}/><stop offset="1" style=${{stopColor:'var(--mt2)'}}/></linearGradient>
+  <linearGradient id=${'rw'+I} x1="0" x2="0" y1="0" y2="1"><stop offset="0" style=${{stopColor:'var(--mt2)'}}/><stop offset="1" style=${{stopColor:'var(--mgr)'}}/></linearGradient>
+  <filter id=${'rb'+I}><feGaussianBlur stdDeviation=${(.9*(1-q)+.2).toFixed(2)}/></filter></defs>
+ <rect width="380" height=${Hy} fill=${`url(#rs${I})`}/>
+ <rect y=${Hy} width="380" height=${260-Hy} fill=${`url(#rw${I})`}/>
+ <rect y=${Hy} width="380" height=${260-Hy} fill="#3B0B22" opacity=${(.35*(1-q)).toFixed(2)} style=${{transition:'opacity 1s'}}/>
+ <g fill="#fff">${STARS.slice(0,8).map((p,i)=>html`<circle key=${'a'+i} cx=${p[0]} cy=${p[1]*.9} r=${p[2]*.8} opacity=".75" style=${{opacity:'calc(var(--mst) * .75)'}}/>`)}${STARS.slice(0,8).map((p,i)=>html`<circle key=${'b'+i} cx=${p[0]} cy=${2*Hy-p[1]*.9} r=${p[2]*.7} style=${{opacity:'calc(var(--mst) * .3)'}}/>`)}</g>
+ <circle cx="70" cy="44" r="13" fill="#fff" opacity=".85"/><ellipse cx="70" cy=${2*Hy-44} rx="13" ry="11" fill="#fff" opacity=${(.15+.35*q).toFixed(2)}/>
+ <circle cx="190" cy=${Hy-60*ms} r=${60*ms} fill="#8B5CF6" opacity=${(.08+.25*c).toFixed(2)} style=${{transition:tr}}/>
+ <g style=${{transform:`translate(190px,${Hy+2}px) scale(${rs},${-rs})`,transition:tr}}><g filter=${`url(#rb${I})`}>
+  <g style=${{opacity:(.95*(1-q)).toFixed(2),transition:'opacity 1s'}}><${WarriorShape} fill="#9F1239" hood="#2A0614"/></g>
+  <g style=${{opacity:(.15+.55*q).toFixed(2),transition:'opacity 1s'}}><${WarriorShape} fill="#8B5CF6" hood="#3B1D7A"/></g></g>
+  <g style=${{opacity:(1-q).toFixed(2),transition:'opacity 1s'}}><ellipse cx="-4" cy="-100" rx="3.2" ry="1.3" fill="#FF2D55" style=${{animation:'glow 2.4s ease-in-out infinite'}}/><ellipse cx="4" cy="-100" rx="3.2" ry="1.3" fill="#FF2D55" style=${{animation:'glow 2.4s ease-in-out infinite'}}/></g></g>
+ <g style=${{animation:'drift 4s ease-in-out infinite'}}>${lines.map((y,i)=>html`<path key=${i} d=${`M${120+(i%2)*12} ${Hy+y} H${260-(i%3)*10}`} strokeLinecap="round" style=${{stroke:'var(--mt2)',strokeWidth:(2*(1-q)+.2).toFixed(2),opacity:(.75*(1-q)).toFixed(2),transition:'all 1s'}}/>`)}</g>
+ <path d=${`M0 ${Hy} H380`} style=${{stroke:'var(--msn)'}} strokeWidth="1.2" opacity=".8"/>
+ <g style=${{transform:`translate(190px,${Hy}px) scale(${ms})`,transition:tr}}><g key=${'c'+k} className=${k?'cheer':''}><${WarriorShape} fill="#DDD6FE" stroke="#6D28D9" hood="#3B1D7A"/></g>${rest&&html`<text x="26" y="-104" fontSize="16" fontWeight="800" fill="#C4B5FD">Zzz</text>`}</g>
+ <text x="190" y=${Hy-120*ms-10} textAnchor="middle" fontSize="11" fontWeight="800" style=${{fill:'var(--ink)',transition:'y 1s'}}>Du</text>
+ <text x="344" y="248" textAnchor="end" fontSize="11" fontWeight="700" fill=${q>.85?'#A78BFA':'#FF6B86'}>${q>.85?'Dein Abbild':'Widerstand'}</text>
+ ${k>0&&html`<g key=${'r'+k} transform=${`translate(190 ${Hy}) scale(1 .28)`}>${[0,1,2].map(i=>html`<circle key=${i} r="14" fill="none" stroke="#C4B5FD" strokeWidth="2.5" className="ripple" style=${{animationDelay:i*.18+'s'}}/>`)}</g>`}
+ </svg>`}
+const VIZ=[['ball','Schneeball','Dein Schneeball'],['mirror','Spiegelbild','Dein Spiegelbild'],['shadow','Schatten','Dein Schatten'],['stars','Sternbild','Dein Sternbild'],['berg','Berg','Der Aufstieg']];
 function MountainCard({c}){const {S,D}=c;
  const gapPts=Math.max(0,(D.pot-D.cur)*D.seasonPlan),avgP=D.allM.length?D.allM.reduce((a,m)=>a+m.pts,0)/D.allM.length:6,need=Math.ceil(gapPts/Math.max(1,avgP));
  return html`<div className="card p-3 mb-4 relative overflow-hidden" style=${{borderRadius:26}}>
  <div className="flex items-start justify-between px-1.5 pt-1 pb-2.5 gap-2"><div className="min-w-0"><div className="lbl acc">${(VIZ.find(v=>v[0]===(S.viz||'ball'))||VIZ[0])[2]} · Saison ${S.season}</div><div className="text-[15px] font-bold mt-0.5 leading-snug">${need<=0?'Du gehst Seite an Seite mit deinem Potenzial':need<=12?`≈ ${need} Missionen bis zu deinem Potenzial`:`Dein Potenzial ist ${Math.round(D.gap)} % voraus. Der nächste Schritt zählt.`}</div></div><button aria-label="Was bedeuten die Figuren?" onClick=${()=>c.openSheet({t:'info',k:'self'})} className="bg-transparent border-0 mute p-0 shrink-0"><${Icon} n="info" s=${16}/></button></div>
- <div role="group" aria-label="Darstellung" className="flex gap-1 px-1.5 pb-2.5">${VIZ.map(([k,l])=>{const on=(S.viz||'ball')===k;return html`<button key=${k} aria-pressed=${on} onClick=${()=>c.setViz(k)} className="border-0 rounded-full px-3 py-1.5 text-[12px] font-semibold" style=${{background:on?'var(--acc)':'var(--ghost)',color:on?'#fff':'var(--mute)',transition:'background .2s'}}>${l}</button>`})}</div>
- ${(S.viz||'ball')==='ball'?html`<${Snowball} cur=${D.cur} pot=${D.pot} pulse=${S.pulse} goal=${S.sGoal||.85}/>`:(S.viz||'ball')==='shadow'?html`<${Shadow} cur=${D.cur} pot=${D.pot} pulse=${S.pulse} rest=${D.restToday}/>`:(S.viz||'ball')==='stars'?html`<${Constellations} areas=${CORE.map(id=>((S.sAreaPts||{})[id]||0)/(S.acts[id].cap*SL(S)))} pot=${D.pot} total=${Object.values(S.tally||{}).reduce((a,b)=>a+b,0)} pulse=${S.pulse}/>`:html`<${Mountain} cur=${D.cur} pot=${D.pot} areas=${D.areas} rest=${D.restToday} pulse=${S.pulse} labels=${false}/>`}
+ <div role="group" aria-label="Darstellung" className="flex gap-1 px-1.5 pb-2.5 overflow-x-auto" style=${{scrollbarWidth:'none'}}>${VIZ.map(([k,l])=>{const on=(S.viz||'ball')===k;return html`<button key=${k} aria-pressed=${on} onClick=${()=>c.setViz(k)} className="border-0 rounded-full px-3 py-1.5 text-[12px] font-semibold whitespace-nowrap shrink-0" style=${{background:on?'var(--acc)':'var(--ghost)',color:on?'#fff':'var(--mute)',transition:'background .2s'}}>${l}</button>`})}</div>
+ ${(S.viz||'ball')==='ball'?html`<${Snowball} cur=${D.cur} pot=${D.pot} pulse=${S.pulse} goal=${S.sGoal||.85}/>`:(S.viz||'ball')==='mirror'?html`<${Reflection} cur=${D.cur} pot=${D.pot} pulse=${S.pulse} rest=${D.restToday}/>`:(S.viz||'ball')==='shadow'?html`<${Shadow} cur=${D.cur} pot=${D.pot} pulse=${S.pulse} rest=${D.restToday}/>`:(S.viz||'ball')==='stars'?html`<${Constellations} areas=${CORE.map(id=>((S.sAreaPts||{})[id]||0)/(S.acts[id].cap*SL(S)))} pot=${D.pot} total=${Object.values(S.tally||{}).reduce((a,b)=>a+b,0)} pulse=${S.pulse}/>`:html`<${Mountain} cur=${D.cur} pot=${D.pot} areas=${D.areas} rest=${D.restToday} pulse=${S.pulse} labels=${false}/>`}
  <div className="px-1.5 pt-3 pb-1">
   <div className="flex items-end justify-between"><div><div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style=${{background:'#8B5CF6',boxShadow:'0 0 8px #8B5CF6'}}/><span className="lbl">Current Self</span></div><div className="disp text-[26px] mt-1 leading-none"><${CountUp} v=${Math.round(D.cur*100)}/> %</div></div>
    <div className="text-right"><div className="flex items-center gap-1.5 justify-end"><span className="lbl">Potential Self</span><span className="w-2 h-2 rounded-full" style=${{border:'1.5px dashed #C4B5FD'}}/></div><div className="disp text-[26px] mt-1 leading-none acc">${Math.round(D.pot*100)} %</div></div></div>
   <div className="relative mt-2.5 h-2 rounded-full overflow-hidden" style=${{background:'var(--ghost)'}}><div className="absolute inset-y-0 left-0 rounded-full" style=${{width:clamp(D.pot,0,1)*100+'%',background:'repeating-linear-gradient(90deg,rgba(196,181,253,.45) 0 4px,transparent 4px 7px)'}}/><div className="absolute inset-y-0 left-0 rounded-full bar-fill" style=${{width:clamp(D.cur,0,1)*100+'%',background:'linear-gradient(90deg,#6D28D9,#A78BFA)',transition:'width .8s cubic-bezier(.2,.8,.2,1)'}}/></div>
-  <div className="text-[11px] mute mt-2 leading-snug">${(S.viz||'ball')==='shadow'?'Der Schatten ist der Widerstand in dir: Aufschieben, Bequemlichkeit, Ablenkung. Jede Mission macht ihn kleiner, an Ruhetagen wächst er nicht.':(S.viz||'ball')==='ball'?'Jede Mission macht den Ball größer, und ein größerer Ball sammelt mehr. Kleine Schritte summieren sich.':(S.viz||'ball')==='stars'?'Jede Mission lässt Sterne leuchten. Die blassen Sterne stammen aus früheren Saisons und bleiben für immer.':'Anteil deines Saisonplans. Ein verpasster Tag nimmt dir nichts weg.'}</div></div></div>`}
+  <div className="text-[11px] mute mt-2 leading-snug">${(S.viz||'ball')==='mirror'?'Im Wasser spiegelt sich der Widerstand in dir. Je näher du deinem Potenzial kommst, desto ruhiger wird das Wasser, bis es nur noch dich zeigt.':(S.viz||'ball')==='shadow'?'Der Schatten ist der Widerstand in dir: Aufschieben, Bequemlichkeit, Ablenkung. Jede Mission macht ihn kleiner, an Ruhetagen wächst er nicht.':(S.viz||'ball')==='ball'?'Jede Mission macht den Ball größer, und ein größerer Ball sammelt mehr. Kleine Schritte summieren sich.':(S.viz||'ball')==='stars'?'Jede Mission lässt Sterne leuchten. Die blassen Sterne stammen aus früheren Saisons und bleiben für immer.':'Anteil deines Saisonplans. Ein verpasster Tag nimmt dir nichts weg.'}</div></div></div>`}
 function DailyBriefing({c}){
  const {S,D}=c;const b=briefToday(S);const [edit,setEdit]=useState(false);
  const cand=briefCands(S,D),byId=id=>D.allM.find(m=>m.id===id);
