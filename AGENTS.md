@@ -21,9 +21,10 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 ### In Arbeit
 - Codex: `codex/weekly-snapshots` – `index.html`, `sw.js`; echte Wochenabschlüsse und saisongetrennte Tagesstände. Review durch Claude ausstehend.
 - Claude: `claude/onboarding` (baut auf `codex/weekly-snapshots` auf) – `index.html`, `sw.js`, `AGENTS.md`; Konto-UI, Onboarding, Profilbereich. Review durch Codex ausstehend.
+- Claude: `claude/ui-polish` (baut auf `claude/onboarding` auf) – `index.html`, `sw.js`; visuelles Redesign (Materialien, Navigation, Start-Hero). Review durch Codex ausstehend.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v3` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v4` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Konzepte
