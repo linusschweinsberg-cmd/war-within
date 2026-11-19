@@ -107,6 +107,7 @@ html,body{background:radial-gradient(1200px 600px at 50% -10%,#1A1230 0%,#050508
 @keyframes confetti{0%{opacity:1;transform:translate3d(0,-20px,0) rotate(0)}100%{opacity:.9;transform:translate3d(var(--dx),110vh,0) rotate(var(--rot))}}
 @keyframes goldPulse{0%,100%{filter:drop-shadow(0 0 6px rgba(251,191,36,.45))}50%{filter:drop-shadow(0 0 14px rgba(251,191,36,.85))}}
 .gold-t{background:linear-gradient(180deg,#FFF7D6,#FBBF24 55%,#D97706);-webkit-background-clip:text;background-clip:text;color:transparent}
+@keyframes holdBar{from{width:0}to{width:100%}}
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 @keyframes sway{0%,100%{transform:rotate(-1.1deg)}50%{transform:rotate(1.1deg)}}.tsw{transform-origin:200px 300px;animation:sway 7s ease-in-out infinite}
 @keyframes obInR{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:none}}@keyframes obInL{from{opacity:0;transform:translateX(-32px)}to{opacity:1;transform:none}}
@@ -605,21 +606,23 @@ const ACOL={body:'#22C55E',fin:'#F59E0B',rel:'#EC4899',disc:'#8B5CF6',rec:'#38BD
 function MRow({m,c,big}){
  const {S}=c,a=S.acts[m.act],done=isDone(S,m),cnt=(S.counts&&S.counts[m.id])||0,room=a.cap-(S.weekPts[m.act]||0),capped=!done&&room<=0;
  const col=ACOL[m.act]||'#8B5CF6';
- const [dx,setDx]=useState(0);const st=useRef(null),moved=useRef(false);
- const down=e=>{if(done)return;st.current={x:e.clientX,y:e.clientY};moved.current=false};
- const move=e=>{const s=st.current;if(!s)return;if(Math.abs(e.clientY-s.y)>16&&!moved.current){st.current=null;setDx(0);return}const d=e.clientX-s.x;if(d>10){moved.current=true;setDx(Math.min(d,150))}};
- const up=e=>{const s=st.current;st.current=null;if(s&&moved.current&&dx>90)c.start(m.id,e);setDx(0)};
- const tap=e=>{if(moved.current){moved.current=false;return}c.start(m.id,e)};
+ const [dx,setDx]=useState(0),[hold,setHold]=useState(false);const st=useRef(null),moved=useRef(false),lp=useRef(false),tm=useRef(null);
+ const clr=()=>{clearTimeout(tm.current);setHold(false)};
+ const down=e=>{if(done)return;st.current={x:e.clientX,y:e.clientY};moved.current=false;lp.current=false;const tgt=e.currentTarget;setHold(true);tm.current=setTimeout(()=>{if(moved.current||!st.current)return;lp.current=true;st.current=null;setHold(false);try{navigator.vibrate&&navigator.vibrate(15)}catch(x){}c.start(m.id,{currentTarget:tgt},{detail:true})},480)};
+ useEffect(()=>()=>clearTimeout(tm.current),[]);
+ const move=e=>{const s=st.current;if(!s)return;if(Math.abs(e.clientY-s.y)>16&&!moved.current){st.current=null;clr();setDx(0);return}const d=e.clientX-s.x;if(d>10){moved.current=true;clr();setDx(Math.min(d,150))}};
+ const up=e=>{clr();const s=st.current;st.current=null;if(s&&moved.current&&dx>90)c.start(m.id,e);setDx(0)};
+ const tap=e=>{if(lp.current){lp.current=false;return}if(moved.current){moved.current=false;return}c.start(m.id,e)};
  const sz=big?54:46;
  return html`<div className="relative rounded-[26px] overflow-hidden rise" style=${{touchAction:'pan-y'}}>
  <div className="absolute inset-0 flex items-center pl-5 text-white" style=${{background:col,opacity:dx>0?1:0}}><${Icon} n="check" s=${26} sw=${3}/><span className="ml-2 text-sm font-bold">${dx>90?'Loslassen':'Weiter wischen'}</span></div>
- <div onPointerDown=${down} onPointerMove=${move} onPointerUp=${up} onPointerCancel=${()=>{st.current=null;setDx(0)}} onClick=${tap} role="button" className="flex items-center gap-3.5 relative cursor-pointer" style=${{borderRadius:26,padding:big?'20px 16px 16px 18px':'16px 14px 14px 16px',background:done?`linear-gradient(135deg,${col},color-mix(in srgb, ${col} 70%, #000))`:`linear-gradient(135deg,color-mix(in srgb, ${col} 20%, var(--card)),color-mix(in srgb, ${col} 9%, var(--card)))`,boxShadow:done?`0 10px 26px -12px ${col}`:'0 1px 0 var(--hi) inset',border:done?`1px solid ${col}`:`1px solid color-mix(in srgb, ${col} 36%, transparent)`,transform:`translateX(${dx}px)`,transition:dx?'none':'transform .25s',userSelect:'none',color:done?'#fff':'var(--ink)'}}>
-  <span className="num absolute text-[12px] font-bold" style=${{left:18,top:6,color:done?'rgba(255,255,255,.9)':col}}>${capped?'Limit':'+'+m.pts}</span>
+ <div onPointerDown=${down} onPointerMove=${move} onPointerUp=${up} onPointerCancel=${()=>{st.current=null;clr();setDx(0)}} onPointerLeave=${clr} onContextMenu=${e=>e.preventDefault()} onClick=${tap} role="button" aria-label=${`${m.title}: ${done?'erledigt':m.log?'öffnen, um Werte einzutragen':'antippen zum Abhaken, lange drücken für Details'}`} className="flex items-center gap-3.5 relative cursor-pointer" style=${{borderRadius:26,padding:big?'20px 16px 16px 18px':'16px 14px 14px 16px',background:done?`linear-gradient(135deg,${col},color-mix(in srgb, ${col} 70%, #000))`:`linear-gradient(135deg,color-mix(in srgb, ${col} 20%, var(--card)),color-mix(in srgb, ${col} 9%, var(--card)))`,boxShadow:done?`0 10px 26px -12px ${col}`:'0 1px 0 var(--hi) inset',border:done?`1px solid ${col}`:`1px solid color-mix(in srgb, ${col} 36%, transparent)`,transform:`translateX(${dx}px)`,transition:dx?'none':'transform .25s',userSelect:'none',color:done?'#fff':'var(--ink)'}}>
+  ${hold&&html`<span aria-hidden="true" className="absolute left-0 bottom-0 h-[3px] rounded-full" style=${{background:col,animation:'holdBar .48s linear forwards'}}/>`}<span className="num absolute text-[12px] font-bold" style=${{left:18,top:6,color:done?'rgba(255,255,255,.9)':col}}>${capped?'Limit':'+'+m.pts}</span>
   <button aria-label="Aktivität öffnen" onClick=${e=>{e.stopPropagation();c.openSheet({t:'act',id:a.id})}} className="bg-transparent border-0 p-0 shrink-0 mt-2" style=${{color:done?'#fff':col}}><${Icon} n=${a.icon} s=${big?32:28}/></button>
   <div className="flex-1 min-w-0 mt-1"><div className=${`${big?'text-[18px]':'text-[16px]'} font-semibold leading-tight`}>${m.title}</div>
   <div className="text-[13px] mt-0.5" style=${{opacity:.72}}>${m.freq==='multi'?`${cnt} von ${m.times} diese Woche`:freqLabel(m)}${m.log&&!done?' · mit Eingabe':''}${done&&S.autoDone&&S.autoDone[m.id]?' · Auto (Demo)':''}</div></div>
   <div className="rounded-full flex items-center justify-center shrink-0 transition-all" style=${{width:sz,height:sz,background:done?'#fff':'transparent',border:done?'none':`5px solid color-mix(in srgb, ${col} 38%, transparent)`,color:done?col:col}}>
-   ${done?html`<${Icon} n="check" s=${big?28:24} sw=${3}/>`:m.log?html`<${Icon} n="chevR" s=${big?26:22} sw=${2.4}/>`:html`<${Icon} n="plus" s=${big?26:22} sw=${2.4}/>`}</div></div></div>`}
+   ${done?html`<${Icon} n="check" s=${big?28:24} sw=${3}/>`:m.log?html`<${Icon} n="chevR" s=${big?26:22} sw=${2.4}/>`:html`<${Icon} n="check" s=${big?24:20} sw=${2.6} style=${{opacity:.45}}/>`}</div></div></div>`}
 /* ───── Ripple-Effekt ───── */
 function Ripple({c}){
  const {S,D}=c;const [sc,setSc]=useState('miss');const [k,setK]=useState(0);
@@ -1773,7 +1776,8 @@ const METRICS={'5-km-Lauf':[true,S=>S.stats.run5k.last,fmtT],'Bankdrücken (Verb
 function App({init,auth,skey='war_within_v5'}){
  const [S,setS]=useState(()=>init||loadState(skey));
  const [tab,setTab]=useState('home'),[statTab,setStatTab]=useState('gen'),[sheet,setSheet]=useState(null),[sel,setSel]=useState(null),[coreSel,setCoreSel]=useState(null),[freq,setFreq]=useState('all');
- const [toasts,setToasts]=useState([]),[floats,setFloats]=useState([]),[flash,setFlash]=useState({}),[sparks,setSparks]=useState([]);
+ const [toasts,setToasts]=useState([]),[floats,setFloats]=useState([]),[flash,setFlash]=useState({}),[sparks,setSparks]=useState([]),[undo,setUndo]=useState(null);
+ useEffect(()=>{if(!undo)return;const t=setTimeout(()=>setUndo(u=>u&&u.id===undo.id?null:u),5000);return()=>clearTimeout(t)},[undo&&undo.id]);
  const now=useNow(1000);const scrollRef=useRef(null);const lock=useRef({});
  const upd=useCallback(fn=>setS(p=>{const n=structuredClone(p);fn(n);return n}),[]);
  const D=useMemo(()=>derive(S),[S]);
@@ -1815,10 +1819,13 @@ function App({init,auth,skey='war_within_v5'}){
   fx(pos,award>0?`+${award}`:'Limit');if(award>0)burst(pos,ACOL[m.act]||'#A78BFA');try{navigator.vibrate&&navigator.vibrate(award>0?[12,40,18]:8)}catch(e){}
   toast(award>0&&room>0?`+${award} Pkt. · ${a.short}${extra.msg?' · '+extra.msg:''}`:`${a.short} hat das Wochenlimit erreicht. Rating wächst weiter, Punkte nicht.`,award>0&&room>0?'good':undefined);
   if(!extra.keep)setSheet(null)};
- const start=(mid,ev)=>{const m=S.missions.find(x=>x.id===mid);if(isDone(S,m)){toast(m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
+ const start=(mid,ev,opt={})=>{const m=S.missions.find(x=>x.id===mid);if(isDone(S,m)){toast(m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
   if(!isActive(S,m.act)){toast(`${S.acts[m.act].name} sitzt auf der Bank. Wechsle sie im Squad ein.`,'warn');return}
   const pos=ev&&ev.currentTarget?ev.currentTarget.getBoundingClientRect():null;
-  if(m.log){openSheet({t:'log',kind:m.log,mid});return}openSheet({t:'rate',mid})};
+  if(m.log){openSheet({t:'log',kind:m.log,mid});return}
+  if(opt.detail){openSheet({t:'rate',mid});return}
+  setUndo({prev:S,title:m.title,id:uid()});complete(mid,ev,{keep:true});
+  if(!S.tipHold){upd(n=>{n.tipHold=true});setTimeout(()=>toast('Tipp: Lange drücken, um Erfolgsgrad und Details anzugeben.'),1600)}};
  const logSave=(kind,v,mid,keep,q)=>{
   const cb=calcBonus(kind,v,S);const bonus=cb.bonus+(q!=null?qBonus(q):0);let msg='';
   const apply=n=>{const st=n.stats;
@@ -1939,6 +1946,7 @@ function App({init,auth,skey='war_within_v5'}){
  ${tab!=='tasks'&&html`<button aria-label="Mission hinzufügen" onClick=${()=>openSheet({t:'add'})} className="fab absolute z-30 right-4 w-14 h-14 rounded-[20px] flex items-center justify-center text-white border-0" style=${{bottom:100,background:'linear-gradient(140deg,#C4B5FD 0%,#8B5CF6 40%,#5B21B6 100%)'}}><${Icon} n="plus" s=${26} sw=${2.6}/></button>`}
  <div className="absolute bottom-0 inset-x-0 z-30 px-3 pt-2" style=${{paddingBottom:'max(12px,env(safe-area-inset-bottom))',background:'linear-gradient(180deg,transparent,var(--bg) 40%)'}}>
   <nav aria-label="Hauptnavigation" className="relative flex p-1.5 rounded-[30px]" style=${{background:'var(--glass)',backdropFilter:'blur(18px) saturate(1.4)',WebkitBackdropFilter:'blur(18px) saturate(1.4)',border:'1px solid var(--line)',boxShadow:'0 1px 0 var(--hi) inset,0 18px 40px -16px rgba(0,0,0,.7)'}}>${(()=>{const ix=Math.max(0,nav.findIndex(n=>n[0]===tab));return html`<div aria-hidden="true" className="nav-ind absolute top-1.5 bottom-1.5 rounded-[24px]" style=${{left:`calc(6px + ${ix} * (100% - 12px) / ${nav.length})`,width:`calc((100% - 12px) / ${nav.length})`,background:'linear-gradient(160deg,rgba(167,139,250,.28),rgba(124,58,237,.14))',border:'1px solid rgba(167,139,250,.35)',boxShadow:'0 8px 22px -10px rgba(124,58,237,.8)'}}/>`})()}${nav.map(([k,l,i])=>html`<button key=${k} aria-label=${l} aria-current=${tab===k?'page':undefined} onClick=${()=>{setTab(k);setSel(null);try{navigator.vibrate&&navigator.vibrate(6)}catch(e){}}} className="relative flex-1 h-[58px] rounded-[24px] flex flex-col items-center justify-center gap-[3px] border-0 bg-transparent transition-colors" style=${{color:tab===k?'var(--ink)':'var(--mute)'}}><span style=${{transform:tab===k?'translateY(-1px) scale(1.06)':'none',transition:'transform .3s cubic-bezier(.3,1.4,.5,1)',color:tab===k?'var(--acc2)':'inherit',filter:tab===k?'drop-shadow(0 0 8px rgba(167,139,250,.6))':'none'}}><${Icon} n=${i} s=${23} sw=${tab===k?2.1:1.8}/></span><span className="text-[10px] font-semibold tracking-wide" style=${{opacity:tab===k?1:.75}}>${l}</span></button>`)}</nav></div>
+ ${undo&&!sheet&&html`<div key=${undo.id} className="absolute z-40 left-4 flex items-center gap-3 pl-4 pr-1.5 py-1.5 rounded-full" style=${{bottom:104,background:'var(--glass)',backdropFilter:'blur(14px)',WebkitBackdropFilter:'blur(14px)',border:'1px solid var(--line)',boxShadow:'0 12px 30px -10px rgba(0,0,0,.6)',animation:'toastIn .25s ease-out',maxWidth:'calc(100% - 104px)'}}><span className="text-[12.5px] font-medium truncate">Erledigt: ${undo.title}</span><button onClick=${()=>{setS(undo.prev);setUndo(null);toast('Rückgängig gemacht')}} className="chip on shrink-0" style=${{padding:'6px 12px'}}>Rückgängig</button></div>`}
  <${SheetHost} c=${c}/>
  ${ach&&html`<div key=${newA} className="absolute inset-0 z-[60] flex items-center justify-center" style=${{background:'rgba(5,5,10,.82)',animation:'fadeIn .25s'}} onClick=${()=>upd(n=>{n.newAch=n.newAch.slice(1)})}>
   ${Array.from({length:18}).map((_,i)=>{const ang=i/18*Math.PI*2,r=110+(i%3)*40;return html`<span key=${i} className="absolute w-2 h-2 rounded-full" style=${{background:i%2?'#8B5CF6':'#C4B5FD','--dx':Math.cos(ang)*r+'px','--dy':Math.sin(ang)*r+'px',animation:`burst 1.4s ease-out ${i*.03}s both`}}/>`})}
