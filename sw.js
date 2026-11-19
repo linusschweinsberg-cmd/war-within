@@ -1,10 +1,12 @@
 /* THE WAR WITHIN – Service Worker
    Bei Änderungen an index.html o. ä. die Versionsnummer erhöhen,
    damit installierte Apps das Update laden. */
-const VERSION = 'ww-v5';
+const VERSION = 'ww-v7';
 const APP_SHELL = [
   './',
   './index.html',
+  './auth.js',
+  './supabase-config.js',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -39,6 +41,11 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
+
+  if (url.origin !== self.location.origin && url.hostname.endsWith('.supabase.co')) return;
+  if (url.origin === self.location.origin && url.pathname.endsWith('/supabase-config.js')) {
+    e.respondWith(fetch(req).catch(() => caches.match(req))); return;
+  }
 
   // App-Seite: erst Netz (für Updates), offline aus dem Cache
   if (req.mode === 'navigate') {

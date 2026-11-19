@@ -17,6 +17,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script>
+<script src="auth.js"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:#7C3AED;--acc2:#8B5CF6;--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -1303,23 +1306,10 @@ function SheetHost({c}){
  const lock=sh.t==='aar'||sh.t==='season';
  return html`<div className="absolute inset-0 z-50 flex items-end" style=${{background:'rgba(5,4,12,.55)',backdropFilter:'blur(6px)',WebkitBackdropFilter:'blur(6px)',animation:'fadeIn .2s'}} onClick=${()=>{if(!lock)c.closeSheet()}}><div role="dialog" aria-modal="true" className="sheet w-full rounded-t-[30px] p-5 pb-8 max-h-[90%] overflow-y-auto border-t ln" style=${{background:'linear-gradient(180deg,color-mix(in srgb,var(--bg2) 92%,#8B5CF6) 0%,var(--bg2) 120px)',boxShadow:'0 -1px 0 var(--hi) inset,0 -30px 60px -30px rgba(124,58,237,.45)'}} onClick=${e=>e.stopPropagation()}><div className="w-10 h-1 rounded-full mx-auto mb-4" style=${{background:'var(--line)'}}/>${b}</div></div>`}
 /* ───── KONTO, ANMELDUNG & ONBOARDING ───── */
-/* Auth-Schnittstelle. DEMO: Nichts verlässt das Gerät, Passwörter werden weder geprüft noch gespeichert.
-   Für Supabase nur diese Funktionen ersetzen:
-   signUp        → supabase.auth.signUp({email,password,options:{data:{name},emailRedirectTo:location.origin}})  (E-Mail-Bestätigung)
-   signIn        → supabase.auth.signInWithPassword({email,password})
-   resetPassword → supabase.auth.resetPasswordForEmail(email,{redirectTo})
-   signOut       → supabase.auth.signOut()
-   Profil, Onboarding-Daten und Spielstand gehören dann in eine Tabelle pro Nutzer (Row Level Security). */
 const AUTH_KEY='war_within_auth_v1';
-/* Getrennte Spielstände: Gast nutzt den bisherigen Demo-Stand, das (Demo-)Konto einen eigenen. */
 const GUEST_KEY='war_within_v5',ACC_KEY='war_within_acc_v1';
-const authApi={
- demo:true,
- async signUp({name,email}){return{user:{name,email},needsVerification:false}},
- async signIn({email},account){if(!account||account.email.toLowerCase()!==email.trim().toLowerCase())throw new Error('Auf diesem Gerät gibt es kein Demo-Konto mit dieser E-Mail. Registriere dich zuerst oder fahre als Gast fort.');return{user:account}},
- async resetPassword(){return{sent:false}},
- async signOut(){}};
-const loadAuth=()=>{try{const r=localStorage.getItem(AUTH_KEY);if(r){const a=JSON.parse(r);if(a&&typeof a==='object')return a}}catch(e){}return{session:null,account:null,onboarded:false,ob:null}};
+const authApi=window.authApi;
+const loadAuth=()=>{try{const r=localStorage.getItem(AUTH_KEY);if(r){const a=JSON.parse(r);if(a&&typeof a==='object')return {...a,session:a.session?.mode==='guest'?a.session:null}}}catch(e){}return{session:null,account:null,onboarded:false,ob:null}};
 const saveAuth=a=>{try{localStorage.setItem(AUTH_KEY,JSON.stringify(a))}catch(e){}};
 const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const guessTz=()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||'Europe/Berlin'}catch(e){return'Europe/Berlin'}};
@@ -1455,7 +1445,7 @@ function Field({id,label,type='text',value,on,err,auto,hint,ph,max}){
  return html`<div className="mb-3.5"><label htmlFor=${id} className="lbl block mb-1.5">${label}</label>
  <input id=${id} type=${type} className="inp" value=${value} placeholder=${ph||''} maxLength=${max||120} onChange=${e=>on(e.target.value)} autoComplete=${auto||'off'} aria-invalid=${err?'true':'false'} aria-describedby=${err?id+'-e':hint?id+'-h':undefined} style=${err?{borderColor:'var(--bad)'}:null}/>
  ${err?html`<div id=${id+'-e'} role="alert" className="text-[11.5px] mt-1" style=${{color:'var(--bad)'}}>${err}</div>`:hint?html`<div id=${id+'-h'} className="text-[11px] mute mt-1">${hint}</div>`:null}</div>`}
-function DemoNote({children}){return html`<div className="card2 p-3 text-[11.5px] leading-relaxed flex gap-2.5" style=${{border:'1px solid rgba(251,191,36,.35)',background:'rgba(251,191,36,.07)'}}><span className="text-[10px] font-bold tracking-wider shrink-0 mt-0.5" style=${{color:'#FBBF24'}}>DEMO</span><span className="mute">${children||'Kein echtes Konto: Passwörter werden weder geprüft noch gespeichert. Profil und Fortschritt bleiben nur auf diesem Gerät.'}</span></div>`}
+function DemoNote({children}){if(!children||String(children).startsWith('Demo-Anmeldung:'))return html`<div className="card2 p-3 text-[11.5px] mute">E-Mail-Konten werden über Supabase verwaltet. Dein Spielstand bleibt vorerst in diesem Browser gespeichert.</div>`;return html`<div className="card2 p-3 text-[11.5px] leading-relaxed flex gap-2.5" style=${{border:'1px solid rgba(251,191,36,.35)',background:'rgba(251,191,36,.07)'}}><span className="text-[10px] font-bold tracking-wider shrink-0 mt-0.5" style=${{color:'#FBBF24'}}>DEMO</span><span className="mute">${children||'Kein echtes Konto: Passwörter werden weder geprüft noch gespeichert. Profil und Fortschritt bleiben nur auf diesem Gerät.'}</span></div>`}
 function SrcPick({v,on}){return html`<div className="flex gap-1.5 -mt-1.5 mb-3.5" role="radiogroup" aria-label="Herkunft des Werts">${[['est','Schätzung'],['ver','Verifiziert']].map(([k,l])=>html`<button key=${k} type="button" role="radio" aria-checked=${v===k?'true':'false'} onClick=${()=>on(k)} className=${`chip ${v===k?'on':''}`} style=${{padding:'4px 11px',fontSize:11}}>${l}</button>`)}</div>`}
 function SrcBadge({src}){const m={ver:['Verifiziert','var(--good)'],est:['Schätzung','#FBBF24'],target:['Ziel','var(--acc2)']}[src]||['–','var(--mute)'];return html`<span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style=${{color:m[1],border:'1px solid currentColor'}}>${m[0]}</span>`}
 function PriPicker({pri,on,max=5}){
@@ -1471,17 +1461,20 @@ function PriPicker({pri,on,max=5}){
 
 /* ───── Willkommen, Registrierung, Login ───── */
 function AuthFlow({A,set,theme}){
- const [v,setV]=useState('welcome');const [f,setF]=useState({name:'',email:A.account?A.account.email:'',pw:'',pw2:''});const [tried,setTried]=useState(false);const [err,setErr]=useState('');const [msg,setMsg]=useState('');const [busy,setBusy]=useState(false);
+ const [v,setV]=useState(A.recovery?'reset':'welcome');const [f,setF]=useState({name:'',email:A.account?A.account.email:'',pw:'',pw2:''});const [tried,setTried]=useState(false);const [err,setErr]=useState('');const [msg,setMsg]=useState('');const [busy,setBusy]=useState(false);
  const F=k=>x=>setF(p=>({...p,[k]:x}));const go=x=>{setV(x);setTried(false);setErr('');setMsg('');setF(p=>({...p,pw:'',pw2:''}))};
- const E={name:f.name.trim().length<2?'Bitte gib einen Namen mit mindestens 2 Zeichen ein.':'',email:!EMAIL_RE.test(f.email.trim())?'Bitte gib eine gültige E-Mail-Adresse ein.':'',pw:v==='signup'?(f.pw.length<8?'Mindestens 8 Zeichen.':''):(!f.pw?'Bitte gib dein Passwort ein.':''),pw2:f.pw2!==f.pw?'Die Passwörter stimmen nicht überein.':''};
+ const E={name:f.name.trim().length<2?'Bitte gib einen Namen mit mindestens 2 Zeichen ein.':'',email:!EMAIL_RE.test(f.email.trim())?'Bitte gib eine gültige E-Mail-Adresse ein.':'',pw:(v==='signup'||v==='reset')?(f.pw.length<8?'Mindestens 8 Zeichen.':''):(!f.pw?'Bitte gib dein Passwort ein.':''),pw2:f.pw2!==f.pw?'Die Passwörter stimmen nicht überein.':''};
  const e=k=>tried?E[k]:'';
  const signup=async ev=>{ev.preventDefault();setTried(true);if(E.name||E.email||E.pw||E.pw2)return;setBusy(true);
-  try{const r=await authApi.signUp({name:f.name.trim(),email:f.email.trim(),password:f.pw});const user={name:r.user.name,email:r.user.email};set(()=>({account:user,session:{mode:'demo',...user},onboarded:false,ob:newOb(user.name)}))}catch(x){setErr(x.message)}setBusy(false)};
+  try{const r=await authApi.signUp({name:f.name.trim(),email:f.email.trim(),password:f.pw});if(r.needsVerification){setMsg('Bitte bestätige deine E-Mail über den zugesandten Link. Danach kannst du dich anmelden.');setF(p=>({...p,pw:'',pw2:''}));return}const user=r.user;set(()=>({account:user,session:user,onboarded:false,ob:newOb(user.name)}))}catch(x){setErr(x.message)}finally{setBusy(false)}};
  const login=async ev=>{ev.preventDefault();setTried(true);if(E.email||E.pw)return;setBusy(true);setErr('');
-  try{const r=await authApi.signIn({email:f.email,password:f.pw},A.account);set(p=>({session:{mode:'demo',...r.user},ob:p.onboarded?null:(p.ob||newOb(r.user.name))}))}catch(x){setErr(x.message)}setBusy(false)};
- const forgot=async ev=>{ev.preventDefault();setTried(true);if(E.email)return;await authApi.resetPassword(f.email);setMsg('Demo-Modus: Es wurde keine E-Mail verschickt. Sobald echte Konten (Supabase) aktiv sind, bekommst du hier einen Link zum Zurücksetzen.')};
+  try{const r=await authApi.signIn({email:f.email,password:f.pw},A.account);set(()=>({session:r.user,onboarded:!!localStorage.getItem(ACC_KEY+'_'+r.user.id),ob:null}))}catch(x){setErr(x.message)}setBusy(false)};
+ const forgot=async ev=>{ev.preventDefault();setTried(true);if(E.email)return;setBusy(true);setErr('');try{await authApi.resetPassword(f.email);setMsg('Falls ein Konto zu dieser Adresse besteht, erhältst du einen Link zum Zurücksetzen.')}catch(x){setErr(x.message)}finally{setBusy(false)}};
+ const reset=async ev=>{ev.preventDefault();setTried(true);if(E.pw||E.pw2)return;setBusy(true);setErr('');try{await authApi.updatePassword(f.pw);set(()=>({recovery:false}));setF(p=>({...p,pw:'',pw2:''}));}catch(x){setErr(x.message)}finally{setBusy(false)}};
+
  const guest=()=>set(()=>({session:{mode:'guest',name:'Gast'}}));
  const Back=html`<button type="button" aria-label="Zurück" onClick=${()=>go(v==='forgot'?'login':'welcome')} className="ghost w-10 h-10 flex items-center justify-center mb-5"><${Icon} n="chevL" s=${20}/></button>`;
+ if(v==='reset')return html`<${Shell} theme=${theme}><form onSubmit=${reset} className="px-6 py-8"><div className="disp text-[38px]">Neues Passwort</div><${Field} id="reset-pw" label="Neues Passwort" type="password" value=${f.pw} on=${F('pw')} err=${e('pw')} auto="new-password"/><${Field} id="reset-pw2" label="Passwort bestätigen" type="password" value=${f.pw2} on=${F('pw2')} err=${e('pw2')} auto="new-password"/>${err&&html`<div role="alert">${err}</div>`}<button disabled=${busy} className="btn w-full py-4">Passwort speichern</button></form><//>`;
  if(v==='welcome')return html`<${Shell} theme=${theme}><div className="flex-1 flex flex-col px-6 relative screen" style=${{paddingTop:'max(28px,env(safe-area-inset-top))',paddingBottom:'max(24px,env(safe-area-inset-bottom))'}}>
   <div className="flex-1 flex flex-col items-center justify-center text-center">
    <div className="flex items-end justify-center -mb-2 opacity-90"><div style=${{opacity:.55}}><${Figure} v=${.32} kind="cur" areas=${[.3,.3,.3,.3,.3]} size=${78}/></div><div className="mx-[-6px]" style=${{transform:'translateY(-14px)'}}><${Logo} s=${64}/></div><div><${Figure} v=${.9} kind="pot" areas=${[.9,.9,.9,.9,.9]} size=${78}/></div></div>
@@ -1498,6 +1491,7 @@ function AuthFlow({A,set,theme}){
   <${Field} id="su-pw" label="Passwort" type="password" value=${f.pw} on=${F('pw')} err=${e('pw')} auto="new-password" hint="Mindestens 8 Zeichen."/>
   <${Field} id="su-pw2" label="Passwort bestätigen" type="password" value=${f.pw2} on=${F('pw2')} err=${e('pw2')} auto="new-password"/>
   ${err&&html`<div role="alert" className="text-[12.5px] mb-3" style=${{color:'var(--bad)'}}>${err}</div>`}
+  ${msg&&html`<div role="status" className="mb-3">${msg}</div>`}
   <button type="submit" disabled=${busy} className="btn w-full py-4 text-[15px] mt-1">Konto erstellen</button>
   <div className="mt-4"><${DemoNote}/></div>
   <button type="button" onClick=${()=>go('login')} className="bg-transparent border-0 w-full py-4 text-[13px] mute">Schon registriert? <span className="acc font-semibold">Anmelden</span></button></form><//>`;
@@ -1513,7 +1507,7 @@ function AuthFlow({A,set,theme}){
  return html`<${Shell} theme=${theme}><form noValidate onSubmit=${forgot} className="flex-1 overflow-y-auto px-6 relative screen" style=${{paddingTop:'max(20px,env(safe-area-inset-top))',paddingBottom:32}}>${Back}
   <div className="disp text-[38px]">Passwort vergessen</div><div className="text-[13.5px] mute mt-1.5 mb-6">Gib deine E-Mail ein. Wir schicken dir einen Link zum Zurücksetzen.</div>
   <${Field} id="fp-mail" label="E-Mail-Adresse" type="email" value=${f.email} on=${F('email')} err=${e('email')} auto="email"/>
-  ${msg?html`<div className="mt-2"><${DemoNote}>${msg}<//></div>`:html`<button type="submit" className="btn w-full py-4 text-[15px]">Link anfordern</button>`}</form><//>`}
+  ${err&&html`<div role="alert">${err}</div>`}${msg?html`<div role="status" className="mt-2">${msg}</div>`:html`<button type="submit" disabled=${busy} className="btn w-full py-4 text-[15px]">Link anfordern</button>`}</form><//>`}
 
 /* ───── Onboarding ───── */
 const OB_N=9;
@@ -1656,7 +1650,7 @@ function Account({c}){
  const setP=patch=>c.upd(n=>{n.profile={...(n.profile||{}),...patch}});
  const sub={profile:'Profil bearbeiten',goals:'Ziele bearbeiten',stats:'Startwerte',cats:'Lebensbereiche',missions:'Missionen verwalten',prefs:'Einheiten & Vorlieben',notif:'Benachrichtigungen',privacy:'Privatsphäre & Teilen'};
  const Row=({k,i,l,d,on,danger})=>html`<button onClick=${on||(()=>setV(k))} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium w-full"><${Icon} n=${i} s=${18} cls=${danger?'bad':'acc'}/><div className="flex-1">${l}${d&&html`<div className="text-[11px] mute font-normal">${d}</div>`}</div>${!on&&html`<${Icon} n="chevR" s=${16} cls="mute"/>`}</button>`;
- if(v==='menu')return html`<${Sheet} sub=${sess.mode==='guest'?'Gastmodus':'Demo-Konto'} title="Konto & Profil" onClose=${c.closeSheet}>
+ if(v==='menu')return html`<${Sheet} sub=${sess.mode==='guest'?'Gastmodus':'E-Mail-Konto'} title="Konto & Profil" onClose=${c.closeSheet}>
   <div className="card2 p-3.5 flex items-center gap-3 mb-3"><div className="w-12 h-12 rounded-full flex items-center justify-center text-[20px] font-bold text-white" style=${{background:'linear-gradient(135deg,#A78BFA,#5B21B6)'}}>${ini}</div><div className="flex-1 min-w-0"><div className="text-[15px] font-bold truncate">${name}</div><div className="text-[12px] mute truncate">${sess.email||'Ohne Konto · nur auf diesem Gerät'}</div></div></div>
   <div className="flex flex-col gap-2">
   <${Row} k="profile" i="user" l="Profil bearbeiten"/><${Row} k="goals" i="target" l="Ziele bearbeiten"/><${Row} k="stats" i="activity" l="Startwerte bearbeiten"/>
@@ -1705,18 +1699,23 @@ function ProfileEdit({c,P,name,setP,done}){const [n,setN]=useState(name);const [
 
 /* ───── Wurzel: Anmeldung → Onboarding → App ───── */
 function Root(){
- const [A,setA]=useState(loadAuth);const [boot,setBoot]=useState({init:null,key:0});
+ const [A,setA]=useState(loadAuth);const [ready,setReady]=useState(false);const [authError,setAuthError]=useState('');const [boot,setBoot]=useState({init:null,key:0});
  const set=useCallback(fn=>setA(p=>{const n={...p,...fn(p)};saveAuth(n);return n}),[]);
- const skey=A.session&&A.session.mode!=='guest'?ACC_KEY:GUEST_KEY;
+ useEffect(()=>{let active=true;
+ const apply=({session,recovery})=>{if(!active)return;setBoot(b=>({init:null,key:b.key+1}));setA(p=>{const next={...p,session:session||(p.session?.mode==='guest'?p.session:null),recovery:!!recovery,onboarded:session?!!localStorage.getItem(ACC_KEY+'_'+session.id):false,ob:session?.id===p.session?.id?p.ob:null};if(session?.id===p.session?.id)next.onboarded=p.onboarded;saveAuth(next);return next});setReady(true)};
+ const unsub=authApi.subscribe(apply);authApi.restore().then(apply).catch(e=>{if(active){setAuthError(e.message);setReady(true)}});return()=>{active=false;unsub()};},[]);
+ const skey=A.session&&A.session.mode!=='guest'?ACC_KEY+'_'+A.session.id:GUEST_KEY;
  const theme=(()=>{try{return(JSON.parse(localStorage.getItem(skey)||'{}').theme)||'dark'}catch(e){return'dark'}})();
- if(!A.session)return html`<${AuthFlow} A=${A} set=${set} theme=${theme}/>`;
+ if(!ready)return html`<${Shell} theme=${theme}><div className="p-6">Anmeldung wird geladen …</div><//>`;
+ if(A.recovery||!A.session)return html`<div>${authError&&html`<div role="status" className="p-3 text-sm">${authError}</div>`}<${AuthFlow} A=${A} set=${set} theme=${theme}/></div>`;
  const isG=A.session.mode==='guest';
  if(isG?A.guestOb:!A.onboarded)return html`<${Onboarding} A=${A} set=${set} theme=${theme} onDone=${ob=>{const s=buildState(ob,A.session);try{localStorage.setItem(skey,JSON.stringify(s))}catch(e){}setBoot(b=>({init:s,key:b.key+1}));set(()=>(isG?{guestOb:false,ob:null}:{onboarded:true,ob:null}))}}/>`;
+ if(authError&&A.session)return html`<div role="alert">${authError}<button onClick=${()=>setAuthError('')}>Zurück</button></div>`;
  const auth={session:A.session,
-  signOut:()=>{authApi.signOut();setBoot(b=>({init:null,key:b.key+1}));set(()=>({session:null}))},
+  signOut:async()=>{try{if(!isG)await authApi.signOut()}catch(e){setAuthError(e.message);return}setBoot(b=>({init:null,key:b.key+1}));set(()=>({session:null}))},
   restartOnboarding:()=>set(p=>({...(isG?{guestOb:true}:{onboarded:false}),ob:newOb(isG?'':(p.session&&p.session.name)||'')})),
   rename:name=>set(p=>({session:{...p.session,name},account:p.account&&p.session&&p.session.mode==='demo'?{...p.account,name}:p.account})),
-  wipe:()=>{try{[GUEST_KEY,ACC_KEY,AUTH_KEY].forEach(k=>localStorage.removeItem(k))}catch(e){}setBoot(b=>({init:null,key:b.key+1}));setA({session:null,account:null,onboarded:false,ob:null})}};
+  wipe:async()=>{try{if(!isG)await authApi.signOut()}catch(e){setAuthError(e.message);return}try{[skey,AUTH_KEY].forEach(k=>localStorage.removeItem(k))}catch(e){}setBoot(b=>({init:null,key:b.key+1}));setA({session:null,account:null,onboarded:false,ob:null})}};
  return html`<${App} key=${skey+boot.key} skey=${skey} init=${boot.init} auth=${auth}/>`}
 
 function PerfectDay({S,onClose}){

@@ -19,7 +19,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
-- (nichts)
+- Codex: `codex/supabase-auth` – `index.html`, `auth.js`, `supabase-config.js`, `sw.js`, `SUPABASE.md`. Supabase-Anmeldung; Projektwahl und Live-Test ausstehend. Review durch Claude offen.
 
 ## PWA
 - `manifest.webmanifest`, `sw.js` (Cache `ww-v5` – bei jeder Änderung Version erhöhen), `icons/`.
