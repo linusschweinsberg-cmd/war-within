@@ -4,7 +4,9 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 
 ## Technik
 - Single-file: React 18 (UMD via CDN), Tailwind (CDN), htm (Tagged Templates: html`...`, Komponenten <${Comp}/>, Ende <//>).
-- State: `useState(loadState)`, `upd(fn)`, `derive(S)`; localStorage-Key `war_within_v5`.
+- State: `useState(loadState)`, `upd(fn)`, `derive(S)`; Spielstand in localStorage: `war_within_v5` (Gast/Demo) bzw. `war_within_acc_v1` (Demo-Konto).
+- Einstieg: `Root` → `AuthFlow` (Willkommen/Registrieren/Login) → `Onboarding` (9 Schritte, `buildState(ob)` erzeugt den Spielstand) → `App`. Sitzung und Onboarding-Fortschritt in `war_within_auth_v1`, niemals Passwörter.
+- Auth läuft über `authApi` (Demo). Für Supabase nur dessen Funktionen ersetzen; Profil liegt in `S.profile`, Konto-Bereich im Sheet `account`.
 - Theme über `data-theme` CSS-Variablen (dunkel Standard).
 - Alles liegt in einem <script>-Block, Abschnitte: Daten (CORE, M0, SEASON_DEF, Punkte-Katalog), UI (Ring, Radar, LifeTree), Start/Aufgaben/Duell, Liga, Stats, Sheets, App.
 
@@ -18,9 +20,10 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 
 ### In Arbeit
 - Codex: `codex/weekly-snapshots` – `index.html`, `sw.js`; echte Wochenabschlüsse und saisongetrennte Tagesstände. Review durch Claude ausstehend.
+- Claude: `claude/onboarding` (baut auf `codex/weekly-snapshots` auf) – `index.html`, `sw.js`, `AGENTS.md`; Konto-UI, Onboarding, Profilbereich. Review durch Codex ausstehend.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v2` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v3` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Konzepte
