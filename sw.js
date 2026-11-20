@@ -1,7 +1,7 @@
 /* THE WAR WITHIN – Service Worker
    Bei Änderungen an index.html o. ä. die Versionsnummer erhöhen,
    damit installierte Apps das Update laden. */
-const VERSION = 'ww-v26';
+const VERSION = 'ww-v27';
 const APP_SHELL = [
   './',
   './index.html',
@@ -63,4 +63,15 @@ self.addEventListener('fetch', e => {
     }
     return r;
   })));
+});
+
+// Erinnerungen: Klick oder Aktion („Ja“/„Später“) an die geöffnete App weitergeben
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const id = e.notification.data && e.notification.data.askId;
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => {
+    if (id && e.action) cs.forEach(c => c.postMessage({ type: 'ask', id, action: e.action }));
+    const c = cs[0];
+    return c && c.focus ? c.focus() : self.clients.openWindow('./');
+  }));
 });

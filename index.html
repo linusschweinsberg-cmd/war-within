@@ -344,7 +344,7 @@ function initState(){
               {id:'c2',kind:'pb',metric:'Lesezeit (Min./Woche)',who:'lena',stake:10,deadline:6,status:'incoming',src:'Selbst gemeldet'}],
   ach:{first:true,streak7:true},newAch:[],flags:{wasWide:true},share:{fin:false,fit:false,focus:true,run5k:true,swim:true,bench:true,pull:true,read:true},
   pulse:0,aar:null,sreport:null,quoteIdx:0,
-  ui:'basic',tally:{...TALLY_ALL},sTally:{...TALLY_S},tallyDemo:true,wlog:{'4-0':{b:1,r:1,ps:3,pd:3,g:1,pq:.67},'4-1':{b:1,r:0,ps:3,pd:2,g:1,pq:.5}},brief:null,nextPrio:null,reviews:[],mxv:mxvDemo(),principles:PRINC_DEMO.map(x=>({...x})),tradition:'Stoizismus',mx:{},sugg:{},detail:{},lastStory:{season:3,week:4,title:'Ein Herzschlag-Finale',lines:['Marcus gewinnt Spielwoche 4 mit 131 Punkten, nur 3 vor dir.','Lena macht 2 Plätze gut.','Du landest auf Platz 2, 3 Punkte hinter Marcus. Stärkster Bereich: Persönliche Disziplin.']}};
+  ui:'basic',tally:{...TALLY_ALL},sTally:{...TALLY_S},tallyDemo:true,wlog:{'4-0':{b:1,r:1,ps:3,pd:3,g:1,pq:.67},'4-1':{b:1,r:0,ps:3,pd:2,g:1,pq:.5}},brief:null,nextPrio:null,reviews:[],mxv:mxvDemo(),principles:PRINC_DEMO.map(x=>({...x})),tradition:'Stoizismus',mx:{},sugg:{},detail:{},ctime:{...CTIME_DEMO},duel:{streak:3},push:false,lastStory:{season:3,week:4,title:'Ein Herzschlag-Finale',lines:['Marcus gewinnt Spielwoche 4 mit 131 Punkten, nur 3 vor dir.','Lena macht 2 Plätze gut.','Du landest auf Platz 2, 3 Punkte hinter Marcus. Stärkster Bereich: Persönliche Disziplin.']}};
  return st;
 }
 /* ───── Berechnungen ───── */
@@ -391,7 +391,7 @@ function loadState(key='war_within_v5'){try{const r=localStorage.getItem(key);if
    if(s.bench)s.bench=s.bench.filter(x=>x!=='read');
    if(Array.isArray(s.missions)){['m_cal','m_read'].forEach(id=>{if(!s.missions.some(m=>m.id===id)){const m0=M0.find(m=>m.id===id);if(m0)s.missions.push(JSON.parse(JSON.stringify(m0)))}});const mm=s.missions.find(m=>m.id==='m_morn');if(mm&&mm.title==='Ohne Snooze aufstehen')mm.title='Früh aufstehen'}
    if(!Array.isArray(s.weekHist))s.weekHist=[];
-   if(!s.ui)s.ui='basic';if(!s.tally){s.tally={...TALLY_ALL};s.sTally={...TALLY_S};s.tallyDemo=true}if(!s.sTally)s.sTally={};if(!s.wlog)s.wlog={};if(!Array.isArray(s.reviews))s.reviews=[];if(!s.mxv)s.mxv=mxvDemo();if(!s.principles){s.principles=PRINC_DEMO.map(x=>({...x}));s.tradition='Stoizismus'}if(!s.mx)s.mx={};if(!s.sugg)s.sugg={};if(!s.detail)s.detail={};
+   if(!s.ui)s.ui='basic';if(!s.tally){s.tally={...TALLY_ALL};s.sTally={...TALLY_S};s.tallyDemo=true}if(!s.sTally)s.sTally={};if(!s.wlog)s.wlog={};if(!Array.isArray(s.reviews))s.reviews=[];if(!s.mxv)s.mxv=mxvDemo();if(!s.principles){s.principles=PRINC_DEMO.map(x=>({...x}));s.tradition='Stoizismus'}if(!s.mx)s.mx={};if(!s.sugg)s.sugg={};if(!s.detail)s.detail={};if(!s.ctime)s.ctime={...CTIME_DEMO};if(!s.duel)s.duel={streak:3};
    return s}}}catch(e){}return initState()}
 
 /* ───── PUNKTE-KATALOG ───── */
@@ -1192,7 +1192,9 @@ function Home({c}){const {S,D}=c;const now=nowMinOf(c);
  <div className="flex items-end justify-between gap-3 mb-3 px-0.5"><div className="min-w-0"><div className="lbl acc truncate">${greet}${nm?', '+nm:''}</div><h1 className="disp text-[32px] mt-1 leading-[.95]">Was würde er<br/>jetzt tun?</h1></div>
   <div title=${fl.t} className="flex items-center gap-1 shrink-0 rounded-full px-2.5 py-1 mb-1" style=${{background:fl.c+'1F',color:fl.c,boxShadow:`0 0 0 1px ${fl.c}44 inset`}}><${Icon} n="flame" s=${14}/><span className="num text-[13px] font-bold">${S.streak}</span><span className="sr-only">Tage Serie</span></div></div>
  ${D.di===6&&html`<${Finale} c=${c}/>`}
+ ${now>=1260&&html`<${DuelReport} c=${c}/>`}
  <${NemesisCard} c=${c}/>
+ <${LearnCard} c=${c}/>
  ${now>=1080&&html`<${EveningCard} c=${c}/>`}
  <div className="mt-6"><${QuoteSlider}/></div>
  <${TimeDebug} c=${c}/>
@@ -1269,6 +1271,8 @@ function DayPlanner({c}){const {S}=c;const now=nowMinOf(c);const H0=5,H1=24,PX=4
   const live=d&&d.mode==='resize'&&d.id===p.id?clamp(Math.round((d.d0+(d.cy-d.y0)/PX*60)/15)*15,15,240):dur;return{...p,dur:live,fixed}});
  return html`<div>
  <div className="text-[12px] mute mt-3 leading-snug px-0.5">Ziehe Aufgaben auf eine Uhrzeit oder tippe sie an und dann auf einen Zeitpunkt. Dein Nemesis hält sich genau an diesen Plan. Pünktlich heißt: bis 30 Minuten nach Start.</div>
+ <${LearnCard} c=${c}/>
+ <${RealityCheck} c=${c} blocks=${blocks}/>
  <div className="lbl mt-3 mb-1.5 flex justify-between"><span>Noch nicht eingeplant</span><span className="normal-case tracking-normal">wischen →</span></div>
  <div className="flex gap-1.5 p-2 rounded-2xl overflow-x-auto" style=${{border:'1px dashed var(--line)',minHeight:44,scrollbarWidth:'none'}}>${tray.length?tray.map(m=>html`<button key=${m.id} onPointerDown=${e=>begin(e,{id:m.id,tray:true})} className=${`chip gap-1.5 shrink-0 whitespace-nowrap ${pick===m.id?'on':''}`} style=${{touchAction:'none',cursor:'grab'}}><${Icon} n="dots" s=${14} sw=${2.6} style=${{opacity:.5,transform:'rotate(90deg)'}}/><span>${m.title}</span><span className="num acc text-[11px]">${durDef(m)}′</span></button>`):html`<span className="text-[12px] mute px-1 py-1">Alles eingeplant. Ziehe einen Block hierher, um ihn herauszunehmen.</span>`}</div>
  ${pick&&html`<div className="text-[12px] acc mt-2 px-0.5">Jetzt eine Uhrzeit in der Zeitachse antippen für: <b>${nameOf(pick)}</b></div>`}
@@ -1284,6 +1288,44 @@ function DayPlanner({c}){const {S}=c;const now=nowMinOf(c);const H0=5,H1=24,PX=4
  </div>
  ${drag&&html`<div className="fixed z-[90] pointer-events-none chip on" style=${{left:d.cx+10,top:d.cy-16}}>${nameOf(d.id)}</div>`}
  <div className="text-[11px] mute mt-3 px-0.5 leading-relaxed">Der Plan gilt für jeden Tag, bis du ihn änderst. Blockrand unten ziehen ändert die Dauer, × nimmt eine Aufgabe aus dem Plan.</div></div>`}
+/* ───── Lernender Plan: Vorschlag aus echten Erledigungszeiten ───── */
+const CTIME_DEMO={m_train:[1130,1145,1140,1135,1150,1125,1140,1160,1138,1142].map(t=>({t}))};
+function learnSuggest(S){const sel=S.nem||nemDefault(S),dis=S.sugDis||{};
+ for(const p of buildNemesisPlan(nemTasks(S))){if(p.virtual||p.kind==='sleep')continue;const h=((S.ctime||{})[p.id]||[]).slice(-14);if(h.length<5)continue;
+  const ts=h.map(x=>x.t).sort((a,b)=>a-b),med=ts[Math.floor(ts.length/2)],near=ts.filter(t=>Math.abs(t-med)<=45).length;
+  const m=S.missions.find(x=>x.id===p.id),dur=sel[p.id]&&typeof sel[p.id]==='object'?sel[p.id].d:(m?durDef(m):30),to=clamp(Math.round((med-dur)/15)*15,300,1395);
+  if(near/ts.length>=.6&&Math.abs(to-p.start)>=60&&dis[p.id]!==to)return{id:p.id,name:p.name,from:p.start,to,dur,ts,near,n:ts.length}}
+ return null}
+function LearnCard({c}){const s=learnSuggest(c.S);if(!s)return null;const X=t=>8+(t-300)/(1440-300)*284;
+ return html`<div className="card p-3.5 mt-3 rise" style=${{borderRadius:20,borderColor:'rgba(167,139,250,.45)'}}>
+ <div className="flex items-start gap-3"><span className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style=${{background:'rgba(139,92,246,.16)',color:'var(--acc2)'}}><${Icon} n="rotate" s=${16}/></span><div className="flex-1 min-w-0"><div className="lbl acc">Dein Plan lernt mit</div><div className="text-[14px] font-semibold mt-0.5 leading-snug">${s.name} auf ${fmtHM(s.to)} legen?</div><div className="text-[12px] mute mt-1 leading-snug">Du hast es an ${s.near} von ${s.n} Tagen gegen ${fmtHM(s.to+s.dur)} erledigt, geplant ist ${fmtHM(s.from)}.</div></div></div>
+ <svg viewBox="0 0 300 34" className="w-full mt-2 block" aria-hidden="true"><line x1="8" x2="292" y1="22" y2="22" style=${{stroke:'var(--line)'}}/>${[360,720,1080,1440].map(t=>html`<text key=${t} x=${X(t)} y="33" fontSize="8" textAnchor="middle" style=${{fill:'var(--mute)'}}>${t>=1440?'24:00':fmtHM(t)}</text>`)}
+  <rect x=${X(s.from)-2} y="8" width="4" height="14" rx="2" fill="#FF6B86" opacity=".7"/>${s.ts.map((t,i)=>html`<circle key=${i} cx=${X(t)} cy=${18-(i%3)*4} r="3" style=${{fill:'var(--acc2)'}} opacity=".8"/>`)}</svg>
+ <div className="flex gap-2 mt-2.5"><button onClick=${()=>c.upd(n=>{n.sugDis={...(n.sugDis||{}),[s.id]:s.to}})} className="ghost flex-1 py-2.5 text-[13px] font-semibold">Lassen</button><button onClick=${()=>{c.setNemTime(s.id,{s:s.to,d:s.dur});c.toast(`${s.name} liegt jetzt um ${fmtHM(s.to)}. Der Nemesis zieht mit.`,'good')}} className="btn flex-[1.5] py-2.5 text-[13px]">Auf ${fmtHM(s.to)}</button></div></div>`}
+/* ───── Tagesduell & Abendbericht (ab 21 Uhr) ───── */
+function duelOf(S){const plan=buildNemesisPlan(nemTasks(S)),cnt=plan.filter(p=>!p.virtual&&p.kind!=='sleep'),Y=cnt.length,X=cnt.filter(p=>p.done).length;
+ const pt=S.punct&&S.punct.k===dayKey(S)?cnt.filter(p=>p.done&&S.punct.ids.includes(p.id)):[],miss=cnt.filter(p=>!p.done);
+ const lines=X===0?['Heute nichts.','Ich habe alles erledigt. Morgen um 6 wieder.']:[pt.length?`${pt.map(p=>p.name).slice(0,2).join(' und ')} pünktlich.`:`${X} von ${Y} erledigt.`,miss.length?`${miss[0].name} ausgelassen. Das habe ich nicht.`:'Alles erledigt. Heute hast du mich eingeholt.'];
+ return{X,Y,lines,won:Y>0&&X>=Y}}
+function DuelReport({c}){const {S}=c;const d=duelOf(S),st=(S.duel&&S.duel.streak)||0;
+ return html`<div className="card p-4 mb-3 rise" style=${{borderRadius:24,background:'radial-gradient(120% 80% at 50% 0%,rgba(255,45,85,.12),var(--card) 65%)',borderColor:'rgba(255,59,92,.28)'}}>
+ <div className="flex items-center justify-between"><div className="lbl" style=${{color:'#FF6B86'}}>Abendbericht · Tagesduell</div><span className="text-[11px] mute">ab 21 Uhr</span></div>
+ <div className="flex items-end justify-around mt-3"><div className="text-center"><div className="disp text-[40px] leading-none" style=${{color:'var(--good)'}}>${d.X}</div><div className="lbl mt-1">Du</div></div><div className="text-[13px] mute pb-3">gegen</div><div className="text-center"><div className="disp text-[40px] leading-none" style=${{color:'#FF6B86'}}>${d.Y}</div><div className="lbl mt-1">Nemesis</div></div></div>
+ <div className="mt-3 rounded-2xl p-3" style=${{background:'rgba(255,45,85,.08)',boxShadow:'0 0 0 1px rgba(255,59,92,.2) inset'}}><div className="lbl mb-1" style=${{color:'#FF6B86'}}>Er sagt</div><div className="text-[14px] font-semibold leading-snug">„${d.lines.join(' ')}“</div></div>
+ <div className="flex items-center justify-between mt-3 text-[12.5px]"><span className="mute">Duell-Serie</span><span className="font-semibold" style=${{color:'#FBBF24'}}>${d.won?st+1:st} ${(d.won?st+1:st)===1?'Tag':'Tage'} eingeholt${d.won?' · heute dabei':''}</span></div></div>`}
+/* ───── Realitäts-Check im Tagesplan ───── */
+const PLAN_LIMIT=300;
+function RealityCheck({c,blocks}){const {S}=c;const bl=blocks.filter(b=>b.kind!=='sleep'),tot=bl.reduce((a,b)=>a+b.dur,0);
+ if(tot<=PLAN_LIMIT||S.rcDis===dayKey(S)+':'+tot)return null;
+ const cut=[];let left=tot;[...bl].filter(b=>b.kind!=='wake').sort((a,b)=>b.dur-a.dur).forEach(b=>{if(left>PLAN_LIMIT){cut.push(b);left-=b.dur}});
+ const h=m=>m<60?m+' Min.':Math.floor(m/60)+' h'+(m%60?' '+m%60+' Min.':'');
+ return html`<div className="card p-3.5 mt-3 rise" style=${{borderRadius:20,borderColor:'rgba(245,158,11,.5)'}}>
+ <div className="flex items-center justify-between"><div className="lbl" style=${{color:'#FBBF24'}}>Realitäts-Check</div><span className="num text-[13px] font-bold" style=${{color:'#FBBF24'}}>${h(tot)}</span></div>
+ <div className="text-[12.5px] mt-1 leading-snug">Mehr als ${h(PLAN_LIMIT)} Aufgaben am Tag sind schwer durchzuhalten. Wer überplant, gibt schneller auf.</div>
+ <div className="h-2 rounded-full mt-2.5 overflow-hidden flex" style=${{background:'var(--ghost)'}}><div style=${{width:PLAN_LIMIT/tot*100+'%',background:'var(--acc)'}}/><div style=${{width:(tot-PLAN_LIMIT)/tot*100+'%',background:'#F59E0B'}}/></div>
+ <div className="flex justify-between text-[10.5px] mute mt-1"><span>realistisch bis ${h(PLAN_LIMIT)}</span><span>+${h(tot-PLAN_LIMIT)}</span></div>
+ <div className="text-[12.5px] mt-2.5"><span className="mute">Vorschlag: aus dem Plan nehmen: </span><b>${cut.map(b=>b.name).join(', ')}</b></div>
+ <div className="flex gap-2 mt-2.5"><button onClick=${()=>c.upd(n=>{n.rcDis=dayKey(n)+':'+tot})} className="ghost flex-1 py-2.5 text-[13px] font-semibold">Behalten</button><button onClick=${()=>{cut.forEach(b=>c.setNemTime(b.id,null));c.toast('Plan entlastet. Weniger, dafür durchgezogen.','good')}} className="btn flex-[1.5] py-2.5 text-[13px]">Rausnehmen</button></div></div>`}
 function Tasks({c}){
  const {S,D}=c;
  const [grp,setGrp]=useState('today'),[view,setView]=useState('list');
@@ -1923,6 +1965,7 @@ function Settings({c}){const {S}=c;
  return html`<${Sheet} sub="Einstellungen & Demo" title="Optionen" onClose=${c.closeSheet}>
  <div className="flex flex-col gap-2">
  <div className="ghost p-3.5 flex items-center gap-3 text-[14px] font-medium"><${Icon} n="eye" s=${18} cls="acc"/><div className="flex-1">Erlebnismodus<div className="text-[11px] mute font-normal">Beide nutzen dieselben Daten, nichts geht verloren</div></div><${ModeToggle} c=${c}/></div>
+ <button onClick=${c.togglePush} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="bell" s=${18} cls="acc"/><div className="flex-1">Erinnerungen<div className="text-[11px] mute font-normal">Blockstart, Rückfrage am Ende, Abendbericht um 21 Uhr. Ruhig von 21 bis 6 Uhr.</div></div><span className=${`chip ${S.push?'on':''}`}>${S.push?'An':'Aus'}</span></button>
  <div className="ghost p-3.5"><div className="text-[14px] font-medium flex items-center gap-3 mb-2.5"><${Icon} n="star" s=${18} cls="acc"/>Fortschrittsbild</div><${Seg} opts=${VIZ.map(v=>[v[0],v[1]])} val=${S.viz||'ball'} on=${c.setViz}/></div>
  <button onClick=${()=>c.openSheet({t:'account'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="user" s=${18} cls="acc"/>Konto & Profil</button>
  <button onClick=${()=>c.openSheet({t:'catalog'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="info" s=${18} cls="acc"/>Punkte-Katalog ansehen</button>
@@ -2150,7 +2193,7 @@ function buildState(ob,session){
   lineup,bench:Object.keys(acts).filter(k=>!CORE.includes(k)&&!lineup.includes(k)),subs:3,
   missions:missions.map(m=>{const {k,...r}=m;return{...r,id:MID[k]&&!missions.some(o=>o!==m&&MID[o.k]===MID[k])?MID[k]:'m_'+k+'_'+uid()}}),
   done:{},counts:{},seasonCum:[0],others,oSeason:{...others},weekHist:[],hist:[],snaps:[],sHist:[],gear:[],evalHist:[],codeCk:{},qLog:[],
-  feed:[],events:[],challenges:[],leagues:[],ach:{},newAch:[],flags:{},pulse:0,aar:null,sreport:null,ui:ob.ui==='adv'?'adv':'basic',tally:{},sTally:{},tallyDemo:false,wlog:{},brief:null,nextPrio:null,reviews:[],mxv:{},principles:[],tradition:'Keine',mx:{},sugg:{},detail:{},
+  feed:[],events:[],challenges:[],leagues:[],ach:{},newAch:[],flags:{},pulse:0,aar:null,sreport:null,ui:ob.ui==='adv'?'adv':'basic',tally:{},sTally:{},tallyDemo:false,wlog:{},brief:null,nextPrio:null,reviews:[],mxv:{},principles:[],tradition:'Keine',mx:{},sugg:{},detail:{},ctime:{},duel:{streak:0},push:false,
   sTheme:theme,mArea:theme,mDays:0,mTarget:20,sLen:4,sGoal:.7,sFocus:'Kleine Schritte, jeden Tag',sSigned:{season:1,t:'Kleine Schritte, jeden Tag'},sAreaPts:{},sThemePts:0,sAreaGoals:Object.fromEntries(CORE.map(id=>[id,.7])),
   setup:false,sLocked:true,evalDone:false,freezes:1,tier:0,potOff:.12,
   stats:st,save,study:{hours:0,weekly:sw||s.study.weekly,target:sw||s.study.target},
@@ -2509,7 +2552,7 @@ function App({init,auth,skey='war_within_v5'}){
    if(extra.q!=null){n.qLog=n.qLog||[];n.qLog.unshift({act:m.act,q:extra.q,t:Date.now()});n.qLog=n.qLog.slice(0,40)}
    if(extra.q!=null&&extra.q>=85&&Math.random()<.5)n.nemMsg={t:['Übertroffen? Gut. Ich habe es auch getan.','Starker Zug. Aber ein Tag ist kein Standard.','Das war sauber. Mach es morgen wieder.'][rnd(0,2)],ts:Date.now()};
    if(n.comeback){n.cbDone=(n.cbDone||0)+1;if(n.cbDone>=3){n.comeback=false;n.cbDone=0;n.idle=0;n.nemMsg={t:'Du bist zurück. Nicht schlecht. Morgen wieder volle Last.',ts:Date.now()}}}
-   n.pulse++;n.lastDone={id:mid,on:!!pu,ts:Date.now()};if(pu){const k=dayKey(n);if(!(n.punct&&n.punct.k===k))n.punct={k,ids:[]};if(!n.punct.ids.includes(mid))n.punct.ids.push(mid)}n.seasonMissions=(n.seasonMissions??12)+1;n.tally=n.tally||{};n.tally[mid]=(n.tally[mid]||0)+1;n.sTally=n.sTally||{};n.sTally[mid]=(n.sTally[mid]||0)+1;
+   n.pulse++;n.lastDone={id:mid,on:!!pu,ts:Date.now()};n.ctime=n.ctime||{};n.ctime[mid]=[...(n.ctime[mid]||[]),{t:nowM}].slice(-14);if(pu){const k=dayKey(n);if(!(n.punct&&n.punct.k===k))n.punct={k,ids:[]};if(!n.punct.ids.includes(mid))n.punct.ids.push(mid)}n.seasonMissions=(n.seasonMissions??12)+1;n.tally=n.tally||{};n.tally[mid]=(n.tally[mid]||0)+1;n.sTally=n.sTally||{};n.sTally[mid]=(n.sTally[mid]||0)+1;
    {const lv=pathLevel(n);if(lv>(n.sLevel||0)){const got=applyPath(n,n.sLevel||0,lv);n.pathUp={lv,got,ts:Date.now()}}}
    if(!isPerfect(n)&&dailyAllDone(n)){n.perfect={k:dayKey(n),ts:Date.now()};n.perfectDays=(n.perfectDays||0)+1;n.perfectShow=true}
    n.events.unshift({id:uid(),text:m.title+(extra.msg?' · '+extra.msg:''),pts:award,t:Date.now()});n.events=n.events.slice(0,12);
@@ -2528,10 +2571,22 @@ function App({init,auth,skey='war_within_v5'}){
   setUndo({prev:S,title:m.title,id:uid()});complete(mid,ev,{keep:true});
   if(!S.tipHold){upd(n=>{n.tipHold=true});setTimeout(()=>toast(S.ui==='adv'?'Tipp: Lange drücken, um Erfolgsgrad und Details anzugeben.':'Tipp: Lange drücken, um eine Mission zu bearbeiten.'),1600)}};
  /* Rückfrage am Ende eines Zeitfensters: Ja (innerhalb von 30 Min. = pünktlich), Später (+30 Min.), Heute nicht. Nie automatisch abhaken. */
+ /* Erinnerungen: Blockstart, Rückfrage am Ende, Abendbericht um 21 Uhr; ruhig 21–6 Uhr. System-Benachrichtigung nur mit Erlaubnis, sonst in der App. */
+ const pushRef=useRef({prev:null,sent:{}}),askRef=useRef(null);
+ const notify=(title,body,askId)=>{toast(title+' '+body);try{if('Notification' in window&&Notification.permission==='granted'&&navigator.serviceWorker)navigator.serviceWorker.ready.then(r=>r.showNotification('THE WAR WITHIN',{body:title+' '+body,tag:'ww-'+(askId||title),icon:'icons/icon-192.png',data:{askId},actions:askId?[{action:'yes',title:'Ja'},{action:'later',title:'Später'}]:[]}))}catch(e){}};
+ useEffect(()=>{const P=pushRef.current,prev=P.prev;P.prev=nowM;if(prev==null||!S.push||nowM<=prev||nowM-prev>20)return;
+  const hit=t=>t>prev&&t<=nowM,quiet=t=>t>=1260||t<360,ev=[];
+  nemPlanNow.forEach(p=>{if(p.virtual||p.kind==='sleep'||p.done)return;if(hit(p.start)&&!quiet(p.start))ev.push(['start',p]);if(hit(p.end)&&!quiet(p.end))ev.push(['end',p])});
+  if(hit(1260))ev.push(['report',null]);const e=ev[ev.length-1];if(!e)return;const key=dayKey(S)+e[0]+(e[1]?e[1].id:'');if(P.sent[key])return;P.sent[key]=1;
+  const [type,q]=e;if(type==='start')notify(q.name+' beginnt um '+fmtHM(q.start)+'.','Er ist schon dabei.');else if(type==='end')notify(q.name+' erledigt?','Ja oder später, ein Tipp genügt.',q.id);else{const d=duelOf(S);notify('Abendbericht:','Du '+d.X+', er '+d.Y+'. '+d.lines[1])}},[nowM,S.push]);
+ useEffect(()=>{if(!('serviceWorker' in navigator))return;const h=e=>{const d=e.data||{};if(d.type==='ask'&&d.id&&askRef.current){const q=askRef.current.plan.find(x=>x.id===d.id);if(q)askRef.current.fn(q,d.action==='yes'?'yes':'later')}};navigator.serviceWorker.addEventListener('message',h);return()=>navigator.serviceWorker.removeEventListener('message',h)},[]);
+ const togglePush=async()=>{if(S.push){upd(n=>{n.push=false});toast('Erinnerungen aus.');return}let ok='unsupported';try{if('Notification' in window)ok=await Notification.requestPermission()}catch(e){}
+  upd(n=>{n.push=true});toast(ok==='granted'?'Erinnerungen an: zum Blockstart, zur Rückfrage und um 21 Uhr. Ruhig von 21 bis 6 Uhr.':'Erinnerungen an, vorerst nur in der App: Benachrichtigungen sind im Browser nicht erlaubt.','good')};
  const askK=dayKey(S),AS=S.ask&&S.ask.k===askK?S.ask:{k:askK,snooze:{},no:[]};
  const dueAsk=nemPlanNow.length&&nowM>=nemPlanNow[0].start?nemPlanNow.find(p=>!p.virtual&&p.kind!=='sleep'&&!p.done&&nowM>=p.end&&nowM<p.end+360&&!AS.no.includes(p.id)&&!((AS.snooze[p.id]||0)>nowM))||null:null;
  const answerAsk=(p,ans)=>{if(ans==='yes'){complete(p.id,null,{onTime:nowM<=p.end+GRACE,keep:true});return}
   upd(n=>{const k=dayKey(n);if(!(n.ask&&n.ask.k===k))n.ask={k,snooze:{},no:[]};if(ans==='later')n.ask.snooze[p.id]=nowM+30;else n.ask.no.push(p.id)});toast(ans==='later'?'Ich frage in 30 Minuten noch einmal.':'Okay, heute frage ich nicht mehr.')};
+ askRef.current={plan:nemPlanNow,fn:answerAsk};
  const logSave=(kind,v,mid,keep,q)=>{
   const cb=calcBonus(kind,v,S);const bonus=cb.bonus+(q!=null?qBonus(q):0);let msg='';
   const apply=n=>{const st=n.stats;
@@ -2616,7 +2671,7 @@ function App({init,auth,skey='war_within_v5'}){
   toast(r.win==='me'?`Duell gewonnen! +${x.stake} Pkt.`:r.win==='draw'?'Unentschieden.':`Duell verloren: −${x.stake} Pkt. Dein Fortschritt bleibt.`,r.win==='me'?'good':undefined)};
  /* Tageswechsel */
  const advance=()=>{const idle=S.streak>0&&todayTotal(S)===0&&!S.rest.includes(S.day);upd(n=>{
-  const di=n.day%7,week=Math.floor(n.day/7);const was=derive(n);n.wlog=n.wlog||{};n.wlog[dayKey(n)]={...dayLive(n)};
+  const di=n.day%7,week=Math.floor(n.day/7);const was=derive(n);{const nt=nemTasks(n).filter(t=>t.kind!=='sleep'),X=nt.filter(t=>t.done).length;if(nt.length){n.duel=n.duel||{streak:0};n.duel.streak=X>=nt.length?(n.duel.streak||0)+1:0;n.duel.last={x:X,y:nt.length}}}n.wlog=n.wlog||{};n.wlog[dayKey(n)]={...dayLive(n)};
   if((n.todayPts[n.mArea]||0)>0)n.mDays=(n.mDays||0)+1;
   const had=todayTotal(n)>0||n.rest.includes(n.day),lose=!had&&!((n.freezes||0)>0)&&n.streak>0;
   n.snaps=[...(n.snaps||[]),{season:n.season,day:n.day,cats:{...n.catScore},streak:n.streak}].slice(-120);
@@ -2662,7 +2717,7 @@ function App({init,auth,skey='war_within_v5'}){
  /* Erfolge */
  const newA=S.newAch[0];
  useEffect(()=>{if(!newA)return;const t=setTimeout(()=>upd(n=>{n.newAch=n.newAch.slice(1)}),2600);return()=>clearTimeout(t)},[newA]);
- const c={auth,upd,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,addGoal,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
+ const c={auth,upd,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,addGoal,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,togglePush,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
  const nav=S.ui==='adv'?[['home','Start','home'],['tasks','Aufgaben','check'],['solo','Duell','swords'],['league','Liga','trophy'],['stats','Fortschritt','trend']]:[['home','Start','home'],['tasks','Aufgaben','check'],['stats','Fortschritt','trend'],['league','Liga','trophy']];
  const ach=newA&&ACHS.find(a=>a.id===newA);
  return html`<div data-theme=${S.theme} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(139,92,246,.12)'}}>
