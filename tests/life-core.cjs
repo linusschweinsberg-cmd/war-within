@@ -56,4 +56,28 @@ t('Ziel archivieren entfernt nur die eigenen Missionen',()=>{const S4=LC.ensureL
 
 t('Reload und Datenpersistenz',()=>{const R=LC.ensureLife(JSON.parse(JSON.stringify(S)));assert.deepEqual(R.life,JSON.parse(JSON.stringify(S.life)));assert.equal(LC.insights(R).sessions,LC.insights(S).sessions)});
 
+/* ───── Life Temple ───── */
+const fresh=()=>LC.ensureLife(base());
+t('Tempel: neue Saison startet als Baustelle',()=>{const S=fresh();const st=LC.templeState(S);assert.equal(st.n,1);assert.equal(st.len,12);assert.equal(st.phase,1);assert.ok(st.cols.every(c=>c.stage===1&&c.pts===0));assert.equal(st.foundation,0)});
+t('Tempel: Säulen wachsen unabhängig, gedeckelt',()=>{const S=fresh();const g=LC.addGoal(S,{...tpl('run5k'),start:1650});const a=LC.actionsOf(S.life,g.id)[0];
+ for(let w=0;w<3;w++){done(S,a.id,3);nextWeek(S)}LC.syncTemple(S);let st=LC.templeState(S);const h=st.cols.find(c=>c.area==='health');
+ assert.equal(h.pts,1+3,'Grundstein + 3 konstante Wochen');assert.equal(h.stage,2);assert.ok(st.cols.filter(c=>c.area!=='health').every(c=>c.pts===0));
+ done(S,a.id,20);LC.syncTemple(S);assert.equal(LC.templeState(S).cols.find(c=>c.area==='health').pts,4,'Massenhaftes Abhaken in der laufenden Woche bringt nichts')});
+t('Tempel: Zielmeilenstein schaltet Baufortschritt frei',()=>{const S=fresh();const g=LC.addGoal(S,{...tpl('reserve'),start:1000});g.metric.target=5000;nextWeek(S);
+ LC.addMeasurement(S,g.id,2100);const fr=LC.syncTemple(S);assert.ok(fr.some(m=>m.kind==='quarter'));const w=LC.templeState(S).cols.find(c=>c.area==='wealth');assert.equal(w.pts,2);
+ LC.addMeasurement(S,g.id,5000);LC.syncTemple(S);const w2=LC.columnState(S.life,'wealth');assert.equal(w2.engravings,1);assert.equal(w2.pts,2+2+2+3)});
+t('Tempel: Sofort erreichtes Ziel ohne Arbeit zählt nicht',()=>{const S=fresh();const g=LC.addGoal(S,{...tpl('books'),start:0});LC.addMeasurement(S,g.id,12);LC.syncTemple(S);assert.equal(LC.columnState(S.life,'growth').pts,0)});
+t('Tempel: verpasster Tag oder fehlende Daten verursachen keinen Schaden',()=>{const S=fresh();const g=LC.addGoal(S,{...tpl('run5k'),start:1650});for(let i=0;i<10;i++)LC.onAdvance(S);LC.syncTemple(S);const h=LC.columnState(S.life,'health');assert.equal(h.weathered,false);assert.equal(h.pts,0)});
+t('Tempel: dokumentierte Verschlechterung → Verwitterung, Verbesserung → Restaurierung',()=>{const S=fresh();const g=LC.addGoal(S,{...tpl('run5k'),start:1650});nextWeek(S);LC.addMeasurement(S,g.id,1700);LC.syncTemple(S);
+ assert.equal(LC.columnState(S.life,'health').weathered,true);S.life.temple.weather=false;assert.equal(LC.columnState(S.life,'health').weathered,false,'abschaltbar');S.life.temple.weather=true;
+ nextWeek(S);LC.addMeasurement(S,g.id,1600);LC.syncTemple(S);const h=LC.columnState(S.life,'health');assert.equal(h.weathered,false);assert.ok(h.ms.some(m=>m.kind==='restored'))});
+t('Tempel: bewährtes Experiment gibt Emblem (Success Loop)',()=>{const S=fresh();const g=LC.addGoal(S,{...tpl('friends')});const a=LC.actionsOf(S.life,g.id)[0];S.life.d=6;
+ const e=LC.startExperiment(S,{goalId:g.id,aid:a.id,obstacle:'time',sug:LC.suggest(S.life,g,a,'time',0)[0],wk:0});nextWeek(S);done(S,a.id,2);LC.decideExperiment(S,e.id,'adopt');LC.syncTemple(S);assert.equal(LC.columnState(S.life,'relationships').emblems,1)});
+t('Tempel: Saisonwechsel erhält Historie und Daten',()=>{const S=fresh();const g=LC.addGoal(S,{...tpl('run5k'),start:1650});const a=LC.actionsOf(S.life,g.id)[0];done(S,a.id,3);nextWeek(S);LC.syncTemple(S);const before=LC.templeState(S);
+ const snap=LC.closeTempleSeason(S,8);assert.equal(S.life.temple.hist.length,1);assert.equal(snap.cols.find(c=>c.area==='health').pts,before.cols.find(c=>c.area==='health').pts);
+ const st=LC.templeState(S);assert.equal(st.n,2);assert.equal(st.len,8);assert.ok(st.cols.every(c=>c.pts===0));assert.equal(S.life.goals.length,1);assert.ok(S.life.log.length>0,'Handlungen bleiben')});
+t('Tempel: Abschluss mitten in der Woche zählt nichts doppelt',()=>{const S=fresh();const g=LC.addGoal(S,{...tpl('run5k'),start:1650});const a=LC.actionsOf(S.life,g.id)[0];S.life.d=3;done(S,a.id,1);LC.syncTemple(S);assert.equal(LC.columnState(S.life,'health').pts,1);LC.closeTempleSeason(S);LC.syncTemple(S);assert.equal(LC.columnState(S.life,'health').pts,0);done(S,a.id,1);LC.syncTemple(S);assert.equal(LC.columnState(S.life,'health').pts,1)});
+t('Tempel: Zustand übersteht Reload',()=>{const S=fresh();const g=LC.addGoal(S,{...tpl('run5k'),start:1650});const a=LC.actionsOf(S.life,g.id)[0];done(S,a.id,1);LC.syncTemple(S);const R2=LC.ensureLife(JSON.parse(JSON.stringify(S)));assert.deepEqual(LC.templeState(R2).cols.map(c=>c.pts),LC.templeState(S).cols.map(c=>c.pts))});
+t('Tempel: Migration bestehender Spielstände ohne Tempel',()=>{const S=fresh();delete S.life.temple;LC.ensureLife(S);assert.ok(S.life.temple&&S.life.temple.cur.n===1)});
+
 console.log('PASS life-core: '+ok.join(' · '));

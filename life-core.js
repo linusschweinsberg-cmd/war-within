@@ -10,10 +10,10 @@ const LIFE_V=1;
 
 /* ───── Lebensbereiche ───── */
 const AREAS=[
- {id:'health',name:'Health',de:'Gesundheit',icon:'dumbbell',color:'#9AAE6B',subs:['Training','Ernährung','Schlaf','Mentale Gesundheit'],q:'Wie zufrieden bist du mit Körper, Energie und Erholung?'},
+ {id:'health',name:'Health',de:'Gesundheit',icon:'heartpulse',color:'#9AAE6B',subs:['Training','Ernährung','Schlaf','Mentale Gesundheit'],q:'Wie zufrieden bist du mit Körper, Energie und Erholung?'},
  {id:'relationships',name:'Relationships',de:'Beziehungen',icon:'users',color:'#D0806A',subs:['Familie','Freundschaften','Partnerschaft','Verbundenheit'],q:'Wie verbunden fühlst du dich mit Menschen, die dir wichtig sind?'},
  {id:'wealth',name:'Wealth',de:'Finanzen',icon:'coins',color:'#D4A94F',subs:['Einkommen','Vermögen','Sicherheit','Spielraum'],q:'Wie sicher und handlungsfähig fühlst du dich finanziell?'},
- {id:'growth',name:'Growth',de:'Wachstum',icon:'sprout',color:'#8FB3B0',subs:['Wissen','Fähigkeiten','Kompetenz','Persönlichkeit'],q:'Wie zufrieden bist du damit, wie du lernst und dich entwickelst?'}];
+ {id:'growth',name:'Growth',de:'Wachstum',icon:'book',color:'#8FB3B0',subs:['Wissen','Fähigkeiten','Kompetenz','Persönlichkeit'],q:'Wie zufrieden bist du damit, wie du lernst und dich entwickelst?'}];
 const AREA=Object.fromEntries(AREAS.map(a=>[a.id,a]));
 /* Wechselwirkungen – bewusst als Modell formuliert, nicht als Messung */
 const LINKS=[['health','growth','Energie und Konzentration'],['health','relationships','Belastbarkeit und Präsenz'],['relationships','growth','Rückhalt und Feedback'],['growth','wealth','Kompetenz wird Einkommen'],['wealth','health','Sicherheit senkt Stress'],['wealth','relationships','Zeit und Spielraum']];
@@ -197,6 +197,63 @@ function insights(S){const L=S.life,ex=L.exps||[],closed=ex.filter(e=>['success'
  return{sessions:(L.log||[]).length,exps:ex.length,won:ex.filter(e=>e.status==='success').length,closed:closed.length,running:ex.filter(e=>e.status==='running').length,
   playbook:ex.filter(e=>e.status==='success'&&e.decision==='adopt'),achieved:(L.goals||[]).filter(g=>g.status==='achieved').length,reviews:(L.reviews||[]).length,comebacks,weeks}}
 
+/* ───── LIFE TEMPLE ─────
+   Drei getrennte Ebenen: Handlung (log), Ergebnis (meas) und Tempel (Bausteine).
+   Bausteine werden nach festen, gedeckelten Regeln aus echten Daten freigeschaltet und
+   bleiben dauerhaft erhalten. Säulenstufen und Phase werden daraus berechnet, nie gespeichert. */
+const TEMPLE_LEN=12;
+const STAGES=[{n:1,id:'ruin',name:'Ruine',min:0},{n:2,id:'rebuild',name:'Wiederaufbau',min:2},{n:3,id:'stable',name:'Stabil',min:6},{n:4,id:'strong',name:'Stark',min:11},{n:5,id:'master',name:'Meisterschaft',min:17}];
+const PHASES=[{n:1,id:'foundation',name:'The Foundation',de:'Der Anfang'},{n:2,id:'reconstruction',name:'Reconstruction',de:'Der Wiederaufbau'},{n:3,id:'stability',name:'Stability',de:'Die Stabilisierung'},{n:4,id:'refinement',name:'Refinement',de:'Die Veredelung'},{n:5,id:'mastery',name:'Mastery',de:'Der Saisonabschluss'}];
+/* Regeln: Punkte je Baustein und Obergrenze je Säule und Saison (gegen bedeutungsloses Abhaken) */
+const TEMPLE_RULES={
+ first:{pts:1,cap:1,label:'Grundstein gelegt',why:'Erste umgesetzte Ziel-Handlung in diesem Bereich'},
+ week:{pts:1,cap:12,label:'Konstante Woche',why:'Abgeschlossene Woche mit mindestens 80 % der geplanten Ziel-Handlungen'},
+ comeback:{pts:1,cap:2,label:'Wiederaufgenommen',why:'Konstante Woche direkt nach einer Woche ohne Umsetzung'},
+ quarter:{pts:2,cap:4,label:'Ergebnis-Meilenstein',why:'Ein Ziel erreicht 25, 50 oder 75 % seines Ergebniswegs (Messwert)'},
+ goal:{pts:3,cap:2,label:'Ziel erreicht',why:'Zielwert erreicht, Gravur in der Säule'},
+ exp:{pts:2,cap:3,label:'Bewährte Anpassung',why:'Experiment hat seine Hypothese bestätigt, Emblem am Kapitell'},
+ restored:{pts:1,cap:2,label:'Restauriert',why:'Nach dokumentiertem Rückschritt wieder verbessert'}};
+const newTemple=(wk,d)=>({v:1,cur:{n:1,startWk:wk,d0:d??wk*7,len:TEMPLE_LEN,ms:[],wx:{}},hist:[],weather:true,anim:true});
+const areaOf=(L,gid)=>(goalById(L,gid)||{}).area;
+const inSeason=(T,wk)=>wk>=T.cur.startWk&&wk<T.cur.startWk+T.cur.len;
+function areaWeek(L,area,wk){let p=0,d=0;(L.goals||[]).filter(g=>g.area===area&&g.status!=='archived').forEach(g=>{const w=goalWeek(L,g,wk);p+=w.planned;d+=w.done});return{planned:p,done:d,rate:p?d/p:null}}
+/* Bausteine aus Daten ableiten und neue dauerhaft speichern; gibt neu freigeschaltete zurück */
+function syncTemple(S){const L=S.life;if(!L)return[];if(!L.temple)L.temple=newTemple(curWk(L),L.d||0);const T=L.temple,C=T.cur,w=curWk(L),fresh=[];
+ const has=id=>C.ms.some(m=>m.id===id);
+ const add=(area,kind,id,wk,extra)=>{if(has(id))return;const r=TEMPLE_RULES[kind];if(C.ms.filter(m=>m.area===area&&m.kind===kind).length>=r.cap)return;const m={id,area,kind,pts:r.pts,label:(extra&&extra.label)||r.label,wk,t:Date.now()};C.ms=[...C.ms,m];fresh.push(m)};
+ const end=Math.min(w,C.startWk+C.len-1);
+ AREAS.forEach(({id:area})=>{
+  /* Grundstein: erste erledigte Ziel-Handlung der Saison */
+  const aids=new Set((L.actions||[]).filter(a=>areaOf(L,a.goalId)===area).map(a=>a.id));
+  const d0=C.d0??C.startWk*7;const lf=C.logFrom||0;const firstLog=(L.log||[]).find((x,i)=>i>=lf&&aids.has(x.aid)&&inSeason(T,x.wk)&&x.d>=d0);if(firstLog)add(area,'first','first-'+area+'-'+C.n,firstLog.wk);
+  /* Konstante Wochen (nur abgeschlossene Wochen) und Wiederaufnahme */
+  for(let k=C.startWk;k<Math.min(w,C.startWk+C.len);k++){if(k*7<d0)continue;const a=areaWeek(L,area,k);if(a.planned&&a.rate>=.8){add(area,'week','week-'+area+'-'+k,k);const prev=areaWeek(L,area,k-1);if(k>C.startWk&&prev.planned&&prev.done===0)add(area,'comeback','cb-'+area+'-'+k,k)}}
+  (L.goals||[]).filter(g=>g.area===area).forEach(g=>{
+   /* Ergebnis-Viertel: nur durch Messwerte nach der Startwoche des Ziels */
+   const s=goalStart(L,g),t=g.metric.target;if(s!=null&&t!=null&&t!==s){measOf(L,g.id).filter(m=>wkOf(m.d)>g.startWk&&inSeason(T,wkOf(m.d))).forEach(m=>{const p=(m.v-s)/(t-s);[.25,.5,.75].forEach(q=>{if(p>=q)add(area,'quarter','q-'+g.id+'-'+q,wkOf(m.d),{label:'Ergebnis '+Math.round(q*100)+' %: '+g.title})})})}
+   if(g.status==='achieved'&&g.achievedWk!=null&&g.achievedWk>g.startWk&&inSeason(T,g.achievedWk))add(area,'goal','goal-'+g.id,g.achievedWk,{label:'Ziel erreicht: '+g.title})});
+  (L.exps||[]).filter(e=>e.status==='success'&&areaOf(L,e.goalId)===area&&inSeason(T,e.closed??e.endWk)).forEach(e=>add(area,'exp','exp-'+e.id,e.closed??e.endWk,{label:'Bewährt: '+e.label}));
+  /* Verwitterung nur bei dokumentierter Verschlechterung; Restaurierung bei Verbesserung */
+  const worse=(L.goals||[]).some(g=>g.area===area&&g.status==='active'&&trend(L,g,w,2).state==='worse');
+  const was=!!C.wx[area];if(worse&&!was)C.wx={...C.wx,[area]:{since:w}};
+  if(!worse&&was){const better=(L.goals||[]).some(g=>g.area===area&&g.status!=='archived'&&trend(L,g,w,2).state==='better');if(better){add(area,'restored','rest-'+area+'-'+w,w);const n={...C.wx};delete n[area];C.wx=n}}});
+ return fresh}
+function columnState(L,area){const T=L.temple;const ms=T.cur.ms.filter(m=>m.area===area);const pts=ms.reduce((a,m)=>a+m.pts,0);
+ let st=STAGES[0];STAGES.forEach(s=>{if(pts>=s.min)st=s});const nx=STAGES.find(s=>s.n===st.n+1);
+ return{area,pts,stage:st.n,stageName:st.name,next:nx?{name:nx.name,need:nx.min-pts}:null,ms,engravings:ms.filter(m=>m.kind==='goal').length,emblems:ms.filter(m=>m.kind==='exp').length,weathered:!!(T.weather&&T.cur.wx[area])}}
+function foundationLevel(L,S){const vals=(S&&S.principles&&S.principles.length)||(L.values||[]).length;return (vals?1:0)+(L.why&&L.why.text?1:0)+((L.reviews||[]).length>=1?1:0)+((L.reviews||[]).length>=4?1:0)}
+function templeState(S){const L=S.life;if(!L.temple)L.temple=newTemple(curWk(L),L.d||0);const T=L.temple,cols=AREAS.map(a=>columnState(L,a.id));
+ const avg=cols.reduce((a,c)=>a+c.stage,0)/cols.length;let phase=Math.max(1,Math.min(4,Math.floor(avg+.001)));if(cols.every(c=>c.stage===5))phase=5;
+ const wk=curWk(L),week=Math.min(T.cur.len,Math.max(1,wk-T.cur.startWk+1));
+ return{n:T.cur.n,cols,phase,phaseInfo:PHASES[phase-1],foundation:foundationLevel(L,S),week,len:T.cur.len,due:wk>=T.cur.startWk+T.cur.len,total:T.cur.ms.length}}
+/* Saisonabschluss: Tempel wird als historisches Bauwerk gespeichert, nichts geht verloren */
+function closeTempleSeason(S,len){const L=S.life,T=L.temple,st=templeState(S),wk=curWk(L);
+ const snap={n:T.cur.n,startWk:T.cur.startWk,endWk:wk,phase:st.phase,foundation:st.foundation,cols:st.cols.map(c=>({area:c.area,stage:c.stage,pts:c.pts,engravings:c.engravings,emblems:c.emblems,weathered:c.weathered})),ms:T.cur.ms,
+  achieved:(L.goals||[]).filter(g=>g.status==='achieved'&&g.achievedWk!=null&&g.achievedWk>=T.cur.startWk).map(g=>g.title),
+  learned:(L.exps||[]).filter(e=>e.status==='success'&&(e.closed??e.endWk)>=T.cur.startWk).map(e=>e.label),
+  open:(L.goals||[]).filter(g=>g.status==='active').map(g=>g.title),t:Date.now()};
+ T.hist=[...(T.hist||[]),snap];T.cur={n:T.cur.n+1,startWk:wk,d0:L.d||0,logFrom:(L.log||[]).length,len:len||T.cur.len,ms:[],wx:{}};return snap}
+
 /* ───── Success Loop: aktuelle Phase ───── */
 const LOOP=[{id:'own',n:'Ownership',de:'Verantwortung',q:'Was kann ich kontrollieren?'},{id:'exec',n:'Execution',de:'Umsetzung',q:'Was muss ich heute tun?'},{id:'feed',n:'Feedback',de:'Rückmeldung',q:'Was hat funktioniert, was nicht?'},{id:'adapt',n:'Adaptation',de:'Anpassung',q:'Was ändere ich?'}];
 function loopStage({hasGoal,openToday,doneToday,reviewDue,dailyDone,evening}){
@@ -206,7 +263,7 @@ function loopStage({hasGoal,openToday,doneToday,reviewDue,dailyDone,evening}){
 const OLD_KIND={save:{tpl:'reserve',area:'wealth',mid:'m_save'},learn:{tpl:'lang',area:'growth',mid:'m_lang'},run:{tpl:null,area:'health',mid:'m_run',metric:{name:'Längster Lauf am Stück',unit:'km',dir:'up',target:21.1,src:'measured'}},pace:{tpl:'run5k',area:'health',mid:'m_run'},read:{tpl:'books',area:'growth',mid:'m_read'},fit:{tpl:'strength',area:'health',mid:'m_train'},sleep:{tpl:'sleep',area:'health',mid:'m_sleep'},rel:{tpl:'friends',area:'relationships',mid:'m_rel'},biz:{tpl:'income',area:'wealth',mid:null},focus:{tpl:'skill',area:'growth',mid:'m_focus'},disc:{tpl:'skill',area:'growth',mid:'m_hard'}};
 const perWeekOf=m=>m.freq==='daily'?7:m.freq==='multi'?(m.times||1):1;
 function newLife(d){return{v:LIFE_V,d:d||0,values:[],why:{text:'',q:{}},areas:Object.fromEntries(AREAS.map(a=>[a.id,{sat:3}])),focus:null,goals:[],actions:[],meas:[],log:[],daily:[],reviews:[],exps:[],flags:{},focusMode:false,main:null}}
-function ensureLife(S){if(!S||typeof S!=='object')return S;if(S.life&&S.life.v===LIFE_V){const L=S.life;['goals','actions','meas','log','daily','reviews','exps'].forEach(k=>{if(!Array.isArray(L[k]))L[k]=[]});if(!L.areas)L.areas=newLife().areas;if(!L.why)L.why={text:'',q:{}};return S}
+function ensureLife(S){if(!S||typeof S!=='object')return S;if(S.life&&S.life.v===LIFE_V){const L=S.life;['goals','actions','meas','log','daily','reviews','exps'].forEach(k=>{if(!Array.isArray(L[k]))L[k]=[]});if(!L.areas)L.areas=newLife().areas;if(!L.why)L.why={text:'',q:{}};if(!L.temple)L.temple=newTemple(curWk(L),L.d||0);return S}
  const L=newLife(S.day||0);S.life=L;
  /* Zufriedenheit aus bisherigen Angaben übernehmen */
  const sat=(S.profile&&S.profile.sat)||{};const avg=ks=>{const v=ks.map(k=>sat[k]).filter(x=>x);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):3};
@@ -222,7 +279,7 @@ function ensureLife(S){if(!S||typeof S!=='object')return S;if(S.life&&S.life.v==
    /* bereits in dieser Woche Erledigtes übernehmen, damit Umsetzung und Aufgabenliste übereinstimmen */
    const n=m.freq==='multi'?((S.counts||{})[m.id]||0):(S.done||{})[m.id]?1:0;for(let i=0;i<n;i++)L.log.push({aid:a.id,d:L.d,wk:wkOf(L.d),t:Date.now(),src:'migration'})}
   const cur=o.kind==='save'&&S.save?S.save.saved:null;if(cur!=null){g.metric.start=cur;L.meas.push({id:'v'+uid(),goalId:g.id,v:cur,d:L.d,t:Date.now(),note:'Übernommen'})}});
- L.main=L.goals[0]?L.goals[0].id:null;if(!L.focus&&L.goals[0])L.focus=L.goals[0].area;
+ L.main=L.goals[0]?L.goals[0].id:null;if(!L.focus&&L.goals[0])L.focus=L.goals[0].area;L.temple=newTemple(curWk(L),L.d||0);
  return S}
 
 /* ───── Formatierung ───── */
@@ -232,5 +289,5 @@ function parseV(metric,s){if(s==null)return null;s=String(s).trim();if(!s)return
 
 G.LC={LIFE_V,AREAS,AREA,LINKS,ACT_AREA,areaAct,VALUES,WHY_Q,GOAL_TPL,OBSTACLES,OBST,BLOCK_MAP,RULES,LOOP,
  wkOf,curWk,actById,goalById,actionsOf,actLabel,missionTitle,plannedAt,doneIn,goalWeek,weekRate,measOf,goalNow,goalStart,better,reached,goalProgress,trend,diagnose,suggest,
- startExperiment,evalExperiment,decideExperiment,reviewWeek,weekSummary,obstacleCounts,saveWeeklyReview,onComplete,onAdvance,onDailyReview,addMeasurement,addAction,addGoal,updateGoal,setGoalStatus,insights,loopStage,newLife,ensureLife,fmtV,parseV,syncMission};
+ startExperiment,evalExperiment,decideExperiment,reviewWeek,weekSummary,obstacleCounts,saveWeeklyReview,onComplete,onAdvance,onDailyReview,addMeasurement,addAction,addGoal,updateGoal,setGoalStatus,insights,loopStage,newLife,ensureLife,TEMPLE_LEN,STAGES,PHASES,TEMPLE_RULES,newTemple,syncTemple,columnState,foundationLevel,templeState,closeTempleSeason,areaWeek,fmtV,parseV,syncMission};
 })(typeof window!=='undefined'?window:globalThis);

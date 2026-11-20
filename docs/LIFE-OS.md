@@ -66,3 +66,31 @@ Vorschläge (`LC.suggest`) berechnen sich aus Hindernis, geplanten und erledigte
 3. Umstieg auf Vite + React mit ES-Modulen; `life-core.js` wird unverändert als Modul importiert. Build-Ausgabe nach `dist/`, GitHub Action deployt `dist/` auf Pages, Service Worker mit generierter Asset-Liste.
 4. UI-Komponenten pro Ansicht in eigene Dateien (`Today`, `MyLife`, `Progress`, `Reflect`, `Onboarding`, `Arena`).
 5. Echter Tageswechsel nach Kalenderdatum, danach optional Sync über Supabase-Tabellen pro Nutzer.
+
+## The Life Temple
+
+Visualisierung des Lebenskonzepts als Tempel: Fundament = Werte, Warum und Rückblicke; vier Säulen = Health, Relationships, Wealth, Growth; Dach = wächst mit der Phase des ganzen Tempels. Umsetzung als SVG (`TempleSVG`, `TempleColumn`), keine Bilddateien.
+
+**Drei getrennte Ebenen:** Handlung (`life.log`), Ergebnis (`life.meas`), Tempel (`life.temple.cur.ms`). Tempelpunkte sind symbolisch und werden nie mit Ergebnissen verrechnet.
+
+**Datenmodell** (`S.life.temple`): `cur {n, startWk, d0, logFrom, len (12), ms[], wx{}}`, `hist[]` (Schnappschüsse früherer Saisons), `weather`, `anim`. Gespeichert werden nur freigeschaltete Bausteine; Stufen, Phase und Fundament werden berechnet (`templeState`). Bausteine bleiben dauerhaft.
+
+**Bauregeln** (`TEMPLE_RULES`, je Säule und Saison gedeckelt):
+
+| Baustein | Punkte | max. | Bedingung |
+|---|---|---|---|
+| Grundstein | 1 | 1 | erste erledigte Ziel-Handlung im Bereich |
+| Konstante Woche | 1 | 12 | abgeschlossene Woche mit ≥ 80 % der geplanten Ziel-Handlungen |
+| Wiederaufgenommen | 1 | 2 | konstante Woche nach einer Woche ohne Umsetzung |
+| Ergebnis-Meilenstein | 2 | 4 | Messwert erreicht 25/50/75 % des Ergebniswegs (nach der Startwoche des Ziels) |
+| Ziel erreicht | 3 | 2 | Zielwert erreicht (nicht in der Anlagewoche), Gravur |
+| Bewährte Anpassung | 2 | 3 | Experiment bestätigt, Emblem |
+| Restauriert | 1 | 2 | nach dokumentierter Verschlechterung wieder verbessert |
+
+Stufen: Ruine 0 · Wiederaufbau 2 · Stabil 6 · Stark 11 · Meisterschaft 17 Punkte. Phase = abgerundeter Durchschnitt der Säulenstufen (max. 4); Mastery nur, wenn alle Säulen Stufe 5 erreichen.
+
+**Rückschritte:** Verwitterung erscheint nur bei gemessener Verschlechterung eines aktiven Ziels, nie bei fehlenden Daten oder verpassten Tagen; abschaltbar. Punkte werden nie abgezogen.
+
+**Saison:** Standard 12 Wochen (8/12/16 wählbar), getrennt von der 4-Wochen-Liga-Saison der Arena. Abschluss speichert den Tempel in der Galerie; Ziele, Messwerte und Erkenntnisse bleiben. Ein Abschluss mitten in der Woche zählt nichts doppelt.
+
+**Bekannte Grenze:** `life.log` wird auf 2000 Einträge gekürzt; danach stimmt `logFrom` für den Grundstein nicht mehr exakt.
