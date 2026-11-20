@@ -119,6 +119,16 @@ html,body{background:radial-gradient(1200px 600px at 50% -10%,#1A1230 0%,#050508
 @keyframes sway{0%,100%{transform:rotate(-1.1deg)}50%{transform:rotate(1.1deg)}}.tsw{transform-origin:200px 300px;animation:sway 7s ease-in-out infinite}
 @keyframes obInR{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:none}}@keyframes obInL{from{opacity:0;transform:translateX(-32px)}to{opacity:1;transform:none}}
 input[type=range]{accent-color:#8B5CF6}
+@keyframes jnt{from{transform:rotate(var(--a0))}to{transform:rotate(var(--a1))}}
+@keyframes zfloat{0%{opacity:0;transform:translate(0,0) scale(.6)}25%{opacity:1}100%{opacity:0;transform:translate(16px,-34px) scale(1.15)}}
+@keyframes pageflip{0%,70%,100%{transform:scaleX(1)}80%{transform:scaleX(-1)}}
+@keyframes breath{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.045)}}
+@keyframes nod{0%,100%{transform:translateY(0)}50%{transform:translateY(2.5px)}}
+@keyframes steam{0%{opacity:0;transform:translateY(0)}40%{opacity:.75}100%{opacity:0;transform:translateY(-26px)}}
+@keyframes dashmove{to{stroke-dashoffset:-32}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes sunrise{0%{transform:translateY(14px)}100%{transform:translateY(-2px)}}
+@keyframes dots{0%,100%{opacity:.15}50%{opacity:1}}
 @keyframes drift{0%,100%{transform:translateX(-3px)}50%{transform:translateX(3px)}}
 @keyframes flinch{0%{filter:none}35%{filter:brightness(2.2)}100%{filter:none}}
 </style>
@@ -724,7 +734,7 @@ function SeasonStrip({c}){const {S}=c;const ph=phaseOf(S),lv=Math.min(S.sLevel||
   <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style=${{background:ph.col+'22',color:ph.col,boxShadow:`0 0 0 1px ${ph.col}44 inset`}}><${Icon} n=${ph.ic} s=${20}/></div>
   <div className="flex-1 min-w-0"><div className="flex items-center justify-between gap-2"><div className="text-[13px] font-bold truncate">Saison ${S.season} · <span style=${{color:ph.col}}>${ph.n}</span>${ph.bonus?html` <span className="num text-[11px]" style=${{color:ph.col}}>+10 %</span>`:''}</div><div className="num text-[11px] mute shrink-0">W${w}/${SL(S)} · <b className="ink">${weekScore(S,c.D).total}</b>/100</div></div>
    <div className="mt-1.5"><${Bar} pct=${p} h=${5} color=${`linear-gradient(90deg,${ph.col},#8B5CF6)`}/></div>
-   <div className="text-[11px] mute mt-1 truncate">${done?'Pfad abgeschlossen · Gipfel erreicht':`${PATH[lv][1]} in ${Math.max(0,need-S.seasonPts)} Pkt. · Stufe ${lv+1}/${PATH.length}`}</div></div>
+   <div className="text-[11px] mute mt-1 truncate">${done?'Pfad abgeschlossen · Gipfel erreicht':`Nächste Belohnung: ${PATH[lv][1]} in ${Math.max(0,need-S.seasonPts)} Pkt.`}</div></div>
   <${Icon} n="chevR" s=${16} cls="mute"/></button>`}
 function SeasonPath({c}){const {S}=c;const ph=phaseOf(S),lv=S.sLevel||0,L=SL(S),w=Math.floor(S.day/7);
  const ic={badge:'award',freeze:'shield',title:'star',crown:'crown'};
@@ -738,9 +748,9 @@ function SeasonPath({c}){const {S}=c;const ph=phaseOf(S),lv=S.sLevel||0,L=SL(S),
  <div>${PATH.map(([k,l],i)=>{const got=i<lv,next=i===lv,need=pathStep(S,i);return html`<div key=${i} className="flex items-center gap-3 py-1.5 relative">
    ${i<PATH.length-1&&html`<div aria-hidden="true" className="absolute w-0.5" style=${{left:19,top:42,bottom:-8,background:i<lv-1?'var(--acc)':'var(--line)'}}/>`}
    <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 relative" style=${{background:got?(k==='crown'?'linear-gradient(150deg,#FFF3C4,#FBBF24)':'linear-gradient(140deg,#C4B5FD,#7C3AED)'):'var(--card2)',color:got?(k==='crown'?'#78350F':'#fff'):next?'var(--acc2)':'var(--mute)',boxShadow:next?'0 0 0 2px var(--acc2)':'none'}}><${Icon} n=${got||next?ic[k]:'lock'} s=${17}/></div>
-   <div className="flex-1 min-w-0"><div className="text-[13px] font-semibold" style=${{opacity:got||next?1:.6}}>Stufe ${i+1} · ${l}</div><div className="text-[11px] mute">${desc[k]}</div></div>
+   <div className="flex-1 min-w-0"><div className="text-[13px] font-semibold" style=${{opacity:got||next?1:.6}}>${l}</div><div className="text-[11px] mute">${desc[k]}</div></div>
    <div className="num text-[11px] shrink-0" style=${{color:got?'var(--good)':'var(--mute)'}}>${got?'Erhalten':need+' Pkt.'}</div></div>`})}</div>
- <div className="text-[11px] mute mt-3 leading-relaxed">Stufe 10 entspricht deinem Gipfelziel (${Math.round((S.sGoal||.85)*100)} % des Saisonplans). Streak-Schutz verfügbar: ${S.freezes||0}.${S.title?` Aktueller Titel: ${S.title}.`:''}</div><//>`}
+ <div className="text-[11px] mute mt-3 leading-relaxed">Die letzte Belohnung entspricht deinem Gipfelziel (${Math.round((S.sGoal||.85)*100)} % des Saisonplans). Streak-Schutz verfügbar: ${S.freezes||0}.${S.title?` Aktueller Titel: ${S.title}.`:''}</div><//>`}
 const dayKey=S=>S.season+'-'+S.day;
 const dailyAllDone=S=>{const d=S.missions.filter(m=>m.freq==='daily');return d.length>0&&d.every(m=>isDone(S,m))};
 const isPerfect=S=>!!(S.perfect&&S.perfect.k===dayKey(S));
@@ -996,6 +1006,7 @@ function Compound({c}){const {S,D}=c;const C=compoundOf(S,D),dm=D.allM.filter(m=
  const lay=(n,t,s)=>html`<div className="flex items-baseline gap-2 mt-6 mb-2.5 px-1"><span className="num text-[12px] font-bold acc">${n}</span><h3 className="disp text-[24px]">${t}</h3><span className="text-[11px] mute ml-auto">${s}</span></div>`;
  const tile=([v,l,ic,col,sub,src])=>html`<div key=${l} className="card p-3.5" style=${{borderRadius:20}}><div className="flex items-center justify-between gap-1"><span className="w-8 h-8 rounded-xl flex items-center justify-center" style=${{background:col+'22',color:col}}><${Icon} n=${ic} s=${16}/></span>${src&&html`<${Src} s=${src}/>`}</div><div className="disp text-[30px] mt-2 leading-none">${v}</div><div className="text-[12.5px] font-medium mt-1">${l}</div>${sub&&html`<div className="text-[11px] mute mt-0.5">${sub}</div>`}</div>`;
  return html`<div>
+ <${MountainCard} c=${c}/>
  <div className="card p-4" style=${{background:'var(--hero)'}}><div className="lbl acc">Unsichtbaren Fortschritt sichtbar machen</div><div className="disp text-[30px] mt-1.5 leading-[.95]">Kleine Handlungen.<br/><span className="grad-t">Großes Potenzial.</span></div><div className="text-[12.5px] mute mt-2 leading-snug">Ein Training verändert wenig. Hundert verändern viel. Drei Ebenen: was heute passiert ist, was sich angesammelt hat und was möglich wird.</div></div>
  ${lay('01','Sofort','heute')}
  <div className="grid grid-cols-3 gap-2">${[['+'+D.td,'Punkte','zap','#C4B5FD'],[dm.filter(m=>isDone(S,m)).length+'/'+dm.length,'Missionen','check','#34D399'],[S.streak,'Tage Serie','flame',flameOf(S.streak).c]].map(([v,l,ic,col])=>html`<div key=${l} className="card p-3" style=${{borderRadius:18}}><span style=${{color:col}}><${Icon} n=${ic} s=${16}/></span><div key=${l==='Punkte'?S.pulse:0} className="disp text-[26px] mt-1.5 leading-none" style=${{animation:'pop .45s ease-out'}}>${v}</div><div className="text-[11px] mute mt-1">${l}</div></div>`)}</div>
@@ -1010,7 +1021,180 @@ function Compound({c}){const {S,D}=c;const C=compoundOf(S,D),dm=D.allM.filter(m=
  <${WhatIf}/>
  ${S.ui==='adv'&&html`<div className="mt-4"><${Ripple} c=${c}/></div>`}
  </div>`}
-function Home({c}){
+/* ───── NEMESIS: Datenmodell & Tagesplan ─────
+   tasks[] = {id,name,icon,timeOfDay,done,kind}; buildNemesisPlan(tasks) → sortierter Tagesplan mit start/end (Minuten);
+   getCurrentActivity(plan,now) → aktuelle Szene. Der Nemesis hält sich immer an die gewählte Tageszeit. */
+const TOD=[['morgen','Morgen',360,660],['mittag','Mittag',660,840],['nachmittag','Nachmittag',840,1080],['abend','Abend',1080,1350]];
+const TOD_L={morgen:'Morgen',mittag:'Mittag',nachmittag:'Nachm.',abend:'Abend'};
+const NK_W={wake:.25};const NK_ORDER={wake:0,training:1,run:1,walk:2,cook:3,work:4,learn:4,write:4,call:5,read:6,meditate:7,idle:8,sleep:9};
+const NK_TOD={wake:'morgen',training:'morgen',run:'morgen',walk:'mittag',cook:'mittag',work:'nachmittag',learn:'nachmittag',write:'abend',call:'abend',read:'abend',meditate:'abend',idle:'nachmittag',sleep:'abend'};
+const NK_ID={m_morn:'wake',m_train:'training',m_run:'run',m_walk:'walk',m_cal:'cook',m_eat:'cook',m_focus:'work',m_biz:'work',m_code:'work',m_hard:'work',m_spend:'work',m_save:'work',m_lang:'learn',m_read:'read',m_sleep:'sleep',m_wind:'meditate',m_rel:'call',m_call:'call',m_ref:'write'};
+const NK_LOG={lift:'training',squat:'training',run:'run',swim:'training',pull:'training',study:'learn',read:'read',focus:'work',save:'work'};
+const NK_ACT={body:'training',run:'run',rec:'meditate',rel:'call',fin:'work',disc:'work',deep:'work',lang:'learn',read:'read',biz:'work',code:'work'};
+const kindOf=m=>NK_ID[m.id]||NK_LOG[m.log]||NK_ACT[m.act]||'work';
+const nemPool=S=>S.missions.filter(m=>m.freq==='daily'||m.freq==='multi');
+const NEM_PREF=['m_morn','m_train','m_cal','m_focus','m_lang','m_read','m_wind'];
+function nemDefault(S){const seen=new Set(),out={};const pool=[...nemPool(S)].sort((a,b)=>{const ia=NEM_PREF.indexOf(a.id),ib=NEM_PREF.indexOf(b.id);return (ia<0?99:ia)-(ib<0?99:ib)||NK_ORDER[kindOf(a)]-NK_ORDER[kindOf(b)]});const sl=pool.find(m=>kindOf(m)==='sleep');pool.forEach(m=>{const k=kindOf(m);if(k==='sleep'||seen.has(k)||Object.keys(out).length>=7)return;seen.add(k);out[m.id]=NK_TOD[k]});if(sl)out[sl.id]='abend';return out}
+function nemTasks(S){const sel=S.nem||nemDefault(S);return Object.entries(sel).map(([id,tod])=>{const m=S.missions.find(x=>x.id===id);if(!m)return null;const a=S.acts[m.act];return{id,name:m.title,icon:a?a.icon:'check',timeOfDay:tod,done:isDone(S,m),kind:kindOf(m)}}).filter(Boolean)}
+function buildNemesisPlan(tasks){
+ const out=[];
+ TOD.forEach(([k,,a,b])=>{const ts=tasks.filter(t=>t.timeOfDay===k&&t.kind!=='sleep').sort((x,y)=>NK_ORDER[x.kind]-NK_ORDER[y.kind]);const W=ts.map(t=>t.kind==='wake'?.25:1),tw=W.reduce((x,y)=>x+y,0);let acc=0;ts.forEach((t,i)=>{const s0=a+(b-a)*acc/tw;acc+=W[i];out.push({...t,start:Math.round(s0),end:Math.round(a+(b-a)*acc/tw)})})});
+ out.forEach(p=>{if(p.kind==='wake')p.end=Math.min(p.end,p.start+60)});
+ for(let i=0;i<out.length-1;i++){const gap=out[i+1].start-out[i].end;if(gap>0&&(out[i].kind==='wake'||gap>120)){out.splice(i+1,0,{id:'_free'+i,name:out[i].kind==='wake'?'Plant den Tag':'Freie Zeit',icon:'clock',kind:'idle',timeOfDay:out[i].timeOfDay,done:false,virtual:true,start:out[i].end,end:out[i+1].start});i++}else out[i].end=out[i+1].start}
+ if(out.length)out[out.length-1].end=Math.max(out[out.length-1].end,1350);
+ const s0=out.length?out[out.length-1].end:1350,sl=tasks.find(t=>t.kind==='sleep');
+ out.push(sl?{...sl,start:s0,end:1800}:{id:'_night',name:'Nachtruhe',icon:'moon',kind:'sleep',timeOfDay:'abend',done:false,virtual:true,start:s0,end:1800});
+ return out}
+function getCurrentActivity(plan,now){const t=now<plan[0].start?now+1440:now;return plan.find(p=>t>=p.start&&t<p.end)||plan[plan.length-1]}
+const nemDoneAt=(p,plan,now)=>now>=plan[0].start&&p.end<=now;
+const fmtHM=m=>{m=((Math.round(m)%1440)+1440)%1440;return Math.floor(m/60)+':'+String(m%60).padStart(2,'0')};
+/* ───── NEMESIS: Figur & Szenen (SVG, Gelenke per CSS animiert) ─────
+   Winkel: 0 = nach unten, -90 = nach vorn (rechts), 90 = nach hinten, 180 = nach oben. */
+const jst=(a,an,d,dl)=>an?{'--a0':an[0]+'deg','--a1':an[1]+'deg',animation:`jnt ${d}s ease-in-out ${dl}s infinite alternate`}:{transform:`rotate(${a||0}deg)`};
+const PROPS={
+ db:html`<g style=${{stroke:'none'}}><rect x="-10" y="-2" width="20" height="4" rx="2" style=${{fill:'var(--ink)'}}/><rect x="-12" y="-6" width="5" height="12" rx="2" style=${{fill:'var(--ink)'}}/><rect x="7" y="-6" width="5" height="12" rx="2" style=${{fill:'var(--ink)'}}/></g>`,
+ book:html`<g style=${{stroke:'none'}}><path d="M-14 -10 L0 -6 L14 -10 L14 6 L0 10 L-14 6Z" fill="#F5F3FF"/><path d="M0 -6 V10" stroke="#8B5CF6" strokeWidth="1.2"/><path d="M0 -6 L13 -9.5 L13 6 L0 10Z" fill="#E9E4FF" style=${{transformBox:'fill-box',transformOrigin:'left center',animation:'pageflip 3.2s ease-in-out infinite'}}/></g>`,
+ phone:html`<rect x="-3" y="-7" width="6" height="12" rx="1.5" fill="#F5F3FF" style=${{stroke:'none'}}/>`,
+ spoon:html`<path d="M0 0 L10 10" strokeWidth="3"/>`,
+ pen:html`<path d="M0 0 L6 8" strokeWidth="2.5"/>`};
+function Limb2({x,y,u,l,d=1,dl=0,op,w=8,prop}){return html`<g transform=${`translate(${x} ${y})`} opacity=${op}>
+ <g style=${jst(u.a,u.an,d,dl)}><line x1="0" y1="0" x2="0" y2=${u.L} strokeWidth=${w}/>
+  <g transform=${`translate(0 ${u.L})`}><g style=${jst(l.a,l.an,d,dl)}><line x1="0" y1="0" x2="0" y2=${l.L} strokeWidth=${w*.9}/>${prop&&html`<g transform=${`translate(0 ${l.L})`}>${PROPS[prop]}</g>`}</g></g></g></g>`}
+function Pict({hip,lean=0,legs,arms,head}){const r=lean*Math.PI/180,T=34,sx=hip[0]+T*Math.sin(r),sy=hip[1]-T*Math.cos(r),hx=hip[0]+(T+14)*Math.sin(r),hy=hip[1]-(T+14)*Math.cos(r);
+ const L=(s,base,i,isArm)=>html`<${Limb2} key=${(isArm?'a':'l')+i} x=${base[0]} y=${base[1]} u=${{L:isArm?18:22,...s.u}} l=${{L:isArm?17:22,...s.l}} d=${s.d||1} dl=${s.dl||0} op=${i===0?.55:1} w=${isArm?7:8.5} prop=${s.prop}/>`;
+ return html`<g strokeLinecap="round" strokeLinejoin="round" style=${{stroke:'var(--acc2)',fill:'none'}}>
+  ${arms&&L(arms[0],[sx,sy],0,true)}${legs&&L(legs[0],hip,0,false)}
+  <line x1=${hip[0]} y1=${hip[1]} x2=${sx} y2=${sy} strokeWidth="12"/>
+  <g style=${head||null}><circle cx=${hx} cy=${hy} r="9" style=${{fill:'var(--acc2)',stroke:'none'}}/></g>
+  ${legs&&L(legs[1],hip,1,false)}${arms&&L(arms[1],[sx,sy],1,true)}</g>`}
+const STAND_LEGS=[{u:{a:5},l:{a:0}},{u:{a:-5},l:{a:0}}];
+/* Szenen-Bibliothek: jede Aktivität = eigene Komponente hinter <NemesisScene activity=…/> */
+const SCN={
+ training:{label:'Trainiert',draw:()=>html`<g>
+  <rect x="120" y="194" width="120" height="4" rx="2" style=${{fill:'var(--mr3)'}}/>
+  <${Pict} hip=${[180,152]} legs=${STAND_LEGS} arms=${[{u:{a:-6},l:{an:[-10,-145]},d:.75,dl:.75,prop:'db'},{u:{a:-6},l:{an:[-10,-145]},d:.75,prop:'db'}]}/></g>`},
+ read:{label:'Liest',draw:()=>html`<g>
+  <rect x="146" y="170" width="38" height="5" rx="2" style=${{fill:'var(--mr3)'}}/><rect x="146" y="128" width="5" height="47" rx="2" style=${{fill:'var(--mr3)'}}/><rect x="148" y="175" width="4" height="22" style=${{fill:'var(--mr3)'}}/><rect x="178" y="175" width="4" height="22" style=${{fill:'var(--mr3)'}}/>
+  <rect x="244" y="150" width="30" height="5" rx="2" style=${{fill:'var(--mr3)'}}/><rect x="257" y="155" width="4" height="42" style=${{fill:'var(--mr3)'}}/><path d="M252 150 L250 128 L268 128 L266 150Z" fill="#FBBF24" opacity=".75"/><ellipse cx="259" cy="152" rx="40" ry="10" fill="#FBBF24" opacity=".08"/>
+  <${Pict} hip=${[166,168]} lean=${-6} head=${{transformBox:'fill-box',transformOrigin:'center',animation:'nod 4s ease-in-out infinite'}} legs=${[{u:{a:-88},l:{a:92}},{u:{a:-92},l:{a:92}}]} arms=${[{u:{a:-30},l:{a:-85}},{u:{a:-34},l:{a:-82},prop:'book'}]}/></g>`},
+ sleep:{label:'Schläft',draw:()=>html`<g>
+  <rect x="84" y="166" width="196" height="18" rx="5" style=${{fill:'var(--mr3)'}}/><rect x="84" y="184" width="8" height="13" style=${{fill:'var(--mr3)'}}/><rect x="272" y="184" width="8" height="13" style=${{fill:'var(--mr3)'}}/><rect x="80" y="138" width="10" height="46" rx="4" style=${{fill:'var(--mr3)'}}/>
+  <rect x="94" y="152" width="34" height="15" rx="7" fill="#E9E4FF" opacity=".9"/>
+  <circle cx="118" cy="150" r="9" style=${{fill:'var(--acc2)'}}/>
+  <g style=${{transformBox:'fill-box',transformOrigin:'bottom',animation:'breath 4s ease-in-out infinite'}}><path d="M128 167 C128 146 150 142 176 145 C210 148 250 146 272 152 C278 154 278 160 276 167Z" fill="#7C6BD6"/><path d="M128 167 C128 146 150 142 176 145" fill="none" stroke="#C4B5FD" strokeWidth="2" opacity=".6"/></g>
+  ${[0,1,2].map(i=>html`<text key=${i} x=${134+i*9} y=${136-i*6} fontSize=${11+i*3} fontWeight="800" style=${{fill:'var(--acc2)',animation:`zfloat 3s ease-out ${i*1}s infinite`,opacity:0}}>z</text>`)}</g>`},
+ idle:{label:'Bereitet sich vor',draw:()=>html`<g style=${{transformBox:'fill-box',transformOrigin:'bottom',animation:'breath 3.6s ease-in-out infinite'}}><${Pict} hip=${[180,152]} legs=${STAND_LEGS} arms=${[{u:{a:8},l:{a:4}},{u:{a:-8},l:{a:-4}}]}/></g>`}};
+const DESK=(tool)=>html`<g><rect x="138" y="170" width="34" height="5" rx="2" style=${{fill:'var(--mr3)'}}/><rect x="136" y="132" width="5" height="43" rx="2" style=${{fill:'var(--mr3)'}}/><rect x="140" y="175" width="4" height="22" style=${{fill:'var(--mr3)'}}/><rect x="166" y="175" width="4" height="22" style=${{fill:'var(--mr3)'}}/>
+ <rect x="178" y="148" width="104" height="6" rx="2" style=${{fill:'var(--mr3)'}}/><rect x="186" y="154" width="5" height="43" style=${{fill:'var(--mr3)'}}/><rect x="270" y="154" width="5" height="43" style=${{fill:'var(--mr3)'}}/>${tool}</g>`;
+const SEATED_LEGS=[{u:{a:-88},l:{a:92}},{u:{a:-92},l:{a:92}}];
+Object.assign(SCN,{
+ wake:{label:'Steht auf und streckt sich',draw:()=>html`<g><rect x="70" y="170" width="70" height="14" rx="5" style=${{fill:'var(--mr3)'}}/><rect x="70" y="184" width="6" height="13" style=${{fill:'var(--mr3)'}}/><rect x="74" y="160" width="26" height="11" rx="5" fill="#E9E4FF" opacity=".85"/>
+  <${Pict} hip=${[196,152]} legs=${STAND_LEGS} arms=${[{u:{an:[150,168]},l:{an:[-10,-25]},d:1.7},{u:{an:[210,192]},l:{an:[10,25]},d:1.7}]}/></g>`},
+ run:{label:'Läuft',draw:()=>html`<g><line x1="40" y1="199" x2="330" y2="199" strokeWidth="2.5" strokeDasharray="10 22" strokeLinecap="round" style=${{stroke:'var(--acc2)',opacity:.45,animation:'dashmove .42s linear infinite'}}/>
+  <g opacity=".35" style=${{stroke:'var(--acc2)'}} strokeWidth="2" strokeLinecap="round"><path d="M120 120 h-26 M126 136 h-34 M118 152 h-22"/></g>
+  <g style=${{animation:'bob .21s ease-in-out infinite'}}><${Pict} hip=${[184,150]} lean=${12} legs=${[{u:{an:[32,-38]},l:{an:[15,80]},d:.42},{u:{an:[-38,32]},l:{an:[80,15]},d:.42}]} arms=${[{u:{an:[-45,35]},l:{a:-80},d:.42},{u:{an:[35,-45]},l:{a:-80},d:.42}]}/></g></g>`},
+ walk:{label:'Geht',draw:()=>html`<g><line x1="40" y1="199" x2="330" y2="199" strokeWidth="2" strokeDasharray="6 26" strokeLinecap="round" style=${{stroke:'var(--acc2)',opacity:.35,animation:'dashmove 1.4s linear infinite'}}/>
+  <g style=${{animation:'bob .7s ease-in-out infinite'}}><${Pict} hip=${[184,152]} lean=${3} legs=${[{u:{an:[18,-20]},l:{an:[4,26]},d:.7},{u:{an:[-20,18]},l:{an:[26,4]},d:.7}]} arms=${[{u:{an:[-18,18]},l:{a:-15},d:.7},{u:{an:[18,-18]},l:{a:-15},d:.7}]}/></g></g>`},
+ cook:{label:'Kocht',draw:()=>html`<g><rect x="204" y="150" width="78" height="47" rx="3" style=${{fill:'var(--mr3)'}}/><rect x="212" y="158" width="62" height="3" rx="1.5" fill="#F97316" opacity=".7" style=${{animation:'glow 1.6s ease-in-out infinite'}}/>
+  <path d="M220 146 Q236 154 252 146" strokeWidth="3" fill="none" style=${{stroke:'var(--ink)'}}/><ellipse cx="236" cy="146" rx="16" ry="4" style=${{fill:'var(--ink)'}} opacity=".85"/><line x1="220" y1="146" x2="202" y2="142" strokeWidth="3" strokeLinecap="round" style=${{stroke:'var(--ink)'}}/>
+  ${[0,1,2].map(i=>html`<path key=${i} d=${`M${228+i*8} 138 q-4 -6 0 -12 q4 -6 0 -12`} fill="none" strokeWidth="2" strokeLinecap="round" style=${{stroke:'#E9E4FF',opacity:0,animation:`steam 2.4s ease-out ${i*.7}s infinite`}}/>`)}
+  <${Pict} hip=${[176,152]} lean=${4} legs=${STAND_LEGS} arms=${[{u:{a:-45},l:{a:-55}},{u:{an:[-68,-52]},l:{an:[-30,-50]},d:.55,prop:'spoon'}]}/></g>`},
+ work:{label:'Arbeitet konzentriert',draw:()=>html`<g>${DESK(html`<g><rect x="204" y="144" width="40" height="4" rx="1.5" style=${{fill:'var(--ink)'}}/><path d="M209 144 L214 116 L248 116 L243 144Z" fill="#2E2063" style=${{stroke:'var(--acc2)'}} strokeWidth="1.5"/><path d="M216 120 L244 120 L240 140 L212 140Z" fill="var(--acc2)" opacity=".35" style=${{animation:'glow 2s ease-in-out infinite'}}/></g>`)}
+  <${Pict} hip=${[154,170]} legs=${SEATED_LEGS} arms=${[{u:{a:-52},l:{an:[-38,-46]},d:.18,dl:.09},{u:{a:-56},l:{an:[-36,-48]},d:.18}]}/></g>`},
+ learn:{label:'Lernt',draw:()=>html`<g>${DESK(html`<g><path d="M200 146 L222 141 L244 146 L244 148 L200 148Z" fill="#F5F3FF"/><path d="M222 141 V148" stroke="#8B5CF6" strokeWidth="1"/><rect x="250" y="128" width="16" height="20" rx="2" fill="#FBBF24" opacity=".8"/></g>`)}
+  <${Pict} hip=${[154,170]} lean=${8} head=${{transformBox:'fill-box',transformOrigin:'center',animation:'nod 3s ease-in-out infinite'}} legs=${SEATED_LEGS} arms=${[{u:{a:-48},l:{a:-48}},{u:{a:-58},l:{an:[-28,-42]},d:.5,prop:'pen'}]}/></g>`},
+ meditate:{label:'Meditiert',draw:()=>html`<g><rect x="132" y="192" width="96" height="5" rx="2.5" fill="#8B5CF6" opacity=".45"/>
+  <circle cx="180" cy="150" r="42" fill="none" style=${{stroke:'var(--acc2)',transformBox:'fill-box',transformOrigin:'center',animation:'breath 5s ease-in-out infinite'}} strokeWidth="1.5" opacity=".35"/><circle cx="180" cy="150" r="56" fill="none" style=${{stroke:'var(--acc2)'}} strokeWidth="1" opacity=".15"/>
+  <g style=${{transformBox:'fill-box',transformOrigin:'bottom',animation:'breath 5s ease-in-out infinite'}}><${Pict} hip=${[180,186]} legs=${[{u:{a:-72},l:{a:152}},{u:{a:-84},l:{a:158}}]} arms=${[{u:{a:-12},l:{a:-58}},{u:{a:-18},l:{a:-52}}]}/></g></g>`},
+ call:{label:'Ruft jemanden an',draw:()=>html`<g>${[0,1,2].map(i=>html`<circle key=${i} cx=${204+i*8} cy="76" r="2.6" style=${{fill:'var(--acc2)',animation:`dots 1.2s ease-in-out ${i*.2}s infinite`}}/>`)}
+  <${Pict} hip=${[180,152]} legs=${STAND_LEGS} head=${{transformBox:'fill-box',transformOrigin:'center',animation:'nod 2.4s ease-in-out infinite'}} arms=${[{u:{a:6},l:{a:2}},{u:{a:-35},l:{a:-149},prop:'phone'}]}/></g>`}});
+SCN.write={...SCN.learn,label:'Reflektiert und schreibt'};
+const SKY=now=>now<360||now>=1290?['#0B1026','#2E1F66',0]:now<660?['#FDBA74','#C084FC',1]:now<840?['#7DD3FC','#C4B5FD',1]:now<1080?['#FCD34D','#FB923C',1]:['#A855F7','#1E1B4B',0];
+const NEM_SAY=['Gut.','Weiter so.','Sauber.','Nicht nachlassen.','Jetzt die nächste.','So sieht das aus.'];
+function NemesisScene({activity,now,pulse}){const I=useId().replace(/:/g,'');const [say,setSay]=useState(null);const first=useRef(true);
+ useEffect(()=>{if(first.current){first.current=false;return}setSay({t:NEM_SAY[rnd(0,NEM_SAY.length-1)],k:Date.now()});const t=setTimeout(()=>setSay(null),2600);return()=>clearTimeout(t)},[pulse]);
+ const sc=SCN[activity]||SCN.idle,[s1,s2,isSun]=SKY(now);const night=!isSun;
+ return html`<svg viewBox="0 0 360 210" className="w-full block" style=${{borderRadius:20}} role="img" aria-label=${`Dein Nemesis: ${sc.label}`}>
+ <defs><linearGradient id=${'ns'+I} x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor=${s1}/><stop offset="1" stopColor=${s2}/></linearGradient><radialGradient id=${'ng'+I}><stop offset="0" style=${{stopColor:'var(--acc)'}} stopOpacity=".35"/><stop offset="1" style=${{stopColor:'var(--acc)'}} stopOpacity="0"/></radialGradient></defs>
+ <rect width="360" height="210" style=${{fill:'var(--mr1)'}}/>
+ <rect x="22" y="20" width="76" height="62" rx="6" fill=${`url(#ns${I})`}/>
+ ${night?html`<circle cx="76" cy="40" r="8" fill="#F5F3FF"/><circle cx="80" cy="37" r="7" fill=${s1}/><g fill="#fff"><circle cx="38" cy="34" r="1"/><circle cx="54" cy="60" r=".9"/><circle cx="88" cy="66" r=".8"/></g>`:html`<circle cx="60" cy="58" r="10" fill="#FEF3C7" opacity=".95" style=${{animation:'glow 4s ease-in-out infinite'}}/>`}
+ <path d="M60 20 V82 M22 51 H98" style=${{stroke:'var(--mr2)'}} strokeWidth="3"/><rect x="22" y="20" width="76" height="62" rx="6" fill="none" style=${{stroke:'var(--mr3)'}} strokeWidth="3"/>
+ <path d=${`M22 82 L0 210 L130 210 L98 82Z`} fill=${s1} opacity=${night?.03:.07}/>
+ <rect y="196" width="360" height="14" style=${{fill:'var(--mr2)'}}/>
+ <ellipse cx="180" cy="120" rx="96" ry="80" fill=${`url(#ng${I})`}/>
+ <g key=${say?say.k:'n'} style=${say?{transformBox:'fill-box',transformOrigin:'bottom',animation:'cheer .7s ease-out'}:null}><g transform="translate(180 197) scale(1.3) translate(-180 -197)">${sc.draw()}</g></g>
+ ${say&&html`<g key=${'b'+say.k} style=${{animation:'pop .35s ease-out'}}><rect x="206" y="44" width=${say.t.length*7.4+22} height="28" rx="14" fill="#F5F3FF"/><path d="M216 70 L210 82 L226 71Z" fill="#F5F3FF"/><text x="217" y="62" fontSize="13" fontWeight="800" fill="#4C1D95">${say.t}</text></g>`}
+ </svg>`}
+/* ───── NEMESIS: Karte, Zeitleiste, Vergleich, Prototyp-Uhr ───── */
+const nowMinOf=c=>c.simMin!=null?c.simMin:(()=>{const d=new Date(c.now);return d.getHours()*60+d.getMinutes()})();
+function nemLine(X,Z,Y,cur,night){
+ if(Y&&X>=Y)return'Alles erledigt. Morgen wieder.';
+ if(night)return X>0?'Ich schlafe. Du hast geliefert. Morgen um 6 wieder.':'Ich schlafe. Morgen um 6 geht es los.';
+ const g=Z-X;
+ if(g>=3)return`${g} Aufgaben Rückstand. Ich warte nicht.`;
+ if(g===2)return`Zwei vorne. Während du zögerst, bin ich beim nächsten Punkt.`;
+ if(g===1)return`Eine Aufgabe Rückstand. Hol sie dir. Jetzt.`;
+ if(g===0)return Z===0?'Der Tag ist jung. Ich fange an. Du auch?':'Gleichstand. Halt mit.';
+ return g===-1?'Du bist vorne. Bleib da.':'Du bist mir voraus. Heute schlägst du mich.'}
+function NemTimeline({plan,now,c}){const ref=useRef(null);const night=now<plan[0].start;const cur=getCurrentActivity(plan,now);
+ useEffect(()=>{const el=ref.current&&ref.current.querySelector('[data-cur="1"]');if(el&&ref.current)ref.current.scrollTo({left:el.offsetLeft-ref.current.clientWidth/2+el.clientWidth/2,behavior:'smooth'})},[cur.id]);
+ const t0=360,t1=1440,pos=clamp((now-t0)/(t1-t0),0,1);
+ return html`<div className="mt-3">
+ <div className="relative h-1.5 rounded-full mx-1" style=${{background:'var(--ghost)'}}><div className="absolute inset-y-0 left-0 rounded-full" style=${{width:pos*100+'%',background:'linear-gradient(90deg,#6D28D9,var(--acc2))',transition:'width .6s'}}/><div className="absolute -top-1 w-1 h-3.5 rounded" style=${{left:`calc(${pos*100}% - 2px)`,background:'#FF6B86'}}/></div>
+ <div className="flex justify-between text-[10px] mute mt-1 px-1 num"><span>6:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
+ <div ref=${ref} className="flex gap-1.5 overflow-x-auto mt-2 pb-1" style=${{scrollbarWidth:'none'}}>${plan.map(p=>{const nd=!night&&nemDoneAt(p,plan,now),isCur=p.id===cur.id,ud=p.done;
+  return html`<button key=${p.id} data-cur=${isCur?'1':'0'} disabled=${p.virtual||ud} onClick=${e=>{if(!p.virtual&&!ud)c.start(p.id,e)}} aria-label=${`${p.name}, ${fmtHM(p.start)}: Nemesis ${nd?'erledigt':isCur?'gerade dabei':'kommt noch'}${ud?', du: erledigt':p.virtual?'':', antippen zum Abhaken'}`} className="shrink-0 border-0 rounded-2xl px-2 py-2 flex flex-col items-center gap-1 relative" style=${{width:62,background:isCur?'rgba(139,92,246,.2)':'var(--ghost)',boxShadow:isCur?'0 0 0 1.5px var(--acc2) inset':'none',opacity:!nd&&!isCur?.5:1}}>
+   <span className="w-8 h-8 rounded-xl flex items-center justify-center" style=${{background:nd?'var(--acc)':isCur?'transparent':'var(--card2)',color:nd?'#fff':'var(--acc2)',animation:isCur?'ringPulse 2s infinite':'none'}}><${Icon} n=${nd?'check':p.icon} s=${15} sw=${nd?3:1.9}/></span>
+   <span className="text-[10px] leading-tight text-center font-semibold" style=${{display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>${p.name}</span>
+   <span className="num text-[10px] mute">${fmtHM(p.start)}</span>
+   ${ud&&html`<span className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center" style=${{background:'var(--good)',color:'#fff'}}><${Icon} n="check" s=${10} sw=${3.4}/></span>`}</button>`})}</div>
+ <div className="flex gap-3 text-[10.5px] mute mt-1.5 px-1"><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded" style=${{background:'var(--acc)'}}/>Nemesis erledigt</span><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full" style=${{background:'var(--good)'}}/>Du erledigt</span><span>Antippen = abhaken</span></div></div>`}
+function NemesisCard({c}){const {S}=c;const now=nowMinOf(c);
+ const tasks=nemTasks(S),plan=buildNemesisPlan(tasks),cur=getCurrentActivity(plan,now),night=now<plan[0].start||cur.kind==='sleep';
+ const cnt=plan.filter(p=>!p.virtual&&p.kind!=='sleep'),Y=cnt.length,Z=cnt.filter(p=>nemDoneAt(p,plan,now)).length,X=cnt.filter(p=>p.done).length;
+ const line=nemLine(X,Z,Y,cur,night),behind=Z>X;
+ return html`<div className="card p-3" style=${{borderRadius:26}}>
+ <div className="flex items-start justify-between px-1.5 pt-1 gap-2"><div className="min-w-0"><div className="lbl" style=${{color:'#FF6B86'}}>Dein Nemesis · ${fmtHM(now)}${c.simMin!=null?' (simuliert)':''}</div><div className="disp text-[26px] mt-1 leading-none truncate">${cur.name}</div><div className="text-[11.5px] mute mt-1">${(SCN[cur.kind]||SCN.idle).label} · ${fmtHM(cur.start)}–${fmtHM(cur.end)}</div></div>
+  <button onClick=${()=>c.openSheet({t:'nemplan'})} className="chip shrink-0 flex items-center gap-1"><${Icon} n="edit" s=${12}/>Plan</button></div>
+ <div className="mt-2.5"><${NemesisScene} activity=${cur.kind} now=${now} pulse=${S.pulse}/></div>
+ <div className="mt-3 rounded-2xl px-3.5 py-3 flex items-start gap-2.5" style=${{background:behind?'rgba(255,45,85,.09)':'rgba(139,92,246,.1)',boxShadow:`0 0 0 1px ${behind?'rgba(255,59,92,.25)':'rgba(167,139,250,.25)'} inset`}}><span style=${{color:behind?'#FF6B86':'var(--acc2)'}} className="mt-0.5"><${Icon} n="swords" s=${16}/></span><div className="text-[14.5px] font-semibold leading-snug">${line}</div></div>
+ <div className="grid grid-cols-2 gap-2 mt-3">${[['Du',X,'var(--good)','linear-gradient(90deg,#059669,#34D399)'],['Nemesis',Z,'#FF6B86','linear-gradient(90deg,#B3153C,#FF6B86)']].map(([l,v,col,bg])=>html`<div key=${l} className="card2 p-3"><div className="flex items-baseline justify-between"><span className="lbl" style=${{color:col}}>${l}</span><span className="num"><b key=${l+v} className="text-[20px] ink" style=${{animation:'pop .4s ease-out',display:'inline-block'}}>${v}</b><span className="mute text-[12px]">/${Y}</span></span></div><div className="h-1.5 rounded-full mt-2 overflow-hidden" style=${{background:'var(--ghost)'}}><div className="h-full rounded-full" style=${{width:(Y?v/Y:0)*100+'%',background:bg,transition:'width .6s'}}/></div></div>`)}</div>
+ <${NemTimeline} plan=${plan} now=${now} c=${c}/>
+ </div>`}
+function TimeDebug({c}){const [open,setOpen]=useState(false);const now=nowMinOf(c);
+ return html`<div className="mt-4 rounded-2xl p-3" style=${{border:'1px dashed var(--line)'}}>
+ <button onClick=${()=>setOpen(!open)} className="w-full bg-transparent border-0 p-0 flex items-center justify-between text-[12px] mute"><span className="flex items-center gap-1.5"><${Icon} n="clock" s=${13}/>Prototyp · Uhrzeit simulieren</span><span className="num">${c.simMin!=null?fmtHM(now)+' simuliert':'live'}</span></button>
+ ${open&&html`<div className="mt-3"><input type="range" min="0" max="1425" step="15" value=${now} onChange=${e=>c.setSimMin(+e.target.value)} aria-label="Uhrzeit" className="w-full"/>
+  <div className="flex flex-wrap gap-1.5 mt-2">${[['Morgen',450],['Mittag',750],['Nachm.',930],['Abend',1200],['Nacht',180]].map(([l,m])=>html`<button key=${l} onClick=${()=>c.setSimMin(m)} className=${`chip ${c.simMin===m?'on':''}`}>${l} ${fmtHM(m)}</button>`)}<button onClick=${()=>c.setSimMin(null)} className=${`chip ${c.simMin==null?'on':''}`}>Live</button></div></div>`}</div>`}
+function NemPlan({c}){const {S}=c;const sel=S.nem||nemDefault(S);const pool=nemPool(S);
+ return html`<${Sheet} sub="Nemesis-Plan" title="Was würde er heute tun?" onClose=${c.closeSheet}>
+ <div className="text-[12.5px] mute mb-3 leading-snug">Wähle deine Aufgaben und die Tageszeit. Dein Nemesis erledigt sie in fester Reihenfolge: Aufstehen, Training, Essen, Arbeit und Lernen, Lesen, Abendroutine, Schlafen.</div>
+ <div className="flex flex-col gap-2">${pool.map(m=>{const on=!!sel[m.id],k=kindOf(m);return html`<div key=${m.id} className="card2 p-3">
+  <button onClick=${()=>c.setNem(m.id,on?null:NK_TOD[k])} className="w-full bg-transparent border-0 p-0 flex items-center gap-3 text-left ink"><span className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" style=${{background:on?'var(--acc)':'transparent',border:on?'none':'1.5px solid var(--line)',color:'#fff'}}>${on&&html`<${Icon} n="check" s=${14} sw=${3}/>`}</span><span className="flex-1 text-[13.5px] font-medium">${m.title}</span><span className="text-[10.5px] mute">${(SCN[k]||SCN.idle).label}</span></button>
+  ${on&&html`<div className="mt-2.5"><${Seg} opts=${TOD.map(t=>[t[0],TOD_L[t[0]]])} val=${sel[m.id]} on=${v=>c.setNem(m.id,v)}/></div>`}</div>`})}</div>
+ <button onClick=${c.closeSheet} className="btn w-full py-3.5 mt-4 text-sm">Fertig</button></${Sheet}>`}
+function Home({c}){const {S,D}=c;const now=nowMinOf(c);
+ const nm=((S.profile&&S.profile.name)||(c.auth&&c.auth.session&&c.auth.session.mode!=='guest'&&c.auth.session.name)||'').trim();
+ const hr=Math.floor(now/60),greet=hr<5?'Gute Nacht':hr<11?'Guten Morgen':hr<17?'Guten Tag':hr<22?'Guten Abend':'Gute Nacht';
+ const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fl=flameOf(S.streak);
+ const ib=(label,icon,on)=>html`<button aria-label=${label} onClick=${on} className="w-10 h-10 card flex items-center justify-center" style=${{borderRadius:14}}><${Icon} n=${icon} s=${18}/></button>`;
+ return html`<div className="screen px-4 pb-6">
+ <div className="flex items-center justify-between pt-5 pb-4">
+  <div className="flex items-center gap-2.5"><div className="w-9 h-9 rounded-[12px] flex items-center justify-center" style=${{background:'linear-gradient(140deg,#C4B5FD,#7C3AED 55%,#4C1D95)',boxShadow:'0 1px 0 rgba(255,255,255,.35) inset,0 8px 20px -8px rgba(124,58,237,.8)'}}><${Icon} n="shield" s=${18} sw=${2.2} cls="text-white"/></div>
+   <div className="leading-none"><div className="text-[9px] tracking-[.3em] mute font-semibold">THE</div><div className="text-[15px] font-bold tracking-[.1em] num">WAR WITHIN</div></div></div>
+  <div className="flex items-center gap-2">${ib('Hell/Dunkel wechseln',S.theme==='dark'?'sun':'moon',c.toggleTheme)}${ib('Einstellungen','sliders',()=>c.openSheet({t:'settings'}))}
+   <button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-10 h-10 rounded-full flex items-center justify-center text-[15px] font-bold text-white border-0" style=${{background:'linear-gradient(140deg,#C4B5FD,#7C3AED 55%,#4C1D95)',boxShadow:'0 0 0 2px var(--bg),0 0 0 3.5px rgba(167,139,250,.55)'}}>${ini}</button></div></div>
+ ${S.setup&&html`<button onClick=${()=>c.openSheet({t:'newseason'})} className="btn w-full py-3 mb-3 text-sm">Neue Saison einrichten</button>`}
+ <div className="flex items-end justify-between gap-3 mb-3 px-0.5"><div className="min-w-0"><div className="lbl acc truncate">${greet}${nm?', '+nm:''}</div><h1 className="disp text-[32px] mt-1 leading-[.95]">Was würde er<br/>jetzt tun?</h1></div>
+  <div title=${fl.t} className="flex items-center gap-1 shrink-0 rounded-full px-2.5 py-1 mb-1" style=${{background:fl.c+'1F',color:fl.c,boxShadow:`0 0 0 1px ${fl.c}44 inset`}}><${Icon} n="flame" s=${14}/><span className="num text-[13px] font-bold">${S.streak}</span><span className="sr-only">Tage Serie</span></div></div>
+ ${D.di===6&&html`<${Finale} c=${c}/>`}
+ <${NemesisCard} c=${c}/>
+ ${now>=1080&&html`<${EveningCard} c=${c}/>`}
+ <div className="mt-6"><${QuoteSlider}/></div>
+ <${TimeDebug} c=${c}/>
+ </div>`}
+function HomeLegacy({c}){
  const {S,D}=c;const R=readiness(S);const a=D.standings[D.me.rank-2];
  const h=D.gap<=6?'Du bist nah an deinem Potenzial. Halte den Standard.':D.gap<12?'Schließe die Lücke Mission für Mission.':'Eine große Lücke ist nur ein Plan, den du noch nicht gestartet hast.';
  const projSave=S.save.saved+S.save.weekly*(SL(S)-D.week);
@@ -1112,6 +1296,7 @@ function Solo({c}){
    <div className="relative mt-1.5"><${Bar} pct=${a/Math.max(a,b,1)} h=${6}/><div className="absolute -top-1 w-1 h-3 rounded" style=${{left:`calc(${b/Math.max(a,b,1)*100}% - 2px)`,background:'#C4B5FD'}}/></div></div>`)}</div>
   <div className="text-[11.5px] mute mt-3 leading-relaxed">Der Schatten ist so groß wie dein Rückstand auf dein Potenzial. Er steht für den Widerstand, nicht für dich. Das Potenzial ist dein Verbündeter: Es folgt deinem nachhaltigen Plan, pausiert an Ruhetagen und ist erreichbar.</div></div>
 <${SelfCompare} c=${c}/>
+<div className="mt-3"><${TreeCard} c=${c}/></div>
 <div className="card p-4 mt-3"><div className="flex items-center justify-between"><div><div className="lbl acc">Gipfelziel · Saison ${S.season}</div><div className="text-[15px] font-bold mt-0.5">${Math.round((S.sGoal||.85)*100)} % der Saisonreise</div></div><span className="chip">${S.acts[S.sTheme]?S.acts[S.sTheme].short:''}-Thema</span></div>
   <div className="relative mt-3"><${Bar} pct=${clamp(D.cur/(S.sGoal||.85),0,1)} h=${7}/></div>
   <div className="flex justify-between text-[10.5px] mute mt-1.5 num"><span>Du ${Math.round(D.cur*100)} %</span><span>Ziel ${Math.round((S.sGoal||.85)*100)} %</span></div>
@@ -1124,8 +1309,6 @@ function Solo({c}){
  <${Title}>Soll / Ist · Saisonpunkte<//>
  <div className="card p-4"><${Chart} h=${150} series=${[{data:planned,color:'#C4B5FD',dash:'4 4',w:1.6},{data:actual,color:'#8B5CF6'},{data:proj,color:'#8B5CF6',dash:'2 4',w:1.8}]} labels=${Array.from({length:N},(_,i)=>i===0?'Tag 1':i===N-1?'Tag '+N:i===S.day?'Heute':'')} vmark=${S.day} fmt=${x=>x+' Pkt.'}/>
   <div className="flex flex-wrap gap-3 text-[10.5px] mute mt-2"><span><span className="acc">—</span> Ist</span><span>┄ Plan (Potenzial)</span><span>· · Hochrechnung: ${endProj} Pkt. am Saisonende (${Math.round(endProj/plan/4*100)} % des Plans)</span></div></div>
- <${Title}>Charakter-Evolution<//>
- <div className="grid grid-cols-4 gap-2">${stages.map(([th,n,s])=>{const ok=D.vC>=th;return html`<div key=${n} className="card p-2.5 text-center" style=${{borderRadius:18,opacity:ok?1:.55,borderColor:ok?'rgba(139,92,246,.5)':'var(--line)'}}><div className="w-9 h-9 mx-auto rounded-xl flex items-center justify-center" style=${{background:'rgba(139,92,246,.14)',color:'var(--acc2)'}}><${Icon} n=${ok?'check':'lock'} s=${17}/></div><div className="text-[10.5px] font-semibold mt-1.5 leading-tight">${n}</div><div className="text-[9px] mute">${ok?s:'ab '+Math.round(th*100)+' %'}</div></div>`})}</div>
  <${Title}>Letzte Ereignisse<//>
  <div className="card p-1">${S.events.slice(0,5).map((e,i)=>html`<div key=${e.id} className=${`flex items-center gap-3 px-3 py-2.5 ${i?'border-t ln':''}`}><div className="acc"><${Icon} n="zap" s=${15}/></div><div className="flex-1 text-[12.5px]">${e.text}</div><div className="num text-sm font-semibold good">+${e.pts}</div></div>`)}</div>
  <${Title}>Folgen deiner Entscheidungen<//>
@@ -1186,9 +1369,9 @@ function League({c}){
  <div className="card p-4"><div className="flex items-center justify-between"><div><div className="lbl acc">Saison ${S.season} · ${SL(S)} Wochen</div><div className="text-[14px] font-bold mt-0.5">Thema: ${S.acts[S.sTheme]?S.acts[S.sTheme].name:''}</div></div><span className="chip">Ziel ${Math.round((S.sGoal||.85)*100)} %</span></div>
   <div className="relative mt-4 mb-1"><${Bar} pct=${clamp(D.cur/(S.sGoal||.85),0,1)} h=${7}/>${[.25,.5,.75,1].map(t=>html`<div key=${t} className="absolute -top-1 w-0.5 h-3 rounded" style=${{left:`${t*100-.4}%`,background:'var(--mute)'}}/>`)}</div>
   <div className="flex justify-between text-[10px] mute num mt-1.5">${[.25,.5,.75,1].map(t=>html`<span key=${t}>${'Etappe '+Math.round(t*4)+' · W'+Math.max(1,Math.round(SL(S)*t))}</span>`)}</div>
-  <div className="lbl mt-4 mb-2">Ligastufe</div>
+  <div className="lbl mt-4 mb-2">Ligen</div>
   <div className="flex gap-1.5">${TIERS.map((t,i)=>html`<div key=${t} className="flex-1 text-center py-2 rounded-xl text-[10.5px] font-semibold" style=${{background:i===(S.tier||0)?'var(--acc)':'var(--ghost)',color:i===(S.tier||0)?'#fff':'var(--mute)'}}>${t}</div>`)}</div>
-  <div className="text-[10.5px] mute mt-2 leading-relaxed">Saisonende: Platz 1–2 steigen auf, Platz 5–6 steigen ab. Höhere Stufen bedeuten stärkere Gegner.</div></div>
+  <div className="text-[10.5px] mute mt-2 leading-relaxed">Saisonende: Platz 1–2 steigen auf, Platz 5–6 steigen ab. Höhere Ligen bedeuten stärkere Gegner.</div></div>
  ${(S.sHist||[]).length>0&&html`<${Title}>Saison-Archiv<//>
  <div className="card p-1">${S.sHist.map((r,i)=>html`<div key=${r.season} className=${`flex items-center gap-3 px-3 py-2.5 ${i?'border-t ln':''}`}><div className="num font-bold w-8 text-center">${'S'+r.season}</div><div className="flex-1"><div className="text-[13px] font-semibold">Platz ${r.rank} · ${Math.round(r.cur*100)} % · ${r.pts} Pkt.</div><div className="text-[10.5px] mute">${(S.acts[r.theme]?S.acts[r.theme].short:r.theme)}-Saison · ${r.len} Wochen · ${r.badges.join(', ')}</div></div>${r.ok&&html`<span className="acc"><${Icon} n="trophy" s=${16}/></span>`}</div>`)}</div>`}
  <${Title} right=${html`<${Seg} opts=${[['pts','Punkte'],['fair','Fair']]} val=${mode} on=${setMode}/>`}>Saison-Überblick<//>
@@ -1741,7 +1924,7 @@ function Evaluation({c}){const S=c.S;const ch=S.codeCk||{};const [res,setRes]=us
 function SeasonRep({c}){const r=c.S.sreport,S=c.S;const nm=id=>S.acts[id]?S.acts[id].short:id;
  return html`<${Sheet} sub=${`Season Report · Saison ${r.season}`} title=${r.rank===1?'Du bist Saison-Champion':r.goalOk?'Gipfel erreicht':`Saison auf Platz ${r.rank}`} onClose=${c.dismissSeason}>
  <div className="grid grid-cols-3 gap-2">${[[r.pts,'Saisonpunkte'],[Math.round(r.cur*100)+' %','Saisonreise'],[`${form(r.l0)} %`,'Form am Ende']].map(([v,l])=>html`<div key=${l} className="card2 p-3 text-center"><div className="num text-lg font-bold">${v}</div><div className="text-[10px] mute">${l}</div></div>`)}</div>
- ${r.grade&&html`<div className="card2 p-3.5 mt-3 flex items-center gap-3"><div className=${`disp text-[46px] w-12 text-center ${r.grade==='S'?'gold-t':'acc'}`}>${r.grade}</div><div className="flex-1"><div className="lbl">Saisonnote</div><div className="text-[12.5px] mt-0.5">Saison-Pfad: Stufe <b className="num">${r.level||0}</b> von ${PATH.length}${(r.level||0)>=PATH.length?' · Gipfel-Krone':''}</div><div className="text-[10.5px] mute mt-0.5">Aus Saisonreise, Bereichszielen, Challenge und Platzierung</div></div></div>`}<div className="card2 p-3.5 mt-3"><div className="lbl">Gipfelziel</div><div className="flex items-center justify-between mt-1"><div className="text-[14px] font-bold">${Math.round(r.goal*100)} % · du ${Math.round(r.cur*100)} %</div><span className="chip" style=${{color:r.goalOk?'var(--good)':'var(--mute)'}}>${r.goalOk?'Erreicht':'Knapp verfehlt'}</span></div><div className="text-[11.5px] mute mt-1">Thema ${nm(r.theme)}: ${r.thOk?'Titel gewonnen':'80 % des Bereichs-Limits nicht erreicht'}</div></div>
+ ${r.grade&&html`<div className="card2 p-3.5 mt-3 flex items-center gap-3"><div className=${`disp text-[46px] w-12 text-center ${r.grade==='S'?'gold-t':'acc'}`}>${r.grade}</div><div className="flex-1"><div className="lbl">Saisonnote</div><div className="text-[12.5px] mt-0.5">Saison-Pfad: <b className="num">${r.level||0}</b> von ${PATH.length} Belohnungen${(r.level||0)>=PATH.length?' · Gipfel-Krone':''}</div><div className="text-[10.5px] mute mt-0.5">Aus Saisonreise, Bereichszielen, Challenge und Platzierung</div></div></div>`}<div className="card2 p-3.5 mt-3"><div className="lbl">Gipfelziel</div><div className="flex items-center justify-between mt-1"><div className="text-[14px] font-bold">${Math.round(r.goal*100)} % · du ${Math.round(r.cur*100)} %</div><span className="chip" style=${{color:r.goalOk?'var(--good)':'var(--mute)'}}>${r.goalOk?'Erreicht':'Knapp verfehlt'}</span></div><div className="text-[11.5px] mute mt-1">Thema ${nm(r.theme)}: ${r.thOk?'Titel gewonnen':'80 % des Bereichs-Limits nicht erreicht'}</div></div>
  <div className="lbl mt-4 mb-1.5">Belohnungen</div><div className="flex flex-wrap gap-2">${r.badges.map(b=>html`<span key=${b} className="chip on">${b}</span>`)}</div>
  <div className="card2 p-3.5 mt-3"><div className="lbl">Challenge · ${nm(r.mArea)}</div><div className="flex items-center justify-between mt-1"><div className="text-[14px] font-bold">${r.mDays} von ${r.mTarget} Tagen</div><span className="chip" style=${{color:r.mOk?'var(--good)':'var(--mute)'}}>${r.mOk?'Gemeistert':'Nicht geschafft'}</span></div></div>
  <div className="lbl mt-4 mb-1.5">Bereichsziele · ${r.met} von 5 erreicht</div><div className="card2 p-3">${r.areas.map(x=>html`<div key=${x.id} className="flex items-center gap-2 py-1 text-[12px]"><span className="w-[78px] font-medium">${nm(x.id)}</span><div className="flex-1"><${Bar} pct=${clamp(x.pct/x.goal,0,1)} h=${5}/></div><span className="num w-[78px] text-right" style=${{color:x.ok?'var(--good)':'var(--mute)'}}>${Math.round(x.pct*100)} / ${Math.round(x.goal*100)} %</span></div>`)}</div>
@@ -1788,6 +1971,7 @@ function SheetHost({c}){
   case'swap':b=html`<${Swap} c=${c} sh=${sh}/>`;break;
   case'aar':b=html`<${Aar} c=${c}/>`;break;
   case'review':b=html`<${Review} c=${c}/>`;break;
+  case'nemplan':b=html`<${NemPlan} c=${c}/>`;break;
   case'stat':b=html`<${StatSheet} key=${sh.id} c=${c} id=${sh.id}/>`;break;
   case'newstat':b=html`<${NewStat} c=${c} sub=${sh.sub}/>`;break;
   case'medit':b=html`<${MissionEdit} key=${sh.mid||sh.stat||'n'} c=${c} sh=${sh}/>`;break;
@@ -2245,13 +2429,14 @@ function App({init,auth,skey='war_within_v5'}){
  const toast=useCallback((msg,kind)=>{const id=uid();setToasts(t=>[...t.slice(-2),{id,msg,kind}]);setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)),3300)},[]);
  const burst=(pos,col)=>{const p=pos&&pos.currentTarget?pos.currentTarget.getBoundingClientRect():pos&&pos.left!=null?pos:null;const x=p?p.left+(p.width||0)/2:innerWidth/2,y=p?p.top+(p.height||0)/2:innerHeight*.45;const id=uid();const parts=Array.from({length:16},(_,i)=>{const a=i/16*Math.PI*2+Math.random()*.4,r=46+Math.random()*58;return{dx:Math.cos(a)*r,dy:Math.sin(a)*r,s:4+Math.random()*5,rot:Math.round(Math.random()*360)+'deg',c:i%3===0?'#fff':col,sq:i%2===0}});setSparks(v=>[...v,{id,x,y,parts}]);setTimeout(()=>setSparks(v=>v.filter(z=>z.id!==id)),900)};
  const fx=(pos,text)=>{const id=uid();const p=pos&&pos.currentTarget?pos.currentTarget.getBoundingClientRect():pos&&pos.left!=null?pos:{left:200,top:420,width:0};setFloats(f=>[...f,{id,x:p.left+(p.width||0)/2,y:p.top,text}]);setTimeout(()=>setFloats(f=>f.filter(x=>x.id!==id)),1200)};
+ const [simMin,setSimMin]=useState(null);
  const openSheet=o=>setSheet(o),closeSheet=()=>setSheet(null);
- useEffect(()=>{if(S.ui!=='adv'&&(tab==='tasks'||tab==='solo'))setTab(tab==='tasks'?'home':'stats')},[S.ui,tab]);
+ useEffect(()=>{if(S.ui!=='adv'&&tab==='solo')setTab('stats')},[S.ui,tab]);
  /* Rang-Toasts */
  const pr=useRef(D.me.rank);
  useEffect(()=>{const p=pr.current;if(D.standings.every(x=>!x.pts)){pr.current=D.me.rank;return}if(D.me.rank>p)toast(`${D.standings[D.me.rank-2].name} hat dich überholt: jetzt Platz ${D.me.rank}`,'warn');else if(D.me.rank<p)toast(`Du bist auf Platz ${D.me.rank} aufgestiegen!`,'good');pr.current=D.me.rank},[D.me.rank]);
  useEffect(()=>{if(pathLevel(S)>(S.sLevel||0))upd(n=>{applyPath(n,n.sLevel||0,pathLevel(n))})},[]);
- useEffect(()=>{const u=S.pathUp;if(u&&u.ts>Date.now()-4000)toast(`Saison-Pfad Stufe ${u.lv}: ${u.got.join(', ')}`,'good')},[S.pathUp&&S.pathUp.ts]);
+ useEffect(()=>{const u=S.pathUp;if(u&&u.ts>Date.now()-4000)toast(`Saison-Pfad: ${u.got.join(', ')}`,'good')},[S.pathUp&&S.pathUp.ts]);
  /* Automatisch öffnende Berichte */
  useEffect(()=>{if(S.aar&&!(sheet&&(sheet.t==='aar'||sheet.t==='season')))setSheet({t:'aar'})},[S.aar]);
  useEffect(()=>{if(S.sreport&&!S.aar&&!(sheet&&sheet.t==='season'))setSheet({t:'season'})},[S.sreport,S.aar]);
@@ -2332,6 +2517,7 @@ function App({init,auth,skey='war_within_v5'}){
  const setHero=v=>upd(n=>{n.heroView=v});
  const toggleTheme=()=>upd(n=>{n.theme=n.theme==='dark'?'light':'dark'});
  const setViz=v=>upd(n=>{n.viz=v});
+ const setNem=(mid,tod)=>upd(n=>{n.nem=n.nem||nemDefault(n);if(tod)n.nem[mid]=tod;else delete n.nem[mid]});
  const setUi=v=>{if((S.ui||'basic')===v)return;upd(n=>{n.ui=v});toast(v==='adv'?'Erweitert: Lebensmatrix, Rekorde, Rechner und Prognosen sichtbar. Deine Daten bleiben gleich.':'Basis: nur das Wichtigste. Es geht nichts verloren.','good')};
  const recordStat=(id,v)=>{upd(n=>{n.mxv=n.mxv||{};n.mxv[id]=[...(n.mxv[id]||[]),{v,t:Date.now()}].slice(-40)});toast('Wert gespeichert. Punkte gibt es für Missionen, nicht für Einträge.','good')};
  const saveMission=x=>{const isNew=!x.id;upd(n=>{if(isNew)n.missions.push({...x,id:'x'+uid(),sub:undefined});else{const m=n.missions.find(y=>y.id===x.id);if(m){m.title=x.title;m.desc=x.desc;m.freq=x.freq;m.times=x.times;m.pts=x.pts}}});setSheet(x.stat&&isNew?{t:'stat',id:x.stat}:null);toast(isNew?'Mission angelegt':'Mission gespeichert','good')};
@@ -2416,8 +2602,8 @@ function App({init,auth,skey='war_within_v5'}){
  /* Erfolge */
  const newA=S.newAch[0];
  useEffect(()=>{if(!newA)return;const t=setTimeout(()=>upd(n=>{n.newAch=n.newAch.slice(1)}),2600);return()=>clearTimeout(t)},[newA]);
- const c={auth,upd,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,addGoal,doSwap,toggleRest,toggleTheme,setViz,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
- const nav=S.ui==='adv'?[['home','Start','home'],['tasks','Aufgaben','check'],['solo','Duell','swords'],['league','Liga','trophy'],['stats','Fortschritt','trend']]:[['home','Heute','home'],['stats','Fortschritt','trend'],['league','Liga','trophy']];
+ const c={auth,upd,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,addGoal,doSwap,toggleRest,toggleTheme,setViz,setNem,simMin,setSimMin,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
+ const nav=S.ui==='adv'?[['home','Start','home'],['tasks','Aufgaben','check'],['solo','Duell','swords'],['league','Liga','trophy'],['stats','Fortschritt','trend']]:[['home','Start','home'],['tasks','Aufgaben','check'],['stats','Fortschritt','trend'],['league','Liga','trophy']];
  const ach=newA&&ACHS.find(a=>a.id===newA);
  return html`<div data-theme=${S.theme} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(139,92,246,.12)'}}>
  <div className="absolute inset-0 pointer-events-none overflow-hidden"><div className="absolute rounded-full" style=${{top:-110,left:-80,width:300,height:300,background:'rgba(139,92,246,.20)',filter:'blur(70px)',animation:'heroGlow 9s ease-in-out infinite'}}/><div className="absolute rounded-full" style=${{top:260,right:-140,width:260,height:260,background:'rgba(56,189,248,.07)',filter:'blur(80px)',animation:'heroGlow 12s ease-in-out infinite reverse'}}/></div>

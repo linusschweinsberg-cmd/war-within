@@ -24,13 +24,14 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Claude: `claude/compound-effect` (abgezweigt von `codex/integrate-claude`) – Home-Dashboard mit Kacheln, Aufstieg (Berg), Daily Briefing, Abend-Review, Compound-Effekt + Was-wäre-wenn-Rechner, Wochenscore (70/20/10), Kapitel Fundament/Momentum/Konstanz/Endspurt, Basis/Erweitert-Modus (auch im Onboarding), hierarchische Lebensmatrix (Bereich → Unterkategorie → Wert → Mission) mit eigenen Unterkategorien, Werten und Missionen, Prinzipien unter Charakter & Werte, abschaltbare Detail-Vorschläge. Dateien: `index.html`, `sw.js`, `AGENTS.md`. Im Browser (Mobil) geprüft.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v21` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v22` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Konzepte
 - Missionen mit Punkte-Katalog: Basis × (1 + Erfolg + Konstanz + Messwert) × Saisonthema, begrenzt durch Wochenlimits.
 - Fünf Kernbereiche in Health / Personal development, Liga, Duell gegen den „Nemesis“, Evaluation nach Jocko Willinks „The Code“ (nur eigene Formulierungen, keine Zitate).
-- Lebensbaum (`LifeTree`): ein Ast pro Lebensbereich, Wachstum = Bereichswerte.
+- Home: Nemesis-Tagesplan (`buildNemesisPlan`, `getCurrentActivity`), Szenen über `<NemesisScene activity=…/>`, Uhrzeit-Regler nur im Prototyp.
+- Lebensbaum (`LifeTree`): ein Ast pro Lebensbereich, Wachstum = Bereichswerte (im Duell-Tab).
 - Gesundheitsdaten-Sync und Liga-Mitglieder sind simulierte Demo-Daten.
 
 ## Nächste Schritte
