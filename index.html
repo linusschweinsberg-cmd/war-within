@@ -136,6 +136,28 @@ input[type=range]{accent-color:#8B5CF6}
 @keyframes dots{0%,100%{opacity:.15}50%{opacity:1}}
 @keyframes drift{0%,100%{transform:translateX(-3px)}50%{transform:translateX(3px)}}
 @keyframes flinch{0%{filter:none}35%{filter:brightness(2.2)}100%{filter:none}}
+/* ───── Design-System v2 ─────
+   Farbrollen: Lila = du · Rot = Nemesis · Grün = erledigt · Gold = Belohnung · Orange = Warnung */
+:root,[data-theme=dark]{--you:#A78BFA;--nem:#FF5C7A;--done:#34D399;--gold:#FBBF24;--warn:#F59E0B}
+[data-theme=light]{--you:#6D28D9;--nem:#E11D48;--done:#047857;--gold:#B45309;--warn:#B45309;--acc2:#6D28D9;--mute:#55596D;--line:rgba(20,22,40,.12);--ghost:rgba(20,22,40,.06);--mr1:#D6CEF3;--mr2:#AFA2E0;--mr3:#8676CC}
+/* Ruhe: weniger Glanz, keine Dauer-Effekte ohne Bedeutung */
+.app:after{opacity:.018}
+.bar-fill:after{display:none}
+.fab,.swap-ring{animation:none!important}
+.card{box-shadow:0 1px 0 var(--hi) inset,0 10px 26px -20px rgba(0,0,0,.7)}
+[data-theme=light] .card{box-shadow:0 1px 0 #fff inset,0 8px 22px -18px rgba(60,40,140,.35)}
+/* Typografie: feste Stufen · Meta 11,5 · Hinweis 13 · Text 15 · Überschrift 18 */
+[class~="text-[9px]"],[class~="text-[9.5px]"],[class~="text-[10px]"],[class~="text-[10.5px]"],[class~="text-[11px]"]{font-size:11.5px!important;line-height:1.45}
+[class~="text-[11.5px]"],[class~="text-[12px]"],[class~="text-[12.5px]"],[class~="text-[13px]"]{font-size:13px!important;line-height:1.45}
+[class~="text-[13.5px]"],[class~="text-[14px]"],[class~="text-[14.5px]"]{font-size:15px!important;line-height:1.4}
+[class~="text-[17px]"],[class~="text-[18px]"]{font-size:18px!important}
+.mute{color:color-mix(in srgb,var(--mute) 78%,var(--ink))}
+/* Bausteine: einheitliche Ecken */
+.card{border-radius:22px!important}
+.card2,.ghost,.btn,.inp{border-radius:14px!important}
+.chip{border-radius:999px!important}
+/* Marken-Linie: schmaler roter Strich für alles, was den Nemesis betrifft */
+.nem-line{height:2px;border-radius:2px;background:linear-gradient(90deg,var(--nem),transparent 80%)}
 </style>
 </head>
 <body>
@@ -1072,7 +1094,7 @@ function Limb2({x,y,u,l,d=1,dl=0,op,w=8,prop}){return html`<g transform=${`trans
   <g transform=${`translate(0 ${u.L})`}><g style=${jst(l.a,l.an,d,dl)}><line x1="0" y1="0" x2="0" y2=${l.L} strokeWidth=${w*.9}/>${prop&&html`<g transform=${`translate(0 ${l.L})`}>${PROPS[prop]}</g>`}</g></g></g></g>`}
 function Pict({hip,lean=0,legs,arms,head}){const r=lean*Math.PI/180,T=34,sx=hip[0]+T*Math.sin(r),sy=hip[1]-T*Math.cos(r),hx=hip[0]+(T+14)*Math.sin(r),hy=hip[1]-(T+14)*Math.cos(r);
  const L=(s,base,i,isArm)=>html`<${Limb2} key=${(isArm?'a':'l')+i} x=${base[0]} y=${base[1]} u=${{L:isArm?18:22,...s.u}} l=${{L:isArm?17:22,...s.l}} d=${s.d||1} dl=${s.dl||0} op=${i===0?.55:1} w=${isArm?7:8.5} prop=${s.prop}/>`;
- return html`<g strokeLinecap="round" strokeLinejoin="round" style=${{stroke:'var(--acc2)',fill:'none'}}>
+ return html`<g strokeLinecap="round" strokeLinejoin="round" style=${{stroke:'var(--acc2)',fill:'none',filter:'drop-shadow(0 0 4px color-mix(in srgb, var(--acc) 65%, transparent))'}}>
   ${arms&&L(arms[0],[sx,sy],0,true)}${legs&&L(legs[0],hip,0,false)}
   <line x1=${hip[0]} y1=${hip[1]} x2=${sx} y2=${sy} strokeWidth="12"/>
   <g style=${head||null}><circle cx=${hx} cy=${hy} r="9" style=${{fill:'var(--acc2)',stroke:'none'}}/></g>
@@ -1153,6 +1175,8 @@ function NemesisScene({activity,now,pulse,last,behind}){const I=useId().replace(
  <ellipse cx="180" cy="120" rx="96" ry="80" fill=${`url(#ng${I})`}/>
  <g key=${say?say.k:'n'} style=${say?{transformBox:'fill-box',transformOrigin:'bottom',animation:'cheer .7s ease-out'}:null}><g key=${'a'+activity} style=${{animation:'fadeIn .7s ease-out'}}><g transform="translate(180 197) scale(1.3) translate(-180 -197)">${sc.draw()}</g></g></g>
  ${behind&&!say&&(()=>{const t=TEASE[Math.floor(now/15)%TEASE.length];return html`<g style=${{opacity:0,transformBox:'fill-box',transformOrigin:'left bottom',animation:'tease 9s ease-in-out 2s infinite'}}><rect x="206" y="44" width=${t.length*7.2+22} height="28" rx="14" fill="#FF6B86"/><path d="M216 70 L210 82 L226 71Z" fill="#FF6B86"/><text x="217" y="62" fontSize="13" fontWeight="800" fill="#fff">${t}</text></g>`})()}
+ <rect width="360" height="210" fill=${s1} opacity=${night?.07:.12} style=${{mixBlendMode:'soft-light',pointerEvents:'none'}}/>
+ <rect y="196" width="360" height="14" fill="#000" opacity=".12"/>
  ${say&&html`<g key=${'b'+say.k} style=${{animation:'pop .35s ease-out'}}><rect x="206" y="44" width=${say.t.length*7.4+22} height="28" rx="14" fill="#F5F3FF"/><path d="M216 70 L210 82 L226 71Z" fill="#F5F3FF"/><text x="217" y="62" fontSize="13" fontWeight="800" fill="#4C1D95">${say.t}</text></g>`}
  </svg>`}
 /* ───── NEMESIS: Karte, Zeitleiste, Vergleich, Prototyp-Uhr ───── */
@@ -1175,10 +1199,10 @@ function NemTimeline({plan,now,c}){const ref=useRef(null);const night=now<plan[0
  <div ref=${ref} className="flex gap-1.5 overflow-x-auto mt-2 pb-1" style=${{scrollbarWidth:'none'}}>${plan.map(p=>{const nd=!night&&nemDoneAt(p,plan,now),isCur=p.id===cur.id,ud=p.done;
   return html`<button key=${p.id} data-cur=${isCur?'1':'0'} disabled=${p.virtual||ud} onClick=${e=>{if(!p.virtual&&!ud)c.start(p.id,e)}} aria-label=${`${p.name}, ${fmtHM(p.start)}: Nemesis ${nd?'erledigt':isCur?'gerade dabei':'kommt noch'}${ud?', du: erledigt':p.virtual?'':', antippen zum Abhaken'}`} className="shrink-0 border-0 rounded-2xl px-2 py-2 flex flex-col items-center gap-1 relative" style=${{width:62,background:isCur?'rgba(139,92,246,.2)':'var(--ghost)',boxShadow:isCur?'0 0 0 1.5px var(--acc2) inset':'none',opacity:!nd&&!isCur?.5:1}}>
    <span className="w-8 h-8 rounded-xl flex items-center justify-center" style=${{background:nd?'var(--acc)':isCur?'transparent':'var(--card2)',color:nd?'#fff':'var(--acc2)',animation:isCur?'ringPulse 2s infinite':'none'}}><${Icon} n=${nd?'check':p.icon} s=${15} sw=${nd?3:1.9}/></span>
-   <span className="text-[10px] leading-tight text-center font-semibold" style=${{display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>${p.name}</span>
-   <span className="num text-[10px] mute">${fmtHM(p.start)}</span>
-   ${ud&&(()=>{const pt=c.S.punct&&c.S.punct.k===dayKey(c.S)&&c.S.punct.ids.includes(p.id);return html`<span className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center" style=${{background:pt?'#F59E0B':'var(--good)',color:'#fff'}}><${Icon} n=${pt?'zap':'check'} s=${10} sw=${3}/></span>`})()}</button>`})}</div>
- <div className="flex gap-3 text-[10.5px] mute mt-1.5 px-1"><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded" style=${{background:'var(--acc)'}}/>Nemesis erledigt</span><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full" style=${{background:'var(--good)'}}/>Du erledigt</span><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full" style=${{background:'#F59E0B'}}/>pünktlich +20 %</span></div></div>`}
+   <span className="text-[10.4px] leading-tight text-center font-semibold" style=${{display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>${p.name}</span>
+   <span className="num text-[10.4px] mute">${fmtHM(p.start)}</span>
+   ${ud&&(()=>{const pt=c.S.punct&&c.S.punct.k===dayKey(c.S)&&c.S.punct.ids.includes(p.id);return html`<span className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center" style=${{background:pt?'var(--gold)':'var(--done)',color:'#fff'}}><${Icon} n=${pt?'zap':'check'} s=${10} sw=${3}/></span>`})()}</button>`})}</div>
+ <div className="flex gap-3 text-[10.5px] mute mt-1.5 px-1"><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded" style=${{background:'var(--acc)'}}/>Nemesis erledigt</span><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full" style=${{background:'var(--done)'}}/>Du erledigt</span><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full" style=${{background:'var(--gold)'}}/>pünktlich</span></div></div>`}
 function NemesisCard({c}){const {S}=c;const now=nowMinOf(c);
  const tasks=nemTasks(S),plan=buildNemesisPlan(tasks),cur=getCurrentActivity(plan,now),night=now<plan[0].start||cur.kind==='sleep';
  const cnt=plan.filter(p=>!p.virtual&&p.kind!=='sleep'),Y=cnt.length,Z=cnt.filter(p=>nemDoneAt(p,plan,now)).length,X=cnt.filter(p=>p.done).length;
@@ -1186,11 +1210,12 @@ function NemesisCard({c}){const {S}=c;const now=nowMinOf(c);
  const prevRef=useRef(null),[fin,setFin]=useState(null);
  useEffect(()=>{const p=prevRef.current;prevRef.current=cur;if(p&&p.id!==cur.id&&!p.virtual&&p.kind!=='sleep'){setFin(p.name);const t=setTimeout(()=>setFin(null),2800);return()=>clearTimeout(t)}},[cur.id]);
  return html`<div className="card p-3" style=${{borderRadius:26}}>
- <div className="flex items-start justify-between px-1.5 pt-1 gap-2"><div className="min-w-0"><div className="lbl" style=${{color:'#FF6B86'}}>Dein Nemesis · ${fmtHM(now)}${c.simMin!=null?' (simuliert)':''}</div><div className="disp text-[26px] mt-1 leading-none truncate">${cur.name}</div><div className="text-[11.5px] mute mt-1">${(SCN[cur.kind]||SCN.idle).label} · ${fmtHM(cur.start)}–${fmtHM(cur.end)}</div></div>
+ <div className="nem-line mx-1.5 mb-2.5"/>
+ <div className="flex items-start justify-between px-1.5 pt-1 gap-2"><div className="min-w-0"><div className="lbl" style=${{color:'var(--nem)'}}>Dein Nemesis · ${fmtHM(now)}${c.simMin!=null?' (simuliert)':''}</div><div className="disp text-[26px] mt-1 leading-none truncate">${cur.name}</div><div className="text-[11.5px] mute mt-1">${(SCN[cur.kind]||SCN.idle).label} · ${fmtHM(cur.start)}–${fmtHM(cur.end)}</div></div>
   <button onClick=${()=>c.openSheet({t:'nemplan'})} className="chip shrink-0 flex items-center gap-1"><${Icon} n="edit" s=${12}/>Plan</button></div>
  <div className="mt-2.5 relative">${fin&&html`<div key=${fin} className="absolute left-3 top-3 z-10 rounded-full px-3 py-1.5 text-[12px] font-bold flex items-center gap-1.5" style=${{background:'rgba(52,211,153,.92)',color:'#052E1F',animation:'pop .4s ease-out'}}><${Icon} n="check" s=${13} sw=${3}/>Er hat erledigt: ${fin}</div>`}<${NemesisScene} activity=${cur.kind} now=${now} pulse=${S.pulse} last=${S.lastDone} behind=${!night&&Z-X>=2}/></div>
  <div className="mt-3 rounded-2xl px-3.5 py-3 flex items-start gap-2.5" style=${{background:behind?'rgba(255,45,85,.09)':'rgba(139,92,246,.1)',boxShadow:`0 0 0 1px ${behind?'rgba(255,59,92,.25)':'rgba(167,139,250,.25)'} inset`}}><span style=${{color:behind?'#FF6B86':'var(--acc2)'}} className="mt-0.5"><${Icon} n="swords" s=${16}/></span><div className="text-[14.5px] font-semibold leading-snug">${line}</div></div>
- <div className="grid grid-cols-2 gap-2 mt-3">${[['Du',X,'var(--good)','linear-gradient(90deg,#059669,#34D399)'],['Nemesis',Z,'#FF6B86','linear-gradient(90deg,#B3153C,#FF6B86)']].map(([l,v,col,bg])=>html`<div key=${l} className="card2 p-3"><div className="flex items-baseline justify-between"><span className="lbl" style=${{color:col}}>${l}</span><span className="num"><b key=${l+v} className="text-[20px] ink" style=${{animation:'pop .4s ease-out',display:'inline-block'}}>${v}</b><span className="mute text-[12px]">/${Y}</span></span></div><div className="h-1.5 rounded-full mt-2 overflow-hidden" style=${{background:'var(--ghost)'}}><div className="h-full rounded-full" style=${{width:(Y?v/Y:0)*100+'%',background:bg,transition:'width .6s'}}/></div></div>`)}</div>
+ <div className="grid grid-cols-2 gap-2 mt-3">${[['Du',X,'var(--you)','linear-gradient(90deg,#6D28D9,var(--you))'],['Nemesis',Z,'var(--nem)','linear-gradient(90deg,#9F1239,var(--nem))']].map(([l,v,col,bg])=>html`<div key=${l} className="card2 p-3"><div className="flex items-baseline justify-between"><span className="lbl" style=${{color:col}}>${l}</span><span className="num"><b key=${l+v} className="text-[20px] ink" style=${{animation:'pop .4s ease-out',display:'inline-block'}}>${v}</b><span className="mute text-[12px]">/${Y}</span></span></div><div className="h-1.5 rounded-full mt-2 overflow-hidden" style=${{background:'var(--ghost)'}}><div className="h-full rounded-full" style=${{width:(Y?v/Y:0)*100+'%',background:bg,transition:'width .6s'}}/></div></div>`)}</div>
  <${NemTimeline} plan=${plan} now=${now} c=${c}/>
  </div>`}
 function TimeDebug({c}){const [open,setOpen]=useState(false);const now=nowMinOf(c);
@@ -1200,7 +1225,7 @@ function TimeDebug({c}){const [open,setOpen]=useState(false);const now=nowMinOf(
   <div className="flex flex-wrap gap-1.5 mt-2">${[['Morgen',450],['Mittag',750],['Nachm.',930],['Abend',1200],['Nacht',180]].map(([l,m])=>html`<button key=${l} onClick=${()=>c.setSimMin(m)} className=${`chip ${c.simMin===m?'on':''}`}>${l} ${fmtHM(m)}</button>`)}<button onClick=${()=>c.setSimMin(null)} className=${`chip ${c.simMin==null?'on':''}`}>Live</button></div></div>`}</div>`}
 function NemPlan({c}){const {S}=c;const sel=S.nem||nemDefault(S);const pool=nemPool(S);
  return html`<${Sheet} sub="Nemesis-Plan" title="Was würde er heute tun?" onClose=${c.closeSheet}>
- <div className="text-[12.5px] mute mb-3 leading-snug">Wähle deine Aufgaben und die Tageszeit. Dein Nemesis erledigt sie in fester Reihenfolge: Aufstehen, Training, Essen, Arbeit und Lernen, Lesen, Abendroutine, Schlafen.</div>
+ <div className="text-[12.5px] mute mb-3 leading-snug">Wähle Aufgaben und Tageszeit. Genaue Uhrzeiten legst du im Tagesplan fest.</div>
  <div className="flex flex-col gap-2">${pool.map(m=>{const on=!!sel[m.id],k=kindOf(m);return html`<div key=${m.id} className="card2 p-3">
   <button onClick=${()=>c.setNem(m.id,on?null:NK_TOD[k])} className="w-full bg-transparent border-0 p-0 flex items-center gap-3 text-left ink"><span className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" style=${{background:on?'var(--acc)':'transparent',border:on?'none':'1.5px solid var(--line)',color:'#fff'}}>${on&&html`<${Icon} n="check" s=${14} sw=${3}/>`}</span><span className="flex-1 text-[13.5px] font-medium">${m.title}</span><span className="text-[10.5px] mute">${(SCN[k]||SCN.idle).label}</span></button>
   ${on&&(typeof sel[m.id]==='object'?html`<div className="text-[12px] mute mt-2">${fmtHM(sel[m.id].s)} · ${sel[m.id].d} Min. · im Tagesplan verschieben</div>`:html`<div className="mt-2.5"><${Seg} opts=${TOD.map(t=>[t[0],TOD_L[t[0]]])} val=${sel[m.id]} on=${v=>c.setNem(m.id,v)}/></div>`)}</div>`})}</div>
@@ -1298,7 +1323,7 @@ function DayPlanner({c}){const {S}=c;const now=nowMinOf(c);const H0=5,H1=24,PX=4
  const blocks=plan.map(p=>{const fixed=sel[p.id]&&typeof sel[p.id]==='object',dur=p.kind==='sleep'?Math.min(90,H1*60-p.start):fixed?sel[p.id].d:durOf(p.id);
   const live=d&&d.mode==='resize'&&d.id===p.id?clamp(Math.round((d.d0+(d.cy-d.y0)/PX*60)/15)*15,15,240):dur;return{...p,dur:live,fixed}});
  return html`<div>
- <div className="text-[12px] mute mt-3 leading-snug px-0.5">Ziehe Aufgaben auf eine Uhrzeit oder tippe sie an und dann auf einen Zeitpunkt. Dein Nemesis hält sich genau an diesen Plan. Pünktlich heißt: bis 30 Minuten nach Start.</div>
+ <div className="text-[12px] mute mt-3 leading-snug px-0.5">Ziehen oder antippen, dann Uhrzeit wählen. Pünktlich = bis 30 Min. nach Start.</div>
  <${LearnCard} c=${c}/>
  <${RealityCheck} c=${c} blocks=${blocks}/>
  <div className="lbl mt-3 mb-1.5 flex justify-between"><span>Noch nicht eingeplant</span><span className="normal-case tracking-normal">wischen →</span></div>
@@ -1308,14 +1333,14 @@ function DayPlanner({c}){const {S}=c;const now=nowMinOf(c);const H0=5,H1=24,PX=4
   ${Array.from({length:H1-H0+1},(_,i)=>html`<div key=${i} className="absolute num text-[11px] mute" style=${{top:i*PX,left:-44,right:0,borderTop:'1px solid var(--line)'}}><span className="relative" style=${{top:-8,background:'var(--bg)',paddingRight:6}}>${H0+i}:00</span></div>`)}
   ${now>=H0*60&&html`<div className="absolute" style=${{top:m2y(now),left:-6,right:0,borderTop:'2px solid #FF6B86',zIndex:3}}><span className="absolute right-0 text-[10.5px] font-semibold" style=${{top:-17,color:'#FF6B86'}}>Jetzt ${fmtHM(now)}</span></div>`}
   ${blocks.map(p=>{const ov=blocks.some(o=>o!==p&&o.kind!=='sleep'&&p.kind!=='sleep'&&o.start<p.start+p.dur&&p.start<o.start+o.dur),ghost=drag&&d.id===p.id,col=ACOL[(S.missions.find(m=>m.id===p.id)||{}).act]||'#8B5CF6';
-   return html`<div key=${p.id} data-blk="1" onPointerDown=${e=>{const r=e.currentTarget.getBoundingClientRect();begin(e,{id:p.id,off:e.clientY-r.top})}} className="absolute rounded-xl px-2.5 py-1 flex justify-between gap-2 overflow-hidden" style=${{top:m2y(p.start)+1,height:Math.max(24,p.dur/60*PX-2),left:6,right:4,touchAction:'none',cursor:'grab',opacity:ghost?.35:1,background:ov?'rgba(255,45,85,.18)':`color-mix(in srgb, ${col} 26%, var(--card))`,boxShadow:`inset 3px 0 0 ${ov?'#FF6B86':col}${pick===p.id?',0 0 0 2px var(--acc2)':''}`,zIndex:2}}>
+   return html`<div key=${p.id} data-blk="1" onPointerDown=${e=>{const r=e.currentTarget.getBoundingClientRect();begin(e,{id:p.id,off:e.clientY-r.top})}} className="absolute rounded-xl px-2.5 py-1 flex justify-between gap-2 overflow-hidden" style=${{top:m2y(p.start)+1,height:Math.max(24,p.dur/60*PX-2),left:6,right:4,touchAction:'none',cursor:'grab',opacity:ghost?.35:1,background:ov?'rgba(245,158,11,.16)':`color-mix(in srgb, ${col} 26%, var(--card))`,boxShadow:`inset 3px 0 0 ${ov?'var(--warn)':col}${pick===p.id?',0 0 0 2px var(--acc2)':''}`,zIndex:2}}>
     ${p.dur/60*PX<40?html`<div className="min-w-0 flex items-baseline gap-2 text-[12px] leading-tight"><span className="font-semibold truncate">${p.name}</span><span className="num mute shrink-0 text-[10.5px]">${fmtHM(p.start)} · ${p.dur}′${ov?' · !':''}</span></div>`:html`<div className="min-w-0"><div className="text-[12.5px] font-semibold truncate leading-tight">${p.name}</div><div className="text-[10.5px] mute truncate">${p.kind==='sleep'?'ab '+fmtHM(p.start)+' · Nachtruhe':fmtHM(p.start)+' · '+p.dur+' Min. · pünktlich bis '+fmtHM(p.start+30)}${ov?' · Überschneidung':''}</div></div>`}
     ${p.kind!=='sleep'&&html`<button aria-label=${p.name+' aus dem Plan nehmen'} onPointerDown=${e=>{e.stopPropagation()}} onClick=${e=>{e.stopPropagation();c.setNemTime(p.id,null)}} className="bg-transparent border-0 p-0 mute shrink-0 self-start text-[14px] leading-none">×</button>`}
     ${p.kind!=='sleep'&&html`<div aria-hidden="true" onPointerDown=${e=>begin(e,{id:p.id,mode:'resize',s0:p.start,d0:p.dur})} className="absolute right-6 bottom-0 flex justify-center" style=${{height:10,width:36,cursor:'ns-resize',touchAction:'none'}}><span className="w-6 h-1 rounded-full mt-1" style=${{background:'var(--mute)',opacity:.5}}/></div>`}</div>`})}
   ${target!=null&&html`<div className="absolute rounded-xl" style=${{top:m2y(target),height:Math.max(24,durOf(d.id)/60*PX-2),left:6,right:4,border:'1.5px dashed #FBBF24',zIndex:4}}><span className="absolute text-[11px] font-bold num" style=${{left:-44,top:-1,color:'#FBBF24',background:'var(--bg)'}}>${fmtHM(target)}</span></div>`}
  </div>
  ${drag&&html`<div className="fixed z-[90] pointer-events-none chip on" style=${{left:d.cx+10,top:d.cy-16}}>${nameOf(d.id)}</div>`}
- <div className="text-[11px] mute mt-3 px-0.5 leading-relaxed">Der Plan gilt für jeden Tag, bis du ihn änderst. Blockrand unten ziehen ändert die Dauer, × nimmt eine Aufgabe aus dem Plan.</div></div>`}
+ <div className="text-[11px] mute mt-3 px-0.5 leading-relaxed">Griff unten = Dauer · × = herausnehmen · gilt jeden Tag</div></div>`}
 /* ───── Lernender Plan: Vorschlag aus echten Erledigungszeiten ───── */
 const CTIME_DEMO={m_train:[1130,1145,1140,1135,1150,1125,1140,1160,1138,1142].map(t=>({t}))};
 function learnSuggest(S){const sel=S.nem||nemDefault(S),dis=S.sugDis||{};
@@ -1337,7 +1362,7 @@ function duelOf(S){const plan=buildNemesisPlan(nemTasks(S)),cnt=plan.filter(p=>!
  return{X,Y,lines,won:Y>0&&X>=Y}}
 function DuelReport({c}){const {S}=c;const d=duelOf(S),st=(S.duel&&S.duel.streak)||0;
  return html`<div className="card p-4 mb-3 rise" style=${{borderRadius:24,background:'radial-gradient(120% 80% at 50% 0%,rgba(255,45,85,.12),var(--card) 65%)',borderColor:'rgba(255,59,92,.28)'}}>
- <div className="flex items-center justify-between"><div className="lbl" style=${{color:'#FF6B86'}}>Abendbericht · Tagesduell</div><span className="text-[11px] mute">ab 21 Uhr</span></div>
+ <div className="nem-line mb-2.5"/><div className="flex items-center justify-between"><div className="lbl" style=${{color:'var(--nem)'}}>Abendbericht · Tagesduell</div><span className="text-[11px] mute">ab 21 Uhr</span></div>
  <div className="flex items-end justify-around mt-3"><div className="text-center"><div className="disp text-[40px] leading-none" style=${{color:'var(--good)'}}>${d.X}</div><div className="lbl mt-1">Du</div></div><div className="text-[13px] mute pb-3">gegen</div><div className="text-center"><div className="disp text-[40px] leading-none" style=${{color:'#FF6B86'}}>${d.Y}</div><div className="lbl mt-1">Nemesis</div></div></div>
  <div className="mt-3 rounded-2xl p-3" style=${{background:'rgba(255,45,85,.08)',boxShadow:'0 0 0 1px rgba(255,59,92,.2) inset'}}><div className="lbl mb-1" style=${{color:'#FF6B86'}}>Er sagt</div><div className="text-[14px] font-semibold leading-snug">„${d.lines.join(' ')}“</div></div>
  <div className="flex items-center justify-between mt-3 text-[12.5px]"><span className="mute">Duell-Serie</span><span className="font-semibold" style=${{color:'#FBBF24'}}>${d.won?st+1:st} ${(d.won?st+1:st)===1?'Tag':'Tage'} eingeholt${d.won?' · heute dabei':''}</span></div></div>`}
@@ -1365,7 +1390,7 @@ function Tasks({c}){
  ${(()=>{const dm=D.allM.filter(m=>m.freq==='daily'||m.freq==='multi'),dn=dm.filter(m=>isDone(S,m)).length,pc=dm.length?dn/dm.length:0;return html`<div className="card p-3.5 mt-3 flex items-center gap-3.5" style=${{borderRadius:20}}><${Ring} pct=${pc} size=${46} stroke=${5} grad=${true}><span className="num text-[11px] font-bold">${Math.round(pc*100)}%</span><//><div className="flex-1 min-w-0"><div className="text-[14px] font-semibold">${dn} von ${dm.length} Tagesmissionen</div><div className="text-[11.5px] mute">+${D.td} Punkte heute · Serie ${S.streak} Tage</div></div></div>`})()}
  <div className="mt-4"><${Seg} opts=${[['list','Liste'],['plan','Tagesplan']]} val=${view} on=${setView}/></div>
  ${view==='plan'?html`<${DayPlanner} c=${c}/>`:html`<div className="flex justify-between mt-4 mb-5">${DAYS.map((x,i)=>{const today=i===D.di,past=i<D.di,p=today?(D.allM.length?D.doneN/D.allM.length:0):past?1:0;const dt=new Date(base.getTime()+(i-D.di)*864e5).getDate();return html`<div key=${x} className="flex flex-col items-center gap-1.5 pt-2 pb-2 rounded-[26px]" style=${{background:today?'var(--acc)':'transparent',width:44}}><span className="text-[12px]" style=${{color:today?'#fff':'var(--mute)'}}>${x}</span><${Ring} pct=${p} size=${34} stroke=${3.5} color=${today?'#fff':'var(--acc2)'}><span className="text-[13px] font-bold" style=${{color:today||past?'#fff':'var(--mute)'}}>${dt}</span><//></div>`})}</div>
- <div className="mb-4"><${Seg} opts=${S.ui!=='adv'?[['today','Heute'],['all','Alle']]:[['today','Heute'],['all','Alle'],...GROUPS.map(g=>[g.id,g.name]),...Object.keys(S.acts).filter(id=>D.allM.some(m=>m.act===id)).map(id=>[id,S.acts[id].name])]} val=${grp} on=${setGrp}/>${S.ui!=='adv'&&html`<div className="text-[11px] mute mt-2 px-1">Antippen = erledigt. Lange drücken = bearbeiten. Mit + legst du eigene Missionen an.</div>`}</div>
+ <div className="mb-4"><${Seg} opts=${S.ui!=='adv'?[['today','Heute'],['all','Alle']]:[['today','Heute'],['all','Alle'],...GROUPS.map(g=>[g.id,g.name]),...Object.keys(S.acts).filter(id=>D.allM.some(m=>m.act===id)).map(id=>[id,S.acts[id].name])]} val=${grp} on=${setGrp}/>${S.ui!=='adv'&&html`<div className="text-[11px] mute mt-2 px-1">Antippen = erledigt · ⋯ = bearbeiten</div>`}</div>
  <div className="flex flex-col gap-2">${fm.map(m=>html`<${MRow} key=${m.id} m=${m} c=${c}/>`)}</div>
  ${fm.length===0&&html`<div className="card p-4 text-sm mute">Heute keine Aufgaben.</div>`}
  <div className="text-center text-[13px] mute mt-4"><button onClick=${()=>c.openSheet({t:'catalog'})} className="acc font-semibold bg-transparent border-0 text-[13px] mb-2 block mx-auto">Punkte-Katalog</button>${fm.filter(m=>isDone(S,m)).length} von ${fm.length} erledigt${avgQ(S)?` · Ø Erfolgsgrad ${avgQ(S).avg}`:''}</div>`}</div>`}
@@ -2749,7 +2774,7 @@ function App({init,auth,skey='war_within_v5'}){
  const nav=S.ui==='adv'?[['home','Start','home'],['tasks','Aufgaben','check'],['solo','Duell','swords'],['league','Liga','trophy'],['stats','Fortschritt','trend']]:[['home','Start','home'],['tasks','Aufgaben','check'],['stats','Fortschritt','trend'],['league','Liga','trophy']];
  const ach=newA&&ACHS.find(a=>a.id===newA);
  return html`<div data-theme=${S.theme} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(139,92,246,.12)'}}>
- <div className="absolute inset-0 pointer-events-none overflow-hidden"><div className="absolute rounded-full" style=${{top:-110,left:-80,width:300,height:300,background:'rgba(139,92,246,.20)',filter:'blur(70px)',animation:'heroGlow 9s ease-in-out infinite'}}/><div className="absolute rounded-full" style=${{top:260,right:-140,width:260,height:260,background:'rgba(56,189,248,.07)',filter:'blur(80px)',animation:'heroGlow 12s ease-in-out infinite reverse'}}/></div>
+ <div className="absolute inset-0 pointer-events-none overflow-hidden"><div className="absolute rounded-full" style=${{top:-110,left:-80,width:300,height:300,background:'rgba(139,92,246,.13)',filter:'blur(70px)'}}/><div className="absolute rounded-full" style=${{top:260,right:-140,width:260,height:260,background:'rgba(56,189,248,.07)',filter:'blur(80px)'}}/></div>
  <div ref=${scrollRef} onScroll=${e=>{const y=e.currentTarget.scrollTop,v=y>70;if(v!==scrolled)setScrolled(v);const dn=y>lastY.current+4,up=y<lastY.current-4;if(dn&&!fabOff&&y>120)setFabOff(true);else if((up||y<120)&&fabOff)setFabOff(false);lastY.current=y}} className="flex-1 overflow-y-auto relative scroll-fade" style=${{paddingBottom:96}}>
   ${tab==='home'&&html`<${Home} c=${c}/>`}${tab==='tasks'&&html`<${Tasks} c=${c}/>`}${tab==='solo'&&html`<${Solo} c=${c}/>`}${tab==='league'&&html`<${League} c=${c}/>`}${tab==='stats'&&html`<${Stats} c=${c}/>`}</div>
  ${(()=>{const T={home:'Start',tasks:'Aufgaben',solo:'Duell · Saison '+S.season,league:'Liga',stats:'Fortschritt'}[tab];return html`<div aria-hidden=${!scrolled} className="topbar absolute top-0 inset-x-0 z-20 px-4 flex items-center justify-between pointer-events-none" style=${{height:52,paddingTop:'env(safe-area-inset-top)',opacity:scrolled?1:0,transform:scrolled?'none':'translateY(-8px)',background:'var(--glass)',backdropFilter:'blur(16px) saturate(1.4)',WebkitBackdropFilter:'blur(16px) saturate(1.4)',borderBottom:'1px solid var(--line)'}}><div className="disp text-[19px]">${T}</div><button tabIndex=${scrolled?0:-1} onClick=${()=>{if(scrollRef.current)scrollRef.current.scrollTo({top:0,behavior:'smooth'})}} className="chip pointer-events-auto" style=${{padding:'4px 10px',minHeight:28}} aria-label="Nach oben"><${Icon} n="up" s=${14}/></button></div>`})()}
