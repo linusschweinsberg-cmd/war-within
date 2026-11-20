@@ -21,9 +21,10 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
-- Claude · `claude/life-os` · `index.html`, `life-core.js`, `sw.js`, `tests/`, `docs/LIFE-OS.md`, `AGENTS.md` (Umbau zum Life OS: Navigation Heute/Mein Leben/Fortschritt/Reflexion, Experimente)
+- (nichts)
 
 ### Letzte Integration
+- Life OS: Claude-Stand `19a47de` durch Codex geprüft und zur Veröffentlichung übernommen. Tests: life-core, release-smoke, auth-contract bestanden. Browser: migrierte Startansicht, Lebenstempel und Reflexion geprüft.
 - Claudes Stand `03c9603` (Tagesplan, Nemesis, Lernvorschläge) samt Supabase-Anmeldung über PR #9 integriert. Codex hat Claudes Änderungen geprüft.
 - Prüfungen: `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`; Start, Nemesis, Aufgaben und Tageskalender im Browser. Beispielhistorie bei bestehenden echten Konten entfernt; Lernen verwendet unterschiedliche Erledigungstage.
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
