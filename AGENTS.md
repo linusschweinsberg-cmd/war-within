@@ -20,7 +20,12 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
-- Codex: Veröffentlichung von Claudes Stand `03c9603` über `codex/integrate-claude`; Codex-Review der Claude-Änderungen abgeschlossen; Syntax, Auth-Verträge, Migration, Lernvorschläge und Wochen-Snapshots geprüft. Browser: Start, Nemesis, Aufgaben, Tageskalender geprüft. Supabase-Projekt bleibt `ozfmjmxzbymlicngecda`.
+- (nichts)
+
+### Letzte Integration
+- Claudes Stand `03c9603` (Tagesplan, Nemesis, Lernvorschläge) samt Supabase-Anmeldung über PR #9 integriert. Codex hat Claudes Änderungen geprüft.
+- Prüfungen: `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`; Start, Nemesis, Aufgaben und Tageskalender im Browser. Beispielhistorie bei bestehenden echten Konten entfernt; Lernen verwendet unterschiedliche Erledigungstage.
+- Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
 - `manifest.webmanifest`, `sw.js` (Cache `ww-v29` – bei jeder Änderung Version erhöhen), `icons/`.
