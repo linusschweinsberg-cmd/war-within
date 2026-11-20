@@ -344,7 +344,7 @@ function initState(){
               {id:'c2',kind:'pb',metric:'Lesezeit (Min./Woche)',who:'lena',stake:10,deadline:6,status:'incoming',src:'Selbst gemeldet'}],
   ach:{first:true,streak7:true},newAch:[],flags:{wasWide:true},share:{fin:false,fit:false,focus:true,run5k:true,swim:true,bench:true,pull:true,read:true},
   pulse:0,aar:null,sreport:null,quoteIdx:0,
-  ui:'basic',tally:{...TALLY_ALL},sTally:{...TALLY_S},tallyDemo:true,wlog:{'4-0':{b:1,r:1,ps:3,pd:3,g:1},'4-1':{b:1,r:0,ps:3,pd:2,g:1}},brief:null,nextPrio:null,reviews:[],mxv:mxvDemo(),principles:PRINC_DEMO.map(x=>({...x})),tradition:'Stoizismus',mx:{},sugg:{},detail:{},lastStory:{season:3,week:4,title:'Ein Herzschlag-Finale',lines:['Marcus gewinnt Spielwoche 4 mit 131 Punkten, nur 3 vor dir.','Lena macht 2 Plätze gut.','Du landest auf Platz 2, 3 Punkte hinter Marcus. Stärkster Bereich: Persönliche Disziplin.']}};
+  ui:'basic',tally:{...TALLY_ALL},sTally:{...TALLY_S},tallyDemo:true,wlog:{'4-0':{b:1,r:1,ps:3,pd:3,g:1,pq:.67},'4-1':{b:1,r:0,ps:3,pd:2,g:1,pq:.5}},brief:null,nextPrio:null,reviews:[],mxv:mxvDemo(),principles:PRINC_DEMO.map(x=>({...x})),tradition:'Stoizismus',mx:{},sugg:{},detail:{},lastStory:{season:3,week:4,title:'Ein Herzschlag-Finale',lines:['Marcus gewinnt Spielwoche 4 mit 131 Punkten, nur 3 vor dir.','Lena macht 2 Plätze gut.','Du landest auf Platz 2, 3 Punkte hinter Marcus. Stärkster Bereich: Persönliche Disziplin.']}};
  return st;
 }
 /* ───── Berechnungen ───── */
@@ -642,7 +642,7 @@ function MRow({m,c,big}){
   ${hold&&html`<span aria-hidden="true" className="absolute left-0 bottom-0 h-[3px] rounded-full" style=${{background:col,animation:'holdBar .48s linear forwards'}}/>`}<span className="num absolute text-[12px] font-bold" style=${{left:18,top:6,color:done?'rgba(255,255,255,.9)':col}}>${capped?'Limit':'+'+m.pts}</span>
   <button aria-label="Aktivität öffnen" onClick=${e=>{e.stopPropagation();c.openSheet({t:'act',id:a.id})}} className="bg-transparent border-0 p-0 shrink-0 mt-2" style=${{color:done?'#fff':col}}><${Icon} n=${a.icon} s=${big?30:24}/></button>
   <div className="flex-1 min-w-0 mt-1"><div className=${`${big?'text-[17px]':'text-[15px]'} font-semibold leading-tight`}>${m.title}</div>
-  <div className="text-[13px] mt-0.5" style=${{opacity:.72}}>${m.desc?m.desc+' · ':''}${m.freq==='multi'?`${cnt} von ${m.times} diese Woche`:freqLabel(m)}${wantsLog(S,m)&&!done?' · mit Eingabe':''}${done&&S.autoDone&&S.autoDone[m.id]?' · Auto (Demo)':''}</div></div>
+  <div className="text-[13px] mt-0.5" style=${{opacity:.72}}>${m.desc?m.desc+' · ':''}${m.freq==='multi'?`${cnt} von ${m.times} diese Woche`:freqLabel(m)}${wantsLog(S,m)&&!done?' · mit Eingabe':''}${!done&&c.curIds&&c.curIds.has(m.id)?' · jetzt dran: +20 %':''}${done&&S.punct&&S.punct.k===dayKey(S)&&S.punct.ids.includes(m.id)?' · pünktlich':''}${done&&S.autoDone&&S.autoDone[m.id]?' · Auto (Demo)':''}</div></div>
   ${!done&&html`<button aria-label=${m.title+' bearbeiten'} onClick=${e=>{e.stopPropagation();c.openSheet({t:'medit',mid:m.id})}} onPointerDown=${e=>e.stopPropagation()} className="bg-transparent border-0 p-1.5 -mr-1 shrink-0 rounded-full" style=${{color:'inherit',opacity:.5}}><${Icon} n="dots" s=${18} sw=${2.6}/></button>`}
   <div className="rounded-full flex items-center justify-center shrink-0 transition-all" style=${{width:sz,height:sz,background:done?'#fff':'transparent',border:done?'none':`5px solid color-mix(in srgb, ${col} 38%, transparent)`,color:done?col:col}}>
    ${done?html`<${Icon} n="check" s=${big?28:24} sw=${3}/>`:wantsLog(S,m)?html`<${Icon} n="chevR" s=${big?26:22} sw=${2.4}/>`:html`<${Icon} n="check" s=${big?24:20} sw=${2.6} style=${{opacity:.45}}/>`}</div></div></div>`}
@@ -776,7 +776,8 @@ const goalActs=S=>[...new Set((S.goals||[]).map(g=>GOAL_ACT[g.kind]).filter(Bool
 const briefToday=S=>S.brief&&S.brief.k===dayKey(S)?S.brief:null;
 const reviewToday=S=>(S.reviews||[]).find(x=>x.k===dayKey(S));
 function dayLive(S){const b=briefToday(S),ids=b?b.ids:[],pdn=ids.filter(id=>{const m=S.missions.find(x=>x.id===id);return m&&isDone(S,m)}).length;
- return{b:b?(b.auto?(pdn>0?1:0):1):0,r:reviewToday(S)?1:0,ps:ids.length,pd:ids.filter(id=>{const m=S.missions.find(x=>x.id===id);return m&&isDone(S,m)}).length,g:goalActs(S).some(a=>((S.todayPts||{})[a]||0)>0)?1:0}}
+ const nd=typeof nemTasks==='function'?nemTasks(S).filter(t=>t.done&&t.kind!=='sleep'):[],pn=S.punct&&S.punct.k===dayKey(S)?S.punct.ids.filter(id=>nd.some(t=>t.id===id)).length:0;
+ return{pq:nd.length?pn/nd.length:0,b:b?(b.auto?(pdn>0?1:0):1):0,r:reviewToday(S)?1:0,ps:ids.length,pd:ids.filter(id=>{const m=S.missions.find(x=>x.id===id);return m&&isDone(S,m)}).length,g:goalActs(S).some(a=>((S.todayPts||{})[a]||0)>0)?1:0}}
 /* Wochenscore (max. 100): 70 Umsetzung · 20 Zielfortschritt · 10 Planung & Reflexion.
    Umsetzung misst Punkte relativ zum Plan (gedeckelt durch Bereichs-Limits) und erledigte Prioritäten,
    mehr triviale Aufgaben erhöhen den Score also nicht. */
@@ -784,7 +785,7 @@ function weekScore(S,D){
  const days=[];for(let d=D.week*7;d<S.day;d++)days.push((S.wlog||{})[S.season+'-'+d]||{});days.push(dayLive(S));
  const n=days.length,sum=k=>days.reduce((a,x)=>a+(x[k]||0),0);
  const pace=clamp(D.wk/Math.max(1,D.plan*n/7),0,1),ps=sum('ps'),pr=ps?sum('pd')/ps:pace;
- const exec=Math.round(50*pace+20*pr),goal=Math.round(20*sum('g')/n),plan=Math.round(10*(sum('b')+sum('r'))/(2*n));
+ const exec=Math.round(50*pace+20*pr),goal=Math.round(20*sum('g')/n),plan=Math.round(10*(sum('b')+sum('r')+sum('pq'))/(3*n));
  return{total:exec+goal+plan,exec,goal,plan,n}}
 function briefCands(S,D){
  const np=S.nextPrio&&S.nextPrio.k===dayKey(S)?D.allM.find(m=>m.id===S.nextPrio.mid):null;
@@ -794,7 +795,7 @@ function impactOf(S,m){
  const C=CMP.find(x=>x[4](m));
  if(C){const v=tal(S,C[4],1)+1;return{train:`Training Nr. ${v}`,focus:`Fokusblock Nr. ${v}`,rel:`${v}. gehaltene soziale Zusage`,learn:`Lerneinheit Nr. ${v}`}[C[0]]}
  return`Mission Nr. ${Object.values(S.tally||{}).reduce((a,b)=>a+b,0)+1} insgesamt`}
-function ScoreBars({sc}){return html`<div className="flex flex-col gap-2.5">${[['Umsetzung',sc.exec,70,'Punkte im Verhältnis zum Plan und erledigte Prioritäten'],['Zielfortschritt',sc.goal,20,'Tage mit einer Aktion für deine Ziele'],['Planung & Reflexion',sc.plan,10,'Tagesplan am Morgen, Rückblick am Abend']].map(([l,v,m,d])=>html`<div key=${l}><div className="flex justify-between text-[12.5px]"><span className="font-medium">${l}</span><span className="num"><b>${v}</b><span className="mute">/${m}</span></span></div><div className="mt-1"><${Bar} pct=${v/m} h=${5}/></div><div className="text-[10.5px] mute mt-0.5">${d}</div></div>`)}</div>`}
+function ScoreBars({sc}){return html`<div className="flex flex-col gap-2.5">${[['Umsetzung',sc.exec,70,'Punkte im Verhältnis zum Plan und erledigte Prioritäten'],['Zielfortschritt',sc.goal,20,'Tage mit einer Aktion für deine Ziele'],['Planung & Reflexion',sc.plan,10,'Tagesplan, Pünktlichkeit und Abendrückblick']].map(([l,v,m,d])=>html`<div key=${l}><div className="flex justify-between text-[12.5px]"><span className="font-medium">${l}</span><span className="num"><b>${v}</b><span className="mute">/${m}</span></span></div><div className="mt-1"><${Bar} pct=${v/m} h=${5}/></div><div className="text-[10.5px] mute mt-0.5">${d}</div></div>`)}</div>`}
 function ModeToggle({c}){const v=c.S.ui==='adv'?'adv':'basic';
  return html`<div role="group" aria-label="Ansicht" className="inline-flex p-0.5 rounded-full shrink-0" style=${{background:'var(--ghost)',boxShadow:'0 0 0 1px var(--line) inset'}}>${[['basic','Basis'],['adv','Erweitert']].map(([k,l])=>html`<button key=${k} aria-pressed=${v===k} onClick=${()=>c.setUi(k)} className="border-0 rounded-full px-3 py-1.5 text-[12px] font-semibold" style=${{background:v===k?'var(--acc)':'transparent',color:v===k?'#fff':'var(--mute)',transition:'background .2s'}}>${l}</button>`)}</div>`}
 /* ───── Alternative Fortschritts-Bilder: Schneeball & Sternbild ───── */
@@ -1111,8 +1112,8 @@ Object.assign(SCN,{
 SCN.write={...SCN.learn,label:'Reflektiert und schreibt'};
 const SKY=now=>now<360||now>=1290?['#0B1026','#2E1F66',0]:now<660?['#FDBA74','#C084FC',1]:now<840?['#7DD3FC','#C4B5FD',1]:now<1080?['#FCD34D','#FB923C',1]:['#A855F7','#1E1B4B',0];
 const NEM_SAY=['Gut.','Weiter so.','Sauber.','Nicht nachlassen.','Jetzt die nächste.','So sieht das aus.'];
-function NemesisScene({activity,now,pulse}){const I=useId().replace(/:/g,'');const [say,setSay]=useState(null);const first=useRef(true);
- useEffect(()=>{if(first.current){first.current=false;return}setSay({t:NEM_SAY[rnd(0,NEM_SAY.length-1)],k:Date.now()});const t=setTimeout(()=>setSay(null),2600);return()=>clearTimeout(t)},[pulse]);
+function NemesisScene({activity,now,pulse,last}){const I=useId().replace(/:/g,'');const [say,setSay]=useState(null);const first=useRef(true);
+ useEffect(()=>{if(first.current){first.current=false;return}setSay({t:last&&last.on?'Pünktlich. So wie ich.':NEM_SAY[rnd(0,NEM_SAY.length-1)],k:Date.now()});const t=setTimeout(()=>setSay(null),2600);return()=>clearTimeout(t)},[pulse]);
  const sc=SCN[activity]||SCN.idle,[s1,s2,isSun]=SKY(now);const night=!isSun;
  return html`<svg viewBox="0 0 360 210" className="w-full block" style=${{borderRadius:20}} role="img" aria-label=${`Dein Nemesis: ${sc.label}`}>
  <defs><linearGradient id=${'ns'+I} x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor=${s1}/><stop offset="1" stopColor=${s2}/></linearGradient><radialGradient id=${'ng'+I}><stop offset="0" style=${{stopColor:'var(--acc)'}} stopOpacity=".35"/><stop offset="1" style=${{stopColor:'var(--acc)'}} stopOpacity="0"/></radialGradient></defs>
@@ -1148,8 +1149,8 @@ function NemTimeline({plan,now,c}){const ref=useRef(null);const night=now<plan[0
    <span className="w-8 h-8 rounded-xl flex items-center justify-center" style=${{background:nd?'var(--acc)':isCur?'transparent':'var(--card2)',color:nd?'#fff':'var(--acc2)',animation:isCur?'ringPulse 2s infinite':'none'}}><${Icon} n=${nd?'check':p.icon} s=${15} sw=${nd?3:1.9}/></span>
    <span className="text-[10px] leading-tight text-center font-semibold" style=${{display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>${p.name}</span>
    <span className="num text-[10px] mute">${fmtHM(p.start)}</span>
-   ${ud&&html`<span className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center" style=${{background:'var(--good)',color:'#fff'}}><${Icon} n="check" s=${10} sw=${3.4}/></span>`}</button>`})}</div>
- <div className="flex gap-3 text-[10.5px] mute mt-1.5 px-1"><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded" style=${{background:'var(--acc)'}}/>Nemesis erledigt</span><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full" style=${{background:'var(--good)'}}/>Du erledigt</span><span>Antippen = abhaken</span></div></div>`}
+   ${ud&&(()=>{const pt=c.S.punct&&c.S.punct.k===dayKey(c.S)&&c.S.punct.ids.includes(p.id);return html`<span className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center" style=${{background:pt?'#F59E0B':'var(--good)',color:'#fff'}}><${Icon} n=${pt?'zap':'check'} s=${10} sw=${3}/></span>`})()}</button>`})}</div>
+ <div className="flex gap-3 text-[10.5px] mute mt-1.5 px-1"><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded" style=${{background:'var(--acc)'}}/>Nemesis erledigt</span><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full" style=${{background:'var(--good)'}}/>Du erledigt</span><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full" style=${{background:'#F59E0B'}}/>pünktlich +20 %</span></div></div>`}
 function NemesisCard({c}){const {S}=c;const now=nowMinOf(c);
  const tasks=nemTasks(S),plan=buildNemesisPlan(tasks),cur=getCurrentActivity(plan,now),night=now<plan[0].start||cur.kind==='sleep';
  const cnt=plan.filter(p=>!p.virtual&&p.kind!=='sleep'),Y=cnt.length,Z=cnt.filter(p=>nemDoneAt(p,plan,now)).length,X=cnt.filter(p=>p.done).length;
@@ -1157,7 +1158,7 @@ function NemesisCard({c}){const {S}=c;const now=nowMinOf(c);
  return html`<div className="card p-3" style=${{borderRadius:26}}>
  <div className="flex items-start justify-between px-1.5 pt-1 gap-2"><div className="min-w-0"><div className="lbl" style=${{color:'#FF6B86'}}>Dein Nemesis · ${fmtHM(now)}${c.simMin!=null?' (simuliert)':''}</div><div className="disp text-[26px] mt-1 leading-none truncate">${cur.name}</div><div className="text-[11.5px] mute mt-1">${(SCN[cur.kind]||SCN.idle).label} · ${fmtHM(cur.start)}–${fmtHM(cur.end)}</div></div>
   <button onClick=${()=>c.openSheet({t:'nemplan'})} className="chip shrink-0 flex items-center gap-1"><${Icon} n="edit" s=${12}/>Plan</button></div>
- <div className="mt-2.5"><${NemesisScene} activity=${cur.kind} now=${now} pulse=${S.pulse}/></div>
+ <div className="mt-2.5"><${NemesisScene} activity=${cur.kind} now=${now} pulse=${S.pulse} last=${S.lastDone}/></div>
  <div className="mt-3 rounded-2xl px-3.5 py-3 flex items-start gap-2.5" style=${{background:behind?'rgba(255,45,85,.09)':'rgba(139,92,246,.1)',boxShadow:`0 0 0 1px ${behind?'rgba(255,59,92,.25)':'rgba(167,139,250,.25)'} inset`}}><span style=${{color:behind?'#FF6B86':'var(--acc2)'}} className="mt-0.5"><${Icon} n="swords" s=${16}/></span><div className="text-[14.5px] font-semibold leading-snug">${line}</div></div>
  <div className="grid grid-cols-2 gap-2 mt-3">${[['Du',X,'var(--good)','linear-gradient(90deg,#059669,#34D399)'],['Nemesis',Z,'#FF6B86','linear-gradient(90deg,#B3153C,#FF6B86)']].map(([l,v,col,bg])=>html`<div key=${l} className="card2 p-3"><div className="flex items-baseline justify-between"><span className="lbl" style=${{color:col}}>${l}</span><span className="num"><b key=${l+v} className="text-[20px] ink" style=${{animation:'pop .4s ease-out',display:'inline-block'}}>${v}</b><span className="mute text-[12px]">/${Y}</span></span></div><div className="h-1.5 rounded-full mt-2 overflow-hidden" style=${{background:'var(--ghost)'}}><div className="h-full rounded-full" style=${{width:(Y?v/Y:0)*100+'%',background:bg,transition:'width .6s'}}/></div></div>`)}</div>
  <${NemTimeline} plan=${plan} now=${now} c=${c}/>
@@ -2443,19 +2444,26 @@ function App({init,auth,skey='war_within_v5'}){
  useEffect(()=>{if(S.setup&&!S.sreport&&!S.aar)setSheet({t:'newseason'})},[S.setup,S.sreport,S.aar]);
  /* Missionen */
  const cref=useRef(),lref=useRef(),sref=useRef();
+ /* Pünktlichkeit: im geplanten Fenster (früher zählt auch) +20 %, 30 Min. Kulanz, keine Strafe bei Verspätung */
+ const nowM=simMin!=null?simMin:(()=>{const d=new Date(now);return d.getHours()*60+d.getMinutes()})();
+ const nemPlanNow=useMemo(()=>buildNemesisPlan(nemTasks(S)),[S]);
+ const PUNCT=20,GRACE=30;
+ const punctOf=mid=>{const p=nemPlanNow.find(x=>x.id===mid&&!x.virtual&&x.kind!=='sleep');return !!p&&nowM>=nemPlanNow[0].start-180&&nowM<=p.end+GRACE};
+ const curIds=new Set(nemPlanNow.filter(p=>!p.virtual&&p.kind!=='sleep'&&nowM>=p.start&&nowM<=p.end+GRACE).map(p=>p.id));
  const complete=(mid,pos,extra={})=>{
   if(lock.current[mid])return;lock.current[mid]=1;setTimeout(()=>{delete lock.current[mid]},700);
   const m=S.missions.find(x=>x.id===mid);if(!m||isDone(S,m)){toast(m&&m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
   const a=S.acts[m.act];const room=Math.max(0,a.cap-(S.weekPts[m.act]||0));
   const sb=m.freq==='daily'?streakBonus(S.streak):0;
-  const award=Math.min(Math.max(1,Math.round(m.pts*(1+((extra.bonus||0)+sb)/100)*(ptsMult(S,m)))),room);
+  const pu=punctOf(mid),calcA=b=>Math.min(Math.max(1,Math.round(m.pts*(1+(b+sb)/100)*(ptsMult(S,m)))),room);
+  const award=calcA((extra.bonus||0)+(pu?PUNCT:0)),plus=pu?award-calcA(extra.bonus||0):0;
   upd(n=>{if(isDone(n,m))return;n.done[mid]=true;if(m.freq==='multi'){n.counts=n.counts||{};n.counts[mid]=(n.counts[mid]||0)+1}n.weekPts[m.act]=(n.weekPts[m.act]||0)+award;n.todayPts[m.act]=(n.todayPts[m.act]||0)+award;n.seasonPts+=award;if(m.act===n.sTheme)n.sThemePts=(n.sThemePts||0)+award;n.sAreaPts=n.sAreaPts||{};n.sAreaPts[m.act]=(n.sAreaPts[m.act]||0)+award;
    n.acts[m.act].rating=Math.min(99,n.acts[m.act].rating+m.pts*.04);const ct=m.cat||n.acts[m.act].cat;n.catScore[ct]=Math.min(100,(n.catScore[ct]??40)+m.pts*.12);
    n.autoDone=n.autoDone||{};n.autoDone[mid]=!!extra.auto;
    if(extra.q!=null){n.qLog=n.qLog||[];n.qLog.unshift({act:m.act,q:extra.q,t:Date.now()});n.qLog=n.qLog.slice(0,40)}
    if(extra.q!=null&&extra.q>=85&&Math.random()<.5)n.nemMsg={t:['Übertroffen? Gut. Ich habe es auch getan.','Starker Zug. Aber ein Tag ist kein Standard.','Das war sauber. Mach es morgen wieder.'][rnd(0,2)],ts:Date.now()};
    if(n.comeback){n.cbDone=(n.cbDone||0)+1;if(n.cbDone>=3){n.comeback=false;n.cbDone=0;n.idle=0;n.nemMsg={t:'Du bist zurück. Nicht schlecht. Morgen wieder volle Last.',ts:Date.now()}}}
-   n.pulse++;n.seasonMissions=(n.seasonMissions??12)+1;n.tally=n.tally||{};n.tally[mid]=(n.tally[mid]||0)+1;n.sTally=n.sTally||{};n.sTally[mid]=(n.sTally[mid]||0)+1;
+   n.pulse++;n.lastDone={id:mid,on:!!pu,ts:Date.now()};if(pu){const k=dayKey(n);if(!(n.punct&&n.punct.k===k))n.punct={k,ids:[]};if(!n.punct.ids.includes(mid))n.punct.ids.push(mid)}n.seasonMissions=(n.seasonMissions??12)+1;n.tally=n.tally||{};n.tally[mid]=(n.tally[mid]||0)+1;n.sTally=n.sTally||{};n.sTally[mid]=(n.sTally[mid]||0)+1;
    {const lv=pathLevel(n);if(lv>(n.sLevel||0)){const got=applyPath(n,n.sLevel||0,lv);n.pathUp={lv,got,ts:Date.now()}}}
    if(!isPerfect(n)&&dailyAllDone(n)){n.perfect={k:dayKey(n),ts:Date.now()};n.perfectDays=(n.perfectDays||0)+1;n.perfectShow=true}
    n.events.unshift({id:uid(),text:m.title+(extra.msg?' · '+extra.msg:''),pts:award,t:Date.now()});n.events=n.events.slice(0,12);
@@ -2463,7 +2471,7 @@ function App({init,auth,skey='war_within_v5'}){
    if(extra.apply)extra.apply(n);checkAch(n)});
   fx(pos,award>0?`+${award}`:'Limit');if(award>0)burst(pos,ACOL[m.act]||'#A78BFA');try{navigator.vibrate&&navigator.vibrate(award>0?[12,40,18]:8)}catch(e){}
   {const b=briefToday(S);if(b&&b.ids.includes(mid)&&b.ids.filter(id=>{const x=S.missions.find(y=>y.id===id);return x&&!isDone(S,x)}).length===1)setTimeout(()=>toast('Alle Prioritäten erledigt. Tag gewonnen.','good'),900)}
-  toast(award>0&&room>0?`+${award} Pkt. · ${impactOf(S,m)}${extra.msg?' · '+extra.msg:''}`:`${a.short} hat das Wochenlimit erreicht. Rating wächst weiter, Punkte nicht.`,award>0&&room>0?'good':undefined);
+  toast(award>0&&room>0?`+${award} Pkt.${plus>0?' · pünktlich +'+plus:''} · ${impactOf(S,m)}${extra.msg?' · '+extra.msg:''}`:`${a.short} hat das Wochenlimit erreicht. Rating wächst weiter, Punkte nicht.`,award>0&&room>0?'good':undefined);
   if(!extra.keep)setSheet(null)};
  const start=(mid,ev,opt={})=>{const m=S.missions.find(x=>x.id===mid);if(isDone(S,m)){toast(m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
   if(!isActive(S,m.act)){toast(`${S.acts[m.act].name} sitzt auf der Bank. Wechsle sie im Squad ein.`,'warn');return}
@@ -2602,7 +2610,7 @@ function App({init,auth,skey='war_within_v5'}){
  /* Erfolge */
  const newA=S.newAch[0];
  useEffect(()=>{if(!newA)return;const t=setTimeout(()=>upd(n=>{n.newAch=n.newAch.slice(1)}),2600);return()=>clearTimeout(t)},[newA]);
- const c={auth,upd,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,addGoal,doSwap,toggleRest,toggleTheme,setViz,setNem,simMin,setSimMin,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
+ const c={auth,upd,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,addGoal,doSwap,toggleRest,toggleTheme,setViz,setNem,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
  const nav=S.ui==='adv'?[['home','Start','home'],['tasks','Aufgaben','check'],['solo','Duell','swords'],['league','Liga','trophy'],['stats','Fortschritt','trend']]:[['home','Start','home'],['tasks','Aufgaben','check'],['stats','Fortschritt','trend'],['league','Liga','trophy']];
  const ach=newA&&ACHS.find(a=>a.id===newA);
  return html`<div data-theme=${S.theme} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(139,92,246,.12)'}}>
