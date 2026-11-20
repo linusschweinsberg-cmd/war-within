@@ -8,6 +8,6 @@
 
 Die SDK-Sitzung wird von Supabase verwaltet. Alte Demo-Sitzungen gelten nicht als echte Anmeldung. Spielstände liegen weiterhin lokal, getrennt nach Supabase-Nutzer-ID; sie werden nicht zwischen Geräten synchronisiert. Es werden keine Tabellen oder RLS-Regeln für den Spielstand angelegt. Lokales Löschen entfernt kein Supabase-Konto.
 
-Aktiviertes Projekt: `war-within / ozfmjmxzbymlicngecda`, separate Organisation `War within`, kostenlos, West EU (Ireland). Öffentlicher Publishable-Key ist eingetragen. Site URL: `http://localhost:5173/`. E-Mail-Provider, Neuregistrierung und E-Mail-Bestätigung sind aktiviert. Die öffentliche Hosting-Adresse muss vor Veröffentlichung ergänzt werden. Der vollständige Durchlauf mit Bestätigungsmail und einem App-Nutzerkonto steht noch aus.
+Aktiviertes Projekt: `war-within / ozfmjmxzbymlicngecda`, separate Organisation `War within`, kostenlos, West EU (Ireland). Öffentlicher Publishable-Key ist eingetragen. Site URL: `https://linusschweinsberg-cmd.github.io/war-within/`. Lokale Redirect URL: `http://localhost:5173/`. E-Mail-Provider, Neuregistrierung und E-Mail-Bestätigung sind aktiviert. Veröffentlichung über die bestehende GitHub-Pages-Konfiguration (main, Repository-Wurzel). Der vollständige Durchlauf mit Bestätigungsmail und einem App-Nutzerkonto steht noch aus.
 
 Referenzen: https://supabase.com/docs/guides/auth/passwords und https://supabase.com/docs/reference/javascript/auth-onauthstatechange

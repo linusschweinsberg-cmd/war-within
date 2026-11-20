@@ -1,0 +1,15 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
+const dir=process.argv[2]||require('path').join(__dirname,'..');
+const source=fs.readFileSync(dir+'/index.html','utf8');
+const script=[...source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).find(s=>s.includes('function loadState'));
+new vm.Script(script);new vm.Script(fs.readFileSync(dir+'/auth.js','utf8'));new vm.Script(fs.readFileSync(dir+'/sw.js','utf8'));
+const c=vm.createContext({window:{authApi:{}},React:{},htm:{bind:()=>()=>null},ReactDOM:{createRoot:()=>({render(){}})},document:{getElementById:()=>({})},localStorage:{getItem:()=>null},console});
+vm.runInContext(script+'\nglobalThis.api={initState,loadState,buildNemesisPlan,getCurrentActivity,learnSuggest,nemDefault,nemTasks,dayKey,completedWeeks,recordWeek};',c);
+const a=c.api,s=a.initState();s.profile={mode:'supabase'};delete s.ctime;delete s.duel;c.localStorage.getItem=()=>JSON.stringify(s);let loaded=a.loadState();assert.equal(Object.keys(loaded.ctime).length,0);assert.equal(loaded.duel.streak,0);
+s.ctime={m_train:Array.from({length:10},()=>({t:1140}))};c.localStorage.getItem=()=>JSON.stringify(s);loaded=a.loadState();assert.equal(loaded.ctime.m_train.length,0);
+const p=a.buildNemesisPlan([]);assert.ok(p.length);assert.equal(a.getCurrentActivity(p,0).kind,'sleep');
+s.nem={m_train:{s:360,d:60}};s.ctime={m_train:Array.from({length:8},()=>({t:1140,day:'1-0'}))};assert.equal(a.learnSuggest(s),null);
+s.ctime={m_train:Array.from({length:5},(_,i)=>({t:1140,day:'1-'+i}))};assert.equal(a.learnSuggest(s).n,5);
+s.day=6;a.recordWeek(s,1);assert.equal(a.completedWeeks(s).length,1);
+assert.ok(source.includes('const authApi=window.authApi;'));assert.ok(!/<<<<<<<|>>>>>>>/.test(source));
+console.log('PASS: full script syntax, existing account migration, no fabricated completion history, distinct-day learning, empty schedule, weekly snapshot, Supabase integration.');

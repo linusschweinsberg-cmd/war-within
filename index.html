@@ -396,7 +396,7 @@ function loadState(key='war_within_v5'){try{const r=localStorage.getItem(key);if
    if(s.bench)s.bench=s.bench.filter(x=>x!=='read');
    if(Array.isArray(s.missions)){['m_cal','m_read'].forEach(id=>{if(!s.missions.some(m=>m.id===id)){const m0=M0.find(m=>m.id===id);if(m0)s.missions.push(JSON.parse(JSON.stringify(m0)))}});const mm=s.missions.find(m=>m.id==='m_morn');if(mm&&mm.title==='Ohne Snooze aufstehen')mm.title='Früh aufstehen'}
    if(!Array.isArray(s.weekHist))s.weekHist=[];
-   if(!s.ui)s.ui='basic';if(!s.tally){s.tally={...TALLY_ALL};s.sTally={...TALLY_S};s.tallyDemo=true}if(!s.sTally)s.sTally={};if(!s.wlog)s.wlog={};if(!Array.isArray(s.reviews))s.reviews=[];if(!s.mxv)s.mxv=mxvDemo();if(!s.principles){s.principles=PRINC_DEMO.map(x=>({...x}));s.tradition='Stoizismus'}if(!s.mx)s.mx={};if(!s.sugg)s.sugg={};if(!s.detail)s.detail={};if(!s.ctime)s.ctime={...CTIME_DEMO};if(!s.duel)s.duel={streak:3};
+   if(!s.ui)s.ui='basic';if(!s.tally){s.tally={...TALLY_ALL};s.sTally={...TALLY_S};s.tallyDemo=true}if(!s.sTally)s.sTally={};if(!s.wlog)s.wlog={};if(!Array.isArray(s.reviews))s.reviews=[];if(!s.mxv)s.mxv=mxvDemo();if(!s.principles){s.principles=PRINC_DEMO.map(x=>({...x}));s.tradition='Stoizismus'}if(!s.mx)s.mx={};if(!s.sugg)s.sugg={};if(!s.detail)s.detail={};if(!s.ctime)s.ctime=s.profile?{}:{...CTIME_DEMO};if(s.profile&&!s.ctimeVersion){Object.keys(s.ctime).forEach(id=>s.ctime[id]=s.ctime[id].filter(x=>typeof x.day==='string'));s.ctimeVersion=1}if(!s.duel)s.duel={streak:s.profile?0:3};
    return s}}}catch(e){}return initState()}
 
 /* ───── PUNKTE-KATALOG ───── */
@@ -1319,7 +1319,7 @@ function DayPlanner({c}){const {S}=c;const now=nowMinOf(c);const H0=5,H1=24,PX=4
 /* ───── Lernender Plan: Vorschlag aus echten Erledigungszeiten ───── */
 const CTIME_DEMO={m_train:[1130,1145,1140,1135,1150,1125,1140,1160,1138,1142].map(t=>({t}))};
 function learnSuggest(S){const sel=S.nem||nemDefault(S),dis=S.sugDis||{};
- for(const p of buildNemesisPlan(nemTasks(S))){if(p.virtual||p.kind==='sleep')continue;const h=((S.ctime||{})[p.id]||[]).slice(-14);if(h.length<5)continue;
+ for(const p of buildNemesisPlan(nemTasks(S))){if(p.virtual||p.kind==='sleep')continue;const entries=((S.ctime||{})[p.id]||[]);const h=(S.profile?Array.from(new Map(entries.filter(x=>typeof x.day==='string').map(x=>[x.day,x])).values()):entries).slice(-14);if(h.length<5)continue;
   const ts=h.map(x=>x.t).sort((a,b)=>a-b),med=ts[Math.floor(ts.length/2)],near=ts.filter(t=>Math.abs(t-med)<=45).length;
   const m=S.missions.find(x=>x.id===p.id),dur=sel[p.id]&&typeof sel[p.id]==='object'?sel[p.id].d:(m?durDef(m):30),to=clamp(Math.round((med-dur)/15)*15,300,1395);
   if(near/ts.length>=.6&&Math.abs(to-p.start)>=60&&dis[p.id]!==to)return{id:p.id,name:p.name,from:p.start,to,dur,ts,near,n:ts.length}}
@@ -2580,7 +2580,7 @@ function App({init,auth,skey='war_within_v5'}){
    if(extra.q!=null){n.qLog=n.qLog||[];n.qLog.unshift({act:m.act,q:extra.q,t:Date.now()});n.qLog=n.qLog.slice(0,40)}
    if(extra.q!=null&&extra.q>=85&&Math.random()<.5)n.nemMsg={t:['Übertroffen? Gut. Ich habe es auch getan.','Starker Zug. Aber ein Tag ist kein Standard.','Das war sauber. Mach es morgen wieder.'][rnd(0,2)],ts:Date.now()};
    if(n.comeback){n.cbDone=(n.cbDone||0)+1;if(n.cbDone>=3){n.comeback=false;n.cbDone=0;n.idle=0;n.nemMsg={t:'Du bist zurück. Nicht schlecht. Morgen wieder volle Last.',ts:Date.now()}}}
-   n.pulse++;n.lastDone={id:mid,on:!!pu,ts:Date.now()};n.ctime=n.ctime||{};n.ctime[mid]=[...(n.ctime[mid]||[]),{t:nowM}].slice(-14);if(pu){const k=dayKey(n);if(!(n.punct&&n.punct.k===k))n.punct={k,ids:[]};if(!n.punct.ids.includes(mid))n.punct.ids.push(mid)}n.seasonMissions=(n.seasonMissions??12)+1;n.tally=n.tally||{};n.tally[mid]=(n.tally[mid]||0)+1;n.sTally=n.sTally||{};n.sTally[mid]=(n.sTally[mid]||0)+1;
+   n.pulse++;n.lastDone={id:mid,on:!!pu,ts:Date.now()};n.ctime=n.ctime||{};n.ctime[mid]=[...(n.ctime[mid]||[]).filter(x=>x.day!==dayKey(n)),{t:nowM,day:dayKey(n)}].slice(-14);if(pu){const k=dayKey(n);if(!(n.punct&&n.punct.k===k))n.punct={k,ids:[]};if(!n.punct.ids.includes(mid))n.punct.ids.push(mid)}n.seasonMissions=(n.seasonMissions??12)+1;n.tally=n.tally||{};n.tally[mid]=(n.tally[mid]||0)+1;n.sTally=n.sTally||{};n.sTally[mid]=(n.sTally[mid]||0)+1;
    {const lv=pathLevel(n);if(lv>(n.sLevel||0)){const got=applyPath(n,n.sLevel||0,lv);n.pathUp={lv,got,ts:Date.now()}}}
    if(!isPerfect(n)&&dailyAllDone(n)){n.perfect={k:dayKey(n),ts:Date.now()};n.perfectDays=(n.perfectDays||0)+1;n.perfectShow=true}
    n.events.unshift({id:uid(),text:m.title+(extra.msg?' · '+extra.msg:''),pts:award,t:Date.now()});n.events=n.events.slice(0,12);
