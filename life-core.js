@@ -11,9 +11,9 @@ const LIFE_V=1;
 /* ───── Lebensbereiche ───── */
 const AREAS=[
  {id:'health',name:'Health',de:'Gesundheit',icon:'dumbbell',color:'#9AAE6B',subs:['Training','Ernährung','Schlaf','Mentale Gesundheit'],q:'Wie zufrieden bist du mit Körper, Energie und Erholung?'},
- {id:'relationships',name:'Relationships',de:'Beziehungen',icon:'heart',color:'#D0806A',subs:['Familie','Freundschaften','Partnerschaft','Verbundenheit'],q:'Wie verbunden fühlst du dich mit Menschen, die dir wichtig sind?'},
- {id:'wealth',name:'Wealth',de:'Finanzen',icon:'wallet',color:'#D4A94F',subs:['Einkommen','Vermögen','Sicherheit','Spielraum'],q:'Wie sicher und handlungsfähig fühlst du dich finanziell?'},
- {id:'growth',name:'Growth',de:'Wachstum',icon:'book',color:'#8FB3B0',subs:['Wissen','Fähigkeiten','Kompetenz','Persönlichkeit'],q:'Wie zufrieden bist du damit, wie du lernst und dich entwickelst?'}];
+ {id:'relationships',name:'Relationships',de:'Beziehungen',icon:'users',color:'#D0806A',subs:['Familie','Freundschaften','Partnerschaft','Verbundenheit'],q:'Wie verbunden fühlst du dich mit Menschen, die dir wichtig sind?'},
+ {id:'wealth',name:'Wealth',de:'Finanzen',icon:'coins',color:'#D4A94F',subs:['Einkommen','Vermögen','Sicherheit','Spielraum'],q:'Wie sicher und handlungsfähig fühlst du dich finanziell?'},
+ {id:'growth',name:'Growth',de:'Wachstum',icon:'sprout',color:'#8FB3B0',subs:['Wissen','Fähigkeiten','Kompetenz','Persönlichkeit'],q:'Wie zufrieden bist du damit, wie du lernst und dich entwickelst?'}];
 const AREA=Object.fromEntries(AREAS.map(a=>[a.id,a]));
 /* Wechselwirkungen – bewusst als Modell formuliert, nicht als Messung */
 const LINKS=[['health','growth','Energie und Konzentration'],['health','relationships','Belastbarkeit und Präsenz'],['relationships','growth','Rückhalt und Feedback'],['growth','wealth','Kompetenz wird Einkommen'],['wealth','health','Sicherheit senkt Stress'],['wealth','relationships','Zeit und Spielraum']];
