@@ -119,6 +119,11 @@ html,body{background:radial-gradient(1200px 600px at 50% -10%,#1A1230 0%,#050508
 @keyframes sway{0%,100%{transform:rotate(-1.1deg)}50%{transform:rotate(1.1deg)}}.tsw{transform-origin:200px 300px;animation:sway 7s ease-in-out infinite}
 @keyframes obInR{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:none}}@keyframes obInL{from{opacity:0;transform:translateX(-32px)}to{opacity:1;transform:none}}
 input[type=range]{accent-color:#8B5CF6}
+@keyframes coindrop{0%{opacity:0;transform:translateY(-6px)}15%{opacity:1}75%{opacity:1;transform:translateY(38px)}100%{opacity:0;transform:translateY(40px)}}
+@keyframes pullup{from{transform:translateY(0)}to{transform:translateY(-15px)}}
+@keyframes bend{from{transform:rotate(-9deg)}to{transform:rotate(9deg)}}
+@keyframes drip{0%{opacity:0;transform:translateY(0)}20%{opacity:.9}100%{opacity:0;transform:translateY(16px)}}
+@keyframes tease{0%,58%{opacity:0;transform:scale(.7)}64%,90%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.9)}}
 @keyframes jnt{from{transform:rotate(var(--a0))}to{transform:rotate(var(--a1))}}
 @keyframes zfloat{0%{opacity:0;transform:translate(0,0) scale(.6)}25%{opacity:1}100%{opacity:0;transform:translate(16px,-34px) scale(1.15)}}
 @keyframes pageflip{0%,70%,100%{transform:scaleX(1)}80%{transform:scaleX(-1)}}
@@ -1027,12 +1032,14 @@ function Compound({c}){const {S,D}=c;const C=compoundOf(S,D),dm=D.allM.filter(m=
    getCurrentActivity(plan,now) → aktuelle Szene. Der Nemesis hält sich immer an die gewählte Tageszeit. */
 const TOD=[['morgen','Morgen',360,660],['mittag','Mittag',660,840],['nachmittag','Nachmittag',840,1080],['abend','Abend',1080,1350]];
 const TOD_L={morgen:'Morgen',mittag:'Mittag',nachmittag:'Nachm.',abend:'Abend'};
-const NK_W={wake:.25};const NK_ORDER={wake:0,training:1,run:1,walk:2,cook:3,work:4,learn:4,write:4,call:5,read:6,meditate:7,idle:8,sleep:9};
-const NK_TOD={wake:'morgen',training:'morgen',run:'morgen',walk:'mittag',cook:'mittag',work:'nachmittag',learn:'nachmittag',write:'abend',call:'abend',read:'abend',meditate:'abend',idle:'nachmittag',sleep:'abend'};
-const NK_ID={m_morn:'wake',m_train:'training',m_run:'run',m_walk:'walk',m_cal:'cook',m_eat:'cook',m_focus:'work',m_biz:'work',m_code:'work',m_hard:'work',m_spend:'work',m_save:'work',m_lang:'learn',m_read:'read',m_sleep:'sleep',m_wind:'meditate',m_rel:'call',m_call:'call',m_ref:'write'};
-const NK_LOG={lift:'training',squat:'training',run:'run',swim:'training',pull:'training',study:'learn',read:'read',focus:'work',save:'work'};
+const NK_W={wake:.25};const NK_ORDER={wake:0,training:1,pullup:1,stretch:1,run:1,walk:2,eat:3,save:5,budget:5,cook:3,work:4,learn:4,write:4,call:5,read:6,meditate:7,idle:8,sleep:9};
+const NK_TOD={wake:'morgen',training:'morgen',pullup:'morgen',stretch:'morgen',eat:'mittag',save:'abend',budget:'abend',run:'morgen',walk:'mittag',cook:'mittag',work:'nachmittag',learn:'nachmittag',write:'abend',call:'abend',read:'abend',meditate:'abend',idle:'nachmittag',sleep:'abend'};
+const NK_ID={m_morn:'wake',m_train:'training',m_run:'run',m_walk:'walk',m_cal:'cook',m_eat:'eat',m_focus:'work',m_biz:'work',m_code:'work',m_hard:'work',m_spend:'budget',m_save:'save',m_mfin:'budget',m_lang:'learn',m_read:'read',m_sleep:'sleep',m_wind:'meditate',m_rel:'call',m_call:'call',m_ref:'write'};
+const NK_LOG={lift:'training',squat:'training',run:'run',swim:'training',pull:'pullup',study:'learn',read:'read',focus:'work',save:'save'};
 const NK_ACT={body:'training',run:'run',rec:'meditate',rel:'call',fin:'work',disc:'work',deep:'work',lang:'learn',read:'read',biz:'work',code:'work'};
-const kindOf=m=>NK_ID[m.id]||NK_LOG[m.log]||NK_ACT[m.act]||'work';
+const NK_KW=[[/dehn|yoga|mobility|stretch/i,'stretch'],[/klimmz|pull-?up/i,'pullup'],[/aufsteh|wecker/i,'wake'],[/spar(?!z)|sparen|rücklage/i,'save'],[/ausgabe|budget|konto|finanz/i,'budget'],[/schlaf/i,'sleep'],[/medit|atem|achtsam/i,'meditate'],[/lauf|jogg|run/i,'run'],[/spazier|schritte|gehen/i,'walk'],[/training|workout|gym|kraft|hantel/i,'training'],[/koch/i,'cook'],[/\bessen\b|mahlzeit|frühstück|snack|kalorie|ernähr/i,'eat'],[/tagebuch|journal|reflex/i,'write'],[/lies|lesen|buch/i,'read'],[/lern|vokabel|kurs|sprach/i,'learn'],[/anruf|telefon|melden/i,'call']];
+const kwKind=t=>{const f=NK_KW.find(([re])=>re.test(t||''));return f?f[1]:null};
+const kindOf=m=>NK_ID[m.id]||NK_LOG[m.log]||kwKind(m.title)||NK_ACT[m.act]||'work';
 const nemPool=S=>S.missions.filter(m=>m.freq==='daily'||m.freq==='multi');
 const NEM_PREF=['m_morn','m_train','m_cal','m_focus','m_lang','m_read','m_wind'];
 function nemDefault(S){const seen=new Set(),out={};const pool=[...nemPool(S)].sort((a,b)=>{const ia=NEM_PREF.indexOf(a.id),ib=NEM_PREF.indexOf(b.id);return (ia<0?99:ia)-(ib<0?99:ib)||NK_ORDER[kindOf(a)]-NK_ORDER[kindOf(b)]});const sl=pool.find(m=>kindOf(m)==='sleep');pool.forEach(m=>{const k=kindOf(m);if(k==='sleep'||seen.has(k)||Object.keys(out).length>=7)return;seen.add(k);out[m.id]=NK_TOD[k]});if(sl)out[sl.id]='abend';return out}
@@ -1075,6 +1082,7 @@ const STAND_LEGS=[{u:{a:5},l:{a:0}},{u:{a:-5},l:{a:0}}];
 const SCN={
  training:{label:'Trainiert',draw:()=>html`<g>
   <rect x="120" y="194" width="120" height="4" rx="2" style=${{fill:'var(--mr3)'}}/>
+  ${[[194,98,0],[166,103,.8]].map(([x,y,dl],i)=>html`<path key=${'sw'+i} d=${`M${x} ${y} q-2.5 4 0 5.5 q2.5 -1.5 0 -5.5Z`} fill="#7DD3FC" style=${{opacity:0,animation:`drip 1.6s ease-in ${dl}s infinite`}}/>`)}
   <${Pict} hip=${[180,152]} legs=${STAND_LEGS} arms=${[{u:{a:-6},l:{an:[-10,-145]},d:.75,dl:.75,prop:'db'},{u:{a:-6},l:{an:[-10,-145]},d:.75,prop:'db'}]}/></g>`},
  read:{label:'Liest',draw:()=>html`<g>
   <rect x="146" y="170" width="38" height="5" rx="2" style=${{fill:'var(--mr3)'}}/><rect x="146" y="128" width="5" height="47" rx="2" style=${{fill:'var(--mr3)'}}/><rect x="148" y="175" width="4" height="22" style=${{fill:'var(--mr3)'}}/><rect x="178" y="175" width="4" height="22" style=${{fill:'var(--mr3)'}}/>
@@ -1112,9 +1120,26 @@ Object.assign(SCN,{
  call:{label:'Ruft jemanden an',draw:()=>html`<g>${[0,1,2].map(i=>html`<circle key=${i} cx=${204+i*8} cy="76" r="2.6" style=${{fill:'var(--acc2)',animation:`dots 1.2s ease-in-out ${i*.2}s infinite`}}/>`)}
   <${Pict} hip=${[180,152]} legs=${STAND_LEGS} head=${{transformBox:'fill-box',transformOrigin:'center',animation:'nod 2.4s ease-in-out infinite'}} arms=${[{u:{a:6},l:{a:2}},{u:{a:-35},l:{a:-149},prop:'phone'}]}/></g>`}});
 SCN.write={...SCN.learn,label:'Reflektiert und schreibt'};
+PROPS.coin=html`<circle r="3.2" fill="#FBBF24" style=${{stroke:'none'}}/>`;
+PROPS.fork=html`<path d="M0 0 L0 -9 M-2 -9 V-13 M2 -9 V-13" strokeWidth="1.8" style=${{stroke:'var(--ink)'}}/>`;
+Object.assign(SCN,{
+ save:{label:'Legt Geld zurück',draw:()=>html`<g><rect x="204" y="150" width="62" height="47" rx="3" style=${{fill:'var(--mr3)'}}/>
+  <rect x="216" y="114" width="28" height="36" rx="5" fill="#fff" fillOpacity=".12" style=${{stroke:'var(--acc2)'}} strokeWidth="1.5"/><rect x="214" y="110" width="32" height="6" rx="2" style=${{fill:'var(--acc2)'}} opacity=".6"/>
+  ${[0,1,2,3].map(i=>html`<ellipse key=${i} cx=${222+i*5} cy=${145-(i%2)*4} rx="5" ry="2" fill="#FBBF24" opacity=".85"/>`)}
+  <circle cx="230" cy="100" r="3.4" fill="#FBBF24" style=${{animation:'coindrop 1.4s ease-in infinite'}}/>
+  <${Pict} hip=${[188,152]} legs=${STAND_LEGS} arms=${[{u:{a:-20},l:{a:-30}},{u:{an:[-62,-50]},l:{an:[-38,-28]},d:.7}]}/></g>`},
+ budget:{label:'Prüft die Ausgaben',draw:()=>html`<g>${DESK(html`<g><rect x="196" y="140" width="22" height="8" rx="1" fill="#F5F3FF" transform="rotate(-6 207 144)"/><rect x="204" y="138" width="22" height="9" rx="1" fill="#E9E4FF"/><rect x="236" y="130" width="18" height="18" rx="2" fill="#2E2063" style=${{stroke:'var(--acc2)'}} strokeWidth="1"/><rect x="239" y="133" width="12" height="4" rx="1" fill="#34D399" opacity=".8"/>${[0,1,2].map(i=>html`<g key=${i}>${[0,1,2].map(j=>html`<rect key=${j} x=${239+j*4.3} y=${139+i*3} width="3" height="2" rx=".5" fill="#C4B5FD" opacity=".7"/>`)}</g>`)}</g>`)}
+  <${Pict} hip=${[154,170]} lean=${6} head=${{transformBox:'fill-box',transformOrigin:'center',animation:'nod 3.4s ease-in-out infinite'}} legs=${SEATED_LEGS} arms=${[{u:{a:-50},l:{a:-45}},{u:{a:-62},l:{an:[-26,-40]},d:.35,prop:'pen'}]}/></g>`},
+ eat:{label:'Isst bewusst',draw:()=>html`<g>${DESK(html`<g><ellipse cx="200" cy="146" rx="15" ry="3.5" fill="#F5F3FF"/><circle cx="196" cy="143" r="3" fill="#34D399"/><circle cx="203" cy="143.5" r="2.6" fill="#F97316"/><rect x="226" y="132" width="9" height="15" rx="2" fill="#7DD3FC" opacity=".5"/></g>`)}
+  <${Pict} hip=${[154,170]} legs=${SEATED_LEGS} arms=${[{u:{a:-50},l:{a:-40}},{u:{an:[-62,-30]},l:{an:[-40,-150]},d:1.3,prop:'fork'}]}/></g>`},
+ pullup:{label:'Macht Klimmzüge',draw:()=>html`<g><rect x="126" y="58" width="6" height="139" style=${{fill:'var(--mr3)'}}/><rect x="228" y="58" width="6" height="139" style=${{fill:'var(--mr3)'}}/><rect x="126" y="56" width="108" height="5" rx="2.5" style=${{fill:'var(--ink)'}} opacity=".8"/>
+  <g style=${{animation:'pullup 1.4s ease-in-out infinite alternate'}}><${Pict} hip=${[180,131]} legs=${[{u:{a:10},l:{a:28}},{u:{a:4},l:{a:30}}]} arms=${[{u:{an:[158,128]},l:{an:[0,48]},d:1.4},{u:{an:[202,232]},l:{an:[0,-48]},d:1.4}]}/></g></g>`},
+ stretch:{label:'Dehnt sich',draw:()=>html`<g><rect x="130" y="192" width="100" height="5" rx="2.5" fill="#8B5CF6" opacity=".45"/>
+  <g style=${{transformBox:'fill-box',transformOrigin:'bottom center',animation:'bend 4s ease-in-out infinite alternate'}}><${Pict} hip=${[180,152]} legs=${[{u:{a:12},l:{a:0}},{u:{a:-12},l:{a:0}}]} arms=${[{u:{a:178},l:{a:-8}},{u:{a:-25},l:{a:-10}}]}/></g></g>`}});
 const SKY=now=>now<360||now>=1290?['#0B1026','#2E1F66',0]:now<660?['#FDBA74','#C084FC',1]:now<840?['#7DD3FC','#C4B5FD',1]:now<1080?['#FCD34D','#FB923C',1]:['#A855F7','#1E1B4B',0];
 const NEM_SAY=['Gut.','Weiter so.','Sauber.','Nicht nachlassen.','Jetzt die nächste.','So sieht das aus.'];
-function NemesisScene({activity,now,pulse,last}){const I=useId().replace(/:/g,'');const [say,setSay]=useState(null);const first=useRef(true);
+const TEASE=['Tick, tack.','Ich warte nicht.','Noch da?','Ich bin schon weiter.'];
+function NemesisScene({activity,now,pulse,last,behind}){const I=useId().replace(/:/g,'');const [say,setSay]=useState(null);const first=useRef(true);
  useEffect(()=>{if(first.current){first.current=false;return}setSay({t:last&&last.on?'Pünktlich. So wie ich.':NEM_SAY[rnd(0,NEM_SAY.length-1)],k:Date.now()});const t=setTimeout(()=>setSay(null),2600);return()=>clearTimeout(t)},[pulse]);
  const sc=SCN[activity]||SCN.idle,[s1,s2,isSun]=SKY(now);const night=!isSun;
  return html`<svg viewBox="0 0 360 210" className="w-full block" style=${{borderRadius:20}} role="img" aria-label=${`Dein Nemesis: ${sc.label}`}>
@@ -1126,7 +1151,8 @@ function NemesisScene({activity,now,pulse,last}){const I=useId().replace(/:/g,''
  <path d=${`M22 82 L0 210 L130 210 L98 82Z`} fill=${s1} opacity=${night?.03:.07}/>
  <rect y="196" width="360" height="14" style=${{fill:'var(--mr2)'}}/>
  <ellipse cx="180" cy="120" rx="96" ry="80" fill=${`url(#ng${I})`}/>
- <g key=${say?say.k:'n'} style=${say?{transformBox:'fill-box',transformOrigin:'bottom',animation:'cheer .7s ease-out'}:null}><g transform="translate(180 197) scale(1.3) translate(-180 -197)">${sc.draw()}</g></g>
+ <g key=${say?say.k:'n'} style=${say?{transformBox:'fill-box',transformOrigin:'bottom',animation:'cheer .7s ease-out'}:null}><g key=${'a'+activity} style=${{animation:'fadeIn .7s ease-out'}}><g transform="translate(180 197) scale(1.3) translate(-180 -197)">${sc.draw()}</g></g></g>
+ ${behind&&!say&&(()=>{const t=TEASE[Math.floor(now/15)%TEASE.length];return html`<g style=${{opacity:0,transformBox:'fill-box',transformOrigin:'left bottom',animation:'tease 9s ease-in-out 2s infinite'}}><rect x="206" y="44" width=${t.length*7.2+22} height="28" rx="14" fill="#FF6B86"/><path d="M216 70 L210 82 L226 71Z" fill="#FF6B86"/><text x="217" y="62" fontSize="13" fontWeight="800" fill="#fff">${t}</text></g>`})()}
  ${say&&html`<g key=${'b'+say.k} style=${{animation:'pop .35s ease-out'}}><rect x="206" y="44" width=${say.t.length*7.4+22} height="28" rx="14" fill="#F5F3FF"/><path d="M216 70 L210 82 L226 71Z" fill="#F5F3FF"/><text x="217" y="62" fontSize="13" fontWeight="800" fill="#4C1D95">${say.t}</text></g>`}
  </svg>`}
 /* ───── NEMESIS: Karte, Zeitleiste, Vergleich, Prototyp-Uhr ───── */
@@ -1157,10 +1183,12 @@ function NemesisCard({c}){const {S}=c;const now=nowMinOf(c);
  const tasks=nemTasks(S),plan=buildNemesisPlan(tasks),cur=getCurrentActivity(plan,now),night=now<plan[0].start||cur.kind==='sleep';
  const cnt=plan.filter(p=>!p.virtual&&p.kind!=='sleep'),Y=cnt.length,Z=cnt.filter(p=>nemDoneAt(p,plan,now)).length,X=cnt.filter(p=>p.done).length;
  const line=nemLine(X,Z,Y,cur,night),behind=Z>X;
+ const prevRef=useRef(null),[fin,setFin]=useState(null);
+ useEffect(()=>{const p=prevRef.current;prevRef.current=cur;if(p&&p.id!==cur.id&&!p.virtual&&p.kind!=='sleep'){setFin(p.name);const t=setTimeout(()=>setFin(null),2800);return()=>clearTimeout(t)}},[cur.id]);
  return html`<div className="card p-3" style=${{borderRadius:26}}>
  <div className="flex items-start justify-between px-1.5 pt-1 gap-2"><div className="min-w-0"><div className="lbl" style=${{color:'#FF6B86'}}>Dein Nemesis · ${fmtHM(now)}${c.simMin!=null?' (simuliert)':''}</div><div className="disp text-[26px] mt-1 leading-none truncate">${cur.name}</div><div className="text-[11.5px] mute mt-1">${(SCN[cur.kind]||SCN.idle).label} · ${fmtHM(cur.start)}–${fmtHM(cur.end)}</div></div>
   <button onClick=${()=>c.openSheet({t:'nemplan'})} className="chip shrink-0 flex items-center gap-1"><${Icon} n="edit" s=${12}/>Plan</button></div>
- <div className="mt-2.5"><${NemesisScene} activity=${cur.kind} now=${now} pulse=${S.pulse} last=${S.lastDone}/></div>
+ <div className="mt-2.5 relative">${fin&&html`<div key=${fin} className="absolute left-3 top-3 z-10 rounded-full px-3 py-1.5 text-[12px] font-bold flex items-center gap-1.5" style=${{background:'rgba(52,211,153,.92)',color:'#052E1F',animation:'pop .4s ease-out'}}><${Icon} n="check" s=${13} sw=${3}/>Er hat erledigt: ${fin}</div>`}<${NemesisScene} activity=${cur.kind} now=${now} pulse=${S.pulse} last=${S.lastDone} behind=${!night&&Z-X>=2}/></div>
  <div className="mt-3 rounded-2xl px-3.5 py-3 flex items-start gap-2.5" style=${{background:behind?'rgba(255,45,85,.09)':'rgba(139,92,246,.1)',boxShadow:`0 0 0 1px ${behind?'rgba(255,59,92,.25)':'rgba(167,139,250,.25)'} inset`}}><span style=${{color:behind?'#FF6B86':'var(--acc2)'}} className="mt-0.5"><${Icon} n="swords" s=${16}/></span><div className="text-[14.5px] font-semibold leading-snug">${line}</div></div>
  <div className="grid grid-cols-2 gap-2 mt-3">${[['Du',X,'var(--good)','linear-gradient(90deg,#059669,#34D399)'],['Nemesis',Z,'#FF6B86','linear-gradient(90deg,#B3153C,#FF6B86)']].map(([l,v,col,bg])=>html`<div key=${l} className="card2 p-3"><div className="flex items-baseline justify-between"><span className="lbl" style=${{color:col}}>${l}</span><span className="num"><b key=${l+v} className="text-[20px] ink" style=${{animation:'pop .4s ease-out',display:'inline-block'}}>${v}</b><span className="mute text-[12px]">/${Y}</span></span></div><div className="h-1.5 rounded-full mt-2 overflow-hidden" style=${{background:'var(--ghost)'}}><div className="h-full rounded-full" style=${{width:(Y?v/Y:0)*100+'%',background:bg,transition:'width .6s'}}/></div></div>`)}</div>
  <${NemTimeline} plan=${plan} now=${now} c=${c}/>
@@ -1244,7 +1272,7 @@ function HomeLegacy({c}){
  </div>`}
 /* ───── SOLO-DUELL ───── */
 /* ───── TAGESPLAN: Aufgaben per Ziehen oder Antippen auf eine Uhrzeit legen (15-Min.-Raster) ───── */
-const NK_DUR={wake:15,training:60,run:45,walk:30,cook:30,work:60,learn:30,write:15,call:15,read:30,meditate:15,sleep:30,idle:30};
+const NK_DUR={wake:15,training:60,pullup:20,stretch:15,eat:30,save:5,budget:15,run:45,walk:30,cook:30,work:60,learn:30,write:15,call:15,read:30,meditate:15,sleep:30,idle:30};
 const NK_DUR_ID={m_save:5,m_spend:10,m_hard:30,m_ref:10,m_morn:15,m_cal:30,m_eat:30};
 const durDef=m=>NK_DUR_ID[m.id]||NK_DUR[kindOf(m)]||30;
 const todOf=s=>s<660?'morgen':s<840?'mittag':s<1080?'nachmittag':'abend';
