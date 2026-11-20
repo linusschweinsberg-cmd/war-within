@@ -1036,14 +1036,16 @@ const kindOf=m=>NK_ID[m.id]||NK_LOG[m.log]||NK_ACT[m.act]||'work';
 const nemPool=S=>S.missions.filter(m=>m.freq==='daily'||m.freq==='multi');
 const NEM_PREF=['m_morn','m_train','m_cal','m_focus','m_lang','m_read','m_wind'];
 function nemDefault(S){const seen=new Set(),out={};const pool=[...nemPool(S)].sort((a,b)=>{const ia=NEM_PREF.indexOf(a.id),ib=NEM_PREF.indexOf(b.id);return (ia<0?99:ia)-(ib<0?99:ib)||NK_ORDER[kindOf(a)]-NK_ORDER[kindOf(b)]});const sl=pool.find(m=>kindOf(m)==='sleep');pool.forEach(m=>{const k=kindOf(m);if(k==='sleep'||seen.has(k)||Object.keys(out).length>=7)return;seen.add(k);out[m.id]=NK_TOD[k]});if(sl)out[sl.id]='abend';return out}
-function nemTasks(S){const sel=S.nem||nemDefault(S);return Object.entries(sel).map(([id,tod])=>{const m=S.missions.find(x=>x.id===id);if(!m)return null;const a=S.acts[m.act];return{id,name:m.title,icon:a?a.icon:'check',timeOfDay:tod,done:isDone(S,m),kind:kindOf(m)}}).filter(Boolean)}
+function nemTasks(S){const sel=S.nem||nemDefault(S);return Object.entries(sel).map(([id,v])=>{const m=S.missions.find(x=>x.id===id);if(!m)return null;const a=S.acts[m.act],fx=v&&typeof v==='object';return{id,name:m.title,icon:a?a.icon:'check',timeOfDay:fx?todOf(v.s):v,s:fx?v.s:null,d:fx?v.d:null,done:isDone(S,m),kind:kindOf(m)}}).filter(Boolean)}
 function buildNemesisPlan(tasks){
- const out=[];
- TOD.forEach(([k,,a,b])=>{const ts=tasks.filter(t=>t.timeOfDay===k&&t.kind!=='sleep').sort((x,y)=>NK_ORDER[x.kind]-NK_ORDER[y.kind]);const W=ts.map(t=>t.kind==='wake'?.25:1),tw=W.reduce((x,y)=>x+y,0);let acc=0;ts.forEach((t,i)=>{const s0=a+(b-a)*acc/tw;acc+=W[i];out.push({...t,start:Math.round(s0),end:Math.round(a+(b-a)*acc/tw)})})});
- out.forEach(p=>{if(p.kind==='wake')p.end=Math.min(p.end,p.start+60)});
- for(let i=0;i<out.length-1;i++){const gap=out[i+1].start-out[i].end;if(gap>0&&(out[i].kind==='wake'||gap>120)){out.splice(i+1,0,{id:'_free'+i,name:out[i].kind==='wake'?'Plant den Tag':'Freie Zeit',icon:'clock',kind:'idle',timeOfDay:out[i].timeOfDay,done:false,virtual:true,start:out[i].end,end:out[i+1].start});i++}else out[i].end=out[i+1].start}
- if(out.length)out[out.length-1].end=Math.max(out[out.length-1].end,1350);
- const s0=out.length?out[out.length-1].end:1350,sl=tasks.find(t=>t.kind==='sleep');
+ const out=[],idle=(x,y,nm)=>({id:'_free'+x,name:nm,icon:'clock',kind:'idle',timeOfDay:todOf(x),done:false,virtual:true,start:x,end:y});
+ TOD.forEach(([k,,a,b])=>{const ts=tasks.filter(t=>t.s==null&&t.timeOfDay===k&&t.kind!=='sleep').sort((x,y)=>NK_ORDER[x.kind]-NK_ORDER[y.kind]);const W=ts.map(t=>t.kind==='wake'?.25:1),tw=W.reduce((x,y)=>x+y,0);let acc=0;ts.forEach((t,i)=>{const s0=a+(b-a)*acc/tw;acc+=W[i];out.push({...t,start:Math.round(s0),end:Math.round(a+(b-a)*acc/tw)})})});
+ tasks.filter(t=>t.s!=null&&t.kind!=='sleep').forEach(t=>out.push({...t,start:t.s,end:t.s+(t.d||30),fixed:true}));
+ out.sort((x,y)=>x.start-y.start||NK_ORDER[x.kind]-NK_ORDER[y.kind]);
+ out.forEach(p=>{if(p.kind==='wake'&&!p.fixed)p.end=Math.min(p.end,p.start+60)});
+ for(let i=0;i<out.length-1;i++){const A=out[i],B=out[i+1],gap=B.start-A.end;if(gap<=0)continue;if(gap>=15&&(A.fixed||B.fixed||A.kind==='wake'||gap>120)){out.splice(i+1,0,idle(A.end,B.start,A.kind==='wake'?'Plant den Tag':'Freie Zeit'));i++}else A.end=B.start}
+ const sl=tasks.find(t=>t.kind==='sleep'),lastEnd=out.length?out[out.length-1].end:1350,s0=sl&&sl.s!=null?sl.s:Math.max(lastEnd,1350);
+ if(out.length){const L=out[out.length-1],g=s0-L.end;if(g>0){if(L.fixed||g>120)out.push(idle(L.end,s0,'Freie Zeit'));else L.end=s0}}
  out.push(sl?{...sl,start:s0,end:1800}:{id:'_night',name:'Nachtruhe',icon:'moon',kind:'sleep',timeOfDay:'abend',done:false,virtual:true,start:s0,end:1800});
  return out}
 function getCurrentActivity(plan,now){const t=now<plan[0].start?now+1440:now;return plan.find(p=>t>=p.start&&t<p.end)||plan[plan.length-1]}
@@ -1173,7 +1175,7 @@ function NemPlan({c}){const {S}=c;const sel=S.nem||nemDefault(S);const pool=nemP
  <div className="text-[12.5px] mute mb-3 leading-snug">Wähle deine Aufgaben und die Tageszeit. Dein Nemesis erledigt sie in fester Reihenfolge: Aufstehen, Training, Essen, Arbeit und Lernen, Lesen, Abendroutine, Schlafen.</div>
  <div className="flex flex-col gap-2">${pool.map(m=>{const on=!!sel[m.id],k=kindOf(m);return html`<div key=${m.id} className="card2 p-3">
   <button onClick=${()=>c.setNem(m.id,on?null:NK_TOD[k])} className="w-full bg-transparent border-0 p-0 flex items-center gap-3 text-left ink"><span className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" style=${{background:on?'var(--acc)':'transparent',border:on?'none':'1.5px solid var(--line)',color:'#fff'}}>${on&&html`<${Icon} n="check" s=${14} sw=${3}/>`}</span><span className="flex-1 text-[13.5px] font-medium">${m.title}</span><span className="text-[10.5px] mute">${(SCN[k]||SCN.idle).label}</span></button>
-  ${on&&html`<div className="mt-2.5"><${Seg} opts=${TOD.map(t=>[t[0],TOD_L[t[0]]])} val=${sel[m.id]} on=${v=>c.setNem(m.id,v)}/></div>`}</div>`})}</div>
+  ${on&&(typeof sel[m.id]==='object'?html`<div className="text-[12px] mute mt-2">${fmtHM(sel[m.id].s)} · ${sel[m.id].d} Min. · im Tagesplan verschieben</div>`:html`<div className="mt-2.5"><${Seg} opts=${TOD.map(t=>[t[0],TOD_L[t[0]]])} val=${sel[m.id]} on=${v=>c.setNem(m.id,v)}/></div>`)}</div>`})}</div>
  <button onClick=${c.closeSheet} className="btn w-full py-3.5 mt-4 text-sm">Fertig</button></${Sheet}>`}
 function Home({c}){const {S,D}=c;const now=nowMinOf(c);
  const nm=((S.profile&&S.profile.name)||(c.auth&&c.auth.session&&c.auth.session.mode!=='guest'&&c.auth.session.name)||'').trim();
@@ -1239,20 +1241,64 @@ function HomeLegacy({c}){
  ${S.ui==='adv'&&html`<${TreeCard} c=${c}/>`}
  </div>`}
 /* ───── SOLO-DUELL ───── */
+/* ───── TAGESPLAN: Aufgaben per Ziehen oder Antippen auf eine Uhrzeit legen (15-Min.-Raster) ───── */
+const NK_DUR={wake:15,training:60,run:45,walk:30,cook:30,work:60,learn:30,write:15,call:15,read:30,meditate:15,sleep:30,idle:30};
+const NK_DUR_ID={m_save:5,m_spend:10,m_hard:30,m_ref:10,m_morn:15,m_cal:30,m_eat:30};
+const durDef=m=>NK_DUR_ID[m.id]||NK_DUR[kindOf(m)]||30;
+const todOf=s=>s<660?'morgen':s<840?'mittag':s<1080?'nachmittag':'abend';
+function DayPlanner({c}){const {S}=c;const now=nowMinOf(c);const H0=5,H1=24,PX=48;
+ const sel=S.nem||nemDefault(S),plan=buildNemesisPlan(nemTasks(S)).filter(p=>!p.virtual),tray=nemPool(S).filter(m=>!sel[m.id]);
+ const tl=useRef(null),dr=useRef(null),[,force]=useState(0),[pick,setPick]=useState(null);
+ const m2y=m=>(m-H0*60)/60*PX;
+ const y2m=cy=>{const r=tl.current.getBoundingClientRect();return clamp(Math.round((H0*60+(cy-r.top)/PX*60)/15)*15,H0*60,H1*60-15)};
+ const inTl=(x,y)=>{const r=tl.current.getBoundingClientRect();return x>r.left-48&&x<r.right+10&&y>r.top&&y<r.bottom};
+ const durOf=id=>{const v=sel[id];if(v&&typeof v==='object')return v.d;const m=S.missions.find(x=>x.id===id);return m?durDef(m):30};
+ const nameOf=id=>{const m=S.missions.find(x=>x.id===id);return m?m.title:''};
+ const begin=(e,o)=>{e.preventDefault();e.stopPropagation();dr.current={...o,x0:e.clientX,y0:e.clientY,cx:e.clientX,cy:e.clientY,moved:false};force(x=>x+1)};
+ useEffect(()=>{const mv=e=>{const d=dr.current;if(!d)return;d.cx=e.clientX;d.cy=e.clientY;if(Math.abs(e.clientX-d.x0)+Math.abs(e.clientY-d.y0)>6)d.moved=true;force(x=>x+1)};
+  const up=e=>{const d=dr.current;if(!d)return;dr.current=null;force(x=>x+1);
+   if(!d.moved){if(d.mode!=='resize')setPick(p=>p===d.id?null:d.id);return}
+   if(d.mode==='resize'){c.setNemTime(d.id,{s:d.s0,d:clamp(Math.round((d.d0+(e.clientY-d.y0)/PX*60)/15)*15,15,240)});return}
+   if(inTl(e.clientX,e.clientY)){c.setNemTime(d.id,{s:y2m(e.clientY-(d.off||0)),d:durOf(d.id)});setPick(null)}
+   else if(!d.tray&&e.clientY<tl.current.getBoundingClientRect().top){c.setNemTime(d.id,null);c.toast(nameOf(d.id)+' liegt wieder im Fach.')}};
+  window.addEventListener('pointermove',mv);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up);
+  return()=>{window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up)}},[]);
+ const d=dr.current,drag=d&&d.moved&&d.mode!=='resize',target=drag&&tl.current&&inTl(d.cx,d.cy)?y2m(d.cy-(d.off||0)):null;
+ const tapSlot=e=>{if(!pick||e.target.closest('[data-blk]'))return;c.setNemTime(pick,{s:y2m(e.clientY),d:durOf(pick)});setPick(null)};
+ const blocks=plan.map(p=>{const fixed=sel[p.id]&&typeof sel[p.id]==='object',dur=p.kind==='sleep'?Math.min(90,H1*60-p.start):fixed?sel[p.id].d:durOf(p.id);
+  const live=d&&d.mode==='resize'&&d.id===p.id?clamp(Math.round((d.d0+(d.cy-d.y0)/PX*60)/15)*15,15,240):dur;return{...p,dur:live,fixed}});
+ return html`<div>
+ <div className="text-[12px] mute mt-3 leading-snug px-0.5">Ziehe Aufgaben auf eine Uhrzeit oder tippe sie an und dann auf einen Zeitpunkt. Dein Nemesis hält sich genau an diesen Plan. Pünktlich heißt: bis 30 Minuten nach Start.</div>
+ <div className="lbl mt-3 mb-1.5">Noch nicht eingeplant</div>
+ <div className="flex flex-wrap gap-1.5 p-2.5 rounded-2xl" style=${{border:'1px dashed var(--line)',minHeight:44}}>${tray.length?tray.map(m=>html`<button key=${m.id} onPointerDown=${e=>begin(e,{id:m.id,tray:true})} className=${`chip ${pick===m.id?'on':''}`} style=${{touchAction:'none',cursor:'grab'}}><span className="mute" style=${{letterSpacing:'-2px'}}>⋮⋮</span> ${m.title} <span className="num acc text-[11px]">${durDef(m)}′</span></button>`):html`<span className="text-[12px] mute px-1 py-1">Alles eingeplant. Ziehe einen Block hierher, um ihn herauszunehmen.</span>`}</div>
+ ${pick&&html`<div className="text-[12px] acc mt-2 px-0.5">Jetzt eine Uhrzeit in der Zeitachse antippen für: <b>${nameOf(pick)}</b></div>`}
+ <div ref=${tl} onPointerUp=${tapSlot} className="relative mt-4" style=${{height:(H1-H0)*PX,marginLeft:44,borderLeft:'1px solid var(--line)'}}>
+  ${Array.from({length:H1-H0+1},(_,i)=>html`<div key=${i} className="absolute num text-[11px] mute" style=${{top:i*PX,left:-44,right:0,borderTop:'1px solid var(--line)'}}><span className="relative" style=${{top:-8,background:'var(--bg)',paddingRight:6}}>${H0+i}:00</span></div>`)}
+  ${now>=H0*60&&html`<div className="absolute" style=${{top:m2y(now),left:-6,right:0,borderTop:'2px solid #FF6B86',zIndex:3}}><span className="absolute right-0 text-[10.5px] font-semibold" style=${{top:-17,color:'#FF6B86'}}>Jetzt ${fmtHM(now)}</span></div>`}
+  ${blocks.map(p=>{const ov=blocks.some(o=>o!==p&&o.kind!=='sleep'&&p.kind!=='sleep'&&o.start<p.start+p.dur&&p.start<o.start+o.dur),ghost=drag&&d.id===p.id,col=ACOL[(S.missions.find(m=>m.id===p.id)||{}).act]||'#8B5CF6';
+   return html`<div key=${p.id} data-blk="1" onPointerDown=${e=>{const r=e.currentTarget.getBoundingClientRect();begin(e,{id:p.id,off:e.clientY-r.top})}} className="absolute rounded-xl px-2.5 py-1 flex justify-between gap-2 overflow-hidden" style=${{top:m2y(p.start)+1,height:Math.max(24,p.dur/60*PX-2),left:6,right:4,touchAction:'none',cursor:'grab',opacity:ghost?.35:1,background:ov?'rgba(255,45,85,.18)':`color-mix(in srgb, ${col} 26%, var(--card))`,boxShadow:`inset 3px 0 0 ${ov?'#FF6B86':col}${pick===p.id?',0 0 0 2px var(--acc2)':''}`,zIndex:2}}>
+    ${p.dur/60*PX<40?html`<div className="min-w-0 flex items-baseline gap-2 text-[12px] leading-tight"><span className="font-semibold truncate">${p.name}</span><span className="num mute shrink-0 text-[10.5px]">${fmtHM(p.start)} · ${p.dur}′${ov?' · !':''}</span></div>`:html`<div className="min-w-0"><div className="text-[12.5px] font-semibold truncate leading-tight">${p.name}</div><div className="text-[10.5px] mute truncate">${p.kind==='sleep'?'ab '+fmtHM(p.start)+' · Nachtruhe':fmtHM(p.start)+' · '+p.dur+' Min. · pünktlich bis '+fmtHM(p.start+30)}${ov?' · Überschneidung':''}</div></div>`}
+    ${p.kind!=='sleep'&&html`<button aria-label=${p.name+' aus dem Plan nehmen'} onPointerDown=${e=>{e.stopPropagation()}} onClick=${e=>{e.stopPropagation();c.setNemTime(p.id,null)}} className="bg-transparent border-0 p-0 mute shrink-0 self-start text-[14px] leading-none">×</button>`}
+    ${p.kind!=='sleep'&&html`<div aria-hidden="true" onPointerDown=${e=>begin(e,{id:p.id,mode:'resize',s0:p.start,d0:p.dur})} className="absolute right-6 bottom-0 flex justify-center" style=${{height:10,width:36,cursor:'ns-resize',touchAction:'none'}}><span className="w-6 h-1 rounded-full mt-1" style=${{background:'var(--mute)',opacity:.5}}/></div>`}</div>`})}
+  ${target!=null&&html`<div className="absolute rounded-xl" style=${{top:m2y(target),height:Math.max(24,durOf(d.id)/60*PX-2),left:6,right:4,border:'1.5px dashed #FBBF24',zIndex:4}}><span className="absolute text-[11px] font-bold num" style=${{left:-44,top:-1,color:'#FBBF24',background:'var(--bg)'}}>${fmtHM(target)}</span></div>`}
+ </div>
+ ${drag&&html`<div className="fixed z-[90] pointer-events-none chip on" style=${{left:d.cx+10,top:d.cy-16}}>${nameOf(d.id)}</div>`}
+ <div className="text-[11px] mute mt-3 px-0.5 leading-relaxed">Der Plan gilt für jeden Tag, bis du ihn änderst. Blockrand unten ziehen ändert die Dauer, × nimmt eine Aufgabe aus dem Plan.</div></div>`}
 function Tasks({c}){
  const {S,D}=c;
- const [grp,setGrp]=useState('today');
+ const [grp,setGrp]=useState('today'),[view,setView]=useState('list');
  const bIds=(briefToday(S)||{ids:[]}).ids,pr=id=>bIds.includes(id)?bIds.indexOf(id)-10:ESS.indexOf(id);
  const gOf=m=>{const g=GROUPS.find(x=>x.core.includes(m.act));return g?g.id:GROUPS[GROUPS.length-1].id};
  const fm=[...D.allM].filter(m=>grp==='all'||(grp==='today'?(S.comeback?cbList(S,D).some(x=>x.id===m.id):(ESS.includes(m.id)||bIds.includes(m.id))):(gOf(m)===grp||m.act===grp))).sort((a,b)=>(isDone(S,a)-isDone(S,b))||(grp==='today'?pr(a.id)-pr(b.id):0));
  const base=new Date();
  return html`<div className="screen px-4 pb-6"><div className="pt-5 flex items-end justify-between gap-3"><div><div className="lbl">${DAYS_L[D.di]} · ${phaseOf(S).n}</div><h1 className="disp text-[40px] mt-1">Aufgaben</h1></div><button aria-label="Aufgabe hinzufügen" onClick=${()=>c.openSheet({t:'add'})} className="btn w-11 h-11 mb-1 flex items-center justify-center shrink-0" style=${{borderRadius:14}}><${Icon} n="plus" s=${22} sw=${2.6}/></button></div>
  ${(()=>{const dm=D.allM.filter(m=>m.freq==='daily'||m.freq==='multi'),dn=dm.filter(m=>isDone(S,m)).length,pc=dm.length?dn/dm.length:0;return html`<div className="card p-3.5 mt-3 flex items-center gap-3.5" style=${{borderRadius:20}}><${Ring} pct=${pc} size=${46} stroke=${5} grad=${true}><span className="num text-[11px] font-bold">${Math.round(pc*100)}%</span><//><div className="flex-1 min-w-0"><div className="text-[14px] font-semibold">${dn} von ${dm.length} Tagesmissionen</div><div className="text-[11.5px] mute">+${D.td} Punkte heute · Serie ${S.streak} Tage</div></div></div>`})()}
- <div className="flex justify-between mt-4 mb-5">${DAYS.map((x,i)=>{const today=i===D.di,past=i<D.di,p=today?(D.allM.length?D.doneN/D.allM.length:0):past?1:0;const dt=new Date(base.getTime()+(i-D.di)*864e5).getDate();return html`<div key=${x} className="flex flex-col items-center gap-1.5 pt-2 pb-2 rounded-[26px]" style=${{background:today?'var(--acc)':'transparent',width:44}}><span className="text-[12px]" style=${{color:today?'#fff':'var(--mute)'}}>${x}</span><${Ring} pct=${p} size=${34} stroke=${3.5} color=${today?'#fff':'var(--acc2)'}><span className="text-[13px] font-bold" style=${{color:today||past?'#fff':'var(--mute)'}}>${dt}</span><//></div>`})}</div>
+ <div className="mt-4"><${Seg} opts=${[['list','Liste'],['plan','Tagesplan']]} val=${view} on=${setView}/></div>
+ ${view==='plan'?html`<${DayPlanner} c=${c}/>`:html`<div className="flex justify-between mt-4 mb-5">${DAYS.map((x,i)=>{const today=i===D.di,past=i<D.di,p=today?(D.allM.length?D.doneN/D.allM.length:0):past?1:0;const dt=new Date(base.getTime()+(i-D.di)*864e5).getDate();return html`<div key=${x} className="flex flex-col items-center gap-1.5 pt-2 pb-2 rounded-[26px]" style=${{background:today?'var(--acc)':'transparent',width:44}}><span className="text-[12px]" style=${{color:today?'#fff':'var(--mute)'}}>${x}</span><${Ring} pct=${p} size=${34} stroke=${3.5} color=${today?'#fff':'var(--acc2)'}><span className="text-[13px] font-bold" style=${{color:today||past?'#fff':'var(--mute)'}}>${dt}</span><//></div>`})}</div>
  <div className="mb-4"><${Seg} opts=${S.ui!=='adv'?[['today','Heute'],['all','Alle']]:[['today','Heute'],['all','Alle'],...GROUPS.map(g=>[g.id,g.name]),...Object.keys(S.acts).filter(id=>D.allM.some(m=>m.act===id)).map(id=>[id,S.acts[id].name])]} val=${grp} on=${setGrp}/>${S.ui!=='adv'&&html`<div className="text-[11px] mute mt-2 px-1">Antippen = erledigt. Lange drücken = bearbeiten. Mit + legst du eigene Missionen an.</div>`}</div>
  <div className="flex flex-col gap-2">${fm.map(m=>html`<${MRow} key=${m.id} m=${m} c=${c}/>`)}</div>
  ${fm.length===0&&html`<div className="card p-4 text-sm mute">Heute keine Aufgaben.</div>`}
- <div className="text-center text-[13px] mute mt-4"><button onClick=${()=>c.openSheet({t:'catalog'})} className="acc font-semibold bg-transparent border-0 text-[13px] mb-2 block mx-auto">Punkte-Katalog</button>${fm.filter(m=>isDone(S,m)).length} von ${fm.length} erledigt${avgQ(S)?` · Ø Erfolgsgrad ${avgQ(S).avg}`:''}</div></div>`}
+ <div className="text-center text-[13px] mute mt-4"><button onClick=${()=>c.openSheet({t:'catalog'})} className="acc font-semibold bg-transparent border-0 text-[13px] mb-2 block mx-auto">Punkte-Katalog</button>${fm.filter(m=>isDone(S,m)).length} von ${fm.length} erledigt${avgQ(S)?` · Ø Erfolgsgrad ${avgQ(S).avg}`:''}</div>`}</div>`}
 function SelfCompare({c}){
  const {S,D}=c;const cats=allCats(S);const [tp,setTp]=useState(0);
  const now=cats.map(x=>Math.round(S.catScore[x.id]??40)),old=cats.map(x=>Math.round((S.baseCat&&S.baseCat[x.id])??CAT_INIT[x.id]??40));
@@ -2448,8 +2494,8 @@ function App({init,auth,skey='war_within_v5'}){
  const nowM=simMin!=null?simMin:(()=>{const d=new Date(now);return d.getHours()*60+d.getMinutes()})();
  const nemPlanNow=useMemo(()=>buildNemesisPlan(nemTasks(S)),[S]);
  const PUNCT=20,GRACE=30;
- const punctOf=mid=>{const p=nemPlanNow.find(x=>x.id===mid&&!x.virtual&&x.kind!=='sleep');return !!p&&nowM>=nemPlanNow[0].start-180&&nowM<=p.end+GRACE};
- const curIds=new Set(nemPlanNow.filter(p=>!p.virtual&&p.kind!=='sleep'&&nowM>=p.start&&nowM<=p.end+GRACE).map(p=>p.id));
+ const punctOf=mid=>{const p=nemPlanNow.find(x=>x.id===mid&&!x.virtual&&x.kind!=='sleep');return !!p&&nowM>=nemPlanNow[0].start-180&&nowM<=(p.fixed?p.start:p.end)+GRACE};
+ const curIds=new Set(nemPlanNow.filter(p=>!p.virtual&&p.kind!=='sleep'&&nowM>=p.start&&nowM<=(p.fixed?p.start:p.end)+GRACE).map(p=>p.id));
  const complete=(mid,pos,extra={})=>{
   if(lock.current[mid])return;lock.current[mid]=1;setTimeout(()=>{delete lock.current[mid]},700);
   const m=S.missions.find(x=>x.id===mid);if(!m||isDone(S,m)){toast(m&&m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
@@ -2526,6 +2572,7 @@ function App({init,auth,skey='war_within_v5'}){
  const toggleTheme=()=>upd(n=>{n.theme=n.theme==='dark'?'light':'dark'});
  const setViz=v=>upd(n=>{n.viz=v});
  const setNem=(mid,tod)=>upd(n=>{n.nem=n.nem||nemDefault(n);if(tod)n.nem[mid]=tod;else delete n.nem[mid]});
+ const setNemTime=(mid,v)=>upd(n=>{n.nem=n.nem||nemDefault(n);const pl=buildNemesisPlan(nemTasks(n));Object.keys(n.nem).forEach(k=>{if(typeof n.nem[k]==='string'){const q=pl.find(x=>x.id===k),m=n.missions.find(x=>x.id===k);n.nem[k]={s:q?q.start:360,d:m?durDef(m):30}}});if(v)n.nem[mid]=v;else delete n.nem[mid]});
  const setUi=v=>{if((S.ui||'basic')===v)return;upd(n=>{n.ui=v});toast(v==='adv'?'Erweitert: Lebensmatrix, Rekorde, Rechner und Prognosen sichtbar. Deine Daten bleiben gleich.':'Basis: nur das Wichtigste. Es geht nichts verloren.','good')};
  const recordStat=(id,v)=>{upd(n=>{n.mxv=n.mxv||{};n.mxv[id]=[...(n.mxv[id]||[]),{v,t:Date.now()}].slice(-40)});toast('Wert gespeichert. Punkte gibt es für Missionen, nicht für Einträge.','good')};
  const saveMission=x=>{const isNew=!x.id;upd(n=>{if(isNew)n.missions.push({...x,id:'x'+uid(),sub:undefined});else{const m=n.missions.find(y=>y.id===x.id);if(m){m.title=x.title;m.desc=x.desc;m.freq=x.freq;m.times=x.times;m.pts=x.pts}}});setSheet(x.stat&&isNew?{t:'stat',id:x.stat}:null);toast(isNew?'Mission angelegt':'Mission gespeichert','good')};
@@ -2610,7 +2657,7 @@ function App({init,auth,skey='war_within_v5'}){
  /* Erfolge */
  const newA=S.newAch[0];
  useEffect(()=>{if(!newA)return;const t=setTimeout(()=>upd(n=>{n.newAch=n.newAch.slice(1)}),2600);return()=>clearTimeout(t)},[newA]);
- const c={auth,upd,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,addGoal,doSwap,toggleRest,toggleTheme,setViz,setNem,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
+ const c={auth,upd,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,addGoal,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
  const nav=S.ui==='adv'?[['home','Start','home'],['tasks','Aufgaben','check'],['solo','Duell','swords'],['league','Liga','trophy'],['stats','Fortschritt','trend']]:[['home','Start','home'],['tasks','Aufgaben','check'],['stats','Fortschritt','trend'],['league','Liga','trophy']];
  const ach=newA&&ACHS.find(a=>a.id===newA);
  return html`<div data-theme=${S.theme} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(139,92,246,.12)'}}>
