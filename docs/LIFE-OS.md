@@ -94,3 +94,16 @@ Stufen: Ruine 0 · Wiederaufbau 2 · Stabil 6 · Stark 11 · Meisterschaft 17 Pu
 **Saison:** Standard 12 Wochen (8/12/16 wählbar), getrennt von der 4-Wochen-Liga-Saison der Arena. Abschluss speichert den Tempel in der Galerie; Ziele, Messwerte und Erkenntnisse bleiben. Ein Abschluss mitten in der Woche zählt nichts doppelt.
 
 **Bekannte Grenze:** `life.log` wird auf 2000 Einträge gekürzt; danach stimmt `logFrom` für den Grundstein nicht mehr exakt.
+
+## Daily Debrief und Feedback-Rhythmus
+
+| Rhythmus | Was | Dauer |
+|---|---|---|
+| Täglich | **Daily Debrief**: App zeigt automatisch, was geplant und erledigt wurde; Nutzer tippt Stimmung, bei Auslassungen Hindernis und Wunsch (früher einplanen / kleiner machen / beibehalten) | 15–30 Sek. |
+| Wöchentlich | Wochenrückblick: Ergebnisse prüfen, **erkannte Muster** als Experiment anbieten, eine Verbesserung wählen | 2–3 Min. |
+| Monatlich | Monats-Check alle 4 Wochen: Ziele behalten, anpassen oder archivieren | ~5 Min. |
+
+- Wenn alles erledigt ist, fragt der Debrief nichts weiter: „Der Plan funktioniert. Behalte ihn bei.“
+- Mustererkennung (`debriefPatterns`, letzte 14 Tage): eine Ziel-Handlung wurde ≥ 3× ausgelassen → bei überwiegend morgendlichen Erledigungen (Uhrzeiten aus `S.ctime`) Vorschlag „Block am Morgen“, sonst „kleinere Version“. Ein ausdrückliches „Kleiner machen“ im Debrief löst den Vorschlag früher aus.
+- Die App ändert den Plan nie ungefragt. „Früher einplanen“ setzt nur die erste Priorität für morgen, weil der Nutzer es gewählt hat.
+- Tempel: Der Debrief zeigt, an welcher Säule heute gebaut wurde; Bausteine entstehen weiter nur nach den Bauregeln.

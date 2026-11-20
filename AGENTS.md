@@ -29,13 +29,14 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v35` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v37` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`. Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Konzepte
 - Navigation: Heute (Hauptziel, nächste Handlung, Success Loop, Prioritäten, Arena optional), Mein Leben (Werte, Warum, vier Bereiche, Ziele), Fortschritt (Ergebnisse, Umsetzung, Experimente, Wirkung), Reflexion (Check-in, Wochenrückblick, Experimente). Aufgaben, Liga und Duell sind Unterseiten.
 - Ergebnis (Messgröße eines Ziels) und Prozess (Handlungen/Missionen) sind getrennt; Punkte gibt es nur für Handlungen.
 - Life Temple (Mein Leben): vier Säulen mit 5 Stufen aus gedeckelten Bauregeln (`TEMPLE_RULES` in `life-core.js`), eigene 12-Wochen-Saison, Galerie früherer Saisons; Details in `docs/LIFE-OS.md`.
+- Daily Debrief (täglich, ≤ 30 Sek.), Wochenrückblick mit erkannten Mustern (`debriefPatterns`), Monats-Check alle 4 Wochen.
 - Wochenrückblick: Diagnose nach festen Regeln → Hindernis → Vorschlag → Experiment mit Kriterium → Prüfung im nächsten Rückblick. Fokusmodus blendet Liga, Nemesis und Punkte aus.
 - Missionen mit Punkte-Katalog: Basis × (1 + Erfolg + Konstanz + Messwert) × Saisonthema, begrenzt durch Wochenlimits.
 - Fünf Kernbereiche in Health / Personal development, Liga, Duell gegen den „Nemesis“, Evaluation nach Jocko Willinks „The Code“ (nur eigene Formulierungen, keine Zitate).

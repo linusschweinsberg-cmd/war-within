@@ -81,3 +81,12 @@ t('Tempel: Zustand übersteht Reload',()=>{const S=fresh();const g=LC.addGoal(S,
 t('Tempel: Migration bestehender Spielstände ohne Tempel',()=>{const S=fresh();delete S.life.temple;LC.ensureLife(S);assert.ok(S.life.temple&&S.life.temple.cur.n===1)});
 
 console.log('PASS life-core: '+ok.join(' · '));
+/* Daily Debrief */
+{const ok2=[];const t2=(n,f)=>{f();ok2.push(n)};
+t2('Debrief: Muster nach 3 Auslassungen, morgens erledigt → Morgenblock',()=>{const S=LC.ensureLife(base());const g=LC.addGoal(S,{...tpl('skill')});const a=LC.actionsOf(S.life,g.id)[0];S.ctime={[a.missionId]:[{t:420,day:'1-0'},{t:480,day:'1-1'}]};
+ assert.equal(LC.debriefPatterns(S).length,0);for(let i=0;i<3;i++){LC.onDebrief(S,{mood:'hard',obst:['energy'],skipped:[a.missionId]});LC.onAdvance(S)}
+ const p=LC.debriefPatterns(S);assert.equal(p.length,1);assert.equal(p[0].kind,'morning');assert.equal(a.when,'','Plan wird nicht ungefragt geändert')});
+t2('Debrief: abends erledigt → kleinere Version',()=>{const S=LC.ensureLife(base());const g=LC.addGoal(S,{...tpl('skill')});const a=LC.actionsOf(S.life,g.id)[0];S.ctime={[a.missionId]:[{t:1200,day:'1-0'}]};for(let i=0;i<3;i++){LC.onDebrief(S,{obst:['time'],skipped:[a.missionId]});LC.onAdvance(S)}assert.equal(LC.debriefPatterns(S)[0].kind,'smaller')});
+t2('Debrief: alles erledigt → keine künstlichen Probleme',()=>{const S=LC.ensureLife(base());const g=LC.addGoal(S,{...tpl('skill')});const a=LC.actionsOf(S.life,g.id)[0];for(let i=0;i<5;i++){LC.onDebrief(S,{mood:'good',done:[a.missionId]});LC.onAdvance(S)}assert.equal(LC.debriefPatterns(S).length,0)});
+t2('Monats-Check alle 4 Wochen',()=>{const S=LC.ensureLife(base());LC.addGoal(S,{...tpl('skill')});assert.equal(LC.monthlyDue(S.life),null);S.life.d=21;assert.equal(LC.monthlyDue(S.life),0);LC.saveMonthly(S,0,{});assert.equal(LC.monthlyDue(S.life),null)});
+console.log('PASS debrief: '+ok2.join(' · '))}

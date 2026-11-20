@@ -163,6 +163,31 @@ function onComplete(S,mid){const L=S.life;if(!L)return null;const a=(L.actions||
 function onAdvance(S){if(S.life)S.life.d=(S.life.d||0)+1}
 function onDailyReview(S,blocks){const L=S.life;if(!L)return;const obst=(blocks||[]).map(b=>BLOCK_MAP[b]).filter(Boolean);
  L.daily=[...(L.daily||[]).filter(x=>x.d!==L.d),{d:L.d,wk:curWk(L),obst}].slice(-120)}
+/* ───── Daily Debrief: App wertet aus, Nutzer liefert nur Stimmung, Hindernis, Wunsch ─────
+   entry: {d, wk, mood:'good'|'ok'|'hard', obst:[code], done:[mid], skipped:[mid], change:'earlier'|'smaller'|'keep'|null} */
+const MOODS=[['good','Gut'],['ok','Okay'],['hard','Schwierig']];
+const DEBRIEF_OBST=[['time','Keine Zeit'],['energy','Keine Energie'],['unclear','Schlecht geplant'],['unexpected','Etwas anderes']];
+const CHANGES=[['earlier','Morgen früher einplanen'],['smaller','Kleiner machen'],['keep','Plan beibehalten']];
+function onDebrief(S,x){const L=S.life;if(!L)return;const e={d:L.d,wk:curWk(L),mood:x.mood||null,obst:x.obst||[],done:x.done||[],skipped:x.skipped||[],change:x.change||null,t:Date.now()};
+ L.daily=[...(L.daily||[]).filter(y=>y.d!==L.d),e].slice(-120);L.flags={...(L.flags||{}),debrief:true};return e}
+/* Muster aus den letzten 14 Tagen. Nur Vorschläge, nie automatische Planänderung.
+   S.ctime: {missionId:[{t:Minuten}]} = Uhrzeiten erledigter Einheiten */
+function debriefPatterns(S,days=14){const L=S.life;if(!L)return[];const from=(L.d||0)-days,ent=(L.daily||[]).filter(e=>e.d>from);const out=[];
+ (L.actions||[]).filter(a=>!a.off&&(goalById(L,a.goalId)||{}).status==='active').forEach(a=>{
+  const sk=ent.filter(e=>(e.skipped||[]).includes(a.missionId)),skips=sk.length,wantSmall=sk.some(e=>e.change==='smaller'&&(e.skipped.length===1||skips>=2));if(skips<3&&!wantSmall)return;
+  const times=((S.ctime||{})[a.missionId]||[]).map(x=>x.t).filter(t=>typeof t==='number'),morning=times.filter(t=>t<720).length;
+  const ob={};sk.forEach(e=>(e.obst||[]).forEach(o=>{ob[o]=(ob[o]||0)+1}));const top=Object.entries(ob).sort((p,q)=>q[1]-p[1])[0];
+  const g=goalById(L,a.goalId),p=a.perWeek;
+  if(!wantSmall&&a.when!=='morgens'&&(!times.length||morning/times.length>=.6)){const m=Math.min(20,a.minutes||20);
+   out.push({aid:a.id,goalId:g.id,kind:'morning',skips,obst:top&&top[0],text:`„${a.title}“ wurde ${skips}× ausgelassen${times.length?', erledigt hast du es meist morgens':''}. Testen, ob ein ${m}-Minuten-Block am Morgen besser funktioniert?`,
+    sug:{id:'pattern',kind:'pattern',label:`${m}-Minuten-Block am Morgen`,hypothesis:`Morgens setze ich „${a.title}“ zuverlässiger um.`,change:{when:'morgens',minutes:m},criterion:{min:Math.max(1,Math.min(p,3)),outcome:false},why:'Aus deinen Debriefs erkannt'}})}
+  else{const m=a.minutes?Math.max(10,Math.round((a.minutes/2)/5)*5):null;const why=skips>=3?(top?(top[1]>1?' (meist: ':' (Grund: ')+((OBST[top[0]]||{l:top[0]}).l)+')':''):'';
+   out.push({aid:a.id,goalId:g.id,kind:'smaller',skips,obst:top&&top[0],text:skips>=3?`„${a.title}“ wurde ${skips}× ausgelassen${why}. Testen, ob eine kleinere Version${m?' mit '+m+' Minuten':''} besser funktioniert?`:`Du wolltest „${a.title}“ kleiner machen. Testen, ob eine kleinere Version${m?' mit '+m+' Minuten':''} besser funktioniert?`,
+    sug:{id:'pattern',kind:'pattern',label:m?`Kleinere Version: ${m} Minuten`:'Kleinere Version: Minimalschritt',hypothesis:`Mit einer kleineren Version fange ich „${a.title}“ auch an schwierigen Tagen an.`,change:m?{minutes:m}:{rule:'Minimalschritt genügt'},criterion:{min:Math.max(1,p-1),outcome:false},why:'Aus deinen Debriefs erkannt'}})}});
+ return out.sort((x,y)=>y.skips-x.skips)}
+/* Monats-Check: alle 4 Wochen kurz prüfen, ob die Ziele noch sinnvoll sind */
+function monthlyDue(L){const w=curWk(L);if(w<3)return null;const k=w%4===3?Math.floor(w/4):Math.floor(w/4)-1;return k>=0&&!(L.monthly||[]).some(x=>x.m>=k)&&(L.goals||[]).some(g=>g.status==='active')?k:null}
+function saveMonthly(S,m,decisions){const L=S.life;L.monthly=[...(L.monthly||[]),{m,t:Date.now(),decisions:decisions||{}}];Object.entries(decisions||{}).forEach(([gid,d])=>{if(d==='archive')setGoalStatus(S,gid,'archived')})}
 function addMeasurement(S,gid,v,note){const L=S.life,g=goalById(L,gid);if(!g||v==null||!isFinite(v))return null;
  if(g.metric.start==null&&!measOf(L,gid).length)g.metric.start=v;
  L.meas=[...(L.meas||[]),{id:'v'+uid(),goalId:gid,v,d:L.d,t:Date.now(),note:note||''}];
@@ -289,5 +314,5 @@ function parseV(metric,s){if(s==null)return null;s=String(s).trim();if(!s)return
 
 G.LC={LIFE_V,AREAS,AREA,LINKS,ACT_AREA,areaAct,VALUES,WHY_Q,GOAL_TPL,OBSTACLES,OBST,BLOCK_MAP,RULES,LOOP,
  wkOf,curWk,actById,goalById,actionsOf,actLabel,missionTitle,plannedAt,doneIn,goalWeek,weekRate,measOf,goalNow,goalStart,better,reached,goalProgress,trend,diagnose,suggest,
- startExperiment,evalExperiment,decideExperiment,reviewWeek,weekSummary,obstacleCounts,saveWeeklyReview,onComplete,onAdvance,onDailyReview,addMeasurement,addAction,addGoal,updateGoal,setGoalStatus,insights,loopStage,newLife,ensureLife,TEMPLE_LEN,STAGES,PHASES,TEMPLE_RULES,newTemple,syncTemple,columnState,foundationLevel,templeState,closeTempleSeason,areaWeek,fmtV,parseV,syncMission};
+ startExperiment,evalExperiment,decideExperiment,reviewWeek,weekSummary,obstacleCounts,saveWeeklyReview,onComplete,onAdvance,onDailyReview,addMeasurement,addAction,addGoal,updateGoal,setGoalStatus,insights,loopStage,newLife,ensureLife,MOODS,DEBRIEF_OBST,CHANGES,onDebrief,debriefPatterns,monthlyDue,saveMonthly,TEMPLE_LEN,STAGES,PHASES,TEMPLE_RULES,newTemple,syncTemple,columnState,foundationLevel,templeState,closeTempleSeason,areaWeek,fmtV,parseV,syncMission};
 })(typeof window!=='undefined'?window:globalThis);
