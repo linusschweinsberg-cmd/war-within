@@ -7,7 +7,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - State: `useState(loadState)`, `upd(fn)`, `derive(S)`; Spielstand in localStorage: `war_within_v5` (Gast/Demo) bzw. `war_within_acc_v1_<Supabase-Nutzer-ID>` (E-Mail-Konto).
 - Einstieg: `Root` → `AuthFlow` (Willkommen/Registrieren/Login) → `Onboarding` (8 Schritte: Intro, Profil, Kompass, Warum, Bereiche, Ziel, Plan, Briefing; `buildState(ob)` erzeugt den Spielstand) → `App`. Sitzung und Onboarding-Fortschritt in `war_within_auth_v1`, niemals Passwörter.
 - Auth läuft über `auth.js` mit Supabase; öffentliche Konfiguration in `supabase-config.js`; Profil liegt in `S.profile`, Konto-Bereich im Sheet `account`.
-- Theme über `data-theme` (dunkel/hell) und `data-skin` (`antik` Standard, `violet` wählbar) als CSS-Variablen. Farbrollen: Rost = du/Handeln, Bronze = Ergebnis/Belohnung, Oliv = erledigt, Stahl = Nemesis. Keine festen Hex-Farben im Code, nur Variablen.
+- Theme über `data-theme` (dunkel/hell) und `data-skin` (`antik` Standard, `violet` wählbar) als CSS-Variablen. Design „Antik“ folgt dem Designkonzept (Nov 2026, Tokens im CSS-Block „Designkonzept“): Hintergrund #0E0C0B bzw. Pergament, Knochen/Grau als Text, ein Akzent Terrakotta = Handlung/Fortschritt (auch Haken der Checkboxen), Gold = Auszeichnung (z. B. Balken bei 100 %), Oliv = Erledigt-Hinweis/Rekord, Stahl = Nemesis. Schriften: Oswald (Titel, Versalien), Inter (Text), Cinzel (Zitate, Wortmarke). Karten matt mit 1 px Kontur, Radius 16; flache Tab-Leiste mit Unterstrich; Aufgabenzeile mit eckiger Checkbox rechts. Keine festen Hex-Farben im Code, nur Variablen.
 - Life-OS-Logik (Ziele, Messwerte, Handlungen, Rückblicke, Experimente, Migration) liegt in `life-core.js` (`window.LC`), Daten in `S.life`. Details: `docs/LIFE-OS.md`.
 - Wisdom of the Warrior (Bibliothek mit 72 Impulsen, regelbasierte Auswahl, Favoriten) liegt in `wisdom-core.js` (`window.WC`), Daten in `S.wisdom`. Details: `docs/WISDOM.md`.
 - Der Rest liegt in einem <script>-Block, Abschnitte: Daten (CORE, M0, SEASON_DEF, Punkte-Katalog), UI (Ring, Radar, LifeTree), Start/Aufgaben/Duell, Liga, Stats, Sheets, App.
@@ -31,7 +31,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v39` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v40` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`. Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Konzepte

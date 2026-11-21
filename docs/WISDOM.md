@@ -9,7 +9,7 @@ Kurze Impulse zur Selbstreflexion, keine Befehle und kein Motivationsspruch-Gene
 | Datei | Aufgabe |
 |---|---|
 | `wisdom-core.js` | Reine Logik ohne UI: Kategorien, Bibliothek (72 Einträge), Kontext-Erkennung, Auswahlregeln, Favoriten, Anzeigehistorie, Migration. Hängt sich als `window.WC` an. |
-| `index.html` | Abschnitt „WISDOM OF THE WARRIOR“: `WisdomCard` (Stele mit Giebel, Aspis-Medaillon, Lorbeerzweigen und Mäanderband), `WisdomSlot` (eine Stelle in der App), `WisdomCodex` (Archiv-Sheet `codex` mit Emblem-Raster der Themen und nummerierten Steintafeln in griechischen Zahlzeichen); Einstellungen im Sheet `settings`. |
+| `index.html` | Abschnitt „WISDOM OF THE WARRIOR“: `WisdomCard` (Steintafel nach Designkonzept: doppelter Rahmen, Mäander, Inschrift in Cinzel), `WisdomSlot` (eine Stelle in der App), `WisdomCodex` (Archiv-Sheet `codex` mit Lorbeer-Header, Kategorie-Kacheln und Tafel-Zeilen in griechischen Zahlzeichen); Einstellungen im Sheet `settings`. |
 | `tests/wisdom-core.cjs` | Abnahmekriterien als Szenarien (siehe unten). |
 
 ## Datenmodell
