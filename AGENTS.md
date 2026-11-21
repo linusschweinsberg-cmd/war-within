@@ -31,11 +31,11 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v40` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v41` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`. Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Konzepte
-- Navigation: Heute (Hauptziel, nächste Handlung, Success Loop, Prioritäten, Arena optional), Mein Leben (Werte, Warum, vier Bereiche, Ziele), Fortschritt (Ergebnisse, Umsetzung, Experimente, Wirkung), Reflexion (Check-in, Wochenrückblick, Experimente). Aufgaben, Liga und Duell sind Unterseiten.
+- Navigation (Tab-Leiste wie im Prototyp, fünf Einträge): Home (`home`: Hauptziel, nächste Handlung, Success Loop, Prioritäten, Arena optional), Heute (`tasks`: Aufgabenliste und Tagesplan), Bereiche (`life`: Tempel, vier Lebensbereiche als Kacheln Gesundheit/Beziehungen/Finanzen/Persönliche Weiterentwicklung, Werte, Warum, Ziele), Stats (`stats`: Ergebnisse, Umsetzung, Tempel, Experimente, Wirkung), Duell (`solo`, im Fokusmodus ausgeblendet). Reflexion (`reflect`: Check-in, Wochenrückblick, Experimente) ist Unterseite von Home (Reflexions-Zeile auf Home, Optionen); Liga ist Unterseite von Stats.
 - Ergebnis (Messgröße eines Ziels) und Prozess (Handlungen/Missionen) sind getrennt; Punkte gibt es nur für Handlungen.
 - Life Temple (Mein Leben): vier Säulen mit 5 Stufen aus gedeckelten Bauregeln (`TEMPLE_RULES` in `life-core.js`), eigene 12-Wochen-Saison, Galerie früherer Saisons; Details in `docs/LIFE-OS.md`.
 - Wisdom of the Warrior: höchstens ein kurzer Impuls pro Stelle und Tag (Heute, Daily Debrief/Reflexion, Fortschritt bei Meilensteinen, Mein Leben bei neuer Tempel-Saison), nie als Pop-up, schließbar und in den Optionen abschaltbar; Wisdom Codex mit Favoriten. Lesen bringt keine Punkte und keinen Tempel-Fortschritt.
