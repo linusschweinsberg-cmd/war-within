@@ -21,6 +21,7 @@
 <script src="supabase-config.js"></script>
 <script src="auth.js"></script>
 <script src="life-core.js"></script>
+<script src="wisdom-core.js"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -198,6 +199,21 @@ html,body{background:radial-gradient(1200px 600px at 50% -10%,#24150D 0%,#080605
 [data-skin=violet][data-theme=dark]{--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--acc3:#C4B5FD;--acc-d:#6D28D9;--acc-d2:#4C1D95;--acc-rgb:139,92,246;--acc2-rgb:167,139,250;--acc3-rgb:196,181,253;--good:#34D399;--good-rgb:52,211,153;--gold:#FBBF24;--gold-rgb:251,191,36;--sky:#7DD3FC;--sky-rgb:56,189,248;--you:#A78BFA;--nem:#FF5C7A;--done:#34D399;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05);--glow:rgba(139,92,246,.22);--body-glow:#1A1230;--card-g:linear-gradient(180deg,#1C1C21 0%,#17171A 100%);--card2-g:linear-gradient(180deg,#26262C,#212126);--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mtr:#CFC4FF}
 [data-skin=violet][data-theme=light]{--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.12);--ink:#14161C;--mute:#55596D;--acc:#7C3AED;--acc2:#6D28D9;--acc3:#8B5CF6;--acc-d:#5B21B6;--acc-d2:#4C1D95;--acc-rgb:124,58,237;--acc2-rgb:109,40,217;--acc3-rgb:139,92,246;--good:#0E9F6E;--good-rgb:14,159,110;--gold:#B45309;--gold-rgb:180,83,9;--sky:#0369A1;--sky-rgb:3,105,161;--you:#6D28D9;--nem:#E11D48;--done:#047857;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.06);--glow:rgba(124,58,237,.14);--card-g:linear-gradient(180deg,#FFFFFF 0%,#FBFAFF 100%);--card2-g:linear-gradient(180deg,#F3F0FC,#ECE8FA);--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#D6CEF3;--mr2:#AFA2E0;--mr3:#8676CC;--msn:#FFFFFF;--mgr:#6657AE;--mtr:#FFFFFF}
 [data-skin=violet] .chip.on{background:linear-gradient(135deg,var(--acc2),var(--acc))}
+/* ───── Wisdom of the Warrior: kleine Inschrift auf Stein, ohne Animation ───── */
+.wis{position:relative;margin-left:0;margin-right:0;padding:16px 14px 13px;border-radius:18px;overflow:hidden;background:linear-gradient(165deg,color-mix(in srgb,var(--stone,var(--gold)) 10%,var(--card)) 0%,var(--card) 78%);box-shadow:0 0 0 1px color-mix(in srgb,var(--bronze,var(--gold)) 32%,transparent) inset,0 1px 0 var(--hi) inset}
+.wis:before{content:'';position:absolute;left:16px;right:16px;top:0;height:1px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--bronze,var(--gold)) 75%,transparent),transparent)}
+.wis-laurel{position:absolute;right:-10px;bottom:-14px;color:var(--bronze,var(--gold));opacity:.08;pointer-events:none}
+.wis-ic{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:9px;flex-shrink:0;color:var(--bronze,var(--gold));background:color-mix(in srgb,var(--bronze,var(--gold)) 14%,transparent)}
+.wis-k{font-family:'Cinzel',serif;font-weight:700;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--bronze,var(--gold))}
+.wis-t{position:relative;margin:8px 0 0;font-family:Georgia,'Times New Roman',serif;font-size:16.5px;line-height:1.42;color:var(--ink)}
+.wis-x{position:relative;margin:6px 0 0;font-size:13px;line-height:1.45;color:color-mix(in srgb,var(--mute) 78%,var(--ink))}
+.wis-more{position:relative;margin-top:2px;padding:6px 0;min-height:36px;background:none;border:0;font-size:13px;font-weight:600;color:var(--acc2)}
+.wis-c{position:relative;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 10px;margin-top:8px;font-family:'Cinzel',serif;font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--mute)}
+.wis-r{font-family:Inter,sans-serif;font-weight:500;letter-spacing:0;font-size:11.5px;text-transform:none;min-width:0;margin-left:auto}
+.wis-b{position:relative;width:40px;height:40px;margin:-7px -8px -7px 0;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;border:0;background:transparent;color:var(--mute);border-radius:12px}
+.wis-b[aria-pressed=true]{color:var(--bronze,var(--gold))}
+.wis-row{display:flex;align-items:flex-start;gap:6px;padding:12px 12px 12px 14px;border-radius:14px;background:var(--card2);box-shadow:0 0 0 1px var(--line) inset}
+.wis-rt{display:block;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.4}
 </style>
 </head>
 <body>
@@ -283,6 +299,10 @@ link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><pa
 edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
 user:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/>',
 bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+hourglass:'<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.2a2 2 0 0 0-.6-1.4L12 12l-4.4 4.4a2 2 0 0 0-.6 1.4V22"/><path d="M7 2v4.2a2 2 0 0 0 .6 1.4L12 12l4.4-4.4a2 2 0 0 0 .6-1.4V2"/>',
+scroll:'<path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/>',
+bookmark:'<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>',
+bookmarkOn:'<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" fill="currentColor"/>',
 crown:'<path d="M2 18h20"/><path d="m3 14 2-9 5 5 2-6 2 6 5-5 2 9Z"/>',
 logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>'
 };
@@ -1313,6 +1333,7 @@ function Home({c}){const {S,D}=c;const now=nowMinOf(c);
    ${r&&html`<button onClick=${()=>c.setTab('stats')} aria-label=${'Rang '+r.name} className="flex items-center gap-2 mt-3 bg-transparent border-0 p-0 text-left" style=${{maxWidth:200}}><span style=${{color:'var(--gold)'}}><${Icon} n="helmet" s=${15} sw=${1.8}/></span><span className="text-[11.5px] brand shrink-0">${r.name}</span><span className="flex-1 h-1.5 rounded-full overflow-hidden" style=${{background:'var(--ghost)',minWidth:56}}><span className="block h-full rounded-full" style=${{width:Math.max(6,r.pct*100)+'%',background:'var(--acc2)'}}/></span></button>`}</div></div>
  <${TodayFocus} c=${c}/>
  <${NextList} c=${c}/>
+ <${WisdomSlot} c=${c} place="today"/>
  <${ReflectLine} c=${c}/>
  ${!fm&&html`<${NemesisLine} c=${c}/>`}
  ${!fm&&D.di===6&&html`<div className="mt-3"><${Finale} c=${c}/></div>`}
@@ -1895,6 +1916,7 @@ function Stats({c}){
  const t=opts.some(o=>o[0]===c.statTab)?c.statTab:'out',set=c.setStatTab;
  return html`<div className="screen px-4 pb-6"><div className="pt-5 flex items-end justify-between gap-2"><div><div className="lbl flex items-center gap-1.5"><span style=${{color:'var(--gold)'}}><${Icon} n="laurel" s=${15} sw=${1.5}/></span>Dein Weg</div><h1 className="disp text-[40px] mt-1">Fortschritt</h1></div><div className="pb-1"><${ModeToggle} c=${c}/></div></div>
  <div className="meander mt-3" aria-hidden="true"/><div className="mt-3 mb-3"><${Seg} opts=${opts} val=${t} on=${set}/></div>
+ <${WisdomSlot} c=${c} place="milestone" cls="mb-3"/>
  ${t==='out'&&html`<${OutcomeView} c=${c}/>`}${t==='temple'&&html`<${TempleProgress} c=${c}/>`}${t==='proc'&&html`<${ProcessView} c=${c}/>`}${t==='exp'&&html`<${ExpView} c=${c}/>`}
  ${t==='compound'&&html`<div className="text-[11.5px] mute mb-3 px-1">Spielwelt: Punkte und Mengen. Echte Ergebnisse findest du unter „Ergebnisse“.</div>`}
  ${t==='compound'&&html`<${Compound} c=${c}/>`}${t==='matrix'&&html`<${LifeMatrix} c=${c}/>`}${t==='gen'&&html`<${Gen} c=${c}/>`}${t==='over'&&html`<${Over} c=${c}/>`}${t==='rec'&&html`<${Recs} c=${c}/>`}${t==='calc'&&html`<${Calc} c=${c}/>`}${t==='proj'&&html`<${Proj} c=${c}/>`}
@@ -2103,6 +2125,8 @@ function Settings({c}){const {S}=c;
  <button onClick=${c.toggleFocusMode} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="target" s=${18} cls="acc"/><div className="flex-1">Fokusmodus<div className="text-[11px] mute font-normal">Ohne Liga, Nemesis und Punkte. Deine Daten bleiben.</div></div><span className=${`chip ${focusMode(S)?'on':''}`}>${focusMode(S)?'An':'Aus'}</span></button>
  <button onClick=${c.toggleWeather} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="temple" s=${18} cls="acc"/><div className="flex-1">Verwitterung im Tempel<div className="text-[11px] mute font-normal">Zeigt gemessene Rückschritte als leichte Risse. Nie bei fehlenden Daten.</div></div><span className=${`chip ${S.life.temple.weather?'on':''}`}>${S.life.temple.weather?'An':'Aus'}</span></button>
  <button onClick=${c.toggleTempleAnim} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="column" s=${18} cls="acc"/><div className="flex-1">Tempel-Animationen<div className="text-[11px] mute font-normal">Bausteine gleiten ein. Bei „Bewegung reduzieren“ automatisch aus.</div></div><span className=${`chip ${S.life.temple.anim?'on':''}`}>${S.life.temple.anim?'An':'Aus'}</span></button>
+ <button onClick=${c.wisToggle} aria-pressed=${WC.enabled(S)} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="scroll" s=${18} cls="acc"/><div className="flex-1">Wisdom of the Warrior<div className="text-[11px] mute font-normal">Kurze Impulse auf Heute, im Debrief und bei Meilensteinen. Höchstens einer pro Stelle und Tag.</div></div><span className=${`chip ${WC.enabled(S)?'on':''}`}>${WC.enabled(S)?'An':'Aus'}</span></button>
+ <button onClick=${()=>c.openSheet({t:'codex'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="bookmark" s=${18} cls="acc"/>Wisdom Codex öffnen</button>
  <button onClick=${c.togglePush} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="bell" s=${18} cls="acc"/><div className="flex-1">Erinnerungen<div className="text-[11px] mute font-normal">Blockstart, Rückfrage am Ende, Abendbericht um 21 Uhr. Ruhig von 21 bis 6 Uhr.</div></div><span className=${`chip ${S.push?'on':''}`}>${S.push?'An':'Aus'}</span></button>
  <div className="ghost p-3.5"><div className="text-[14px] font-medium flex items-center gap-3 mb-2.5"><${Icon} n="helmet" s=${18} cls="acc"/>Design</div><${Seg} opts=${[['antik','Antik'],['violet','Violett']]} val=${S.skin||'antik'} on=${c.setSkin}/></div>
  <div className="ghost p-3.5"><div className="text-[14px] font-medium flex items-center gap-3 mb-2.5"><${Icon} n="star" s=${18} cls="acc"/>Fortschrittsbild</div><${Seg} opts=${VIZ.map(v=>[v[0],v[1]])} val=${S.viz||'ball'} on=${c.setViz}/></div>
@@ -2207,6 +2231,7 @@ function SheetHost({c}){
   case'achs':b=html`<${Achs} c=${c}/>`;break;
   case'integ':b=html`<${Integ} c=${c}/>`;break;
   case'settings':b=html`<${Settings} c=${c}/>`;break;
+  case'codex':b=html`<${WisdomCodex} c=${c} init=${sh.f}/>`;break;
   case'account':b=html`<${Account} c=${c}/>`;break;
   case'swap':b=html`<${Swap} c=${c} sh=${sh}/>`;break;
   case'aar':b=html`<${Aar} c=${c}/>`;break;
@@ -2380,13 +2405,47 @@ function Debrief({c}){const {S,D}=c;const L=S.life;const plan=useMemo(()=>debrie
   ${ch==='earlier'&&html`<div className="text-[12px] mute mt-1.5">„${skipped[0].title}“ steht morgen an erster Stelle.</div>`}${ch==='smaller'&&html`<div className="text-[12px] mute mt-1.5">${skipped.length===1?'Notiert. Im Wochenrückblick bekommst du eine kleinere Version als Experiment vorgeschlagen.':'Notiert. Wiederholt es sich, schlägt der Wochenrückblick eine kleinere Version vor.'} Dein Plan ändert sich nicht ungefragt.</div>`}`
  :plan.length?html`<div className="card2 p-3 mt-4 text-[13.5px] leading-snug"><b>Der Plan funktioniert.</b> Behalte ihn bei.</div>`:null}
  <button onClick=${save} disabled=${!mood} className="btn w-full py-3.5 mt-5 text-sm">Debrief abschließen</button>
- <div className="text-[11.5px] mute text-center mt-2">${mood?'Unter 30 Sekunden. Muster wertet die App im Wochenrückblick aus.':'Eine Antwort genügt: Wie lief dein Tag?'}</div><//>`}
+ <div className="text-[11.5px] mute text-center mt-2">${mood?'Unter 30 Sekunden. Muster wertet die App im Wochenrückblick aus.':'Eine Antwort genügt: Wie lief dein Tag?'}</div>
+ <${WisdomSlot} c=${c} place="debrief" x=${{planned:plan.length,done:done.length}} cls="mt-5"/><//>`}
 function MonthlyCheck({c}){const {S}=c;const L=S.life,m=LC.monthlyDue(L);const gs=(L.goals||[]).filter(g=>g.status==='active');const [dec,setDec]=useState(()=>Object.fromEntries(gs.map(g=>[g.id,'keep'])));const wk=LC.curWk(L);
  return html`<${Sheet} sub="Monats-Check · 5 Minuten" title="Sind deine Ziele noch richtig?" onClose=${c.closeSheet}>
  <div className="text-[13px] mute -mt-1 mb-3 leading-relaxed">Einmal im Monat, nicht jeden Tag: Passt das Ziel noch zu dir, und bewegt sich das Ergebnis?</div>
  <div className="flex flex-col gap-2.5">${gs.map(g=>{const p=LC.goalProgress(L,g),t=LC.trend(L,g,wk,4),[ar,tc,tl]=TRD[t.state]||TRD.none;return html`<div key=${g.id} className="card2 p-3.5"><div className="text-[14px] font-semibold">${g.title}</div><div className="text-[12.5px] mute mt-0.5 num">${g.metric.name}: ${LC.fmtV(g.metric,LC.goalNow(L,g))} → ${LC.fmtV(g.metric,g.metric.target)} · <span style=${{color:tc}}>${ar} ${tl}</span>${p!=null?' · '+Math.round(p*100)+' %':''}</div>
   <div className="grid grid-cols-3 gap-1.5 mt-2.5">${[['keep','Behalten'],['adjust','Anpassen'],['archive','Archivieren']].map(([k,l])=>html`<button key=${k} aria-pressed=${dec[g.id]===k} onClick=${()=>setDec({...dec,[g.id]:k})} className=${`chip ${dec[g.id]===k?'on':''}`}>${l}</button>`)}</div></div>`})}</div>
  <button onClick=${()=>c.saveMonthly(m??Math.floor(wk/4),dec)} className="btn w-full py-3.5 mt-4 text-sm">Monats-Check abschließen</button><//>`}
+
+/* ───── WISDOM OF THE WARRIOR: kurze Impulse als antike Inschrift ─────
+   Bibliothek und Auswahlregeln in wisdom-core.js (window.WC). Hier nur Darstellung.
+   Nie als Pop-up, immer schließbar, höchstens ein Impuls pro Stelle und Tag, abschaltbar in den Optionen. */
+const WC=window.WC;
+function WisdomCard({c,w,reason,compact,onClose,cls='mt-3'}){const [open,setOpen]=useState(!compact);const cat=WC.CAT[w.category]||{name:'',de:''};const fav=WC.isFav(c.S,w.id);
+ return html`<figure className=${'wis '+cls} aria-label="Wisdom of the Warrior">
+ <span className="wis-laurel" aria-hidden="true"><${Icon} n="laurel" s=${72} sw=${1}/></span>
+ <div className="relative flex items-center gap-2"><span className="wis-ic" aria-hidden="true"><${Icon} n=${w.icon} s=${15} sw=${1.6}/></span><span className="wis-k flex-1 min-w-0 truncate">Wisdom of the Warrior</span>
+  <button onClick=${()=>c.wisFav(w.id)} aria-pressed=${fav} aria-label=${fav?'Aus dem Wisdom Codex entfernen':'Im Wisdom Codex speichern'} className="wis-b"><${Icon} n=${fav?'bookmarkOn':'bookmark'} s=${17}/></button>
+  ${onClose&&html`<button onClick=${onClose} aria-label="Impuls für heute ausblenden" className="wis-b"><${Icon} n="x" s=${17}/></button>`}</div>
+ <blockquote className="wis-t">„${w.text}“</blockquote>
+ ${w.explanation?open?html`<p className="wis-x">${w.explanation}</p>`:html`<button onClick=${()=>setOpen(true)} aria-expanded="false" className="wis-more">Wie anwenden?</button>`:null}
+ <figcaption className="wis-c"><span className="shrink-0">${cat.name.toUpperCase()} · ${cat.de.toUpperCase()}</span>${reason&&html`<span className="wis-r">${reason}</span>`}</figcaption></figure>`}
+/* Eine Stelle in der App: wählt (regelbasiert) und merkt sich den Impuls des Tages */
+function WisdomSlot({c,place,x,compact=true,cls}){const r=WC.resolve(c.S,place,x);const id=r&&!r.recorded?r.w.id:null;
+ useEffect(()=>{if(id)c.upd(n=>{WC.ensure(n);const q=WC.resolve(n,place,x);if(q&&!q.recorded)WC.record(n,q)})},[id]);
+ if(!r)return null;return html`<${WisdomCard} key=${r.w.id} c=${c} w=${r.w} reason=${r.reason} compact=${compact} cls=${cls} onClose=${()=>c.wisDismiss(place)}/>`}
+/* Wisdom Codex: reduziertes Archiv. Alles frei zugänglich, ohne Freischaltung */
+function WisdomCodex({c,init}){const {S}=c;const [f,setF]=useState(init||'all'),[open,setOpen]=useState(null);const W=S.wisdom||{};
+ const seen=new Set((W.seen||[]).map(s=>s.id)),fav=(W.fav||[]).map(id=>WC.BY[id]).filter(Boolean),cat=WC.CAT[f];
+ const list=f==='fav'?fav:f==='seen'?WC.readList(S):cat?WC.LIB.filter(w=>w.category===f):WC.LIB;
+ const opts=[['all','Alle'],['fav','Favoriten'+(fav.length?' · '+fav.length:'')],['seen','Gelesen'],...WC.CATS.map(k=>[k.id,k.name])];
+ return html`<${Sheet} sub="Wisdom of the Warrior" title="Wisdom Codex" onClose=${c.closeSheet}>
+ <div className="text-[13px] mute -mt-1 mb-3 leading-relaxed">Kurze Impulse zur Selbstreflexion, keine Befehle. Alle Texte sind eigene Formulierungen von THE WAR WITHIN. Gespeicherte Weisheiten sind deine Inschriften. Sie bringen keine Punkte und keinen Tempel-Fortschritt.</div>
+ <${Seg} opts=${opts} val=${f} on=${v=>{setF(v);setOpen(null)}}/>
+ ${cat&&html`<div className="flex items-start gap-2.5 mt-3 text-[13px] leading-snug"><span className="wis-ic" aria-hidden="true"><${Icon} n=${cat.icon} s=${15} sw=${1.6}/></span><span><b>${cat.de}.</b> ${cat.d}</span></div>`}
+ <ul className="flex flex-col gap-2 mt-3 p-0 m-0 list-none" aria-label="Weisheiten">${list.map(w=>{const k=WC.CAT[w.category],on=open===w.id,fv=WC.isFav(S,w.id);return html`<li key=${w.id} className="wis-row">
+  <button onClick=${()=>setOpen(on?null:w.id)} aria-expanded=${on} className="flex-1 min-w-0 text-left bg-transparent border-0 p-0" style=${{color:'var(--ink)'}}>
+   <span className="wis-rt">${w.text}</span>${on&&w.explanation&&html`<span className="block wis-x">${w.explanation}</span>`}
+   <span className="wis-c" style=${{marginTop:6}}><span className="flex items-center gap-1.5"><${Icon} n=${k.icon} s=${12} sw=${1.8}/>${k.name.toUpperCase()}</span>${seen.has(w.id)&&html`<span className="wis-r">gelesen</span>`}</span></button>
+  <button onClick=${()=>c.wisFav(w.id)} aria-pressed=${fv} aria-label=${fv?'Aus den Favoriten entfernen':'Als Favorit speichern'} className="wis-b" style=${{margin:'-8px -6px 0 0'}}><${Icon} n=${fv?'bookmarkOn':'bookmark'} s=${17}/></button></li>`})}</ul>
+ ${!list.length&&html`<div className="card2 p-4 text-[13px] mute mt-3 leading-snug">${f==='fav'?'Noch keine Favoriten. Tippe das Lesezeichen an einer Weisheit, um sie hier aufzubewahren.':'Noch nichts gelesen. Impulse erscheinen auf „Heute“, im Daily Debrief und bei Meilensteinen.'}</div>`}<//>`}
 
 /* ───── LIFE OS: Heute · Mein Leben · Fortschritt · Reflexion ─────
    Logik in life-core.js (window.LC). Hier nur Darstellung und Verknüpfung mit dem Spielstand. */
@@ -2537,6 +2596,8 @@ function GoalCard({c,g}){const {S}=c;const L=S.life,wk=LC.curWk(L),now=LC.goalNo
 function MyLife({c}){const {S}=c;const L=S.life;const P=S.principles||[];const goals=L.goals||[],act=goals.filter(g=>g.status==='active'),ach=goals.filter(g=>g.status==='achieved');const W=L.why||{};
  return html`<div className="screen px-4 pb-6"><div className="pt-5 relative"><span className="page-emblem"><${Icon} n="compass" s=${76} sw=${1}/></span><div className="lbl">Dein Kompass</div><h1 className="disp text-[40px] mt-1">Mein Leben</h1><div className="text-[13px] mute mt-1 leading-snug">Werte geben die Richtung. Ziele machen sie messbar. Handlungen bringen dich hin.</div><div className="meander mt-3" aria-hidden="true"/></div>
  <${TempleView} c=${c}/>
+ <${WisdomSlot} c=${c} place="season"/>
+ ${WC.enabled(S)&&(()=>{const n=((S.wisdom&&S.wisdom.fav)||[]).length;return html`<button onClick=${()=>c.openSheet({t:'codex',f:n?'fav':'all'})} className="ghost w-full p-3 mt-3 flex items-center gap-3 text-left text-[14px] font-medium"><span className="wis-ic" aria-hidden="true"><${Icon} n="scroll" s=${15} sw=${1.6}/></span><div className="flex-1">Wisdom Codex<div className="text-[11.5px] mute font-normal">${n?n+(n===1?' Inschrift':' Inschriften')+' gespeichert':'Deine Sammlung kurzer Lebensweisheiten'}</div></div><${Icon} n="chevR" s=${15} cls="mute"/></button>`})()}
  <${Title} right=${html`<button onClick=${()=>c.openSheet({t:'values'})} className="chip">${P.length?'Bearbeiten':'Wählen'}</button>`}>Fundament · Werte<//>
  ${P.length?html`<div className="card p-3.5"><div className="flex flex-wrap gap-1.5">${P.map(p=>html`<button key=${p.id} onClick=${()=>c.actPrinciple(p.id)} className="chip" aria-label=${p.n+': heute danach gehandelt'}>${p.n}${p.acts?html`<span className="num mute ml-1.5">${p.acts}</span>`:null}</button>`)}</div><div className="text-[11.5px] mute mt-2">Tippe einen Wert, wenn du heute bewusst danach gehandelt hast.${S.tradition&&S.tradition!=='Keine'?' Inspiration: '+S.tradition+'.':''}</div></div>`
  :html`<button onClick=${()=>c.openSheet({t:'values'})} className="card w-full p-4 text-left"><div className="text-[14.5px] font-semibold">Wähle drei Werte</div><div className="text-[12.5px] mute mt-0.5">Zwei Minuten. Sie helfen bei Entscheidungen und bei der Wahl deiner Ziele.</div></button>`}
@@ -2563,6 +2624,7 @@ function Reflect({c}){const {S}=c;const L=S.life;const due=LC.reviewWeek(L),r=re
   ${due!=null?html`<button onClick=${()=>c.openSheet({t:'weekly'})} className="card p-4 text-left" style=${{background:'linear-gradient(150deg,color-mix(in srgb,var(--acc) 22%,var(--card)),var(--card) 70%)',boxShadow:'0 0 0 1px color-mix(in srgb,var(--acc2) 50%,transparent) inset'}}><div className="lbl acc">Wochenrückblick bereit</div><div className="text-[18px] font-bold mt-1">Woche ${due+1} auswerten</div><div className="text-[13px] mute mt-0.5">Umsetzung und Ergebnis prüfen, ein Hindernis lösen, ein Experiment festlegen. 3 Minuten.</div><span className="btn inline-block px-4 py-2.5 mt-3 text-[13px]">Starten</span></button>`
   :html`<div className="card p-4"><div className="lbl">Wochenrückblick</div><div className="text-[15px] font-semibold mt-1">Nächster Rückblick am Sonntag</div><div className="text-[12.5px] mute mt-0.5">${(L.reviews||[]).length?'Der letzte ist erledigt. Bis dahin: umsetzen und messen.':'Am Ende der Woche wertest du Umsetzung und Ergebnis aus.'}</div></div>`}
   <button onClick=${()=>c.openSheet({t:'review'})} className="card p-4 text-left flex items-center gap-3"><span className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style=${{background:'rgba(var(--sky-rgb),.14)',color:'var(--sky)'}}><${Icon} n="moon" s=${19}/></span><div className="flex-1"><div className="text-[14.5px] font-semibold">Daily Debrief</div><div className="text-[12.5px] mute">${r?'Heute erledigt. Antippen zum Ändern.':'3 Fragen, unter einer Minute. Hindernisse fließen in den Wochenrückblick.'}</div></div>${r?html`<span className="good"><${Icon} n="check" s=${18} sw=${2.6}/></span>`:html`<${Icon} n="chevR" s=${16} cls="mute"/>`}</button></div>
+ ${r&&html`<${WisdomSlot} c=${c} place="debrief"/>`}
  ${(()=>{const pt=LC.debriefPatterns(S),md=LC.monthlyDue(L);return html`${md!=null&&html`<button onClick=${()=>c.openSheet({t:'monthly'})} className="card w-full p-4 mt-2.5 text-left flex items-center gap-3"><span className="acc"><${Icon} n="calendar" s=${20}/></span><div className="flex-1"><div className="text-[14.5px] font-semibold">Monats-Check fällig</div><div className="text-[12.5px] mute">Sind deine Ziele noch sinnvoll? 5 Minuten.</div></div><${Icon} n="chevR" s=${16} cls="mute"/></button>`}
  ${pt.length>0&&html`<${Title}>Erkannte Muster<//><div className="flex flex-col gap-2">${pt.slice(0,3).map(p=>html`<div key=${p.aid} className="card p-3.5 text-[13px] leading-snug">${p.text}<div className="text-[11.5px] mute mt-1">Wird im Wochenrückblick als Experiment angeboten. Nichts ändert sich ungefragt.</div></div>`)}</div>`}`})()}
  <${Title}>Laufende Experimente<//>
@@ -3014,7 +3076,7 @@ function PerfectDay({S,onClose}){
 const useNow=ms=>{const [n,setN]=useState(Date.now());useEffect(()=>{const t=setInterval(()=>setN(Date.now()),ms);return()=>clearInterval(t)},[ms]);return n};
 const METRICS={'5-km-Lauf':[true,S=>S.stats.run5k.last,fmtT],'Bankdrücken (Verbesserung)':[false,S=>S.stats.bench.ver,x=>n1(x)+' kg'],'100 m Schwimmen':[true,S=>S.stats.swim.pr,fmtT],'Lese-Konstanz':[false,()=>120,x=>Math.round(x)+' Min.'],'Fokus-Stunden':[false,()=>18,x=>n1(x)+' h'],'Spar-Konstanz':[false,()=>5,x=>Math.round(x)+' Tage']};
 function App({init,auth,skey='war_within_v5'}){
- const [S,setS]=useState(()=>{const s=LC.ensureLife(init||loadState(skey));LC.syncTemple(s);return s});
+ const [S,setS]=useState(()=>{const s=LC.ensureLife(init||loadState(skey));WC.ensure(s);LC.syncTemple(s);return s});
  const [tSel,setTSel]=useState(null),[tFlash,setTFlash]=useState(null);
  const [tab,setTab]=useState('home'),[statTab,setStatTab]=useState('out'),[sheet,setSheet]=useState(null),[sel,setSel]=useState(null),[coreSel,setCoreSel]=useState(null),[freq,setFreq]=useState('all');
  const [toasts,setToasts]=useState([]),[floats,setFloats]=useState([]),[flash,setFlash]=useState({}),[sparks,setSparks]=useState([]),[undo,setUndo]=useState(null);
@@ -3174,6 +3236,10 @@ function App({init,auth,skey='war_within_v5'}){
  const saveMonthly=(m,dec)=>{lifeUpd(n=>LC.saveMonthly(n,m,dec));setSheet(null);const adj=Object.entries(dec).find(([,d])=>d==='adjust');if(adj)setTimeout(()=>setSheet({t:'goal',gid:adj[0]}),250);toast('Monats-Check gespeichert.','good')};
  const toggleWeather=()=>{const on=S.life.temple.weather;lifeUpd(n=>{n.life.temple.weather=!on});toast(on?'Verwitterung ausgeblendet. Deine Daten bleiben unverändert.':'Verwitterung wird wieder angezeigt.')};
  const toggleTempleAnim=()=>lifeUpd(n=>{n.life.temple.anim=!n.life.temple.anim});
+ /* Wisdom of the Warrior: nur Anzeige, Favoriten und Einstellungen. Nie Punkte, nie Tempel-Fortschritt */
+ const wisFav=id=>{const on=WC.isFav(S,id);upd(n=>{WC.toggleFav(n,id)});toast(on?'Aus dem Wisdom Codex entfernt.':'Im Wisdom Codex gespeichert.','good')};
+ const wisDismiss=place=>{upd(n=>{WC.dismiss(n,place)});toast('Für heute ausgeblendet. Ganz abschalten kannst du die Impulse in den Optionen.')};
+ const wisToggle=()=>{const on=WC.enabled(S);upd(n=>{WC.setOn(n,!on)});toast(on?'Impulse aus. Der Codex bleibt in den Optionen erreichbar.':'Impulse an: höchstens einer pro Stelle und Tag.','good')};
  const closeTempleSeason=len=>{lifeUpd(n=>{LC.closeTempleSeason(n,len)});setSheet(null);toast('Neue Saison begonnen. Dein bisheriger Tempel steht in der Galerie.','good')};
  const addLifeGoal=x=>{lifeUpd(n=>{LC.addGoal(n,x)});setSheet(null);setTab('home');toast('Ziel angelegt. Deine Handlungen stehen ab heute im Plan.','good')};
  const updLifeGoal=(gid,p)=>{lifeUpd(n=>LC.updateGoal(n,gid,p));toast('Ziel aktualisiert. Die Änderung steht im Verlauf.','good')};
@@ -3251,7 +3317,7 @@ function App({init,auth,skey='war_within_v5'}){
  /* Erfolge */
  const newA=S.newAch[0];
  useEffect(()=>{if(!newA)return;const t=setTimeout(()=>upd(n=>{n.newAch=n.newAch.slice(1)}),2600);return()=>clearTimeout(t)},[newA]);
- const c={auth,upd,saveDebrief,saveMonthly,tSel,setTSel,tFlash,toggleWeather,toggleTempleAnim,closeTempleSeason,setSkin,addLifeGoal,updLifeGoal,setLifeGoalStatus,addMeas,saveWeekly,toggleFocusMode,setAreaSat,setFocusArea,setMainGoal,saveValues,saveWhy,setActPerWeek,removeAction,addActionTo,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,togglePush,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
+ const c={auth,upd,wisFav,wisDismiss,wisToggle,saveDebrief,saveMonthly,tSel,setTSel,tFlash,toggleWeather,toggleTempleAnim,closeTempleSeason,setSkin,addLifeGoal,updLifeGoal,setLifeGoalStatus,addMeas,saveWeekly,toggleFocusMode,setAreaSat,setFocusArea,setMainGoal,saveValues,saveWhy,setActPerWeek,removeAction,addActionTo,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,togglePush,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
  const nav=[['home','Heute','temple'],['life','Mein Leben','compass'],['stats','Fortschritt','bars'],['reflect','Reflexion','owl']];const navKey={tasks:'home',league:'stats',solo:'stats'}[tab]||tab;const revDue=LC.reviewWeek(S.life)!=null;
  const ach=newA&&ACHS.find(a=>a.id===newA);
  return html`<div data-theme=${S.theme} data-skin=${S.skin||'antik'} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(var(--acc-rgb),.12)'}}>
