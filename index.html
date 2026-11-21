@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="War Within">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cinzel:wght@600;700&family=Space+Grotesk:wght@500;600;700&family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cinzel:wght@500;600;700&family=Oswald:wght@600;700&family=Space+Grotesk:wght@500;600;700&family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -21,6 +21,7 @@
 <script src="supabase-config.js"></script>
 <script src="auth.js"></script>
 <script src="life-core.js"></script>
+<script src="wisdom-core.js"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -198,6 +199,95 @@ html,body{background:radial-gradient(1200px 600px at 50% -10%,#24150D 0%,#080605
 [data-skin=violet][data-theme=dark]{--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--acc3:#C4B5FD;--acc-d:#6D28D9;--acc-d2:#4C1D95;--acc-rgb:139,92,246;--acc2-rgb:167,139,250;--acc3-rgb:196,181,253;--good:#34D399;--good-rgb:52,211,153;--gold:#FBBF24;--gold-rgb:251,191,36;--sky:#7DD3FC;--sky-rgb:56,189,248;--you:#A78BFA;--nem:#FF5C7A;--done:#34D399;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05);--glow:rgba(139,92,246,.22);--body-glow:#1A1230;--card-g:linear-gradient(180deg,#1C1C21 0%,#17171A 100%);--card2-g:linear-gradient(180deg,#26262C,#212126);--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mtr:#CFC4FF}
 [data-skin=violet][data-theme=light]{--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.12);--ink:#14161C;--mute:#55596D;--acc:#7C3AED;--acc2:#6D28D9;--acc3:#8B5CF6;--acc-d:#5B21B6;--acc-d2:#4C1D95;--acc-rgb:124,58,237;--acc2-rgb:109,40,217;--acc3-rgb:139,92,246;--good:#0E9F6E;--good-rgb:14,159,110;--gold:#B45309;--gold-rgb:180,83,9;--sky:#0369A1;--sky-rgb:3,105,161;--you:#6D28D9;--nem:#E11D48;--done:#047857;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.06);--glow:rgba(124,58,237,.14);--card-g:linear-gradient(180deg,#FFFFFF 0%,#FBFAFF 100%);--card2-g:linear-gradient(180deg,#F3F0FC,#ECE8FA);--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#D6CEF3;--mr2:#AFA2E0;--mr3:#8676CC;--msn:#FFFFFF;--mgr:#6657AE;--mtr:#FFFFFF}
 [data-skin=violet] .chip.on{background:linear-gradient(135deg,var(--acc2),var(--acc))}
+/* ───── Designkonzept (Nov 2026): Stein statt Neon, ein Akzent ─────
+   Tokens aus „THE WAR WITHIN – Designkonzept“ 3.1. Terrakotta = Handlung/Fortschritt (auch Haken), Gold = Auszeichnung,
+   Knochen/Grau auf Dunkel. Gilt für das Standard-Design „Antik“; „Violett“ bleibt unverändert. */
+[data-skin=antik][data-theme=dark]{--bg:#0E0C0B;--bg2:#1F1B19;--card:#171413;--card2:#1F1B19;--line:#3A332E;--line2:#6B5F52;--rail:#3A332E;--ink:#E8D9C3;--mute:#A89C8C;
+ --acc:#C4502B;--acc2:#E0714A;--acc3:#E9A27F;--acc-d:#9A3B1E;--acc-d2:#6E2914;--acc-rgb:196,80,43;--acc2-rgb:224,113,74;--acc3-rgb:233,162,127;
+ --good:#7FA36B;--good-rgb:127,163,107;--bad:#D9534F;--gold:#D69A3E;--gold-rgb:214,154,62;--warn:#D69A3E;--done:#C4502B;--you:#E0714A;
+ --glass:rgba(31,27,25,.97);--hero:#171413;--ghost:rgba(232,217,195,.04);--hi:transparent;--glow:transparent;--body-glow:#0E0C0B;
+ --card-g:#171413;--card2-g:#1F1B19;--stone:#E8D9C3;--bronze:#D69A3E;--eng1:rgba(255,255,255,.10);--eng2:rgba(0,0,0,.7);--shadow:none}
+[data-skin=antik][data-theme=light]{--bg:#E6D8BF;--bg2:#F5ECDA;--card:#EEE2CB;--card2:#F5ECDA;--line:#CDBA97;--line2:#A08C68;--rail:#CDBA97;--ink:#1C1815;--mute:#5E5245;
+ --acc:#B2431F;--acc2:#9E3A19;--acc3:#C9764E;--acc-d:#8A3216;--acc-d2:#5A2010;--acc-rgb:178,67,31;--acc2-rgb:158,58,25;--acc3-rgb:201,118,78;
+ --good:#4C7A3A;--good-rgb:76,122,58;--bad:#B3342F;--gold:#7A4F0E;--gold-rgb:122,79,14;--warn:#7A4F0E;--done:#B2431F;--you:#9E3A19;
+ --glass:rgba(245,236,218,.97);--hero:#EEE2CB;--ghost:rgba(28,24,21,.04);--hi:transparent;--glow:transparent;--body-glow:#D5C5A6;
+ --card-g:#EEE2CB;--card2-g:#F5ECDA;--stone:#A08C68;--bronze:#7A4F0E;--eng1:rgba(255,255,255,.6);--eng2:rgba(0,0,0,.18);--shadow:0 2px 8px rgba(60,40,20,.10)}
+html:has([data-skin=antik]),body:has([data-skin=antik]){background:#050404}
+[data-skin=antik].app,[data-skin=antik] .app{background:var(--bg)}
+[data-skin=antik].app:after{opacity:.045;mix-blend-mode:normal}
+[data-skin=antik] .disp{font-family:'Oswald','Inter',sans-serif;font-weight:700;letter-spacing:.04em;line-height:1.08}
+[data-skin=antik] .brand{font-family:'Cinzel',serif;font-weight:500;letter-spacing:.06em}
+[data-skin=antik] .num{font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-weight:600}
+[data-skin=antik] .lbl{font-family:'Inter',sans-serif;font-weight:600;letter-spacing:.06em}
+[data-skin=antik] .card{background:var(--card);border:1px solid var(--line);border-radius:16px!important;box-shadow:var(--shadow)}
+[data-skin=antik] .card2{background:var(--card2);border:1px solid var(--line);box-shadow:none;border-radius:12px!important}
+[data-skin=antik] .ghost{background:transparent;border:1px solid var(--line);border-radius:12px!important}
+[data-skin=antik] .ghost:active{background:var(--card2)}
+[data-skin=antik] .btn{background:var(--acc);color:#fff;border-radius:12px!important;box-shadow:none;font-weight:700;letter-spacing:.01em;transition:transform .14s cubic-bezier(.2,0,0,1),filter .14s}
+[data-skin=antik] .btn:after{display:none}
+[data-skin=antik] .btn:active:not(:disabled){transform:scale(.98);filter:brightness(.92)}
+[data-skin=antik] .chip{background:transparent;border:1px solid var(--line);color:var(--ink);min-height:36px;padding:6px 14px;font-weight:500;box-shadow:none}
+[data-skin=antik] .chip.on{background:transparent;border-color:var(--acc2);color:var(--acc2);box-shadow:none}
+[data-skin=antik] .chip:active{background:var(--card2)}
+[data-skin=antik] .inp{background:var(--card);border:1px solid var(--line);border-radius:12px;min-height:52px}
+[data-skin=antik] .inp:focus{border-color:var(--acc);box-shadow:none}
+[data-skin=antik] .meander{height:12px;opacity:.4;background-size:24px 12px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='12'%3E%3Cpath d='M0 11V1h10v8H4V4h3' fill='none' stroke='%23A89C8C' stroke-width='1.5'/%3E%3Cpath d='M12 11V1h10v8h-6V4h3' fill='none' stroke='%23A89C8C' stroke-width='1.5'/%3E%3C/svg%3E")}
+[data-skin=antik] .page-emblem{opacity:.18}
+[data-skin=antik] .screen>*{animation-duration:.26s}
+/* Checkbox (Designkonzept): 28 px, Radius 8, Kontur 1,5 px; erledigt = accent gefüllt, weißer Haken; Tap-Fläche 44 px */
+.chk{position:relative;width:28px;height:28px;border-radius:8px;border:1.5px solid var(--line2,var(--mute));background:transparent;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;padding:0;transition:background .14s cubic-bezier(.2,0,0,1),border-color .14s,transform .14s}
+.chk:after{content:'';position:absolute;inset:-8px}
+.chk:active{transform:scale(.92)}
+.scene-card{position:relative;display:block;width:100%;height:230px;padding:0;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#0E0C0B;text-align:left;color:#E8D9C3}
+.scene-card svg{display:block;width:100%;height:100%}
+.scene-lbl{position:absolute;left:12px;right:12px;bottom:10px;display:flex;flex-direction:column;gap:2px}
+.scene-cap{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#C9BBA5}
+.scene-lbl b{font-size:15px;font-weight:600;text-shadow:0 1px 4px #000}
+.duel-n{font-family:'Oswald',sans-serif;font-weight:700;font-size:48px;line-height:52px;text-shadow:0 1px 0 var(--eng1,transparent),0 -1px 1px var(--eng2,transparent)}
+.tug{position:relative;height:12px;border-radius:6px;background:repeating-linear-gradient(135deg,var(--line2,var(--mute)) 0 4px,var(--line) 4px 8px)}
+.tug i{position:absolute;top:50%;width:26px;height:26px;border-radius:50%;background:var(--gold);border:2px solid var(--bg);transform:translate(-50%,-50%);transition:left .6s cubic-bezier(.16,1,.3,1)}
+.rd{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 2px;text-align:center}
+.rd b{display:block;margin-top:2px;font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;letter-spacing:.04em;text-transform:uppercase}
+.reaction{font-family:'Cinzel',serif;font-weight:500;letter-spacing:.04em;text-align:center;font-size:15px;line-height:23px}
+.fresco{display:grid;grid-template-columns:repeat(7,minmax(0,34px));justify-content:center;gap:4px;margin-top:12px}
+.fresco i{aspect-ratio:1;border:1px solid var(--line);border-radius:3px;display:block}
+.icon-btn{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink)}
+.icon-btn[aria-pressed=true]{border-color:var(--acc2);color:var(--acc2)}
+.area-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.area-tile{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:10px 7px;min-height:116px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-align:left;box-shadow:var(--shadow,none);transition:border-color .14s,background .14s}
+.area-tile[aria-pressed=true]{border:1.5px solid var(--line2,var(--acc2));background:var(--card2)}
+.area-tile b{font-family:'Oswald',sans-serif;font-weight:600;font-size:11px;line-height:14px;letter-spacing:0;text-transform:uppercase;hyphens:manual;overflow-wrap:normal;word-break:normal}
+.area-tile small{display:block;margin-top:4px;font-size:11px;font-weight:500;color:var(--mute)}
+.chk.on{background:var(--acc);border-color:var(--acc)}
+/* ───── Wisdom of the Warrior: Steintafel wie im Prototyp (doppelter Rahmen, Cinzel, graviert) ───── */
+.wis{position:relative;margin-left:0;margin-right:0;padding:14px 16px 16px;text-align:center;border-radius:6px;background:linear-gradient(145deg,var(--card2),var(--card));border:2px solid var(--line2,var(--line));box-shadow:inset 0 0 0 4px var(--card),inset 0 0 0 5px var(--line),var(--shadow,none)}
+.wis-hd{display:flex;align-items:center;gap:4px;margin:-6px -8px 0}
+.wis-k{flex:1;min-width:0;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wis-band{height:12px;margin:8px 0;opacity:.4}
+.wis-t{margin:4px 2px;font-family:'Cinzel',serif;font-weight:500;font-size:17px;line-height:26px;letter-spacing:.05em;color:var(--ink);text-shadow:0 1px 0 var(--eng1,transparent),0 -1px 0 var(--eng2,transparent)}
+.wis-x{margin:2px 4px 0;font-size:13px;line-height:19px;color:var(--mute)}
+.wis-more{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;background:none;border:0;font-size:13px;font-weight:600;color:var(--acc2)}
+.wis-c{display:flex;flex-direction:column;align-items:center;gap:2px}
+.wis-cat{display:inline-flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.wis-r{font-size:12px;font-weight:500;color:var(--mute)}
+.wis-b{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;border:0;background:transparent;color:var(--mute);border-radius:12px}
+.wis-b[aria-pressed=true]{color:var(--acc2)}
+.wis-ic{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;flex-shrink:0;color:var(--ink);border:1px solid var(--line)}
+/* Codex: Lorbeer-Header, Kategorie-Kacheln, Tafel-Zeilen */
+.wis-arch{text-align:center}
+.wis-lh{display:flex;align-items:center;justify-content:center;gap:10px;color:var(--gold)}
+.wis-lh h3{font-family:'Oswald',sans-serif;font-weight:600;font-size:22px;line-height:28px;letter-spacing:.03em;text-transform:uppercase;color:var(--ink);margin:0}
+.wis-lead{margin:8px 8px 0;font-family:'Cinzel',serif;font-weight:500;font-size:15px;line-height:23px;letter-spacing:.04em;color:var(--ink)}
+.wis-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.wis-tile{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:10px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-align:left;min-height:44px}
+.wis-tile[aria-pressed=true]{border:1.5px solid var(--acc2);background:var(--card2)}
+.wis-tile b{font-family:'Oswald',sans-serif;font-weight:600;font-size:13px;line-height:16px;letter-spacing:.03em;text-transform:uppercase}
+.wis-tile small{font-size:12px;color:var(--mute);font-weight:500}
+.wis-row{display:flex;align-items:flex-start;gap:10px;padding:12px 4px 12px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line)}
+.wis-num{flex-shrink:0;width:24px;padding-top:2px;text-align:center;font-family:'Cinzel',serif;font-weight:500;font-size:13px;color:var(--gold)}
+.wis-rt{display:block;font-family:'Cinzel',serif;font-weight:500;font-size:15px;line-height:23px;letter-spacing:.03em}
+.wis-rc{display:flex;justify-content:space-between;gap:8px;margin-top:6px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+@media (max-width:359px){.wis-k{letter-spacing:.12em}}
 </style>
 </head>
 <body>
@@ -283,6 +373,11 @@ link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><pa
 edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
 user:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/>',
 bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+hourglass:'<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.2a2 2 0 0 0-.6-1.4L12 12l-4.4 4.4a2 2 0 0 0-.6 1.4V22"/><path d="M7 2v4.2a2 2 0 0 0 .6 1.4L12 12l4.4-4.4a2 2 0 0 0 .6-1.4V2"/>',
+scroll:'<path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/>',
+grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+bookmark:'<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>',
+bookmarkOn:'<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" fill="currentColor"/>',
 crown:'<path d="M2 18h20"/><path d="m3 14 2-9 5 5 2-6 2 6 5-5 2 9Z"/>',
 logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>'
 };
@@ -513,7 +608,8 @@ function Ring({pct,size=96,stroke=8,color='var(--acc)',children,grad}){
  return html`<div className="relative inline-flex items-center justify-center" style=${{width:size,height:size}}>
  <svg width=${size} height=${size} className="-rotate-90">${grad&&html`<defs><linearGradient id=${'rg'+gid} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor=${G[0]}/><stop offset=".5" stopColor=${G[1]}/><stop offset="1" stopColor=${G[2]}/></linearGradient></defs>`}<circle cx=${size/2} cy=${size/2} r=${r} stroke="var(--ghost)" strokeWidth=${stroke} fill="none"/><circle cx=${size/2} cy=${size/2} r=${r} stroke=${color} strokeWidth=${stroke} fill="none" strokeLinecap="round" strokeDasharray=${c} strokeDashoffset=${c*(1-clamp(pct,0,1))} style=${{transition:'stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1)'}}/></svg>
  <div className="absolute inset-0 flex flex-col items-center justify-center">${children}</div></div>`}
-function Bar({pct,h=6,color='var(--acc)'}){return html`<div className="w-full rounded-full overflow-hidden" style=${{height:h,background:'var(--ghost)'}}><div className="h-full rounded-full bar-fill" style=${{width:`${clamp(pct,0,1)*100}%`,background:color,transition:'width .7s cubic-bezier(.2,.8,.2,1)'}}/></div>`}
+/* Fortschrittsbalken (Designkonzept): Schiene border.subtle, Füllung accent, bei 100 % gold */
+function Bar({pct,h=6,color='var(--acc)'}){return html`<div className="w-full overflow-hidden" style=${{height:h,borderRadius:4,background:'var(--rail,var(--ghost))'}}><div className="h-full bar-fill" style=${{borderRadius:4,width:`${clamp(pct,0,1)*100}%`,background:pct>=1&&color==='var(--acc)'?'var(--gold)':color,transition:'width .7s cubic-bezier(.2,.8,.2,1)'}}/></div>`}
 function Av({m,s=36}){return html`<div className="rounded-full flex items-center justify-center font-semibold shrink-0 num" style=${{width:s,height:s,background:`color-mix(in srgb,${m.color} 15%,transparent)`,color:m.color,border:`1.5px solid color-mix(in srgb,${m.color} 40%,transparent)`,fontSize:s*.4}}>${m.id==='me'?'A':m.name[0]}</div>`}
 function Tile({a,s=40,on=true}){return html`<div className="rounded-xl flex items-center justify-center shrink-0" style=${{width:s,height:s,background:on?'rgba(var(--acc-rgb),.14)':'var(--ghost)',color:on?'var(--acc2)':'var(--mute)'}}><${Icon} n=${a.icon} s=${s*.5}/></div>`}
 function Delta({n}){if(!n)return html`<span className="mute text-xs num">—</span>`;return html`<span className=${`inline-flex items-center gap-0.5 text-xs font-semibold num ${n>0?'good':'bad'}`}><${Icon} n=${n>0?'up':'down'} s=${11} sw=${2.6}/>${Math.abs(n)}</span>`}
@@ -725,16 +821,17 @@ function MRow({m,c,big}){
  const up=e=>{clr();const s=st.current;st.current=null;if(s&&moved.current&&dx>90)c.start(m.id,e);setDx(0)};
  const tap=e=>{if(lp.current){lp.current=false;return}if(moved.current){moved.current=false;return}c.start(m.id,e)};
  const sz=big?52:42;
- return html`<div className="relative rounded-[26px] overflow-hidden rise" style=${{touchAction:'pan-y'}}>
- <div className="absolute inset-0 flex items-center pl-5 text-white" style=${{background:col,opacity:dx>0?1:0}}><${Icon} n="check" s=${26} sw=${3}/><span className="ml-2 text-sm font-bold">${dx>90?'Loslassen':'Weiter wischen'}</span></div>
- <div onPointerDown=${down} onPointerMove=${move} onPointerUp=${up} onPointerCancel=${()=>{st.current=null;clr();setDx(0)}} onPointerLeave=${clr} onContextMenu=${e=>e.preventDefault()} onClick=${tap} role="button" aria-label=${`${m.title}: ${done?'erledigt':wantsLog(S,m)?'öffnen, um Werte einzutragen':'antippen zum Abhaken, lange drücken für Details'}`} className="flex items-center gap-3.5 relative cursor-pointer" style=${{borderRadius:26,padding:big?'18px 14px 14px 16px':'13px 12px 11px 14px',background:done?`linear-gradient(135deg,${col},color-mix(in srgb, ${col} 70%, #000))`:`linear-gradient(135deg,color-mix(in srgb, ${col} 20%, var(--card)),color-mix(in srgb, ${col} 9%, var(--card)))`,boxShadow:done?`0 10px 26px -12px ${col}`:'0 1px 0 var(--hi) inset',border:done?`1px solid ${col}`:`1px solid color-mix(in srgb, ${col} 36%, transparent)`,transform:`translateX(${dx}px)`,transition:dx?'none':'transform .25s',userSelect:'none',color:done?'#fff':'var(--ink)'}}>
-  ${hold&&html`<span aria-hidden="true" className="absolute left-0 bottom-0 h-[3px] rounded-full" style=${{background:col,animation:'holdBar .48s linear forwards'}}/>`}<span className="num absolute text-[12px] font-bold" style=${{left:18,top:6,color:done?'rgba(255,255,255,.9)':col}}>${focusMode(S)?'':capped?'Limit':'+'+m.pts}</span>
-  <button aria-label="Aktivität öffnen" onClick=${e=>{e.stopPropagation();c.openSheet({t:'act',id:a.id})}} className="bg-transparent border-0 p-0 shrink-0 mt-2" style=${{color:done?'#fff':col}}><${Icon} n=${a.icon} s=${big?30:24}/></button>
-  <div className="flex-1 min-w-0 mt-1"><div className=${`${big?'text-[17px]':'text-[15px]'} font-semibold leading-tight`}>${m.title}</div>
-  <div className="text-[13px] mt-0.5" style=${{opacity:.72}}>${m.desc?m.desc+' · ':''}${m.freq==='multi'?`${cnt} von ${m.times} diese Woche`:freqLabel(m)}${wantsLog(S,m)&&!done?' · mit Eingabe':''}${!done&&c.curIds&&c.curIds.has(m.id)?' · jetzt dran: +20 %':''}${done&&S.punct&&S.punct.k===dayKey(S)&&S.punct.ids.includes(m.id)?' · pünktlich':''}${done&&S.autoDone&&S.autoDone[m.id]?' · Auto (Demo)':''}</div></div>
+ /* Aufgabenzeile (Designkonzept): Linien-Icon, Titel, Meta mit Punkten, Checkbox rechts; erledigt = Titel 60 %, kein Durchstreichen */
+ return html`<div className="relative rounded-[16px] overflow-hidden rise" style=${{touchAction:'pan-y'}}>
+ <div className="absolute inset-0 flex items-center pl-5 text-white" style=${{background:'var(--acc)',opacity:dx>0?1:0}}><${Icon} n="check" s=${26} sw=${3}/><span className="ml-2 text-sm font-bold">${dx>90?'Loslassen':'Weiter wischen'}</span></div>
+ <div onPointerDown=${down} onPointerMove=${move} onPointerUp=${up} onPointerCancel=${()=>{st.current=null;clr();setDx(0)}} onPointerLeave=${clr} onContextMenu=${e=>e.preventDefault()} onClick=${tap} role="button" aria-label=${`${m.title}: ${done?'erledigt':wantsLog(S,m)?'öffnen, um Werte einzutragen':'antippen zum Abhaken, lange drücken für Details'}`} className="flex items-center gap-3 relative cursor-pointer" style=${{borderRadius:16,minHeight:big?72:64,padding:big?'14px 14px 14px 16px':'10px 12px 10px 14px',background:done?'var(--card2)':'var(--card)',border:`1px solid ${done?'var(--line2,var(--line))':'var(--line)'}`,transform:`translateX(${dx}px)`,transition:dx?'none':'transform .25s, background .14s',userSelect:'none',color:'var(--ink)'}}>
+  ${hold&&html`<span aria-hidden="true" className="absolute left-0 bottom-0 h-[3px]" style=${{background:'var(--acc)',animation:'holdBar .48s linear forwards'}}/>`}
+  <button aria-label="Aktivität öffnen" onClick=${e=>{e.stopPropagation();c.openSheet({t:'act',id:a.id})}} className="bg-transparent border-0 p-0 shrink-0 flex items-center justify-center" style=${{color:'var(--ink)',width:32,height:44,opacity:done?.6:1}}><${Icon} n=${a.icon} s=${big?28:24} sw=${2}/></button>
+  <div className="flex-1 min-w-0" style=${{opacity:done?.6:1}}><div className=${`${big?'text-[17px]':'text-[15px]'} font-semibold leading-tight`}>${m.title}</div>
+  <div className="text-[13px] mt-0.5 mute">${focusMode(S)?'':capped?'Limit · ':m.pts+' Punkte · '}${m.desc?m.desc+' · ':''}${m.freq==='multi'?`${cnt} von ${m.times} diese Woche`:freqLabel(m)}${wantsLog(S,m)&&!done?' · mit Eingabe':''}${!done&&c.curIds&&c.curIds.has(m.id)?' · jetzt dran: +20 %':''}${done&&S.punct&&S.punct.k===dayKey(S)&&S.punct.ids.includes(m.id)?' · pünktlich':''}${done&&S.autoDone&&S.autoDone[m.id]?' · Auto (Demo)':''}</div></div>
   ${!done&&html`<button aria-label=${m.title+' bearbeiten'} onClick=${e=>{e.stopPropagation();c.openSheet({t:'medit',mid:m.id})}} onPointerDown=${e=>e.stopPropagation()} className="bg-transparent border-0 p-1.5 -mr-1 shrink-0 rounded-full" style=${{color:'inherit',opacity:.5}}><${Icon} n="dots" s=${18} sw=${2.6}/></button>`}
-  <div className="rounded-full flex items-center justify-center shrink-0 transition-all" style=${{width:sz,height:sz,background:done?'#fff':'transparent',border:done?'none':`5px solid color-mix(in srgb, ${col} 38%, transparent)`,color:done?col:col}}>
-   ${done?html`<${Icon} n="check" s=${big?28:24} sw=${3}/>`:wantsLog(S,m)?html`<${Icon} n="chevR" s=${big?26:22} sw=${2.4}/>`:html`<${Icon} n="check" s=${big?24:20} sw=${2.6} style=${{opacity:.45}}/>`}</div></div></div>`}
+  <div aria-hidden="true" className=${'chk'+(done?' on':'')} style=${{width:big?32:28,height:big?32:28}}>
+   ${done?html`<${Icon} n="check" s=${big?18:16} sw=${3}/>`:wantsLog(S,m)?html`<${Icon} n="chevR" s=${16} sw=${2.4} style=${{color:'var(--mute)'}}/>`:null}</div></div></div>`}
 /* ───── Ripple-Effekt ───── */
 function Ripple({c}){
  const {S,D}=c;const [sc,setSc]=useState('miss');const [k,setK]=useState(0);
@@ -1295,27 +1392,24 @@ function NemPlan({c}){const {S}=c;const sel=S.nem||nemDefault(S);const pool=nemP
   <button onClick=${()=>c.setNem(m.id,on?null:NK_TOD[k])} className="w-full bg-transparent border-0 p-0 flex items-center gap-3 text-left ink"><span className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" style=${{background:on?'var(--acc)':'transparent',border:on?'none':'1.5px solid var(--line)',color:'#fff'}}>${on&&html`<${Icon} n="check" s=${14} sw=${3}/>`}</span><span className="flex-1 text-[13.5px] font-medium">${m.title}</span><span className="text-[10.5px] mute">${(SCN[k]||SCN.idle).label}</span></button>
   ${on&&(typeof sel[m.id]==='object'?html`<div className="text-[12px] mute mt-2">${fmtHM(sel[m.id].s)} · ${sel[m.id].d} Min. · im Tagesplan verschieben</div>`:html`<div className="mt-2.5"><${Seg} opts=${TOD.map(t=>[t[0],TOD_L[t[0]]])} val=${sel[m.id]} on=${v=>c.setNem(m.id,v)}/></div>`)}</div>`})}</div>
  <button onClick=${c.closeSheet} className="btn w-full py-3.5 mt-4 text-sm">Fertig</button></${Sheet}>`}
+/* Home nach Prototyp: Datum, Gruß, Szene, Tagesfortschritt, Du gegen Nemesis, Hauptziel, Reflexion, Weisheit */
 function Home({c}){const {S,D}=c;const now=nowMinOf(c);
  const nm=((S.profile&&S.profile.name)||(c.auth&&c.auth.session&&c.auth.session.mode!=='guest'&&c.auth.session.name)||'').trim();
  const hr=Math.floor(now/60),greet=hr<5?'Gute Nacht':hr<11?'Guten Morgen':hr<17?'Guten Tag':hr<22?'Guten Abend':'Gute Nacht';
- const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fl=flameOf(S.streak),fm=focusMode(S),r=fm?null:rankOf(S);
+ const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fl=flameOf(S.streak),fm=focusMode(S);
  return html`<div className="screen px-4 pb-6">
- <div className="flex items-center justify-between pt-5 pb-3">
-  <div className="flex items-center gap-2.5"><div className="w-9 h-9 rounded-[12px] flex items-center justify-center" style=${{background:'var(--card2)',border:'1px solid color-mix(in srgb,var(--gold) 45%,transparent)',color:'var(--gold)'}}><${Icon} n="helmet" s=${20} sw=${1.7}/></div>
-   <div className="leading-none"><div className="text-[9px] tracking-[.3em] mute font-semibold">THE</div><div className="text-[15px] brand">WAR WITHIN</div></div></div>
-  <div className="flex items-center gap-2"><button aria-label="Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="w-10 h-10 card flex items-center justify-center" style=${{borderRadius:14}}><${Icon} n="sliders" s=${18}/></button>
-   <button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-10 h-10 rounded-full flex items-center justify-center text-[15px] font-bold text-white border-0" style=${{background:'linear-gradient(140deg,var(--acc2),var(--acc-d))'}}>${ini}</button></div></div>
+ <div className="flex items-start justify-between pt-5 pb-3 gap-2"><div className="min-w-0"><div className="lbl truncate">${greet}${nm?', '+nm:''} · ${deDate(c.now)}</div><h1 className="disp text-[32px] mt-1 leading-none">Heute</h1></div>
+  <div className="flex items-center shrink-0"><span title=${fl.t} className="flex items-center gap-1 pr-1.5" style=${{color:fl.c,minHeight:44}}><${Icon} n="flame" s=${15}/><span className="num text-[13px] font-bold">${S.streak}</span><span className="sr-only">Tage Serie</span></span>
+   <button aria-label="Menü und Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0" style=${{color:'var(--gold)'}}><${Icon} n="laurel" s=${28} sw=${1.6}/></button>
+   <button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0 p-0"><span className="w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-bold" style=${{background:'var(--card2)',border:'1px solid var(--line2,var(--line))',color:'var(--ink)'}}>${ini}</span></button></div></div>
  ${S.setup&&html`<button onClick=${()=>c.openSheet({t:'newseason'})} className="btn w-full py-3 mb-3 text-sm">Neue Saison einrichten</button>`}
- <div className="card relative overflow-hidden" style=${{background:'var(--hero)',minHeight:112}}><div className="absolute inset-0"><${SpartaBanner}/></div>
-  <div className="relative p-4 flex flex-col justify-between" style=${{minHeight:112,background:'linear-gradient(90deg,var(--card) 0%,color-mix(in srgb,var(--card) 72%,transparent) 50%,transparent 78%)'}}>
-   <div className="flex items-start justify-between gap-2"><div className="min-w-0"><div className="lbl acc truncate">${greet}${nm?', '+nm:''}</div><h1 className="disp text-[28px] mt-1 leading-[.95]">Was zählt heute?</h1></div>
-    <div title=${fl.t} className="flex items-center gap-1 shrink-0 rounded-full px-2.5 py-1" style=${{background:'color-mix(in srgb,var(--card) 80%,transparent)',color:fl.c}}><${Icon} n="flame" s=${13}/><span className="num text-[12.5px] font-bold">${S.streak}</span><span className="sr-only">Tage Serie</span></div></div>
-   ${r&&html`<button onClick=${()=>c.setTab('stats')} aria-label=${'Rang '+r.name} className="flex items-center gap-2 mt-3 bg-transparent border-0 p-0 text-left" style=${{maxWidth:200}}><span style=${{color:'var(--gold)'}}><${Icon} n="helmet" s=${15} sw=${1.8}/></span><span className="text-[11.5px] brand shrink-0">${r.name}</span><span className="flex-1 h-1.5 rounded-full overflow-hidden" style=${{background:'var(--ghost)',minWidth:56}}><span className="block h-full rounded-full" style=${{width:Math.max(6,r.pct*100)+'%',background:'var(--acc2)'}}/></span></button>`}</div></div>
+ <${DayScene} c=${c}/>
+ <${DayProgress} c=${c}/>
+ ${!fm&&html`<${DuelPair} c=${c}/>`}
  <${TodayFocus} c=${c}/>
- <${NextList} c=${c}/>
  <${ReflectLine} c=${c}/>
- ${!fm&&html`<${NemesisLine} c=${c}/>`}
  ${!fm&&D.di===6&&html`<div className="mt-3"><${Finale} c=${c}/></div>`}
+ <${WisdomSlot} c=${c} place="today"/>
  </div>`}
 /* Heute zuerst: Ziel, Ergebnis/Umsetzung, nächste Handlung, Loop-Phase */
 function TodayFocus({c}){const {S}=c;const L=S.life,g=mainGoal(S);const st=loopNow(c),Lp=LC.LOOP.find(x=>x.id===st);
@@ -1344,8 +1438,8 @@ function NextList({c}){const {S,D}=c;const skip=(nextAction(S)||{m:{}}).m.id;con
  if(!ms.length)return null;
  return html`<div className="mt-5"><div className="flex items-center justify-between px-1 mb-1.5"><span className="lbl">Danach</span><button onClick=${()=>c.setTab('tasks')} className="bg-transparent border-0 p-0 text-[12.5px] acc font-semibold">Alle Aufgaben · ${open} offen</button></div>
  <div className="card px-3 py-1">${ms.map((m,i)=>{const dn=isDone(S,m),cnt=(S.counts&&S.counts[m.id])||0;return html`<div key=${m.id} className=${'flex items-center gap-3 py-2.5'+(i?' border-t ln':'')}>
-  <button aria-label=${m.title+(dn?': erledigt':': abhaken')} disabled=${dn} onClick=${e=>c.start(m.id,e)} className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 border-0" style=${{background:dn?'var(--done)':'transparent',boxShadow:dn?'none':'0 0 0 1.5px var(--mute) inset',color:'#fff'}}>${dn&&html`<${Icon} n="check" s=${15} sw=${3}/>`}</button>
-  <div className="flex-1 min-w-0"><div className=${'text-[14.5px] truncate '+(dn?'mute line-through':'font-medium')}>${m.title}</div><div className="text-[11.5px] mute">${m.freq==='multi'?cnt+' von '+m.times+' diese Woche':freqLabel(m)}</div></div>
+  <button aria-label=${m.title+(dn?': erledigt':': abhaken')} disabled=${dn} onClick=${e=>c.start(m.id,e)} className=${'chk'+(dn?' on':'')}>${dn&&html`<${Icon} n="check" s=${16} sw=${3}/>`}</button>
+  <div className="flex-1 min-w-0" style=${{opacity:dn?.6:1}}><div className="text-[14.5px] truncate font-medium">${m.title}</div><div className="text-[11.5px] mute">${m.freq==='multi'?cnt+' von '+m.times+' diese Woche':freqLabel(m)}</div></div>
   <button aria-label=${m.title+' bearbeiten'} onClick=${()=>c.openSheet({t:'medit',mid:m.id})} className="bg-transparent border-0 mute p-1 shrink-0"><${Icon} n="dots" s=${16}/></button></div>`})}</div></div>`}
 /* Reflexion als eine Zeile */
 function ReflectLine({c}){const {S,D}=c;const L=S.life,r=reviewToday(S),due=LC.reviewWeek(L),now=nowMinOf(c),toSun=6-D.di;const ci=!r&&now>=1080;const hot=due!=null||ci;
@@ -1484,21 +1578,25 @@ function RealityCheck({c,blocks}){const {S}=c;const bl=blocks.filter(b=>b.kind!=
  <div className="flex justify-between text-[10.5px] mute mt-1"><span>realistisch bis ${h(PLAN_LIMIT)}</span><span>+${h(tot-PLAN_LIMIT)}</span></div>
  <div className="text-[12.5px] mt-2.5"><span className="mute">Vorschlag: aus dem Plan nehmen: </span><b>${cut.map(b=>b.name).join(', ')}</b></div>
  <div className="flex gap-2 mt-2.5"><button onClick=${()=>c.upd(n=>{n.rcDis=dayKey(n)+':'+tot})} className="ghost flex-1 py-2.5 text-[13px] font-semibold">Behalten</button><button onClick=${()=>{cut.forEach(b=>c.setNemTime(b.id,null));c.toast('Plan entlastet. Weniger, dafür durchgezogen.','good')}} className="btn flex-[1.5] py-2.5 text-[13px]">Rausnehmen</button></div></div>`}
+/* Heute nach Prototyp: Datum, Titel, Tagesfortschritt, Bereichs-Chips, ruhige Liste; Tagesplan über das Kalender-Symbol */
 function Tasks({c}){
  const {S,D}=c;
  const [grp,setGrp]=useState('today'),[view,setView]=useState('list');
  const bIds=(briefToday(S)||{ids:[]}).ids,pr=id=>bIds.includes(id)?bIds.indexOf(id)-10:ESS.indexOf(id);
  const gOf=m=>{const g=GROUPS.find(x=>x.core.includes(m.act));return g?g.id:GROUPS[GROUPS.length-1].id};
  const fm=[...D.allM].filter(m=>grp==='all'||(grp==='today'?(S.comeback?cbList(S,D).some(x=>x.id===m.id):(ESS.includes(m.id)||bIds.includes(m.id))):(gOf(m)===grp||m.act===grp))).sort((a,b)=>(isDone(S,a)-isDone(S,b))||(grp==='today'?pr(a.id)-pr(b.id):0));
- const base=new Date();
- return html`<div className="screen px-4 pb-6"><div className="pt-5 flex items-end justify-between gap-3"><div><div className="lbl">${DAYS_L[D.di]} · ${phaseOf(S).n}</div><h1 className="disp text-[40px] mt-1">Aufgaben</h1></div><button aria-label="Aufgabe hinzufügen" onClick=${()=>c.openSheet({t:'add'})} className="btn w-11 h-11 mb-1 flex items-center justify-center shrink-0" style=${{borderRadius:14}}><${Icon} n="plus" s=${22} sw=${2.6}/></button></div>
- ${(()=>{const dm=D.allM.filter(m=>m.freq==='daily'||m.freq==='multi'),dn=dm.filter(m=>isDone(S,m)).length,pc=dm.length?dn/dm.length:0;return html`<div className="card p-3.5 mt-3 flex items-center gap-3.5" style=${{borderRadius:20}}><${Ring} pct=${pc} size=${46} stroke=${5} grad=${true}><span className="num text-[11px] font-bold">${Math.round(pc*100)}%</span><//><div className="flex-1 min-w-0"><div className="text-[14px] font-semibold">${dn} von ${dm.length} Tagesmissionen</div><div className="text-[11.5px] mute">+${D.td} Punkte heute · Serie ${S.streak} Tage</div></div></div>`})()}
- <div className="mt-4"><${Seg} opts=${[['list','Liste'],['plan','Tagesplan']]} val=${view} on=${setView}/></div>
- ${view==='plan'?html`<${DayPlanner} c=${c}/>`:html`<div className="flex justify-between mt-4 mb-5">${DAYS.map((x,i)=>{const today=i===D.di,past=i<D.di,p=today?(D.allM.length?D.doneN/D.allM.length:0):past?1:0;const dt=new Date(base.getTime()+(i-D.di)*864e5).getDate();return html`<div key=${x} className="flex flex-col items-center gap-1.5 pt-2 pb-2 rounded-[26px]" style=${{background:today?'var(--acc)':'transparent',width:44}}><span className="text-[12px]" style=${{color:today?'#fff':'var(--mute)'}}>${x}</span><${Ring} pct=${p} size=${34} stroke=${3.5} color=${today?'#fff':'var(--acc2)'}><span className="text-[13px] font-bold" style=${{color:today||past?'#fff':'var(--mute)'}}>${dt}</span><//></div>`})}</div>
- <div className="mb-4"><${Seg} opts=${S.ui!=='adv'?[['today','Heute'],['all','Alle']]:[['today','Heute'],['all','Alle'],...GROUPS.map(g=>[g.id,g.name]),...Object.keys(S.acts).filter(id=>D.allM.some(m=>m.act===id)).map(id=>[id,S.acts[id].name])]} val=${grp} on=${setGrp}/>${S.ui!=='adv'&&html`<div className="text-[11px] mute mt-2 px-1">Antippen = erledigt · ⋯ = bearbeiten</div>`}</div>
- <div className="flex flex-col gap-2">${fm.map(m=>html`<${MRow} key=${m.id} m=${m} c=${c}/>`)}</div>
- ${fm.length===0&&html`<div className="card p-4 text-sm mute">Heute keine Aufgaben.</div>`}
- <div className="text-center text-[13px] mute mt-4"><button onClick=${()=>c.openSheet({t:'catalog'})} className="acc font-semibold bg-transparent border-0 text-[13px] mb-2 block mx-auto">Punkte-Katalog</button>${fm.filter(m=>isDone(S,m)).length} von ${fm.length} erledigt${avgQ(S)?` · Ø Erfolgsgrad ${avgQ(S).avg}`:''}</div>`}</div>`}
+ const opts=[['today','Fokus'],['all','Alle'],...(S.ui==='adv'?GROUPS.map(g=>[g.id,g.name]):[]),...Object.keys(S.acts).filter(id=>D.allM.some(m=>m.act===id)).map(id=>[id,S.acts[id].name])];
+ const nd=fm.filter(m=>isDone(S,m)).length;
+ return html`<div className="screen px-4 pb-6">
+ <div className="pt-5 flex items-end justify-between gap-3"><div className="min-w-0"><div className="lbl truncate">${deDate(c.now)}</div><h1 className="disp text-[32px] mt-1 leading-none">Heute</h1></div>
+  <div className="flex gap-2 shrink-0"><button aria-pressed=${view==='plan'} aria-label="Tagesplan anzeigen" onClick=${()=>setView(view==='plan'?'list':'plan')} className="icon-btn"><${Icon} n="calendar" s=${20} sw=${2}/></button><button aria-label="Aufgabe hinzufügen" onClick=${()=>c.openSheet({t:'add'})} className="btn w-11 h-11 flex items-center justify-center"><${Icon} n="plus" s=${22} sw=${2.4}/></button></div></div>
+ <${DayProgress} c=${c} tap=${false}/>
+ ${view==='plan'?html`<div className="mt-3"><${DayPlanner} c=${c}/></div>`:html`
+ <div className="mt-3"><${Seg} opts=${opts} val=${grp} on=${setGrp}/></div>
+ <div className="flex flex-col gap-2 mt-2">${fm.map(m=>html`<${MRow} key=${m.id} m=${m} c=${c}/>`)}</div>
+ ${fm.length===0&&html`<div className="card p-4 text-center"><div className="text-[15px] mute">Keine Mission in dieser Auswahl.</div><button onClick=${()=>c.openSheet({t:'add'})} className="chip mt-3">Mission hinzufügen</button></div>`}
+ <div className="text-[12px] mute text-center mt-3 leading-snug">Antippen = erledigt · nach rechts wischen = erledigt · lange drücken = Details</div>
+ <div className="text-center text-[13px] mute mt-3">${nd} von ${fm.length} erledigt${avgQ(S)?` · Ø Erfolgsgrad ${avgQ(S).avg}`:''}<button onClick=${()=>c.openSheet({t:'catalog'})} className="acc font-semibold bg-transparent border-0 text-[13px] block mx-auto mt-1" style=${{minHeight:44}}>Punkte-Katalog</button></div>`}</div>`}
 function SelfCompare({c}){
  const {S,D}=c;const cats=allCats(S);const [tp,setTp]=useState(0);
  const now=cats.map(x=>Math.round(S.catScore[x.id]??40)),old=cats.map(x=>Math.round((S.baseCat&&S.baseCat[x.id])??CAT_INIT[x.id]??40));
@@ -1524,7 +1622,82 @@ function SelfCompare({c}){
   <div className="grid grid-cols-2 gap-2"><div className="card2 p-3"><div className="text-[10.5px] mute">Vorherige 4 Wochen</div><div className="disp text-[26px]">${prev4.length?a0:'–'}</div></div><div className="card2 p-3"><div className="text-[10.5px] mute">Letzte 4 Wochen</div><div className="disp text-[26px]">${last4.length?a1:'–'} <span className="text-[13px]" style=${{color:pc>=0?'var(--good)':'#F87171'}}>${prev4.length===4&&last4.length===4&&a0?(pc>0?'+':'')+pc+' %':'–'}</span></div></div></div>
   <div className="grid grid-cols-2 gap-2 mt-2"><div className="card2 p-3"><div className="text-[10.5px] mute">Streak jetzt / Best</div><div className="disp text-[26px]">${S.streak} <span className="text-[14px] mute">/ ${Math.max(S.streak,S.bestStreak||0)}</span></div></div><div className="card2 p-3"><div className="text-[10.5px] mute">Ø Erfolgsgrad</div><div className="disp text-[26px]">${q?q.avg:'–'}</div></div></div>
   <div className="text-[10.5px] mute mt-3 leading-relaxed">Vergleich mit deinen Startwerten (im Prototyp Demo-Werte). Wochenpunkte: nur gespeicherte Abschlüsse, ohne laufende Woche. Ø je Zeitraum; Prozentvergleich ab acht Wochen. Vergleiche dich mit dir, nicht mit anderen.</div></div>`}
-function Solo({c}){
+/* ───── PROTOTYP-SCREENS (Designkonzept 5.2–5.6): Szene, Tagesfortschritt, Duell, Saison-Fresko, Kompass ─────
+   Nur Darstellung und Anordnung; Daten und Handler kommen aus den bestehenden Funktionen. Illustrationsfarben stehen im SVG. */
+const slotOf=now=>now<300||now>=1200?'Nacht':now<660?'Morgen':now<900?'Mittag':'Abend';
+const SLOT_PAL={Morgen:['#3a2216','#C4502B',1,'#E8D9C3',135],Mittag:['#2b2420','#E8D9C3',.35,'#E8D9C3',75],Abend:['#2a1210','#B03A22',1,'#D9B99A',130],Nacht:['#0c0c11','#C9C2B5',.3,'#A89C8C',65]};
+const deDate=t=>new Date(t).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
+/* Hoplit als Silhouette (Linolschnitt-Anmutung): Helm, Umhang, Speer und Schild bestimmen die Kontur */
+function HopliteFig({cape='#7d2315',plume=true,ghost}){const dk=ghost?'#8a7a66':'#080606',dk2=ghost?'#8a7a66':'#060505',dk3=ghost?'#8a7a66':'#120e0c',ac=ghost?'#A89C8C':'#C4502B';
+ return html`<g><path d="M52 50 C70 52 92 60 108 88 C100 84 96 90 100 104 C92 100 86 108 90 122 C70 112 58 104 46 92Z" fill=${cape}/><path d="M52 50 C66 56 82 66 92 84" fill="none" stroke="#e0714a" strokeWidth="1.2" opacity=".6"/>
+ <path d="M38 112 L33 160 L30 178 L42 180 L46 160 L50 120Z" fill=${dk2}/><path d="M52 112 L58 160 L60 178 L72 178 L66 158 L62 112Z" fill=${dk2}/><path d="M32 150 L46 150 L44 170 L31 170Z M57 150 L68 150 L69 170 L58 170Z" fill=${ghost?'#8a7a66':'#2b201a'}/>
+ <path d="M36 98 L68 98 L74 124 L30 124Z" fill=${dk3}/><path d="M36 98 L68 98" stroke=${ac} strokeWidth="2"/><path d="M34 52 Q52 46 70 52 L66 100 L38 100Z" fill=${dk}/>
+ <path d="M40 58 Q52 54 64 58" stroke="#8a7a66" strokeWidth="1.2" fill="none"/><path d="M42 70 Q52 66 62 70 M43 80 Q52 76 61 80" stroke="#3a2b22" strokeWidth="1.2" fill="none"/><path d="M34 54 L24 68 L22 86 L28 88 L36 72Z" fill=${dk}/>
+ <rect x="20.5" y="-6" width="3" height="200" fill="#8a7a66"/><path d="M22 -26 L16 -4 L28 -4Z" fill="#E8D9C3"/><rect x="47" y="40" width="10" height="10" fill=${dk}/>
+ <path d="M36 32 C36 14 44 8 52 8 C60 8 68 14 68 32 L68 44 L62 44 L62 36 L42 36 L42 44 L36 44Z" fill=${dk} stroke="#8a7a66" strokeWidth="1.2"/><path d="M44 28 H60 M52 28 V40" stroke="#E8D9C3" strokeWidth="1.2" opacity=".7"/>
+ ${plume&&html`<path d="M52 8 C50 -6 66 -10 78 0 C70 -2 62 2 58 10Z" fill=${ac}/>`}
+ <circle cx="66" cy="92" r="26" fill=${ghost?'#5a4e42':'#1a1411'} stroke="#8a7a66" strokeWidth="2"/><circle cx="66" cy="92" r="21" fill="none" stroke="#3a2b22" strokeWidth="1.5"/><path d="M66 78 L78 106 H72 L66 92 L60 106 H54Z" fill=${ac} opacity=".9"/></g>`}
+/* Home-Szene: Sonnenscheibe nach Tageszeit, Tempel, Felsgrat; der Nemesis zeigt, was er gerade erledigt */
+function DayScene({c}){const {S}=c;const now=nowMinOf(c),sl=slotOf(now),[bg,sun,op,stone,sy]=SLOT_PAL[sl],fm=focusMode(S);
+ const plan=buildNemesisPlan(nemTasks(S)),cur=getCurrentActivity(plan,now),night=now<plan[0].start||cur.kind==='sleep',g=mainGoal(S);
+ const cap=(fm?'Dein Tag · ':'Nemesis · ')+sl,txt=fm?(g?g.title:'Lege dein Hauptziel fest'):night?'Er schläft. Morgen geht es weiter.':cur.name;
+ return html`<button onClick=${()=>fm?c.setTab('tasks'):c.openSheet({t:'nemesis'})} className="scene-card" aria-label=${cap+': '+txt}>
+ <svg viewBox="0 0 360 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="360" height="230" fill=${bg}/><circle cx="200" cy=${sy} r="78" fill=${sun} opacity=${op}/>
+  <g fill=${stone} opacity=".8"><rect x="280" y="118" width="60" height="4"/>${[284,293,302,311,320,329].map(x=>html`<rect key=${x} x=${x} y="100" width="4" height="18"/>`)}<path d="M278 100 L310 88 L342 100Z"/></g>
+  <path d="M0 175 L70 158 L120 170 L190 150 L240 165 L300 140 L360 160 V230 H0Z" fill="#1a1210"/><path d="M0 196 L90 184 L170 190 L250 178 L360 192 V230 H0Z" fill="#080606"/>
+  <g transform="translate(118,30) scale(1.05)"><${HopliteFig} cape=${fm?'#C4502B':'#7d2315'} plume=${!fm}/></g></svg>
+ <span className="scene-lbl"><span className="scene-cap">${cap}</span><b>${txt}</b></span></button>`}
+/* Tagesfortschritt: tägliche und wöchentliche Missionen von heute */
+function dayProg(S,D){const dm=D.allM.filter(m=>m.freq==='daily'||m.freq==='multi');return{n:dm.filter(m=>isDone(S,m)).length,t:dm.length}}
+function DayProgress({c,tap=true}){const p=dayProg(c.S,c.D);const body=html`<span className="flex justify-between items-baseline"><span className="lbl">Tagesfortschritt</span><b className="num text-[15px]">${p.n} von ${p.t}</b></span><span className="block mt-2"><${Bar} pct=${p.t?p.n/p.t:0} h=${8}/></span>`;
+ return tap?html`<button onClick=${()=>c.setTab('tasks')} className="card w-full p-4 mt-2 text-left block" aria-label=${'Tagesfortschritt: '+p.n+' von '+p.t+' erledigt. Zur Aufgabenliste'}>${body}</button>`:html`<div className="card p-4 mt-3">${body}</div>`}
+/* Du gegen Nemesis: erledigte Einheiten seines und deines Tagesplans */
+function duelNow(S,now){const plan=buildNemesisPlan(nemTasks(S)),cnt=plan.filter(p=>!p.virtual&&p.kind!=='sleep');return{plan,cnt,Y:cnt.length,X:cnt.filter(p=>p.done).length,Z:cnt.filter(p=>nemDoneAt(p,plan,now)).length}}
+function DuelPair({c,tap=true}){const d=duelNow(c.S,nowMinOf(c));const cells=[['Du',d.X,'var(--ink)'],['Nemesis',d.Z,'var(--gold)']].map(([l,v,col])=>html`<span key=${l} className="card p-3 block text-center"><span className="lbl block">${l}</span><span className="duel-n num block" style=${{color:col}}>${v}</span><span className="text-[12px] mute block">von ${d.Y}</span></span>`);
+ return tap?html`<button onClick=${()=>c.setTab('solo')} className="grid grid-cols-2 gap-2 mt-2 w-full bg-transparent border-0 p-0" aria-label=${'Duell: du '+d.X+', Nemesis '+d.Z+' von '+d.Y+'. Zum Duell'}>${cells}</button>`:html`<div className="grid grid-cols-2 gap-2 mt-2">${cells}</div>`}
+/* Arena: zwei Hopliten, der Führende steht höher; keine Effekte */
+function ArenaScene({c,lead,label='Nemesis',ghost}){const sl=slotOf(nowMinOf(c)),[sky,sun,op]=SLOT_PAL[sl];const rows=[0,1,2,3];
+ return html`<svg viewBox="0 0 360 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style=${{display:'block',width:'100%',height:'100%'}}><rect width="360" height="220" fill=${sky}/><circle cx="180" cy="84" r="58" fill=${sun} opacity=${op}/><rect x="0" y="80" width="360" height="4" fill="#3a2e26"/>
+ ${rows.map(i=>html`<g key=${i}><rect x="0" y=${84+i*16} width="360" height="16" fill=${i%2?'#1c1410':'#241a14'}/>${Array.from({length:18},(_,k)=>html`<rect key=${k} x=${8+(i%2)*10+k*20} y=${87+i*16} width="3" height="10" fill="#E8D9C3" opacity=".12"/>`)}</g>`)}
+ <rect x="0" y="148" width="360" height="72" fill="#3d2e22"/><ellipse cx="180" cy="192" rx="210" ry="34" fill="#4a382a"/><path d="M180 150 V218" stroke="#E8D9C3" opacity=".15" strokeDasharray="4 5"/><ellipse cx="180" cy="192" rx="140" ry="22" fill="none" stroke="#E8D9C3" opacity=".12"/>
+ <g transform=${`translate(42,${lead==='me'?22:30}) scale(.75)`}><${HopliteFig} cape="#C4502B" plume=${false}/></g>
+ <g transform=${`translate(318,${lead==='nem'?22:30}) scale(-.75,.75)`} opacity=${ghost?.6:1}><${HopliteFig} cape=${ghost?'#A89C8C':'#7d2315'} ghost=${ghost}/></g>
+ <text x="62" y="212" fontSize="10" fontFamily="Inter" fontWeight="600" letterSpacing="1.5" fill="#E8D9C3" opacity=".8">DU</text><text x="298" y="212" textAnchor="end" fontSize="10" fontFamily="Inter" fontWeight="600" letterSpacing="1.5" fill="#E8D9C3" opacity=".8">${label.toUpperCase()}</text></svg>`}
+/* Duell heute: Szene, Punkte, Tauziehen, Runden nach Tageszeit, Reaktion, Tagesverlauf */
+function NemDuel({c}){const {S}=c;const now=nowMinOf(c);const d=duelNow(S,now),{plan,X,Y,Z}=d;const cur=getCurrentActivity(plan,now),night=now<plan[0].start||cur.kind==='sleep';
+ const lead=X>Z?'me':X<Z?'nem':'',tug=X+Z?Math.min(92,Math.max(8,X/(X+Z)*100)):50;
+ const rounds=TOD.map(([k,l,s,e])=>{const inS=p=>p.start>=s&&p.start<e,mine=d.cnt.filter(p=>inS(p)&&p.done).length,nem=d.cnt.filter(p=>inS(p)&&nemDoneAt(p,plan,now)).length,on=!night&&now>=s;
+  const [r,col]=!on?['–','var(--mute)']:mine>nem?['Du','var(--acc2)']:mine<nem?['Nem.','var(--gold)']:['=','var(--ink)'];return{k,l:l==='Nachmittag'?'Nachm.':l,r,col}});
+ return html`<div className="scene-card mt-3" style=${{height:200}} role="img" aria-label=${'Arena: du '+X+', Nemesis '+Z}><${ArenaScene} c=${c} lead=${lead}/></div>
+ <${DuelPair} c=${c} tap=${false}/>
+ <div className="card p-4 mt-2"><div className="lbl">Tauziehen</div><div className="tug mt-3 mb-1" role="img" aria-label=${'Tauziehen: '+Math.round(tug)+' Prozent für dich'}><i style=${{left:tug+'%'}}/></div></div>
+ <div className="grid grid-cols-4 gap-1.5 mt-2" role="list" aria-label="Runden nach Tageszeit">${rounds.map(x=>html`<div key=${x.k} role="listitem" className="rd"><div className="lbl" style=${{letterSpacing:'.02em'}}>${x.l}</div><b style=${{color:x.col}}>${x.r}</b></div>`)}</div>
+ <div className="card p-4 mt-2 reaction">„${nemLine(X,Z,Y,cur,night)}“</div>
+ ${now>=1260&&html`<div className="mt-2"><${DuelReport} c=${c}/></div>`}
+ ${S.comeback&&html`<div className="card p-4 mt-2"><div className="lbl acc">Neuanfang</div><div className="text-[15px] mt-1 leading-snug">Heute zählt nur eine Mini-Aufgabe. Kein Punkteverlust, kein Rückstand.</div></div>`}
+ <div className="card p-4 mt-2"><div className="flex items-center justify-between"><span className="lbl">Tagesverlauf</span><button onClick=${()=>c.openSheet({t:'nemplan'})} className="chip flex items-center gap-1"><${Icon} n="edit" s=${12}/>Plan</button></div><${NemTimeline} plan=${plan} now=${now} c=${c}/></div>
+ <div className="text-[12px] mute mt-3 px-1 leading-snug">Der Nemesis erledigt deinen eigenen Tagesplan in Tageszeit-Reihenfolge. Er ist der Maßstab, nicht der Richter.</div>`}
+/* Stats: Saison-Fresko (jeder Tag eine Kachel) und Kompass (Richtung des größten Bedarfs) */
+function SeasonFresco({c}){const {S,D}=c;const N=SDAYS(S),L=SL(S),wk=Math.min(L,Math.floor(S.day/7)+1),tp=dayProg(S,D),tr=tp.t?tp.n/tp.t:0;
+ const ratio=i=>{const w=(S.wlog||{})[S.season+'-'+i];if(!w)return null;return w.ps?w.pd/w.ps:(w.g?1:0)};
+ return html`<div className="card p-4 mt-3"><div className="flex justify-between items-baseline gap-2"><span className="lbl truncate">Saison ${S.season}${S.acts[S.sTheme]?' · '+S.acts[S.sTheme].name:''}</span><b className="num text-[15px] shrink-0">Woche ${wk} von ${L}</b></div>
+ <div className="fresco" role="img" aria-label=${'Saison-Fresko: Tag '+(S.day+1)+' von '+N}>${Array.from({length:N},(_,i)=>{let st;if(i<S.day){const r=ratio(i);st=r==null||r<=0?{background:'var(--line)',borderColor:'transparent'}:{background:'var(--acc)',opacity:.35+.65*Math.min(1,r),borderColor:'transparent'}}else if(i===S.day)st={background:`linear-gradient(to top,var(--acc) ${Math.round(tr*100)}%,transparent ${Math.round(tr*100)}%)`,borderColor:'var(--ink)'};else st={opacity:.5};return html`<i key=${i} style=${st}/>`})}</div>
+ <div className="text-[12px] mute text-center mt-2.5">Saison-Fresko · jeder Tag ist eine Kachel · Tag ${S.day+1} von ${N}</div></div>`}
+const COMPASS_DE={health:'Gesundheit',relationships:'Beziehungen',wealth:'Finanzen',growth:'Entwicklung'};
+function StatsCompass({c}){const {S}=c;const L=S.life;const vals=LC.AREAS.map(a=>((L.areas||{})[a.id]||{sat:3}).sat||3),mi=vals.indexOf(Math.min(...vals)),ma=LC.AREAS[mi];
+ const pos=[[100,-2,'middle'],[200,104,'end'],[100,212,'middle'],[0,104,'start']];
+ return html`<button onClick=${()=>{c.setTSel(ma.id);c.setTab('life')}} className="card w-full p-4 mt-2 text-left block" aria-label=${'Kompass: größter Bedarf bei '+COMPASS_DE[ma.id]+'. Bereich öffnen'}><span className="lbl block">Kompass · Richtung des größten Bedarfs</span>
+ <svg viewBox="-14 -14 228 228" width="62%" style=${{display:'block',margin:'8px auto 4px'}} aria-hidden="true"><circle cx="100" cy="100" r="78" fill="none" stroke="var(--line2,var(--line))" strokeWidth="1.5"/><circle cx="100" cy="100" r="64" fill="none" stroke="var(--line)"/><path d="M100 28 L108 92 L172 100 L108 108 L100 172 L92 108 L28 100 L92 92Z" fill="var(--line)" opacity=".6"/>
+ ${LC.AREAS.map((a,i)=>html`<text key=${a.id} x=${pos[i][0]} y=${pos[i][1]} textAnchor=${pos[i][2]} fontSize="12" fontFamily="Inter" fontWeight=${i===mi?700:500} fill=${i===mi?'var(--acc2)':'var(--mute)'}>${COMPASS_DE[a.id]}</text>`)}
+ <g style=${{transformOrigin:'100px 100px',transform:`rotate(${mi*90}deg)`,transition:'transform .6s cubic-bezier(.16,1,.3,1)'}}><polygon points="100,26 93,100 107,100" fill="var(--acc)"/><polygon points="100,174 95,100 105,100" fill="var(--mute)" opacity=".5"/></g><circle cx="100" cy="100" r="7" fill="var(--gold)"/></svg>
+ <span className="block text-center text-[15px]">Die Nadel zeigt auf <b className="acc">${COMPASS_DE[ma.id]}</b>: dort ist deine Zufriedenheit am niedrigsten (${vals[mi]}/5).</span></button>`}
+/* Duell nach Prototyp: Nemesis heute oder Schatten über die Saison */
+function Solo({c}){const {S}=c;const [mode,setMode]=useState('nem');const r=rankOf(S);
+ return html`<div className="screen px-4 pb-6">
+ <div className="pt-5"><div className="lbl truncate">Saison ${S.season} · ${r.name}</div><h1 className="disp text-[32px] mt-1 leading-none">Duell</h1></div>
+ <div className="mt-3"><${Seg} opts=${[['nem','Nemesis · heute'],['season','Schatten · Saison']]} val=${mode} on=${setMode}/></div>
+ ${mode==='nem'?html`<${NemDuel} c=${c}/>`:html`<${SoloSeason} c=${c}/>`}</div>`}
+function SoloSeason({c}){
  const {S,D}=c;const plan=D.seasonPlan;
  const N=SDAYS(S);const planned=Array.from({length:N},(_,i)=>Math.round(plan*i/(N-1)));
  const duCats=allCats(S),duV=duCats.map(x=>Math.round(S.catScore[x.id]??40)),duR=form(D.lvC)>0?form(D.lvP)/form(D.lvC):1.2,foeV=duV.map(x=>Math.min(98,Math.round(x*Math.max(1.05,duR))));
@@ -1534,8 +1707,8 @@ function Solo({c}){
  const endProj=Math.round(S.seasonPts+rate*(N-1-S.day));
  const stages=[[0,'Rekrut','Grundform'],[.45,'Schulterplatten','Struktur'],[.6,'Kern-Emblem','Fokus'],[.8,'Halo-Ring','Meisterschaft']];
  const rows=[['Form',form(D.lvC),form(D.lvP),x=>x+' %'],['Saisonreise',Math.round(D.cur*100),Math.round(D.pot*100),x=>x+' %'],['Wochenpunkte',D.wk,Math.round(D.plan*(D.di+1)/7),x=>x]];
- return html`<div className="screen px-4 pb-6">
- <div className="pt-5"><div className="lbl">Solo-Duell · Saison ${S.season}</div><h1 className="disp text-[40px] mt-1">Du gegen deinen Schatten</h1><div className="text-[13px] mute mt-1">Dein Gegner ist der Widerstand in dir: Aufschieben, Bequemlichkeit, Ablenkung.</div></div>
+ return html`<div>
+ <div className="text-[13px] mute mt-3 px-1 leading-snug">Saison-Duell gegen deinen Schatten: den Widerstand in dir aus Aufschieben, Bequemlichkeit und Ablenkung.</div>
  <div className="card mt-4 p-4" style=${{background:'var(--hero)'}}>
   <${Shadow} cur=${D.cur} pot=${D.pot} pulse=${S.pulse} rest=${D.restToday}/>
   <div className="grid grid-cols-3 gap-2 mt-3 text-center items-end"><div><div className="lbl">Du · Form</div><div className="disp text-[30px] mt-0.5">${form(D.lvC)} %</div></div><div><div className="lbl" style=${{color:'var(--nem)'}}>Schatten</div><div className="disp text-[30px] mt-0.5" style=${{color:'var(--nem)'}}><${CountUp} v=${D.gap} d=${1}/> %</div><div className="text-[10.5px] mute">Vorsprung</div></div><div><div className="lbl acc">Potenzial</div><div className="disp text-[30px] mt-0.5 acc">${form(D.lvP)} %</div></div></div>
@@ -1893,8 +2066,11 @@ const wantsLog=(S,m)=>!!m.log&&(S.ui==='adv'||Object.entries(DETAIL_LOGS).some((
 function Stats({c}){
  const adv=c.S.ui==='adv',base=[['out','Ergebnisse'],['proc','Umsetzung'],['temple','Tempel'],['exp','Experimente'],['compound','Wirkung']],opts=adv?[...base,['matrix','Lebensmatrix'],['gen','Gesamt'],['over','Verlauf'],['rec','Rekorde'],['calc','Rechner'],['proj','Prognose']]:base;
  const t=opts.some(o=>o[0]===c.statTab)?c.statTab:'out',set=c.setStatTab;
- return html`<div className="screen px-4 pb-6"><div className="pt-5 flex items-end justify-between gap-2"><div><div className="lbl flex items-center gap-1.5"><span style=${{color:'var(--gold)'}}><${Icon} n="laurel" s=${15} sw=${1.5}/></span>Dein Weg</div><h1 className="disp text-[40px] mt-1">Fortschritt</h1></div><div className="pb-1"><${ModeToggle} c=${c}/></div></div>
- <div className="meander mt-3" aria-hidden="true"/><div className="mt-3 mb-3"><${Seg} opts=${opts} val=${t} on=${set}/></div>
+ return html`<div className="screen px-4 pb-6"><div className="pt-5 flex items-end justify-between gap-2"><div><div className="lbl flex items-center gap-1.5"><span style=${{color:'var(--gold)'}}><${Icon} n="laurel" s=${15} sw=${1.5}/></span>Dein Weg</div><h1 className="disp text-[32px] mt-1 leading-none">Stats</h1></div><div className="pb-1"><${ModeToggle} c=${c}/></div></div>
+ <${SeasonFresco} c=${c}/>
+ <${StatsCompass} c=${c}/>
+ <div className="meander mt-4" aria-hidden="true"/><div className="lbl mt-3 px-1">Details</div><div className="mt-2 mb-3"><${Seg} opts=${opts} val=${t} on=${set}/></div>
+ <${WisdomSlot} c=${c} place="milestone" cls="mb-3"/>
  ${t==='out'&&html`<${OutcomeView} c=${c}/>`}${t==='temple'&&html`<${TempleProgress} c=${c}/>`}${t==='proc'&&html`<${ProcessView} c=${c}/>`}${t==='exp'&&html`<${ExpView} c=${c}/>`}
  ${t==='compound'&&html`<div className="text-[11.5px] mute mb-3 px-1">Spielwelt: Punkte und Mengen. Echte Ergebnisse findest du unter „Ergebnisse“.</div>`}
  ${t==='compound'&&html`<${Compound} c=${c}/>`}${t==='matrix'&&html`<${LifeMatrix} c=${c}/>`}${t==='gen'&&html`<${Gen} c=${c}/>`}${t==='over'&&html`<${Over} c=${c}/>`}${t==='rec'&&html`<${Recs} c=${c}/>`}${t==='calc'&&html`<${Calc} c=${c}/>`}${t==='proj'&&html`<${Proj} c=${c}/>`}
@@ -1959,7 +2135,7 @@ function AddMission({c}){
  <button disabled=${title.trim().length<3} onClick=${()=>c.addMission({title:title.trim(),cat,pts,freq,times:freq==='multi'?times:undefined,log:S.ui==='adv'&&kind==='log'?lg:undefined,act:use})} className="btn w-full py-3.5 mt-4 text-sm">Mission speichern</button></div>`}
  </div>`}
 /* ───── Weitere Sheets ───── */
-function Sheet({title,sub,onClose,children}){return html`<div><div className="flex items-start justify-between"><div><div className="lbl acc">${sub}</div><h2 className="text-xl font-bold mt-1">${title}</h2></div><button aria-label="Schließen" onClick=${onClose} className="ghost w-9 h-9 flex items-center justify-center"><${Icon} n="x" s=${16}/></button></div><div className="mt-3">${children}</div></div>`}
+function Sheet({title,sub,onClose,children}){return html`<div><div className="flex items-start justify-between"><div><div className="lbl acc">${sub}</div><h2 className="disp text-[22px] mt-1">${title}</h2></div><button aria-label="Schließen" onClick=${onClose} className="ghost w-11 h-11 flex items-center justify-center shrink-0"><${Icon} n="x" s=${16}/></button></div><div className="mt-3">${children}</div></div>`}
 function ActSheet({c,id}){
  const {S}=c;const a=S.acts[id];const [ed,setEd]=useState(false),[nm,setNm]=useState(a.name),[tg,setTg]=useState(a.target);
  const form=Array.from({length:8},(_,i)=>Math.round((a.rating-(7-i)*.6+((i*7)%3-1)*.4)*10)/10);
@@ -2103,6 +2279,9 @@ function Settings({c}){const {S}=c;
  <button onClick=${c.toggleFocusMode} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="target" s=${18} cls="acc"/><div className="flex-1">Fokusmodus<div className="text-[11px] mute font-normal">Ohne Liga, Nemesis und Punkte. Deine Daten bleiben.</div></div><span className=${`chip ${focusMode(S)?'on':''}`}>${focusMode(S)?'An':'Aus'}</span></button>
  <button onClick=${c.toggleWeather} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="temple" s=${18} cls="acc"/><div className="flex-1">Verwitterung im Tempel<div className="text-[11px] mute font-normal">Zeigt gemessene Rückschritte als leichte Risse. Nie bei fehlenden Daten.</div></div><span className=${`chip ${S.life.temple.weather?'on':''}`}>${S.life.temple.weather?'An':'Aus'}</span></button>
  <button onClick=${c.toggleTempleAnim} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="column" s=${18} cls="acc"/><div className="flex-1">Tempel-Animationen<div className="text-[11px] mute font-normal">Bausteine gleiten ein. Bei „Bewegung reduzieren“ automatisch aus.</div></div><span className=${`chip ${S.life.temple.anim?'on':''}`}>${S.life.temple.anim?'An':'Aus'}</span></button>
+ <button onClick=${()=>{c.closeSheet();c.setTab('reflect')}} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="owl" s=${18} cls="acc"/><div className="flex-1">Reflexion<div className="text-[11px] mute font-normal">Daily Debrief, Wochenrückblick, Experimente, Muster</div></div><${Icon} n="chevR" s=${16} cls="mute"/></button>
+ <button onClick=${c.wisToggle} aria-pressed=${WC.enabled(S)} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="scroll" s=${18} cls="acc"/><div className="flex-1">Wisdom of the Warrior<div className="text-[11px] mute font-normal">Kurze Impulse auf Heute, im Debrief und bei Meilensteinen. Höchstens einer pro Stelle und Tag.</div></div><span className=${`chip ${WC.enabled(S)?'on':''}`}>${WC.enabled(S)?'An':'Aus'}</span></button>
+ <button onClick=${()=>c.openSheet({t:'codex'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="bookmark" s=${18} cls="acc"/>Wisdom Codex öffnen</button>
  <button onClick=${c.togglePush} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="bell" s=${18} cls="acc"/><div className="flex-1">Erinnerungen<div className="text-[11px] mute font-normal">Blockstart, Rückfrage am Ende, Abendbericht um 21 Uhr. Ruhig von 21 bis 6 Uhr.</div></div><span className=${`chip ${S.push?'on':''}`}>${S.push?'An':'Aus'}</span></button>
  <div className="ghost p-3.5"><div className="text-[14px] font-medium flex items-center gap-3 mb-2.5"><${Icon} n="helmet" s=${18} cls="acc"/>Design</div><${Seg} opts=${[['antik','Antik'],['violet','Violett']]} val=${S.skin||'antik'} on=${c.setSkin}/></div>
  <div className="ghost p-3.5"><div className="text-[14px] font-medium flex items-center gap-3 mb-2.5"><${Icon} n="star" s=${18} cls="acc"/>Fortschrittsbild</div><${Seg} opts=${VIZ.map(v=>[v[0],v[1]])} val=${S.viz||'ball'} on=${c.setViz}/></div>
@@ -2207,6 +2386,7 @@ function SheetHost({c}){
   case'achs':b=html`<${Achs} c=${c}/>`;break;
   case'integ':b=html`<${Integ} c=${c}/>`;break;
   case'settings':b=html`<${Settings} c=${c}/>`;break;
+  case'codex':b=html`<${WisdomCodex} c=${c} init=${sh.f}/>`;break;
   case'account':b=html`<${Account} c=${c}/>`;break;
   case'swap':b=html`<${Swap} c=${c} sh=${sh}/>`;break;
   case'aar':b=html`<${Aar} c=${c}/>`;break;
@@ -2220,7 +2400,7 @@ function SheetHost({c}){
   case'spath':b=html`<${SeasonPath} c=${c}/>`;break;
  }
  const lock=sh.t==='aar'||sh.t==='season';
- return html`<div className="absolute inset-0 z-50 flex items-end" style=${{background:'rgba(5,4,12,.55)',backdropFilter:'blur(6px)',WebkitBackdropFilter:'blur(6px)',animation:'fadeIn .2s'}} onClick=${()=>{if(!lock)c.closeSheet()}}><div role="dialog" aria-modal="true" className="sheet w-full rounded-t-[30px] p-5 pb-8 max-h-[90%] overflow-y-auto border-t ln" style=${{background:'linear-gradient(180deg,color-mix(in srgb,var(--bg2) 92%,var(--acc)) 0%,var(--bg2) 120px)',boxShadow:'0 -1px 0 var(--hi) inset,0 -30px 60px -30px rgba(var(--acc-rgb),.45)'}} onClick=${e=>e.stopPropagation()}><div className="w-10 h-1 rounded-full mx-auto mb-4" style=${{background:'var(--line)'}}/>${b}</div></div>`}
+ return html`<div className="absolute inset-0 z-50 flex items-end" style=${{background:'rgba(0,0,0,.6)',animation:'fadeIn .2s'}} onClick=${()=>{if(!lock)c.closeSheet()}}><div role="dialog" aria-modal="true" className="sheet w-full rounded-t-[24px] p-5 pb-8 max-h-[90%] overflow-y-auto border-t ln" style=${{background:'var(--card2)'}} onClick=${e=>e.stopPropagation()}><div className="w-9 h-1 rounded-full mx-auto mb-4" style=${{background:'var(--line2,var(--line))'}}/>${b}</div></div>`}
 /* ───── ANTIKE BAUSTEINE: Heldenbanner, Rang, Wappen ───── */
 function SpartaBanner(){return html`<svg viewBox="0 0 360 150" preserveAspectRatio="xMaxYMax slice" className="w-full h-full block" aria-hidden="true">
  <circle cx="304" cy="74" r="34" style=${{fill:'var(--acc)'}} opacity=".85"/>
@@ -2315,6 +2495,9 @@ function ColumnDetails({c,area,st}){const {S}=c;const L=S.life,a=LC.AREA[area],c
  <div className="flex items-center gap-2 mt-3.5 pt-3 border-t ln"><span className="text-[12px] mute flex-1">Deine Zufriedenheit</span><div className="flex" role="radiogroup" aria-label=${'Zufriedenheit '+a.name}>${[1,2,3,4,5].map(v=>html`<button key=${v} role="radio" aria-checked=${sat===v} aria-label=${v+' von 5'} onClick=${()=>c.setAreaSat(area,v)} className="border-0 bg-transparent py-2 px-[2px]"><span className="block rounded-full" style=${{width:16,height:6,background:v<=sat?a.color:'var(--ghost)'}}/></button>`)}</div></div>
  <div className="text-[11.5px] mute mt-1">Wirkt auf: ${LC.LINKS.filter(([x])=>x===area).map(([,b,t])=>LC.AREA[b].name+' ('+t+')').join(' · ')}</div></div>`}
 
+/* Lebensbereiche wie im Prototyp: vier Kacheln mit Linien-Icon, Name, Mini-Balken; Tippen wählt die Säule */
+const AREA_TILE={health:'Gesund\u00ADheit',relationships:'Bezie\u00ADhungen',wealth:'Finan\u00ADzen',growth:'Persön\u00ADliche Weiter\u00ADent\u00ADwick\u00ADlung'};
+function AreaTiles({c,st,sel}){return html`<div className="area-tiles mt-3" role="group" aria-label="Lebensbereiche">${LC.AREAS.map(a=>{const col=st.cols.find(x=>x.area===a.id)||{stage:1,pts:0},on=sel===a.id,f=c.S.life.focus===a.id;return html`<button key=${a.id} aria-pressed=${on} aria-label=${AREA_TILE[a.id].replace(/\u00AD/g,'')+', Stufe '+col.stage+(f?', Priorität':'')} onClick=${()=>c.setTSel(a.id)} className="area-tile"><span className="flex items-center justify-between w-full"><${Icon} n=${a.icon} s=${22} sw=${2}/>${f&&html`<span aria-hidden="true" className="rounded-full" style=${{width:6,height:6,background:'var(--acc)'}}/>`}</span><b lang="de">${AREA_TILE[a.id]}</b><span className="w-full mt-auto"><${Bar} pct=${Math.min(1,col.pts/17)} h=${4}/><small>Stufe ${col.stage}</small></span></button>`})}</div>`}
 function TempleView({c}){const {S}=c;const st=LC.templeState(S);const T=S.life.temple;const sel=c.tSel||S.life.focus||(mainGoal(S)||{}).area||'health';
  return html`<div className="card p-4 mt-4" style=${{background:'var(--hero)'}}>
  <div className="flex items-start justify-between gap-2"><div><div className="lbl acc">Saison ${st.n} · Woche ${st.week} von ${st.len}</div><div className="disp-serif text-[20px] mt-1">${st.phaseInfo.name}</div><div className="text-[12.5px] mute">${st.phaseInfo.de}</div></div>
@@ -2323,6 +2506,7 @@ function TempleView({c}){const {S}=c;const st=LC.templeState(S);const T=S.life.t
  <div className=${'mt-2 '+(T.anim?'':'no-anim')}><${TempleSVG} st=${st} sel=${sel} onSel=${a=>c.setTSel(a)} flash=${c.tFlash} anim=${T.anim}/></div>
  <div className="flex gap-2 mt-1"><button onClick=${()=>c.openSheet({t:'why'})} className="chip flex-1 justify-start gap-1.5"><${Icon} n="temple" s=${13}/>Dach: ${S.life.why&&S.life.why.text?'dein Warum':'Warum festlegen'}</button><button onClick=${()=>c.openSheet({t:'values'})} className="chip flex-1 justify-start gap-1.5"><${Icon} n="column" s=${13}/>Fundament: ${(S.principles||[]).length} Werte</button></div>
  <div className="text-[11.5px] mute mt-2 leading-snug">Der Tempel zeigt freigeschaltete Bausteine, kein Urteil über dich oder deine Gesundheit. Tippe eine Säule an.</div></div>
+ <${AreaTiles} c=${c} st=${st} sel=${sel}/>
  <${ColumnDetails} c=${c} area=${sel} st=${st}/>`}
 
 function TempleRules({c}){const R=LC.TEMPLE_RULES;return html`<${Sheet} sub="Transparent und begrenzt" title="Bauregeln" onClose=${c.closeSheet}>
@@ -2372,7 +2556,7 @@ function Debrief({c}){const {S,D}=c;const L=S.life;const plan=useMemo(()=>debrie
  const save=()=>c.saveDebrief({mood,obst:ob?[ob]:[],change:ch,done:done.map(m=>m.id),skipped:skipped.map(m=>m.id),next:ch==='earlier'&&skipped[0]?skipped[0].id:null});
  return html`<${Sheet} sub=${'Daily Debrief · '+DAYS_L[D.di]} title="Dein Tag" onClose=${c.closeSheet}>
  <div className="card2 p-3.5 -mt-1"><div className="flex items-baseline justify-between"><span className="lbl">Automatisch ausgewertet</span><span className="num text-[14px] font-bold">${done.length} von ${plan.length}</span></div>
-  <div className="mt-2 flex flex-col gap-1.5">${plan.map(m=>{const ok=!!S.done[m.id];return html`<div key=${m.id} className="flex items-center gap-2.5 text-[13.5px]"><span className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style=${{background:ok?'var(--done)':'transparent',boxShadow:ok?'none':'0 0 0 1.5px var(--mute) inset',color:'#fff'}}>${ok&&html`<${Icon} n="check" s=${12} sw=${3}/>`}</span><span className=${'flex-1 truncate '+(ok?'':'mute')}>${m.title}</span>${!ok&&html`<span className="text-[11.5px] mute">ausgelassen</span>`}</div>`})}${!plan.length&&html`<div className="text-[13px] mute">Heute war nichts geplant.</div>`}</div></div>
+  <div className="mt-2 flex flex-col gap-1.5">${plan.map(m=>{const ok=!!S.done[m.id];return html`<div key=${m.id} className="flex items-center gap-2.5 text-[13.5px]"><span className=${'chk'+(ok?' on':'')} style=${{width:20,height:20,borderRadius:6}}>${ok&&html`<${Icon} n="check" s=${12} sw=${3}/>`}</span><span className=${'flex-1 truncate '+(ok?'':'mute')}>${m.title}</span>${!ok&&html`<span className="text-[11.5px] mute">ausgelassen</span>`}</div>`})}${!plan.length&&html`<div className="text-[13px] mute">Heute war nichts geplant.</div>`}</div></div>
  ${areas.length>0&&html`<div className="flex items-center gap-3 mt-3"><span style=${{width:70}} className="shrink-0"><${TempleSVG} st=${st} sel=${areas[0]} mini=${true} anim=${false}/></span><div className="text-[13px] leading-snug">Heute gebaut an: <b>${areas.map(a=>LC.AREA[a].name).join(', ')}</b>. Jede umgesetzte Ziel-Handlung zählt für die konstante Woche deiner Säule.</div></div>`}
  <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Wie lief dein Tag?</div>${chips(LC.MOODS,mood,setMood)}
  ${skipped.length?html`<div className="text-[13.5px] font-semibold mt-4 mb-1.5">Was hat dich aufgehalten?</div>${chips(LC.DEBRIEF_OBST,ob,setOb)}
@@ -2380,13 +2564,58 @@ function Debrief({c}){const {S,D}=c;const L=S.life;const plan=useMemo(()=>debrie
   ${ch==='earlier'&&html`<div className="text-[12px] mute mt-1.5">„${skipped[0].title}“ steht morgen an erster Stelle.</div>`}${ch==='smaller'&&html`<div className="text-[12px] mute mt-1.5">${skipped.length===1?'Notiert. Im Wochenrückblick bekommst du eine kleinere Version als Experiment vorgeschlagen.':'Notiert. Wiederholt es sich, schlägt der Wochenrückblick eine kleinere Version vor.'} Dein Plan ändert sich nicht ungefragt.</div>`}`
  :plan.length?html`<div className="card2 p-3 mt-4 text-[13.5px] leading-snug"><b>Der Plan funktioniert.</b> Behalte ihn bei.</div>`:null}
  <button onClick=${save} disabled=${!mood} className="btn w-full py-3.5 mt-5 text-sm">Debrief abschließen</button>
- <div className="text-[11.5px] mute text-center mt-2">${mood?'Unter 30 Sekunden. Muster wertet die App im Wochenrückblick aus.':'Eine Antwort genügt: Wie lief dein Tag?'}</div><//>`}
+ <div className="text-[11.5px] mute text-center mt-2">${mood?'Unter 30 Sekunden. Muster wertet die App im Wochenrückblick aus.':'Eine Antwort genügt: Wie lief dein Tag?'}</div>
+ <${WisdomSlot} c=${c} place="debrief" x=${{planned:plan.length,done:done.length}} cls="mt-5"/><//>`}
 function MonthlyCheck({c}){const {S}=c;const L=S.life,m=LC.monthlyDue(L);const gs=(L.goals||[]).filter(g=>g.status==='active');const [dec,setDec]=useState(()=>Object.fromEntries(gs.map(g=>[g.id,'keep'])));const wk=LC.curWk(L);
  return html`<${Sheet} sub="Monats-Check · 5 Minuten" title="Sind deine Ziele noch richtig?" onClose=${c.closeSheet}>
  <div className="text-[13px] mute -mt-1 mb-3 leading-relaxed">Einmal im Monat, nicht jeden Tag: Passt das Ziel noch zu dir, und bewegt sich das Ergebnis?</div>
  <div className="flex flex-col gap-2.5">${gs.map(g=>{const p=LC.goalProgress(L,g),t=LC.trend(L,g,wk,4),[ar,tc,tl]=TRD[t.state]||TRD.none;return html`<div key=${g.id} className="card2 p-3.5"><div className="text-[14px] font-semibold">${g.title}</div><div className="text-[12.5px] mute mt-0.5 num">${g.metric.name}: ${LC.fmtV(g.metric,LC.goalNow(L,g))} → ${LC.fmtV(g.metric,g.metric.target)} · <span style=${{color:tc}}>${ar} ${tl}</span>${p!=null?' · '+Math.round(p*100)+' %':''}</div>
   <div className="grid grid-cols-3 gap-1.5 mt-2.5">${[['keep','Behalten'],['adjust','Anpassen'],['archive','Archivieren']].map(([k,l])=>html`<button key=${k} aria-pressed=${dec[g.id]===k} onClick=${()=>setDec({...dec,[g.id]:k})} className=${`chip ${dec[g.id]===k?'on':''}`}>${l}</button>`)}</div></div>`})}</div>
  <button onClick=${()=>c.saveMonthly(m??Math.floor(wk/4),dec)} className="btn w-full py-3.5 mt-4 text-sm">Monats-Check abschließen</button><//>`}
+
+/* ───── WISDOM OF THE WARRIOR: kurze Impulse als antike Inschrift ─────
+   Bibliothek und Auswahlregeln in wisdom-core.js (window.WC). Hier nur Darstellung.
+   Nie als Pop-up, immer schließbar, höchstens ein Impuls pro Stelle und Tag, abschaltbar in den Optionen. */
+const WC=window.WC;
+/* Lorbeerzweig (eigene Zeichnung), gespiegelt für die rechte Seite; Lorbeer-Header nach Designkonzept */
+function Sprig({flip,w=26}){return html`<svg width=${w} height=${Math.round(w/2)} viewBox="0 0 24 12" aria-hidden="true" style=${flip?{transform:'scaleX(-1)',flexShrink:0}:{flexShrink:0}}><path d="M1 7.2C7 6.4 14 6 23 6" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>${[[5,-1],[9.5,-1],[14,-1],[5,1],[9.5,1],[14,1]].map(([x,s],i)=>html`<ellipse key=${i} cx=${x+1.6} cy=${6.6+s*2.1} rx="2.5" ry="1.05" fill="currentColor" transform=${`rotate(${s*-28} ${x+1.6} ${6.6+s*2.1})`}/>`)}<ellipse cx="20.2" cy="5.9" rx="2.3" ry="1" fill="currentColor"/></svg>`}
+const GREEK_NUM=['Α΄','Β΄','Γ΄','Δ΄','Ε΄','ΣΤ΄','Ζ΄','Η΄','Θ΄','Ι΄'];
+/* Steintafel: Kopfzeile, Mäander, Inschrift in Cinzel, Mäander, Thema */
+function WisdomCard({c,w,reason,compact,onClose,cls='mt-3'}){const [open,setOpen]=useState(!compact);const cat=WC.CAT[w.category]||{name:'',de:''};const fav=WC.isFav(c.S,w.id);
+ return html`<figure className=${'wis '+cls} aria-label=${'Wisdom of the Warrior, '+cat.name}>
+ <div className="wis-hd">
+  <button onClick=${()=>c.wisFav(w.id)} aria-pressed=${fav} aria-label=${fav?'Aus dem Wisdom Codex entfernen':'Im Wisdom Codex speichern'} className="wis-b"><${Icon} n=${fav?'bookmarkOn':'bookmark'} s=${18} sw=${2}/></button>
+  <span className="wis-k">Wisdom of the Warrior</span>
+  ${onClose?html`<button onClick=${onClose} aria-label="Impuls für heute ausblenden" className="wis-b"><${Icon} n="x" s=${18} sw=${2}/></button>`:html`<span style=${{width:44}} aria-hidden="true"/>`}</div>
+ <div className="meander wis-band" aria-hidden="true"/>
+ <blockquote className="wis-t">„${w.text}“</blockquote>
+ ${w.explanation?open?html`<p className="wis-x">${w.explanation}</p>`:html`<button onClick=${()=>setOpen(true)} aria-expanded="false" className="wis-more">Wie anwenden?</button>`:null}
+ <div className="meander wis-band" aria-hidden="true"/>
+ <figcaption className="wis-c"><span className="wis-cat"><${Icon} n=${w.icon} s=${14} sw=${2}/>${cat.name} · ${cat.de}</span>${reason&&html`<span className="wis-r">${reason}</span>`}</figcaption></figure>`}
+/* Eine Stelle in der App: wählt (regelbasiert) und merkt sich den Impuls des Tages */
+function WisdomSlot({c,place,x,compact=true,cls}){const r=WC.resolve(c.S,place,x);const id=r&&!r.recorded?r.w.id:null;
+ useEffect(()=>{if(id)c.upd(n=>{WC.ensure(n);const q=WC.resolve(n,place,x);if(q&&!q.recorded)WC.record(n,q)})},[id]);
+ if(!r)return null;return html`<${WisdomCard} key=${r.w.id} c=${c} w=${r.w} reason=${r.reason} compact=${compact} cls=${cls} onClose=${()=>c.wisDismiss(place)}/>`}
+/* Wisdom Codex: reduziertes Archiv. Alles frei zugänglich, ohne Freischaltung */
+function WisdomCodex({c,init}){const {S}=c;const [mode,setMode]=useState(init==='fav'||init==='seen'?init:'all'),[cf,setCf]=useState(WC.CAT[init]?init:null),[open,setOpen]=useState(null);const W=S.wisdom||{};
+ const seen=new Set((W.seen||[]).map(s=>s.id)),favIds=(W.fav||[]).filter(id=>WC.BY[id]),cat=cf&&WC.CAT[cf];
+ const base=mode==='fav'?favIds.map(id=>WC.BY[id]):mode==='seen'?WC.readList(S):WC.LIB;const list=cat?base.filter(w=>w.category===cf):base;
+ const cnt=id=>base.filter(w=>w.category===id).length;
+ return html`<${Sheet} sub="Wisdom of the Warrior" title="Wisdom Codex" onClose=${c.closeSheet}>
+ <div className="wis-arch"><div className="wis-lh"><${Sprig}/><h3>Archiv</h3><${Sprig} flip=${true}/></div>
+  <p className="wis-lead">Kurze Impulse zur Selbstreflexion, keine Befehle. Was du speicherst, wird zu deiner Inschrift.</p></div>
+ <div className="meander my-3" aria-hidden="true"/>
+ <${Seg} opts=${[['all','Alle · '+WC.LIB.length],['fav','Favoriten · '+favIds.length],['seen','Gelesen · '+seen.size]]} val=${mode} on=${v=>{setMode(v);setOpen(null)}}/>
+ <div className="wis-grid" role="group" aria-label="Nach Thema filtern">${WC.CATS.map(k=>html`<button key=${k.id} aria-pressed=${cf===k.id} onClick=${()=>{setCf(cf===k.id?null:k.id);setOpen(null)}} className="wis-tile"><span className="flex items-center justify-between w-full"><${Icon} n=${k.icon} s=${20} sw=${2}/><small>${cnt(k.id)}</small></span><b>${k.name}</b></button>`)}</div>
+ ${cat&&html`<div className="text-center text-[13px] leading-snug mt-3 px-2"><b className="disp text-[15px]">${cat.de}</b><div className="mute mt-0.5">${cat.d}</div></div>`}
+ <ul className="flex flex-col gap-2 mt-3 p-0 m-0 list-none" aria-label="Weisheiten">${list.map(w=>{const k=WC.CAT[w.category],on=open===w.id,fv=WC.isFav(S,w.id),nr=parseInt(w.id.slice(-3),10);return html`<li key=${w.id} className="wis-row">
+  <span className="wis-num" aria-hidden="true">${GREEK_NUM[nr-1]||nr}</span>
+  <button onClick=${()=>setOpen(on?null:w.id)} aria-expanded=${on} className="flex-1 min-w-0 text-left bg-transparent border-0 p-0" style=${{color:'var(--ink)'}}>
+   <span className="wis-rt">${w.text}</span>${on&&w.explanation&&html`<span className="block wis-x" style=${{margin:'6px 0 0'}}>${w.explanation}</span>`}
+   <span className="wis-rc"><span className="flex items-center gap-1.5"><${Icon} n=${k.icon} s=${13} sw=${2}/>${k.name}</span>${seen.has(w.id)&&html`<span style=${{letterSpacing:0,textTransform:'none',fontWeight:500}}>gelesen</span>`}</span></button>
+  <button onClick=${()=>c.wisFav(w.id)} aria-pressed=${fv} aria-label=${fv?'Aus den Favoriten entfernen':'Als Favorit speichern'} className="wis-b" style=${{marginTop:-10}}><${Icon} n=${fv?'bookmarkOn':'bookmark'} s=${18} sw=${2}/></button></li>`})}</ul>
+ ${!list.length&&html`<div className="card2 p-4 text-[13px] mute mt-3 leading-snug text-center">${cat&&base.length?'In diesem Thema ist hier noch nichts.':mode==='fav'?'Noch keine Inschriften. Tippe das Lesezeichen an einer Weisheit, um sie hier aufzubewahren.':mode==='seen'?'Noch nichts gelesen. Impulse erscheinen auf „Heute“, im Daily Debrief und bei Meilensteinen.':'Keine Weisheit in dieser Auswahl.'}</div>`}
+ <div className="text-[11.5px] mute text-center mt-4 leading-snug">Alle Texte sind eigene Formulierungen von THE WAR WITHIN, keine Zitate. Lesen und Speichern bringen keine Punkte und keinen Tempel-Fortschritt.</div><//>`}
 
 /* ───── LIFE OS: Heute · Mein Leben · Fortschritt · Reflexion ─────
    Logik in life-core.js (window.LC). Hier nur Darstellung und Verknüpfung mit dem Spielstand. */
@@ -2535,8 +2764,10 @@ function GoalCard({c,g}){const {S}=c;const L=S.life,wk=LC.curWk(L),now=LC.goalNo
  ${p!=null&&html`<div className="mt-2"><${Bar} pct=${p} h=${5} color="var(--good)"/></div>`}
  ${!ach&&html`<div className="border-t ln mt-3 pt-2.5 flex flex-col gap-1.5">${acts.map(a=>html`<div key=${a.id} className="flex items-center gap-2 text-[13px]"><span className="flex-1 min-w-0 truncate">${LC.missionTitle(a)}</span><span className="num mute shrink-0">${LC.doneIn(L,a.id,wk)}/${LC.plannedAt(a,wk)} Woche</span></div>`)}${!acts.length&&html`<div className="text-[12.5px] mute">Noch keine Handlung. Über den Stift fügst du eine hinzu.</div>`}</div>`}</div>`}
 function MyLife({c}){const {S}=c;const L=S.life;const P=S.principles||[];const goals=L.goals||[],act=goals.filter(g=>g.status==='active'),ach=goals.filter(g=>g.status==='achieved');const W=L.why||{};
- return html`<div className="screen px-4 pb-6"><div className="pt-5 relative"><span className="page-emblem"><${Icon} n="compass" s=${76} sw=${1}/></span><div className="lbl">Dein Kompass</div><h1 className="disp text-[40px] mt-1">Mein Leben</h1><div className="text-[13px] mute mt-1 leading-snug">Werte geben die Richtung. Ziele machen sie messbar. Handlungen bringen dich hin.</div><div className="meander mt-3" aria-hidden="true"/></div>
+ return html`<div className="screen px-4 pb-6"><div className="pt-5 relative"><span className="page-emblem"><${Icon} n="compass" s=${76} sw=${1}/></span><div className="lbl">Dein Kompass · Mein Leben</div><h1 className="disp text-[40px] mt-1">Bereiche</h1><div className="text-[13px] mute mt-1 leading-snug">Werte geben die Richtung. Ziele machen sie messbar. Handlungen bringen dich hin.</div><div className="meander mt-3" aria-hidden="true"/></div>
  <${TempleView} c=${c}/>
+ <${WisdomSlot} c=${c} place="season"/>
+ ${WC.enabled(S)&&(()=>{const n=((S.wisdom&&S.wisdom.fav)||[]).length;return html`<button onClick=${()=>c.openSheet({t:'codex',f:n?'fav':'all'})} className="ghost w-full p-3 mt-3 flex items-center gap-3 text-left text-[14px] font-medium"><span className="wis-ic" aria-hidden="true"><${Icon} n="scroll" s=${15} sw=${1.6}/></span><div className="flex-1">Wisdom Codex<div className="text-[11.5px] mute font-normal">${n?n+(n===1?' Inschrift':' Inschriften')+' gespeichert':'Deine Sammlung kurzer Lebensweisheiten'}</div></div><${Icon} n="chevR" s=${15} cls="mute"/></button>`})()}
  <${Title} right=${html`<button onClick=${()=>c.openSheet({t:'values'})} className="chip">${P.length?'Bearbeiten':'Wählen'}</button>`}>Fundament · Werte<//>
  ${P.length?html`<div className="card p-3.5"><div className="flex flex-wrap gap-1.5">${P.map(p=>html`<button key=${p.id} onClick=${()=>c.actPrinciple(p.id)} className="chip" aria-label=${p.n+': heute danach gehandelt'}>${p.n}${p.acts?html`<span className="num mute ml-1.5">${p.acts}</span>`:null}</button>`)}</div><div className="text-[11.5px] mute mt-2">Tippe einen Wert, wenn du heute bewusst danach gehandelt hast.${S.tradition&&S.tradition!=='Keine'?' Inspiration: '+S.tradition+'.':''}</div></div>`
  :html`<button onClick=${()=>c.openSheet({t:'values'})} className="card w-full p-4 text-left"><div className="text-[14.5px] font-semibold">Wähle drei Werte</div><div className="text-[12.5px] mute mt-0.5">Zwei Minuten. Sie helfen bei Entscheidungen und bei der Wahl deiner Ziele.</div></button>`}
@@ -2563,6 +2794,7 @@ function Reflect({c}){const {S}=c;const L=S.life;const due=LC.reviewWeek(L),r=re
   ${due!=null?html`<button onClick=${()=>c.openSheet({t:'weekly'})} className="card p-4 text-left" style=${{background:'linear-gradient(150deg,color-mix(in srgb,var(--acc) 22%,var(--card)),var(--card) 70%)',boxShadow:'0 0 0 1px color-mix(in srgb,var(--acc2) 50%,transparent) inset'}}><div className="lbl acc">Wochenrückblick bereit</div><div className="text-[18px] font-bold mt-1">Woche ${due+1} auswerten</div><div className="text-[13px] mute mt-0.5">Umsetzung und Ergebnis prüfen, ein Hindernis lösen, ein Experiment festlegen. 3 Minuten.</div><span className="btn inline-block px-4 py-2.5 mt-3 text-[13px]">Starten</span></button>`
   :html`<div className="card p-4"><div className="lbl">Wochenrückblick</div><div className="text-[15px] font-semibold mt-1">Nächster Rückblick am Sonntag</div><div className="text-[12.5px] mute mt-0.5">${(L.reviews||[]).length?'Der letzte ist erledigt. Bis dahin: umsetzen und messen.':'Am Ende der Woche wertest du Umsetzung und Ergebnis aus.'}</div></div>`}
   <button onClick=${()=>c.openSheet({t:'review'})} className="card p-4 text-left flex items-center gap-3"><span className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style=${{background:'rgba(var(--sky-rgb),.14)',color:'var(--sky)'}}><${Icon} n="moon" s=${19}/></span><div className="flex-1"><div className="text-[14.5px] font-semibold">Daily Debrief</div><div className="text-[12.5px] mute">${r?'Heute erledigt. Antippen zum Ändern.':'3 Fragen, unter einer Minute. Hindernisse fließen in den Wochenrückblick.'}</div></div>${r?html`<span className="good"><${Icon} n="check" s=${18} sw=${2.6}/></span>`:html`<${Icon} n="chevR" s=${16} cls="mute"/>`}</button></div>
+ ${r&&html`<${WisdomSlot} c=${c} place="debrief"/>`}
  ${(()=>{const pt=LC.debriefPatterns(S),md=LC.monthlyDue(L);return html`${md!=null&&html`<button onClick=${()=>c.openSheet({t:'monthly'})} className="card w-full p-4 mt-2.5 text-left flex items-center gap-3"><span className="acc"><${Icon} n="calendar" s=${20}/></span><div className="flex-1"><div className="text-[14.5px] font-semibold">Monats-Check fällig</div><div className="text-[12.5px] mute">Sind deine Ziele noch sinnvoll? 5 Minuten.</div></div><${Icon} n="chevR" s=${16} cls="mute"/></button>`}
  ${pt.length>0&&html`<${Title}>Erkannte Muster<//><div className="flex flex-col gap-2">${pt.slice(0,3).map(p=>html`<div key=${p.aid} className="card p-3.5 text-[13px] leading-snug">${p.text}<div className="text-[11.5px] mute mt-1">Wird im Wochenrückblick als Experiment angeboten. Nichts ändert sich ungefragt.</div></div>`)}</div>`}`})()}
  <${Title}>Laufende Experimente<//>
@@ -3014,7 +3246,7 @@ function PerfectDay({S,onClose}){
 const useNow=ms=>{const [n,setN]=useState(Date.now());useEffect(()=>{const t=setInterval(()=>setN(Date.now()),ms);return()=>clearInterval(t)},[ms]);return n};
 const METRICS={'5-km-Lauf':[true,S=>S.stats.run5k.last,fmtT],'Bankdrücken (Verbesserung)':[false,S=>S.stats.bench.ver,x=>n1(x)+' kg'],'100 m Schwimmen':[true,S=>S.stats.swim.pr,fmtT],'Lese-Konstanz':[false,()=>120,x=>Math.round(x)+' Min.'],'Fokus-Stunden':[false,()=>18,x=>n1(x)+' h'],'Spar-Konstanz':[false,()=>5,x=>Math.round(x)+' Tage']};
 function App({init,auth,skey='war_within_v5'}){
- const [S,setS]=useState(()=>{const s=LC.ensureLife(init||loadState(skey));LC.syncTemple(s);return s});
+ const [S,setS]=useState(()=>{const s=LC.ensureLife(init||loadState(skey));WC.ensure(s);LC.syncTemple(s);return s});
  const [tSel,setTSel]=useState(null),[tFlash,setTFlash]=useState(null);
  const [tab,setTab]=useState('home'),[statTab,setStatTab]=useState('out'),[sheet,setSheet]=useState(null),[sel,setSel]=useState(null),[coreSel,setCoreSel]=useState(null),[freq,setFreq]=useState('all');
  const [toasts,setToasts]=useState([]),[floats,setFloats]=useState([]),[flash,setFlash]=useState({}),[sparks,setSparks]=useState([]),[undo,setUndo]=useState(null);
@@ -3029,7 +3261,7 @@ function App({init,auth,skey='war_within_v5'}){
  const fx=(pos,text)=>{const id=uid();const p=pos&&pos.currentTarget?pos.currentTarget.getBoundingClientRect():pos&&pos.left!=null?pos:{left:200,top:420,width:0};setFloats(f=>[...f,{id,x:p.left+(p.width||0)/2,y:p.top,text}]);setTimeout(()=>setFloats(f=>f.filter(x=>x.id!==id)),1200)};
  const [simMin,setSimMin]=useState(null);
  const openSheet=o=>setSheet(o),closeSheet=()=>setSheet(null);
- useEffect(()=>{if(S.ui!=='adv'&&tab==='solo')setTab('stats')},[S.ui,tab]);
+ useEffect(()=>{if(focusMode(S)&&tab==='solo')setTab('home')},[S.life&&S.life.focusMode,tab]);
  /* Rang-Toasts */
  const pr=useRef(D.me.rank);
  useEffect(()=>{const p=pr.current;if(focusMode(S)||D.standings.every(x=>!x.pts)){pr.current=D.me.rank;return}if(D.me.rank>p)toast(`${D.standings[D.me.rank-2].name} hat dich überholt: jetzt Platz ${D.me.rank}`,'warn');else if(D.me.rank<p)toast(`Du bist auf Platz ${D.me.rank} aufgestiegen!`,'good');pr.current=D.me.rank},[D.me.rank]);
@@ -3174,6 +3406,10 @@ function App({init,auth,skey='war_within_v5'}){
  const saveMonthly=(m,dec)=>{lifeUpd(n=>LC.saveMonthly(n,m,dec));setSheet(null);const adj=Object.entries(dec).find(([,d])=>d==='adjust');if(adj)setTimeout(()=>setSheet({t:'goal',gid:adj[0]}),250);toast('Monats-Check gespeichert.','good')};
  const toggleWeather=()=>{const on=S.life.temple.weather;lifeUpd(n=>{n.life.temple.weather=!on});toast(on?'Verwitterung ausgeblendet. Deine Daten bleiben unverändert.':'Verwitterung wird wieder angezeigt.')};
  const toggleTempleAnim=()=>lifeUpd(n=>{n.life.temple.anim=!n.life.temple.anim});
+ /* Wisdom of the Warrior: nur Anzeige, Favoriten und Einstellungen. Nie Punkte, nie Tempel-Fortschritt */
+ const wisFav=id=>{const on=WC.isFav(S,id);upd(n=>{WC.toggleFav(n,id)});toast(on?'Aus dem Wisdom Codex entfernt.':'Im Wisdom Codex gespeichert.','good')};
+ const wisDismiss=place=>{upd(n=>{WC.dismiss(n,place)});toast('Für heute ausgeblendet. Ganz abschalten kannst du die Impulse in den Optionen.')};
+ const wisToggle=()=>{const on=WC.enabled(S);upd(n=>{WC.setOn(n,!on)});toast(on?'Impulse aus. Der Codex bleibt in den Optionen erreichbar.':'Impulse an: höchstens einer pro Stelle und Tag.','good')};
  const closeTempleSeason=len=>{lifeUpd(n=>{LC.closeTempleSeason(n,len)});setSheet(null);toast('Neue Saison begonnen. Dein bisheriger Tempel steht in der Galerie.','good')};
  const addLifeGoal=x=>{lifeUpd(n=>{LC.addGoal(n,x)});setSheet(null);setTab('home');toast('Ziel angelegt. Deine Handlungen stehen ab heute im Plan.','good')};
  const updLifeGoal=(gid,p)=>{lifeUpd(n=>LC.updateGoal(n,gid,p));toast('Ziel aktualisiert. Die Änderung steht im Verlauf.','good')};
@@ -3251,17 +3487,17 @@ function App({init,auth,skey='war_within_v5'}){
  /* Erfolge */
  const newA=S.newAch[0];
  useEffect(()=>{if(!newA)return;const t=setTimeout(()=>upd(n=>{n.newAch=n.newAch.slice(1)}),2600);return()=>clearTimeout(t)},[newA]);
- const c={auth,upd,saveDebrief,saveMonthly,tSel,setTSel,tFlash,toggleWeather,toggleTempleAnim,closeTempleSeason,setSkin,addLifeGoal,updLifeGoal,setLifeGoalStatus,addMeas,saveWeekly,toggleFocusMode,setAreaSat,setFocusArea,setMainGoal,saveValues,saveWhy,setActPerWeek,removeAction,addActionTo,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,togglePush,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
- const nav=[['home','Heute','temple'],['life','Mein Leben','compass'],['stats','Fortschritt','bars'],['reflect','Reflexion','owl']];const navKey={tasks:'home',league:'stats',solo:'stats'}[tab]||tab;const revDue=LC.reviewWeek(S.life)!=null;
+ const c={auth,upd,wisFav,wisDismiss,wisToggle,saveDebrief,saveMonthly,tSel,setTSel,tFlash,toggleWeather,toggleTempleAnim,closeTempleSeason,setSkin,addLifeGoal,updLifeGoal,setLifeGoalStatus,addMeas,saveWeekly,toggleFocusMode,setAreaSat,setFocusArea,setMainGoal,saveValues,saveWhy,setActPerWeek,removeAction,addActionTo,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,togglePush,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
+ const nav=[['home','Home','home'],['tasks','Heute','target'],['life','Bereiche','grid'],['stats','Stats','bars'],...(focusMode(S)?[]:[['solo','Duell','swords']])];const navKey={league:'stats',reflect:'home'}[tab]||tab;const revDue=LC.reviewWeek(S.life)!=null;
  const ach=newA&&ACHS.find(a=>a.id===newA);
  return html`<div data-theme=${S.theme} data-skin=${S.skin||'antik'} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(var(--acc-rgb),.12)'}}>
  <div className="absolute inset-0 pointer-events-none overflow-hidden"><div className="absolute rounded-full" style=${{top:-110,left:-80,width:300,height:300,background:'rgba(var(--acc-rgb),.13)',filter:'blur(70px)'}}/><div className="absolute rounded-full" style=${{top:260,right:-140,width:260,height:260,background:'rgba(var(--sky-rgb),.07)',filter:'blur(80px)'}}/></div>
  <div ref=${scrollRef} onScroll=${e=>{const y=e.currentTarget.scrollTop,v=y>70;if(v!==scrolled)setScrolled(v);const dn=y>lastY.current+4,up=y<lastY.current-4;if(dn&&!fabOff&&y>120)setFabOff(true);else if((up||y<120)&&fabOff)setFabOff(false);lastY.current=y}} className="flex-1 overflow-y-auto relative scroll-fade" style=${{paddingBottom:96}}>
-  ${['tasks','league','solo'].includes(tab)&&html`<div className="px-4 pt-4 -mb-2 flex gap-2"><button onClick=${()=>setTab(navKey)} className="chip flex items-center gap-1"><${Icon} n="chevL" s=${14}/>${navKey==='home'?'Heute':'Fortschritt'}</button>${tab==='league'&&S.ui==='adv'&&html`<button onClick=${()=>setTab('solo')} className="chip flex items-center gap-1"><${Icon} n="swords" s=${14}/>Duell</button>`}</div>`}${tab==='home'&&html`<${Home} c=${c}/>`}${tab==='life'&&html`<${MyLife} c=${c}/>`}${tab==='reflect'&&html`<${Reflect} c=${c}/>`}${tab==='tasks'&&html`<${Tasks} c=${c}/>`}${tab==='solo'&&html`<${Solo} c=${c}/>`}${tab==='league'&&html`<${League} c=${c}/>`}${tab==='stats'&&html`<${Stats} c=${c}/>`}</div>
- ${(()=>{const T={home:'Heute',life:'Mein Leben',reflect:'Reflexion',tasks:'Aufgaben',solo:'Duell · Saison '+S.season,league:'Liga',stats:'Fortschritt'}[tab];return html`<div aria-hidden=${!scrolled} className="topbar absolute top-0 inset-x-0 z-20 px-4 flex items-center justify-between pointer-events-none" style=${{height:52,paddingTop:'env(safe-area-inset-top)',opacity:scrolled?1:0,transform:scrolled?'none':'translateY(-8px)',background:'var(--glass)',backdropFilter:'blur(16px) saturate(1.4)',WebkitBackdropFilter:'blur(16px) saturate(1.4)',borderBottom:'1px solid var(--line)'}}><div className="disp text-[19px]">${T}</div><button tabIndex=${scrolled?0:-1} onClick=${()=>{if(scrollRef.current)scrollRef.current.scrollTo({top:0,behavior:'smooth'})}} className="chip pointer-events-auto" style=${{padding:'4px 10px',minHeight:28}} aria-label="Nach oben"><${Icon} n="up" s=${14}/></button></div>`})()}
+  ${['league','reflect'].includes(tab)&&html`<div className="px-4 pt-4 -mb-2 flex gap-2"><button onClick=${()=>setTab(navKey)} className="chip flex items-center gap-1"><${Icon} n="chevL" s=${14}/>${navKey==='home'?'Home':'Stats'}</button></div>`}${tab==='home'&&html`<${Home} c=${c}/>`}${tab==='life'&&html`<${MyLife} c=${c}/>`}${tab==='reflect'&&html`<${Reflect} c=${c}/>`}${tab==='tasks'&&html`<${Tasks} c=${c}/>`}${tab==='solo'&&html`<${Solo} c=${c}/>`}${tab==='league'&&html`<${League} c=${c}/>`}${tab==='stats'&&html`<${Stats} c=${c}/>`}</div>
+ ${(()=>{const T={home:'Home',life:'Bereiche',reflect:'Reflexion',tasks:'Heute',solo:'Duell · Saison '+S.season,league:'Liga',stats:'Stats'}[tab];return html`<div aria-hidden=${!scrolled} className="topbar absolute top-0 inset-x-0 z-20 px-4 flex items-center justify-between pointer-events-none" style=${{height:52,paddingTop:'env(safe-area-inset-top)',opacity:scrolled?1:0,transform:scrolled?'none':'translateY(-8px)',background:'var(--glass)',backdropFilter:'blur(16px) saturate(1.4)',WebkitBackdropFilter:'blur(16px) saturate(1.4)',borderBottom:'1px solid var(--line)'}}><div className="disp text-[19px]">${T}</div><button tabIndex=${scrolled?0:-1} onClick=${()=>{if(scrollRef.current)scrollRef.current.scrollTo({top:0,behavior:'smooth'})}} className="chip pointer-events-auto" style=${{padding:'4px 10px',minHeight:28}} aria-label="Nach oben"><${Icon} n="up" s=${14}/></button></div>`})()}
  
- <div className="absolute bottom-0 inset-x-0 z-30 px-3 pt-2" style=${{paddingBottom:'max(12px,env(safe-area-inset-bottom))',background:'linear-gradient(180deg,transparent,var(--bg) 40%)'}}>
-  <nav aria-label="Hauptnavigation" className="relative flex p-1.5 rounded-[30px]" style=${{background:'var(--glass)',backdropFilter:'blur(18px) saturate(1.4)',WebkitBackdropFilter:'blur(18px) saturate(1.4)',border:'1px solid var(--line)',boxShadow:'0 1px 0 var(--hi) inset,0 18px 40px -16px rgba(0,0,0,.7)'}}>${(()=>{const ix=Math.max(0,nav.findIndex(n=>n[0]===navKey));return html`<div aria-hidden="true" className="nav-ind absolute top-1.5 bottom-1.5 rounded-[24px]" style=${{left:`calc(6px + ${ix} * (100% - 12px) / ${nav.length})`,width:`calc((100% - 12px) / ${nav.length})`,background:'linear-gradient(160deg,rgba(var(--acc2-rgb),.28),rgba(var(--acc-rgb),.14))',border:'1px solid rgba(var(--acc2-rgb),.35)',boxShadow:'0 8px 22px -10px rgba(var(--acc-rgb),.8)'}}/>`})()}${nav.map(([k,l,i])=>html`<button key=${k} aria-label=${l+(k==='reflect'&&revDue?', Wochenrückblick bereit':'')} aria-current=${navKey===k?'page':undefined} onClick=${()=>{setTab(k);setSel(null);try{navigator.vibrate&&navigator.vibrate(6)}catch(e){}}} className="relative flex-1 h-[58px] rounded-[24px] flex flex-col items-center justify-center gap-[3px] border-0 bg-transparent transition-colors" style=${{color:navKey===k?'var(--ink)':'var(--mute)'}}><span style=${{transform:navKey===k?'translateY(-1px) scale(1.06)':'none',transition:'transform .3s cubic-bezier(.3,1.4,.5,1)',color:navKey===k?'var(--acc2)':'inherit'}}><${Icon} n=${i} s=${23} sw=${navKey===k?2.1:1.8}/></span>${k==='reflect'&&revDue&&html`<span aria-hidden="true" className="absolute rounded-full" style=${{top:12,right:'calc(50% - 16px)',width:7,height:7,background:'var(--acc2)'}}/>`}<span className="text-[10.5px] font-semibold tracking-wide" style=${{opacity:navKey===k?1:.75}}>${l}</span></button>`)}</nav></div>
+ <div className="absolute bottom-0 inset-x-0 z-30" style=${{paddingBottom:'env(safe-area-inset-bottom)',background:'var(--bg)',borderTop:'1px solid var(--line)'}}>
+  <nav aria-label="Hauptnavigation" className="flex px-1 pt-1.5 pb-2">${nav.map(([k,l,i])=>{const on=navKey===k;return html`<button key=${k} aria-label=${l+(k==='home'&&revDue?', Wochenrückblick bereit':'')} aria-current=${on?'page':undefined} onClick=${()=>{setTab(k);setSel(null);try{navigator.vibrate&&navigator.vibrate(6)}catch(e){}}} className="relative flex-1 flex flex-col items-center justify-center gap-1 border-0 bg-transparent" style=${{minHeight:52,color:on?'var(--acc2)':'var(--mute)',transition:'color .14s'}}><${Icon} n=${i} s=${24} sw=${2}/>${k==='home'&&revDue&&html`<span aria-hidden="true" className="absolute rounded-full" style=${{top:4,right:'calc(50% - 17px)',width:7,height:7,background:'var(--acc)'}}/>`}<span className="text-[12px] font-medium">${l}</span>${on&&html`<span aria-hidden="true" className="absolute" style=${{bottom:-4,left:'25%',right:'25%',height:2,borderRadius:2,background:'var(--acc)'}}/>`}</button>`})}</nav></div>
  ${tab==='home'&&!undo&&!sheet&&dueAsk&&html`<div key=${'ask'+dueAsk.id} role="status" className="absolute z-40 left-3 right-3 rounded-[22px] p-3" style=${{bottom:100,background:'var(--glass)',backdropFilter:'blur(14px)',WebkitBackdropFilter:'blur(14px)',border:'1px solid rgba(var(--acc2-rgb),.4)',boxShadow:'0 14px 34px -12px rgba(0,0,0,.6)',animation:'toastIn .3s ease-out'}}>
   <div className="flex items-center gap-3"><span className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style=${{background:'rgba(var(--acc-rgb),.18)',color:'var(--acc2)'}}><${Icon} n=${dueAsk.icon} s=${18}/></span><div className="flex-1 min-w-0"><div className="text-[13.5px] font-semibold truncate">${dueAsk.name} erledigt?</div><div className="text-[11.5px] mute">Geplant ${fmtHM(dueAsk.start)}–${fmtHM(dueAsk.end)}${nowM<=dueAsk.end+GRACE?' · jetzt bestätigt = pünktlich':''}</div></div><button aria-label="Heute nicht mehr fragen" onClick=${()=>answerAsk(dueAsk,'no')} className="bg-transparent border-0 mute p-1 shrink-0"><${Icon} n="x" s=${16}/></button></div>
   <div className="flex gap-2 mt-2.5"><button onClick=${()=>answerAsk(dueAsk,'later')} className="ghost flex-1 py-2.5 text-[13px] font-semibold">Später</button><button onClick=${()=>answerAsk(dueAsk,'yes')} className="btn flex-[1.6] py-2.5 text-[13px]">Ja, erledigt</button></div></div>`}
