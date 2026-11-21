@@ -199,21 +199,39 @@ html,body{background:radial-gradient(1200px 600px at 50% -10%,#24150D 0%,#080605
 [data-skin=violet][data-theme=dark]{--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--acc3:#C4B5FD;--acc-d:#6D28D9;--acc-d2:#4C1D95;--acc-rgb:139,92,246;--acc2-rgb:167,139,250;--acc3-rgb:196,181,253;--good:#34D399;--good-rgb:52,211,153;--gold:#FBBF24;--gold-rgb:251,191,36;--sky:#7DD3FC;--sky-rgb:56,189,248;--you:#A78BFA;--nem:#FF5C7A;--done:#34D399;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05);--glow:rgba(139,92,246,.22);--body-glow:#1A1230;--card-g:linear-gradient(180deg,#1C1C21 0%,#17171A 100%);--card2-g:linear-gradient(180deg,#26262C,#212126);--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mtr:#CFC4FF}
 [data-skin=violet][data-theme=light]{--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.12);--ink:#14161C;--mute:#55596D;--acc:#7C3AED;--acc2:#6D28D9;--acc3:#8B5CF6;--acc-d:#5B21B6;--acc-d2:#4C1D95;--acc-rgb:124,58,237;--acc2-rgb:109,40,217;--acc3-rgb:139,92,246;--good:#0E9F6E;--good-rgb:14,159,110;--gold:#B45309;--gold-rgb:180,83,9;--sky:#0369A1;--sky-rgb:3,105,161;--you:#6D28D9;--nem:#E11D48;--done:#047857;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.06);--glow:rgba(124,58,237,.14);--card-g:linear-gradient(180deg,#FFFFFF 0%,#FBFAFF 100%);--card2-g:linear-gradient(180deg,#F3F0FC,#ECE8FA);--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#D6CEF3;--mr2:#AFA2E0;--mr3:#8676CC;--msn:#FFFFFF;--mgr:#6657AE;--mtr:#FFFFFF}
 [data-skin=violet] .chip.on{background:linear-gradient(135deg,var(--acc2),var(--acc))}
-/* ───── Wisdom of the Warrior: kleine Inschrift auf Stein, ohne Animation ───── */
-.wis{position:relative;margin-left:0;margin-right:0;padding:16px 14px 13px;border-radius:18px;overflow:hidden;background:linear-gradient(165deg,color-mix(in srgb,var(--stone,var(--gold)) 10%,var(--card)) 0%,var(--card) 78%);box-shadow:0 0 0 1px color-mix(in srgb,var(--bronze,var(--gold)) 32%,transparent) inset,0 1px 0 var(--hi) inset}
-.wis:before{content:'';position:absolute;left:16px;right:16px;top:0;height:1px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--bronze,var(--gold)) 75%,transparent),transparent)}
-.wis-laurel{position:absolute;right:-10px;bottom:-14px;color:var(--bronze,var(--gold));opacity:.08;pointer-events:none}
-.wis-ic{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:9px;flex-shrink:0;color:var(--bronze,var(--gold));background:color-mix(in srgb,var(--bronze,var(--gold)) 14%,transparent)}
-.wis-k{font-family:'Cinzel',serif;font-weight:700;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--bronze,var(--gold))}
-.wis-t{position:relative;margin:8px 0 0;font-family:Georgia,'Times New Roman',serif;font-size:16.5px;line-height:1.42;color:var(--ink)}
-.wis-x{position:relative;margin:6px 0 0;font-size:13px;line-height:1.45;color:color-mix(in srgb,var(--mute) 78%,var(--ink))}
-.wis-more{position:relative;margin-top:2px;padding:6px 0;min-height:36px;background:none;border:0;font-size:13px;font-weight:600;color:var(--acc2)}
-.wis-c{position:relative;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 10px;margin-top:8px;font-family:'Cinzel',serif;font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--mute)}
-.wis-r{font-family:Inter,sans-serif;font-weight:500;letter-spacing:0;font-size:11.5px;text-transform:none;min-width:0;margin-left:auto}
-.wis-b{position:relative;width:40px;height:40px;margin:-7px -8px -7px 0;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;border:0;background:transparent;color:var(--mute);border-radius:12px}
+/* ───── Wisdom of the Warrior: Stele aus Stein mit Giebel, Aspis-Medaillon, Lorbeer und Mäander. Keine Animation ───── */
+.wis{position:relative;margin-left:0;margin-right:0;padding:0 14px;border-radius:8px 8px 18px 18px;overflow:hidden;background:repeating-linear-gradient(180deg,transparent 0 15px,color-mix(in srgb,var(--stone,var(--gold)) 4%,transparent) 15px 16px),linear-gradient(176deg,color-mix(in srgb,var(--stone,var(--gold)) 15%,var(--card)) 0%,color-mix(in srgb,var(--stone,var(--gold)) 6%,var(--card)) 58%,var(--card) 100%);box-shadow:0 0 0 1px color-mix(in srgb,var(--bronze,var(--gold)) 40%,transparent) inset,0 1px 0 var(--hi) inset,0 12px 26px -20px rgba(0,0,0,.75)}
+.wis:after{content:'';position:absolute;inset:5px;border-radius:5px 5px 14px 14px;border:1px solid color-mix(in srgb,var(--bronze,var(--gold)) 16%,transparent);pointer-events:none}
+.wis-ped{display:block;width:calc(100% + 28px);height:28px;margin:0 -14px;color:var(--bronze,var(--gold))}
+.wis-med{position:relative;z-index:1;margin:-21px auto 0;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--bronze,var(--gold));background:radial-gradient(circle at 36% 30%,color-mix(in srgb,var(--bronze,var(--gold)) 34%,var(--card2)),var(--card2) 72%);box-shadow:0 0 0 1px color-mix(in srgb,var(--bronze,var(--gold)) 65%,transparent),0 0 0 3px var(--card),0 0 0 4px color-mix(in srgb,var(--bronze,var(--gold)) 28%,transparent),0 5px 12px -5px rgba(0,0,0,.6)}
+.wis-hd{position:relative;display:flex;align-items:center;gap:4px;margin-top:2px}
+.wis-k{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Cinzel',serif;font-weight:700;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--bronze,var(--gold));white-space:nowrap}
+.wis-k span{overflow:hidden;text-overflow:ellipsis}
+@media (max-width:359px){.wis-hd .wis-sp{display:none}.wis-k{letter-spacing:.15em}}
+.wis-sp{flex-shrink:0;color:var(--bronze,var(--gold));opacity:.85}
+.wis-t{position:relative;margin:4px 4px 0;text-align:center;font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.42;color:var(--ink);text-shadow:0 1px 0 rgba(0,0,0,.55)}
+[data-theme=light] .wis-t,[data-theme=light] .wis-rt{text-shadow:0 1px 0 rgba(255,255,255,.75)}
+.wis-x{position:relative;margin:6px 6px 0;text-align:center;font-size:13px;line-height:1.45;color:color-mix(in srgb,var(--mute) 78%,var(--ink))}
+.wis-more{position:relative;display:block;margin:2px auto 0;padding:6px 10px;min-height:36px;background:none;border:0;font-size:13px;font-weight:600;color:var(--acc2)}
+.wis-band{position:relative;height:9px;margin:10px -14px 0;opacity:.32}
+.wis-c{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 0 13px;font-family:'Cinzel',serif;font-size:10px;font-weight:700;letter-spacing:.16em;color:color-mix(in srgb,var(--bronze,var(--gold)) 55%,var(--mute));text-align:center}
+.wis-r{font-family:Inter,sans-serif;font-weight:500;font-style:italic;letter-spacing:0;font-size:11.5px;text-transform:none;color:var(--mute)}
+.wis-b{position:relative;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;border:0;background:transparent;color:var(--mute);border-radius:12px}
 .wis-b[aria-pressed=true]{color:var(--bronze,var(--gold))}
-.wis-row{display:flex;align-items:flex-start;gap:6px;padding:12px 12px 12px 14px;border-radius:14px;background:var(--card2);box-shadow:0 0 0 1px var(--line) inset}
-.wis-rt{display:block;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.4}
+.wis-ic{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;flex-shrink:0;color:var(--bronze,var(--gold));background:color-mix(in srgb,var(--bronze,var(--gold)) 14%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--bronze,var(--gold)) 35%,transparent)}
+/* Codex: Archiv mit Emblem-Raster und Steintafeln */
+.wis-arch{text-align:center;padding:4px 0 2px}
+.wis-arch .wis-med{margin:0 auto}
+.wis-lead{margin:10px 8px 0;font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:14.5px;line-height:1.45;color:color-mix(in srgb,var(--mute) 70%,var(--ink))}
+.wis-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:12px}
+.wis-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:7px 4px 6px;border-radius:12px;border:0;background:var(--card2);color:var(--ink);box-shadow:0 0 0 1px var(--line) inset;min-height:56px}
+.wis-tile[aria-pressed=true]{background:color-mix(in srgb,var(--bronze,var(--gold)) 16%,var(--card2));box-shadow:0 0 0 1.5px color-mix(in srgb,var(--bronze,var(--gold)) 70%,transparent) inset}
+.wis-tile b{font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:.06em;font-weight:700;line-height:1.2;text-transform:uppercase}
+.wis-tile small{font-family:Inter,sans-serif;font-size:10.5px;letter-spacing:0;font-weight:500;color:var(--mute)}
+.wis-row{position:relative;display:flex;align-items:flex-start;gap:10px;padding:12px 6px 12px 12px;border-radius:6px 6px 12px 12px;background:repeating-linear-gradient(180deg,transparent 0 15px,color-mix(in srgb,var(--stone,var(--gold)) 4%,transparent) 15px 16px),linear-gradient(176deg,color-mix(in srgb,var(--stone,var(--gold)) 9%,var(--card2)),var(--card2));box-shadow:0 0 0 1px color-mix(in srgb,var(--bronze,var(--gold)) 22%,transparent) inset,3px 0 0 color-mix(in srgb,var(--bronze,var(--gold)) 55%,transparent) inset}
+.wis-num{flex-shrink:0;width:26px;padding-top:2px;text-align:center;font-family:'Cinzel',serif;font-weight:700;font-size:13px;color:var(--bronze,var(--gold))}
+.wis-rt{display:block;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.4;text-shadow:0 1px 0 rgba(0,0,0,.45)}
+.wis-rc{display:flex;justify-content:space-between;gap:8px;margin-top:6px;font-family:'Cinzel',serif;font-size:9.5px;font-weight:700;letter-spacing:.14em;color:var(--mute)}
 </style>
 </head>
 <body>
@@ -2418,34 +2436,48 @@ function MonthlyCheck({c}){const {S}=c;const L=S.life,m=LC.monthlyDue(L);const g
    Bibliothek und Auswahlregeln in wisdom-core.js (window.WC). Hier nur Darstellung.
    Nie als Pop-up, immer schließbar, höchstens ein Impuls pro Stelle und Tag, abschaltbar in den Optionen. */
 const WC=window.WC;
+/* Lorbeerzweig (eigene Zeichnung), gespiegelt für die rechte Seite */
+function Sprig({flip,w=24}){return html`<svg className="wis-sp" width=${w} height=${Math.round(w/2)} viewBox="0 0 24 12" aria-hidden="true" style=${flip?{transform:'scaleX(-1)'}:null}><path d="M1 7.2C7 6.4 14 6 23 6" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>${[[5,-1],[9.5,-1],[14,-1],[5,1],[9.5,1],[14,1]].map(([x,s],i)=>html`<ellipse key=${i} cx=${x+1.6} cy=${6.6+s*2.1} rx="2.5" ry="1.05" fill="currentColor" transform=${`rotate(${s*-28} ${x+1.6} ${6.6+s*2.1})`}/>`)}<ellipse cx="20.2" cy="5.9" rx="2.3" ry="1" fill="currentColor"/></svg>`}
+/* Giebel einer Stele: zwei Linien, Steinfläche dezent getönt */
+function Pediment(){return html`<svg className="wis-ped" viewBox="0 0 320 28" preserveAspectRatio="none" aria-hidden="true"><path d="M0 28 160 3 320 28Z" fill="currentColor" fillOpacity=".07"/><path d="M0 27.5 160 3 320 27.5" fill="none" stroke="currentColor" strokeOpacity=".55" strokeWidth="1" vectorEffect="non-scaling-stroke"/><path d="M34 27.5 160 8.5 286 27.5" fill="none" stroke="currentColor" strokeOpacity=".28" strokeWidth="1" vectorEffect="non-scaling-stroke"/><path d="M0 27.5H320" stroke="currentColor" strokeOpacity=".45" strokeWidth="1" vectorEffect="non-scaling-stroke"/></svg>`}
+const GREEK_NUM=['Α΄','Β΄','Γ΄','Δ΄','Ε΄','ΣΤ΄','Ζ΄','Η΄','Θ΄','Ι΄'];
 function WisdomCard({c,w,reason,compact,onClose,cls='mt-3'}){const [open,setOpen]=useState(!compact);const cat=WC.CAT[w.category]||{name:'',de:''};const fav=WC.isFav(c.S,w.id);
- return html`<figure className=${'wis '+cls} aria-label="Wisdom of the Warrior">
- <span className="wis-laurel" aria-hidden="true"><${Icon} n="laurel" s=${72} sw=${1}/></span>
- <div className="relative flex items-center gap-2"><span className="wis-ic" aria-hidden="true"><${Icon} n=${w.icon} s=${15} sw=${1.6}/></span><span className="wis-k flex-1 min-w-0 truncate">Wisdom of the Warrior</span>
-  <button onClick=${()=>c.wisFav(w.id)} aria-pressed=${fav} aria-label=${fav?'Aus dem Wisdom Codex entfernen':'Im Wisdom Codex speichern'} className="wis-b"><${Icon} n=${fav?'bookmarkOn':'bookmark'} s=${17}/></button>
-  ${onClose&&html`<button onClick=${onClose} aria-label="Impuls für heute ausblenden" className="wis-b"><${Icon} n="x" s=${17}/></button>`}</div>
+ return html`<figure className=${'wis '+cls} aria-label=${'Wisdom of the Warrior, '+cat.name}>
+ <${Pediment}/>
+ <div className="wis-med" aria-hidden="true"><${Icon} n=${w.icon} s=${18} sw=${1.6}/></div>
+ <div className="wis-hd">
+  <button onClick=${()=>c.wisFav(w.id)} aria-pressed=${fav} aria-label=${fav?'Aus dem Wisdom Codex entfernen':'Im Wisdom Codex speichern'} className="wis-b" style=${{marginLeft:-8}}><${Icon} n=${fav?'bookmarkOn':'bookmark'} s=${17}/></button>
+  <div className="wis-k"><${Sprig}/><span>Wisdom of the Warrior</span><${Sprig} flip=${true}/></div>
+  ${onClose?html`<button onClick=${onClose} aria-label="Impuls für heute ausblenden" className="wis-b" style=${{marginRight:-8}}><${Icon} n="x" s=${17}/></button>`:html`<span style=${{width:32}} aria-hidden="true"/>`}</div>
  <blockquote className="wis-t">„${w.text}“</blockquote>
  ${w.explanation?open?html`<p className="wis-x">${w.explanation}</p>`:html`<button onClick=${()=>setOpen(true)} aria-expanded="false" className="wis-more">Wie anwenden?</button>`:null}
- <figcaption className="wis-c"><span className="shrink-0">${cat.name.toUpperCase()} · ${cat.de.toUpperCase()}</span>${reason&&html`<span className="wis-r">${reason}</span>`}</figcaption></figure>`}
+ <div className="meander wis-band" aria-hidden="true"/>
+ <figcaption className="wis-c"><span>${cat.name.toUpperCase()} · ${cat.de.toUpperCase()}</span>${reason&&html`<span className="wis-r">${reason}</span>`}</figcaption></figure>`}
 /* Eine Stelle in der App: wählt (regelbasiert) und merkt sich den Impuls des Tages */
 function WisdomSlot({c,place,x,compact=true,cls}){const r=WC.resolve(c.S,place,x);const id=r&&!r.recorded?r.w.id:null;
  useEffect(()=>{if(id)c.upd(n=>{WC.ensure(n);const q=WC.resolve(n,place,x);if(q&&!q.recorded)WC.record(n,q)})},[id]);
  if(!r)return null;return html`<${WisdomCard} key=${r.w.id} c=${c} w=${r.w} reason=${r.reason} compact=${compact} cls=${cls} onClose=${()=>c.wisDismiss(place)}/>`}
 /* Wisdom Codex: reduziertes Archiv. Alles frei zugänglich, ohne Freischaltung */
-function WisdomCodex({c,init}){const {S}=c;const [f,setF]=useState(init||'all'),[open,setOpen]=useState(null);const W=S.wisdom||{};
- const seen=new Set((W.seen||[]).map(s=>s.id)),fav=(W.fav||[]).map(id=>WC.BY[id]).filter(Boolean),cat=WC.CAT[f];
- const list=f==='fav'?fav:f==='seen'?WC.readList(S):cat?WC.LIB.filter(w=>w.category===f):WC.LIB;
- const opts=[['all','Alle'],['fav','Favoriten'+(fav.length?' · '+fav.length:'')],['seen','Gelesen'],...WC.CATS.map(k=>[k.id,k.name])];
+function WisdomCodex({c,init}){const {S}=c;const [mode,setMode]=useState(init==='fav'||init==='seen'?init:'all'),[cf,setCf]=useState(WC.CAT[init]?init:null),[open,setOpen]=useState(null);const W=S.wisdom||{};
+ const seen=new Set((W.seen||[]).map(s=>s.id)),favIds=(W.fav||[]).filter(id=>WC.BY[id]),cat=cf&&WC.CAT[cf];
+ const base=mode==='fav'?favIds.map(id=>WC.BY[id]):mode==='seen'?WC.readList(S):WC.LIB;const list=cat?base.filter(w=>w.category===cf):base;
+ const cnt=id=>base.filter(w=>w.category===id).length;
  return html`<${Sheet} sub="Wisdom of the Warrior" title="Wisdom Codex" onClose=${c.closeSheet}>
- <div className="text-[13px] mute -mt-1 mb-3 leading-relaxed">Kurze Impulse zur Selbstreflexion, keine Befehle. Alle Texte sind eigene Formulierungen von THE WAR WITHIN. Gespeicherte Weisheiten sind deine Inschriften. Sie bringen keine Punkte und keinen Tempel-Fortschritt.</div>
- <${Seg} opts=${opts} val=${f} on=${v=>{setF(v);setOpen(null)}}/>
- ${cat&&html`<div className="flex items-start gap-2.5 mt-3 text-[13px] leading-snug"><span className="wis-ic" aria-hidden="true"><${Icon} n=${cat.icon} s=${15} sw=${1.6}/></span><span><b>${cat.de}.</b> ${cat.d}</span></div>`}
- <ul className="flex flex-col gap-2 mt-3 p-0 m-0 list-none" aria-label="Weisheiten">${list.map(w=>{const k=WC.CAT[w.category],on=open===w.id,fv=WC.isFav(S,w.id);return html`<li key=${w.id} className="wis-row">
+ <div className="wis-arch"><div className="wis-med" aria-hidden="true"><${Icon} n="temple" s=${19} sw=${1.6}/></div>
+  <div className="wis-k mt-2.5"><${Sprig}/><span>Archiv der Weisheiten</span><${Sprig} flip=${true}/></div>
+  <p className="wis-lead">Kurze Impulse zur Selbstreflexion, keine Befehle. Was du speicherst, wird zu deiner Inschrift.</p></div>
+ <div className="meander my-3" aria-hidden="true"/>
+ <${Seg} opts=${[['all','Alle · '+WC.LIB.length],['fav','Favoriten · '+favIds.length],['seen','Gelesen · '+seen.size]]} val=${mode} on=${v=>{setMode(v);setOpen(null)}}/>
+ <div className="wis-grid" role="group" aria-label="Nach Thema filtern">${WC.CATS.map(k=>html`<button key=${k.id} aria-pressed=${cf===k.id} onClick=${()=>{setCf(cf===k.id?null:k.id);setOpen(null)}} className="wis-tile"><span className="wis-ic" aria-hidden="true" style=${{width:22,height:22}}><${Icon} n=${k.icon} s=${12} sw=${1.8}/></span><b>${k.name} <small>${cnt(k.id)}</small></b></button>`)}</div>
+ ${cat&&html`<div className="text-center text-[13px] leading-snug mt-3 px-2"><b className="disp-serif text-[12px]" style=${{color:'var(--bronze)'}}>${cat.de}</b><div className="mute mt-0.5">${cat.d}</div></div>`}
+ <ul className="flex flex-col gap-2 mt-3 p-0 m-0 list-none" aria-label="Weisheiten">${list.map(w=>{const k=WC.CAT[w.category],on=open===w.id,fv=WC.isFav(S,w.id),nr=parseInt(w.id.slice(-3),10);return html`<li key=${w.id} className="wis-row">
+  <span className="wis-num" aria-hidden="true">${GREEK_NUM[nr-1]||nr}</span>
   <button onClick=${()=>setOpen(on?null:w.id)} aria-expanded=${on} className="flex-1 min-w-0 text-left bg-transparent border-0 p-0" style=${{color:'var(--ink)'}}>
-   <span className="wis-rt">${w.text}</span>${on&&w.explanation&&html`<span className="block wis-x">${w.explanation}</span>`}
-   <span className="wis-c" style=${{marginTop:6}}><span className="flex items-center gap-1.5"><${Icon} n=${k.icon} s=${12} sw=${1.8}/>${k.name.toUpperCase()}</span>${seen.has(w.id)&&html`<span className="wis-r">gelesen</span>`}</span></button>
-  <button onClick=${()=>c.wisFav(w.id)} aria-pressed=${fv} aria-label=${fv?'Aus den Favoriten entfernen':'Als Favorit speichern'} className="wis-b" style=${{margin:'-8px -6px 0 0'}}><${Icon} n=${fv?'bookmarkOn':'bookmark'} s=${17}/></button></li>`})}</ul>
- ${!list.length&&html`<div className="card2 p-4 text-[13px] mute mt-3 leading-snug">${f==='fav'?'Noch keine Favoriten. Tippe das Lesezeichen an einer Weisheit, um sie hier aufzubewahren.':'Noch nichts gelesen. Impulse erscheinen auf „Heute“, im Daily Debrief und bei Meilensteinen.'}</div>`}<//>`}
+   <span className="wis-rt">${w.text}</span>${on&&w.explanation&&html`<span className="block wis-x" style=${{textAlign:'left',margin:'6px 0 0'}}>${w.explanation}</span>`}
+   <span className="wis-rc"><span className="flex items-center gap-1.5"><${Icon} n=${k.icon} s=${12} sw=${1.8}/>${k.name.toUpperCase()}</span>${seen.has(w.id)&&html`<span className="wis-r">gelesen</span>`}</span></button>
+  <button onClick=${()=>c.wisFav(w.id)} aria-pressed=${fv} aria-label=${fv?'Aus den Favoriten entfernen':'Als Favorit speichern'} className="wis-b" style=${{marginTop:-8}}><${Icon} n=${fv?'bookmarkOn':'bookmark'} s=${17}/></button></li>`})}</ul>
+ ${!list.length&&html`<div className="card2 p-4 text-[13px] mute mt-3 leading-snug text-center">${cat&&base.length?'In diesem Thema ist hier noch nichts.':mode==='fav'?'Noch keine Inschriften. Tippe das Lesezeichen an einer Weisheit, um sie hier aufzubewahren.':mode==='seen'?'Noch nichts gelesen. Impulse erscheinen auf „Heute“, im Daily Debrief und bei Meilensteinen.':'Keine Weisheit in dieser Auswahl.'}</div>`}
+ <div className="text-[11.5px] mute text-center mt-4 leading-snug">Alle Texte sind eigene Formulierungen von THE WAR WITHIN, keine Zitate. Lesen und Speichern bringen keine Punkte und keinen Tempel-Fortschritt.</div><//>`}
 
 /* ───── LIFE OS: Heute · Mein Leben · Fortschritt · Reflexion ─────
    Logik in life-core.js (window.LC). Hier nur Darstellung und Verknüpfung mit dem Spielstand. */
