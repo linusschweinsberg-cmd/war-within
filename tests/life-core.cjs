@@ -149,14 +149,18 @@ t6('Standards: leer wird nicht gespeichert, löschen entfernt Log',()=>{const S=
  LC.setStandard(S.life,'wealth',{std:{text:'Sparen',perWeek:1}});LC.logStandard(S.life,'wealth','std');LC.removeStandard(S.life,'wealth');assert.equal(S.life.standards.wealth,undefined);assert.equal(S.life.stdLog.length,0)});
 t6('Fundament: Zustände aus Daten, übersprungen nur als eigene Entscheidung',()=>{const S=LC.ensureLife(base());const st=id=>LC.fundState(S,id);
  assert.equal(st('audit'),'open');LC.setFundSkip(S.life,'audit',true);assert.equal(st('audit'),'skipped');S.life.audit=LC.setAudit(null,'body',{sat:5});assert.equal(st('audit'),'partial','Eintrag hebt Überspringen auf');
- LC.markSeen(S.life,'loop');assert.equal(st('model'),'partial');LC.markSeen(S.life,'owner');assert.equal(st('model'),'done');
+ LC.markSeen(S.life,'loop');assert.equal(st('model'),'done');assert.equal(st('owner'),'open','Ownership ist eine eigene Stufe');LC.markSeen(S.life,'owner');assert.equal(st('owner'),'done');
+ assert.deepEqual([...LC.FUND].map(x=>x.stage),[1,1,2,3,3,4,4],'Abschnitte folgen dem Produktprinzip');
  S.life.focus='health';LC.setStandard(S.life,'health',{std:{text:'x',perWeek:2}});assert.equal(st('standards'),'partial');LC.setStandard(S.life,'health',{min:{text:'y'}});assert.equal(st('standards'),'done')});
 t6('Einladungen: selten, ablehnbar, nie aufdringlich',()=>{const S=LC.ensureLife(base());S.life.focus='health';S.life.fund={v:1,ob:{d:0}};
- assert.equal(LC.nextInvite(S),null,'nicht am Tag des Onboardings');LC.onAdvance(S);const i=LC.nextInvite(S);assert.equal(i.key,'std-health');assert.match(i.text,/Standards für Gesundheit/);
- LC.showInvite(S.life,i.key);LC.answerInvite(S.life,i.key,'later');assert.equal(LC.nextInvite(S),null,'abgelehnt: heute nichts mehr');LC.onAdvance(S);assert.equal(LC.nextInvite(S),null,'Pause von 3 Tagen');
- for(let k=0;k<2;k++)LC.onAdvance(S);const j=LC.nextInvite(S);assert.ok(!j||j.key!=='std-health','abgelehnte Einladung 14 Tage nicht');
- LC.answerInvite(S.life,'std-health','later');assert.ok(S.life.fund.inv.never['std-health'],'nach zweimal Nicht jetzt nie wieder');
- LC.setFundSkip(S.life,'audit',true);const all=[];for(let k=0;k<40;k++){const x=LC.nextInvite(S);if(x){all.push(x.key);LC.showInvite(S.life,x.key);LC.answerInvite(S.life,x.key,'never')}LC.onAdvance(S)}
+ assert.equal(LC.nextInvite(S),null,'nicht am Tag des Onboardings');LC.onAdvance(S);const i=LC.nextInvite(S);assert.equal(i.key,'audit','zuerst Selbsterkenntnis');
+ for(let k=0;k<12;k++)LC.onAdvance(S);assert.ok(!LC.inviteCandidates(S).c.some(x=>x.sec==='standards'||x.sec==='owner'),'ohne begonnene Selbsterkenntnis keine späteren Stufen');
+ S.life.d=1;S.life.fund.inv={};LC.showInvite(S.life,i.key);LC.answerInvite(S.life,i.key,'later');assert.equal(LC.nextInvite(S),null,'abgelehnt: heute nichts mehr');LC.onAdvance(S);assert.equal(LC.nextInvite(S),null,'Pause von 3 Tagen');
+ for(let k=0;k<2;k++)LC.onAdvance(S);const j=LC.nextInvite(S);assert.ok(!j||j.key!=='audit','abgelehnte Einladung 14 Tage nicht');
+ LC.answerInvite(S.life,'audit','later');assert.ok(S.life.fund.inv.never['audit'],'nach zweimal Nicht jetzt nie wieder');
+ S.life.audit=LC.setAudit(null,'body',{sat:4});S.life.fund.inv={};S.life.d=20;const k2=[...LC.inviteCandidates(S).c].map(x=>x.sec);assert.deepEqual(k2,['future','owner'],'nach Stufe 1: Rest von Stufe 1 und Stufe 2, noch keine Standards');
+ LC.markSeen(S.life,'owner');const k3=[...LC.inviteCandidates(S).c].map(x=>x.sec);assert.deepEqual(k3,['future','values','standards'],'nach Stufe 2 folgen die Standards');
+ delete S.life.audit;LC.setFundSkip(S.life,'audit',true);const all=[];for(let k=0;k<40;k++){const x=LC.nextInvite(S);if(x){all.push(x.key);LC.showInvite(S.life,x.key);LC.answerInvite(S.life,x.key,'never')}LC.onAdvance(S)}
  assert.ok(!all.includes('audit'),'übersprungene Abschnitte werden nicht beworben');assert.equal(new Set(all).size,all.length,'keine Wiederholung nach Nie mehr')});
 t6('Fundament: alles löschen behält Ziele',()=>{const S=LC.ensureLife(base());LC.addGoal(S,{...tpl('skill')});S.life.audit=LC.setAudit(null,'body',{sat:5});LC.setStandard(S.life,'growth',{std:{text:'x',perWeek:1}});S.principles=[{n:'Mut',std:'Ich tue es.'}];
  LC.clearFoundation(S);assert.equal(S.life.audit,undefined);assert.equal(S.life.standards,undefined);assert.equal(S.principles[0].std,undefined);assert.equal(S.life.goals.length,1)});

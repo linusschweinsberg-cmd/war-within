@@ -2,6 +2,17 @@
 
 Dieses Dokument verbindet die acht Onboarding-Module zu einem System. Einzelheiten zu Texten und Screens stehen in `docs/ONBOARDING.md`.
 
+## Produktprinzip
+
+**Erst Selbsterkenntnis. Dann Eigenverantwortung. Dann persönliche Standards. Und schließlich konsequentes Handeln.**
+
+Onboarding, Fundament und Einladungen folgen dieser Reihenfolge. Jede Stufe nutzt, was die vorige ergeben hat:
+- Die Hindernisse aus dem Audit werden zu Karten in „Was liegt in deiner Hand?“.
+- Der Veränderungswunsch aus dem Audit füllt den nächsten Schritt bei Ownership vor.
+- Der Standard eines Bereichs füllt die Handlung des Ziels vor.
+
+Die Kurzform darf Stufen überspringen. Sie holt diese dann im Fundament in derselben Reihenfolge nach.
+
 ## Grundregeln
 
 1. **Nichts ist Pflicht, außer dem Weg in die App.** Jeder Screen lässt sich überspringen. Ohne Name heißt der Nutzer „Du“, ohne Ziel startet er mit einem universellen ersten Schritt.
@@ -23,25 +34,25 @@ Der Zustand wird immer aus den echten Daten berechnet und nie separat gespeicher
 
 Abschnitte von „Dein persönliches Fundament“:
 
-| id | Abschnitt | `done`, wenn … | Bearbeiten |
-|---|---|---|---|
-| `model` | Mental Model (Success Loop, Ownership) | beide Szenen einmal gesehen | Sheets `loopdemo`, `ownerdemo`, `loopinfo` |
-| `audit` | Bestandsaufnahme (Life Audit) | alle 8 Bereiche `done`/`skipped`, `partial` ab einem | Sheet `audit` |
-| `future` | Zukunftsvision | Erfolgsbild **und** Bild in drei Jahren **oder** Person | Sheet `future` |
-| `values` | Werte | mindestens ein Wert | Sheet `values` |
-| `standards` | Persönliche Standards | Fokusbereich (oder ein Bereich) mit Standard **und** Minimum | Sheet `standards` |
-| `goal` | Ziel und erste Handlung | aktives Ziel mit Handlung | Sheet `goal` |
+| Stufe | id | Abschnitt | `done`, wenn … | Bearbeiten |
+|---|---|---|---|---|
+| 1 | `audit` | Bestandsaufnahme (Life Audit) | alle 8 Bereiche `done`/`skipped`, `partial` ab einem | Sheet `audit` |
+| 1 | `future` | Zukunftsvision | Erfolgsbild **und** Bild in drei Jahren **oder** Person | Sheet `future` |
+| 2 | `owner` | Radical Ownership | Szene gesehen oder eigener nächster Schritt | Sheet `ownerdemo` |
+| 3 | `values` | Werte | mindestens ein Wert | Sheet `values` |
+| 3 | `standards` | Persönliche Standards | Fokusbereich (oder ein Bereich) mit Standard **und** Minimum | Sheet `standards` |
+| 4 | `model` | Success Loop | Szene einmal gesehen | Sheet `loopdemo` |
+| 4 | `goal` | Ziel und erste Handlung | aktives Ziel mit Handlung | Sheet `goal` |
 
 ## Onboarding-Ablauf (`OB_SCREENS`)
 
 | Station | Ausführlich | Kurz |
 |---|---|---|
-| Bewusstsein | still, what, resp, ready, name, loop (Modul 1, 2) | still, what, resp, ready, name |
-| Verantwortung | ctrl, obst, owner (Modul 3) | – |
-| Konfrontation | pillars, mirror, audit, cost (Modul 4) | pillars |
-| Potenzial | future, compound, year, goal, first (Modul 5) | goal, first |
-| Standards | values, standards, sign (Modul 6) | – |
-| Aufbruch | commit (Modul 8) | commit |
+| Einstieg | still, what, resp, ready, name (Modul 1) | still, what, resp, ready, name |
+| 1 · Selbsterkenntnis | pillars, mirror, audit, cost, future, compound (Module 4, 5) | pillars |
+| 2 · Eigenverantwortung | ctrl, obst, owner (Modul 3) | – |
+| 3 · Standards | values, standards, sign (Modul 6) | – |
+| 4 · Handeln | loop, year, goal, first, commit (Module 2, 8) | goal, first, commit |
 
 - `skipIf`: `first` entfällt ohne Ziel, `sign` entfällt ohne Standards und ohne Werte.
 - **Überspringen:** Jeder Screen mit Pflichtangabe bekommt den Knopf „Überspringen“. Er setzt `ob.skip[id]`.
@@ -92,17 +103,19 @@ S.life (Spielstand)
   - gehaltene Wochen von abgeschlossenen Wochen seit Anlage,
   - Konstanz der ersten vier gegenüber den letzten vier Wochen,
   - Zufriedenheit damals und heute (nur wenn beide vorliegen).
-- **Ändern** `setStandard` speichert jede Änderung in `hist` mit Begründung. `pauseStandard` setzt den Standard ruhend, ohne Daten zu löschen.
+- **Ändern** `setStandard` speichert jede Änderung in `hist` mit Begründung. `setStandard` mit `status:'paused'` lässt den Standard ruhen, ohne Daten zu löschen.
 
 ## Einladungen zum Ergänzen (`nextInvite`)
 
 - Es gibt höchstens eine sichtbare Einladung, nur auf „Heute“, frühestens ab Tag 1 nach dem Onboarding und höchstens alle 3 Tage.
-- Regeln in fester Reihenfolge, jeweils nur bei `open` und nicht `skipped`:
-  1. Standards im Fokusbereich
-  2. Mental Model ab Tag 2
-  3. Life Audit ab Tag 3
-  4. Zukunftsvision ab Tag 7
-  5. Werte ab Tag 5
+- Reihenfolge nach Stufen, jeweils nur bei `open` und nicht `skipped`:
+  1. Life Audit ab Tag 1
+  2. Zukunftsvision ab Tag 4
+  3. Ownership ab Tag 6
+  4. Werte ab Tag 8
+  5. Standards im Fokusbereich ab Tag 10
+  6. Success Loop ab Tag 12
+- **Stufenregel:** Eine Einladung zu Stufe n kommt erst, wenn in jeder Stufe davor mindestens ein Abschnitt begonnen, fertig oder bewusst übersprungen ist. Wer noch nichts zur Selbsterkenntnis hat, wird also nicht nach Standards gefragt.
 - „Nicht jetzt“ pausiert diese Einladung für 14 Tage. Nach zwei Mal „Nicht jetzt“ oder einmal „Nicht mehr fragen“ kommt sie nie wieder.
 - Der Text nennt immer konkret, was fehlt, z. B. „Du hast deine persönlichen Standards für Gesundheit noch nicht definiert. Möchtest du das jetzt tun?“
 

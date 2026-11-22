@@ -2922,14 +2922,13 @@ function ExpView({c}){const {S}=c;const L=S.life,I=LC.insights(S),ex=(L.exps||[]
 /* ───── ONBOARDING ALS GESCHICHTE ─────
    Sechs Stationen, ein Gedanke pro Screen. Texte erscheinen zeilenweise; „Weiter“ erst nach der Pause.
    Sammelt dieselben Daten wie zuvor (obv 2) und ergänzt Kosten, Kontrolle, Hindernis, Standards, Startzeitpunkt. */
-const OB_ACTS=['Bewusstsein','Verantwortung','Konfrontation','Potenzial','Standards','Aufbruch'];
+const OB_ACTS=['Einstieg','Selbsterkenntnis','Eigenverantwortung','Standards','Handeln'];
 const obGoalOn=ob=>!!(ob.goal&&!(ob.skip||{}).goal);
-const OB_SCREENS=[{id:'still',act:0,wait:3.6,tap:1},{id:'what',act:0,wait:6.8,tap:1},{id:'resp',act:0,wait:5.6,tap:1},{id:'ready',act:0,wait:2,choice:1},{id:'name',act:0,wait:.8},{id:'loop',act:0,wait:.4},
- {id:'ctrl',act:1,wait:1},{id:'obst',act:1,wait:1},{id:'owner',act:1,wait:.4},
- {id:'pillars',act:2,wait:1.4},{id:'mirror',act:2,wait:1.8},{id:'audit',act:2,wait:.6},{id:'cost',act:2,wait:1.6},
- {id:'future',act:3,wait:.4},{id:'compound',act:3,wait:4.6},{id:'year',act:3,wait:1.6},{id:'goal',act:3,wait:1.2},{id:'first',act:3,wait:1.6,skipIf:ob=>!obGoalOn(ob)},
- {id:'values',act:4,wait:1.6},{id:'standards',act:4,wait:1},{id:'sign',act:4,wait:1,skipIf:ob=>!((ob.values||[]).length||Object.keys(ob.standards||{}).length)},
- {id:'commit',act:5,wait:2.2}];
+const OB_SCREENS=[{id:'still',act:0,wait:3.6,tap:1},{id:'what',act:0,wait:6.8,tap:1},{id:'resp',act:0,wait:5.6,tap:1},{id:'ready',act:0,wait:2,choice:1},{id:'name',act:0,wait:.8},
+ {id:'pillars',act:1,wait:1.4},{id:'mirror',act:1,wait:1.8},{id:'audit',act:1,wait:.6},{id:'cost',act:1,wait:1.6},{id:'future',act:1,wait:.4},{id:'compound',act:1,wait:4.6},
+ {id:'ctrl',act:2,wait:1},{id:'obst',act:2,wait:1},{id:'owner',act:2,wait:.4},
+ {id:'values',act:3,wait:1.6},{id:'standards',act:3,wait:1},{id:'sign',act:3,wait:1,skipIf:ob=>!((ob.values||[]).length||Object.keys(ob.standards||{}).length)},
+ {id:'loop',act:4,wait:.4},{id:'year',act:4,wait:1.6},{id:'goal',act:4,wait:1.2},{id:'first',act:4,wait:1.6,skipIf:ob=>!obGoalOn(ob)},{id:'commit',act:4,wait:2.2}];
 const OB_SHORT=['still','what','resp','ready','name','pillars','goal','first','commit'];
 const obScreens=ob=>(ob.short?OB_SCREENS.filter(s=>OB_SHORT.includes(s.id)):OB_SCREENS).filter(s=>!s.skipIf||!s.skipIf(ob));
 const OB_COST=['Energie','Selbstvertrauen','Zeit mit Menschen','Freiheit','Gesundheit','Ruhe'];
@@ -2937,7 +2936,10 @@ const OB_YEAR={health:'Ich habe Energie bis zum Abend und laufe 5 km am Stück.'
 const OB_STD={'Integrität':'Ich handle gleich, ob jemand zusieht oder nicht.','Mut':'Ich tue das Unbequeme, auch wenn ich unsicher bin.','Disziplin':'Ich halte, was ich mir zusage, auch wenn es klein ist.','Ehrlichkeit':'Ich sage mir selbst, wie es wirklich lief.','Verantwortung':'Ich suche zuerst, was ich selbst ändern kann.','Loyalität':'Ich stehe zu Menschen, die mir vertrauen.','Gerechtigkeit':'Ich behandle andere fair, auch wenn ich es nicht muss.','Familie':'Ich bin bei meiner Familie mit voller Aufmerksamkeit.','Freiheit':'Ich entscheide so, dass ich morgen mehr Spielraum habe.','Gesundheit':'Ich behandle meinen Körper wie etwas, das ich lange brauche.','Neugier':'Ich frage nach, bevor ich urteile.','Mitgefühl':'Ich begegne Fehlern, auch meinen eigenen, mit Verständnis.','Gelassenheit':'Ich reagiere erst, wenn ich durchgeatmet habe.','Exzellenz':'Ich mache Dinge so gut, wie es gerade geht. Nicht perfekt.','Dankbarkeit':'Ich bemerke jeden Tag, was gut ist.','Respekt':'Ich höre zu, bevor ich antworte.'};
 /* Karten für „Was liegt in deiner Hand?“: [Text, in meiner Hand] – die letzten zwei hängen am Ziel */
 function obCtrlCards(ob){const g=ob.goal,a=g&&(g.actions||[]).find(x=>x.title.trim());const base=[['Das Wetter',0],['Wie ich auf Kritik reagiere',1],['Was andere über mich denken',0],['Wann ich schlafen gehe',1],['Die Wirtschaftslage',0],['Ob ich heute anfange',1],['Wie ich nach einem Rückschlag weitermache',1]];
- if(g&&g.title.trim())base.splice(3,0,['Ob ich „'+g.title.trim()+'“ sicher erreiche',0]);if(a)base.splice(6,0,['Ob ich „'+a.title.trim()+'“ '+a.perWeek+'× pro Woche mache',1]);return base}
+ if(g&&g.title.trim())base.splice(3,0,['Ob ich „'+g.title.trim()+'“ sicher erreiche',0]);if(a)base.splice(6,0,['Ob ich „'+a.title.trim()+'“ '+a.perWeek+'× pro Woche mache',1]);
+ const top=(LC.auditSummary(ob.audit).obst[0]||{}).id,P=OB_CTRL_OBST[top];if(P){base.splice(2,0,P[0]);base.splice(5,0,P[1])}return base}
+/* Kartenpaare aus dem häufigsten Hindernis im Life Audit: was nicht, was doch in deiner Hand liegt */
+const OB_CTRL_OBST={energy:[['Wie viel Energie ich nach einem langen Tag habe',0],['Ob ich an müden Tagen die kleine Version mache',1]],time:[['Wie viel Zeit mein Alltag beansprucht',0],['Wofür ich freie 20 Minuten nutze',1]],distract:[['Dass mein Handy Nachrichten bekommt',0],['Wo mein Handy liegt, wenn ich mich konzentriere',1]],forgot:[['Dass ein Tag voll wird',0],['Ob ich mir einen festen Zeitpunkt setze',1]],toomuch:[['Wie viel von mir verlangt wird',0],['Wie groß ich meinen Plan mache',1]],unclear:[['Ob von Anfang an alles klar ist',0],['Ob ich den ersten Schritt konkret mache',1]],motivation:[['Ob ich jeden Tag Lust habe',0],['Ob ich trotzdem anfange',1]],unexpected:[['Dass Unerwartetes passiert',0],['Wie ich danach weitermache',1]]};
 const obLowest=ob=>LC.AREAS.slice().sort((a,b)=>((ob.areas||{})[a.id]||3)-((ob.areas||{})[b.id]||3))[0];
 const obAction=ob=>{const g=ob.goal;return g&&(g.actions||[]).find(x=>x.title.trim())||null};
 const obRisk=ob=>((ob.obst||[]).find(o=>['time','energy','distract'].includes(o)))||null;
@@ -2978,7 +2980,7 @@ function ObResp(){const L=['Herkunft','Zufälle','Verluste','andere Menschen'],R
  <div className="grid grid-cols-2 gap-3 my-6"><div className="flex flex-col gap-1.5 story-dim" style=${{animationDelay:'3.6s'}}>${L.map((w,i)=>html`<span key=${w} className="story-in card2 px-3 py-2 text-[13px] mute" style=${obIn(1.4+i*.25)}>${w}</span>`)}</div>
  <div className="flex flex-col gap-1.5">${R.map((w,i)=>html`<span key=${w} className="story-in card2 px-3 py-2 text-[13px] font-semibold" style=${{...obIn(4.4+i*.3),boxShadow:'0 0 0 1px color-mix(in srgb,var(--acc2) 45%,transparent) inset'}}>${w}</span>`)}</div></div>
  <${Lines} l=${['Aber du kannst Verantwortung','dafür übernehmen,','wie du darauf reagierst.']} d=${3}/></div>`}
-const OB_HOW=[['eye','Hinsehen','Du schätzt ehrlich ein, wo du in vier Lebensbereichen stehst. Ohne Bewertung.'],['target','Entscheiden','Du legst ein Ergebnis fest und eine kleine Handlung, die dich dorthin bringt.'],['loop','Handeln und prüfen','Jeden Tag ein Schritt, jede Woche ein kurzer Blick: Was wirkt, was änderst du?']];
+const OB_HOW=[['eye','Erkennen','Du schaust ehrlich hin: wo du stehst und wer du werden könntest. Ohne Bewertung.'],['compass','Verantwortung übernehmen','Du trennst, was du nicht ändern kannst, von dem, was in deiner Hand liegt.'],['column','Standards setzen','Du legst fest, was du regelmäßig von dir erwartest, in deinem Maß.'],['loop','Handeln','Ein Ziel, ein erster Schritt. Dann jeden Tag ein Schritt und jede Woche ein kurzer Blick.']];
 function ObReady({ob,u,goId}){const pv=ob.readyChoice==='preview';
  const Opt=({k,t,s,on})=>html`<button type="button" onClick=${on} aria-pressed=${ob.readyChoice===k} className="card w-full p-4 text-left border-0 flex items-center gap-3" style=${ob.readyChoice===k?{boxShadow:'0 0 0 1.5px var(--acc2) inset'}:undefined}><span className="flex-1"><span className="block text-[15px] font-semibold leading-snug">${t}</span><span className="block text-[12.5px] mute mt-0.5">${s}</span></span><${Icon} n="chevR" s=${16} cls="mute shrink-0"/></button>`;
  if(pv)return html`<div><${Lines} l=${['So funktioniert es.']}/>
@@ -3113,7 +3115,8 @@ function OwnSit({x,pick,setPick,onNext,last}){const done=pick!=null;
 function OwnQ({n,q,children}){return html`<div className="mt-5 story-in" style=${obIn(.2+n*.3)}><div className="flex gap-2.5"><span className="disp text-[20px] acc w-4 shrink-0">${n}</span><div className="flex-1"><div className="text-[15px] font-semibold leading-snug">${q}</div><div className="mt-2">${children}</div></div></div></div>`}
 function OwnerStory({ob,u,demo,onDone,done}){const [ph,setPh]=useState(done?5:0);const [picks,setPicks]=useState({});
  const own=(ob&&ob.own)||{can:[],cant:[],next:''};const setOwn=p=>u&&u(q=>({own:{...((q.own)||{can:[],cant:[],next:''}),...p}}));
- const a=ob&&obAction(ob);const sugg=a?`„${a.title.trim()}“${ob.firstWhen?', '+ob.firstWhen:''}, nur den Anfang`:'';/* ohne Ziel bleibt das Feld leer */
+ const a=ob&&obAction(ob);const wishId=ob&&LC.auditSummary(ob.audit).wish[0],wish=wishId&&ob.audit.areas[wishId].change;
+ const sugg=a?`„${a.title.trim()}“${ob.firstWhen?', '+ob.firstWhen:''}, nur den Anfang`:wish?`Ein erster kleiner Schritt zu: ${wish.trim().slice(0,60)}`:'';/* aus dem Audit, sonst leer */
  useEffect(()=>{if(ob&&!demo&&ph===4&&!own.next&&sugg)setOwn({next:sugg})},[ph]);
  const nextOf=p=>demo&&p===3?5:p+1; /* Wiederholung ohne persönliche Reflexion */const go=p=>{setPh(p);if(p===5&&onDone)onDone()};
  if(ph===0)return html`<div className="story-c"><${Lines} l=${['Auch wenn du nicht alles kontrollieren kannst,','kannst du Verantwortung übernehmen:','für deine Entscheidungen,','deine Handlungen','und deinen nächsten Schritt.']} step=${.75}/>
@@ -3343,22 +3346,23 @@ function StandardsToday({c}){const {S}=c;const L=S.life;const list=Object.values
 
 /* ───── DEIN PERSÖNLICHES FUNDAMENT ───── */
 const FUND_ST={open:['Offen','var(--mute)'],partial:['Begonnen','var(--acc2)'],done:['Fertig','var(--good)'],skipped:['Bewusst übersprungen','var(--mute)']};
-const FUND_OPEN={model:'loopinfo',audit:'audit',future:'future',values:'values',standards:'standards',goal:'goal'};
+const FUND_OPEN={owner:'ownerdemo',model:'loopdemo',audit:'audit',future:'future',values:'values',standards:'standards',goal:'goal'};
 function openFund(c,id){if(id==='audit')c.upd(n=>{LC.ensureLife(n);n.life.auditCur={view:'list'}});if(id==='future')c.upd(n=>{LC.ensureLife(n);n.life.futureCur={ph:(n.life.future&&Object.keys(n.life.future).length)?1:0}});c.openSheet({t:FUND_OPEN[id]})}
 function FundamentSheet({c}){const {S}=c;const L=S.life,secs=LC.fundSections(S),paused=L.fund&&L.fund.ob&&L.fund.ob.paused;const [del,setDel]=useState(false);
  const skip=(id,on)=>c.upd(n=>{LC.ensureLife(n);LC.setFundSkip(n.life,id,on)});
  return html`<${Sheet} sub="Mein Leben" title="Dein persönliches Fundament" onClose=${c.closeSheet}>
   <div className="text-[13px] mute -mt-1 leading-snug">Alles hier ist freiwillig und jederzeit änderbar. Offene Abschnitte sind einfach offen. Die App nutzt nur, was du tatsächlich angegeben hast.</div>
   ${paused&&html`<div className="card2 p-3 mt-3 text-[12.5px] leading-snug">Du hast das Onboarding pausiert. Hier machst du weiter, wann und womit du willst.</div>`}
-  <div className="flex flex-col gap-2 mt-4">${secs.map(x=>{const T=FUND_ST[x.state];return html`<div key=${x.id} className="card p-3.5"><div className="flex items-start gap-3"><div className="flex-1 min-w-0"><div className="text-[14.5px] font-semibold">${x.name}</div><div className="text-[12px] mute">${x.sub}</div></div><span className="text-[11px] font-semibold shrink-0 mt-0.5" style=${{color:T[1]}}>${T[0]}</span></div>
+  <div className="text-[12px] mt-3 leading-snug"><b>Erst Selbsterkenntnis. Dann Eigenverantwortung. Dann persönliche Standards. Und schließlich konsequentes Handeln.</b></div>
+  ${LC.FUND_STAGES.map(G=>html`<div key=${G.n} className="mt-4"><div className="flex items-center gap-2 mb-2"><span className="disp text-[18px] acc">${G.n}</span><span className="lbl">${G.name}</span></div><div className="flex flex-col gap-2">${secs.filter(x=>x.stage===G.n).map(x=>{const T=FUND_ST[x.state];return html`<div key=${x.id} className="card p-3.5"><div className="flex items-start gap-3"><div className="flex-1 min-w-0"><div className="text-[14.5px] font-semibold">${x.name}</div><div className="text-[12px] mute">${x.sub}</div></div><span className="text-[11px] font-semibold shrink-0 mt-0.5" style=${{color:T[1]}}>${T[0]}</span></div>
    <div className="flex flex-wrap gap-1.5 mt-2.5"><button type="button" onClick=${()=>openFund(c,x.id)} className="chip on">${x.state==='done'?'Ansehen und ändern':x.state==='partial'?'Fortsetzen':'Beginnen'}</button>
-    ${x.state==='open'&&html`<button type="button" onClick=${()=>skip(x.id,true)} className="chip">Überspringen</button>`}${x.state==='skipped'&&html`<button type="button" onClick=${()=>skip(x.id,false)} className="chip">Doch wieder anbieten</button>`}</div></div>`})}</div>
+    ${x.state==='open'&&html`<button type="button" onClick=${()=>skip(x.id,true)} className="chip">Überspringen</button>`}${x.state==='skipped'&&html`<button type="button" onClick=${()=>skip(x.id,false)} className="chip">Doch wieder anbieten</button>`}</div></div>`})}</div></div>`)}
   <div className="flex items-center gap-1.5 text-[11.5px] mute mt-4"><${Icon} n="lock" s=${11}/>Deine Texte bleiben auf diesem Gerät.</div>
   <button type="button" onClick=${()=>{if(del){c.upd(n=>{LC.clearFoundation(n)});setDel(false);c.toast('Persönliche Angaben gelöscht. Ziele und erledigte Handlungen bleiben.')}else setDel(true)}} className="bg-transparent border-0 w-full py-3 mt-1 text-[12.5px] bad">${del?'Wirklich alle persönlichen Angaben löschen? Tippe erneut':'Alle persönlichen Angaben löschen'}</button><//>`}
 function FundamentCard({c}){const {S}=c;const secs=LC.fundSections(S),n=secs.filter(x=>x.state==='done').length;
  return html`<button onClick=${()=>c.openSheet({t:'fundament'})} className="card w-full p-4 mt-3 text-left"><div className="flex items-center gap-2"><span className="lbl acc">Dein persönliches Fundament</span><span className="text-[11.5px] mute ml-auto num">${n} von ${secs.length}</span></div>
   <div className="flex gap-1 mt-2.5" aria-hidden="true">${secs.map(x=>html`<span key=${x.id} className="flex-1 h-1.5 rounded-full" style=${x.state==='done'?{background:'var(--good)'}:x.state==='partial'?{background:'var(--acc2)'}:{border:'1px dashed var(--line)'}}/>`)}</div>
-  <div className="text-[12.5px] mute mt-2">Bestandsaufnahme, Zukunftsvision, Standards und Mental Model. Ergänze, was dir wichtig ist.</div></button>`}
+  <div className="text-[12.5px] mute mt-2">Selbsterkenntnis, Eigenverantwortung, Standards, Handeln. Ergänze, was dir wichtig ist.</div></button>`}
 /* Einladung auf „Heute“: höchstens eine, leicht ablehnbar */
 function InviteCard({c}){const {S}=c;const L=S.life;const inv=L&&LC.nextInvite(S);
  useEffect(()=>{if(inv&&!(L.fund&&L.fund.inv&&L.fund.inv.cur&&L.fund.inv.cur.key===inv.key&&L.fund.inv.cur.d===L.d))c.upd(n=>{LC.ensureLife(n);LC.showInvite(n.life,inv.key)})},[inv&&inv.key]);
@@ -3631,9 +3635,9 @@ function Onboarding({A,set,theme,onDone}){
  const u=fn=>setOb(p=>{const n={...p,...fn(p),t:Date.now()};set(()=>({ob:n}));return n});
  const list=obScreens(ob),st=clamp(ob.step,0,list.length-1),SC=list[st],id=SC.id;
  const goTo=s=>u(p=>{const L=obScreens(p),k=clamp(s,0,L.length-1),to=L[k].id,n={step:k,dir:k>=p.step?1:-1};
-  const fr=p.future&&p.future.rows&&p.future.rows[0],f=p.focus||(fr&&LC.AUDIT[fr.area]?LC.AUDIT[fr.area].area:null)||obLowest(p).id;if(['year','goal'].includes(to)&&!p.focus)n.focus=f;
+  const fr=p.future&&p.future.rows&&p.future.rows[0],sa=Object.keys(p.standards||{}).find(k=>(p.standards[k]||{}).std),f=p.focus||sa||(fr&&LC.AUDIT[fr.area]?LC.AUDIT[fr.area].area:null)||obLowest(p).id;if(['year','goal'].includes(to)&&!p.focus)n.focus=f;
   if(to==='year'&&!(p.why||'').trim()&&p.future&&p.future.vision)n.why=p.future.vision.slice(0,200);
-  if(to==='goal'&&!(p.skip||{}).goal&&(!p.goal||p.goalFocus!==f)){const t=LC.GOAL_TPL.find(x=>x.area===f);n.goal=t?draftFromTpl(t):emptyDraft(f);n.goalFocus=f}
+  if(to==='goal'&&!(p.skip||{}).goal&&(!p.goal||p.goalFocus!==f)){const t=LC.GOAL_TPL.find(x=>x.area===f);n.goal=t?draftFromTpl(t):emptyDraft(f);n.goalFocus=f;const sd=(p.standards||{})[f];if(sd&&sd.std)n.goal={...n.goal,actions:[{title:sd.std.text.trim(),perWeek:sd.std.perWeek||1,minutes:sd.std.minutes||null}]}}
   return n});
  const next=()=>goTo(st+1),back=()=>goTo(st-1);
  const goId=(to,patch)=>u(p=>{const q={...p,...(patch||{})},k=obScreens(q).findIndex(x=>x.id===to);return{...(patch||{}),step:Math.max(0,k),dir:1}});
@@ -3654,7 +3658,7 @@ function Onboarding({A,set,theme,onDone}){
  <div className="relative px-5 pb-1" style=${{paddingTop:'max(16px,env(safe-area-inset-top))'}}>
   <div className="flex items-center gap-3 h-10">
    ${st>0?html`<button type="button" aria-label="Zurück" onClick=${back} className="ghost w-10 h-10 flex items-center justify-center shrink-0"><${Icon} n="chevL" s=${20}/></button>`:html`<div className="w-10"/>`}
-   <div className="flex-1 flex flex-col items-center" role="progressbar" aria-label=${'Station '+(SC.act+1)+' von 6: '+OB_ACTS[SC.act]} aria-valuemin="1" aria-valuemax="6" aria-valuenow=${SC.act+1}>
+   <div className="flex-1 flex flex-col items-center" role="progressbar" aria-label=${'Station '+(SC.act+1)+' von '+OB_ACTS.length+': '+OB_ACTS[SC.act]} aria-valuemin="1" aria-valuemax=${OB_ACTS.length} aria-valuenow=${SC.act+1}>
     <div className="flex items-center gap-2">${OB_ACTS.map((a,i)=>html`<span key=${a} className="block rounded-full" style=${{width:i===SC.act?18:6,height:6,background:i<=SC.act?'var(--acc2)':'var(--ghost)',opacity:i<SC.act?.55:1,transition:'all .5s ease'}}/>`)}</div>
     <div key=${SC.act} className="text-[10.5px] lbl mt-1.5 story-in" style=${{animationDelay:'0s'}}>${OB_ACTS[SC.act]}</div></div>
    ${st>=4&&!last?html`<button type="button" onClick=${()=>setPause(true)} className="ghost h-10 px-2.5 text-[12px] font-semibold shrink-0" aria-label="Onboarding pausieren">Pause</button>`:html`<div className="w-10"/>`}</div></div>

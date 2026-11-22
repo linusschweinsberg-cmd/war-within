@@ -1,6 +1,6 @@
 # Onboarding als Geschichte
 
-> **Aktueller Stand:** Reihenfolge, Zustände, Überspringen, Pause, Fortsetzen und das Fundament sind in `docs/FTUE.md` beschrieben. Die gültige Reihenfolge ist: Story und Mental Model → Ownership → Bestandsaufnahme → Potenzial → Standards → erstes Commitment. Die Tabelle unten beschreibt die einzelnen Screens. Die Screens „Wert-Sätze“, „Wann beginnst du?“ und „Tag 1“ sind entfallen. Ihre Aufgaben übernehmen „Persönliche Standards“ und „Erstes Commitment“.
+> **Aktueller Stand:** Reihenfolge, Zustände, Überspringen, Pause, Fortsetzen und das Fundament sind in `docs/FTUE.md` beschrieben. Die gültige Reihenfolge folgt dem Produktprinzip: Einstieg → Selbsterkenntnis (Säulen, Audit, Zukunft) → Eigenverantwortung (Kontrolle, Hindernisse, Ownership) → Standards (Werte, Standards, Bekenntnis) → Handeln (Success Loop, Fokus, Ziel, erster Schritt, Commitment). Die Tabelle unten beschreibt die einzelnen Screens. Die Screens „Wert-Sätze“, „Wann beginnst du?“ und „Tag 1“ sind entfallen. Ihre Aufgaben übernehmen „Persönliche Standards“ und „Erstes Commitment“.
 
 Der Nutzer ist der Protagonist. Ein Gedanke pro Screen, Text erscheint zeilenweise (`Lines`, ca. 0,8 s Abstand), „Weiter“ blendet erst nach der Pause ein (`wait` je Screen). Bei `prefers-reduced-motion` entfallen Pausen und Verzögerungen. Oben stehen sechs Punkte für die Stationen statt eines Prozentbalkens.
 

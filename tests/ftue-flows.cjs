@@ -5,7 +5,7 @@ const source=fs.readFileSync(dir+'/index.html','utf8');
 const script=[...source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).find(s=>s.includes('function loadState'));
 const store={};const c=vm.createContext({window:{authApi:{}},React:{},htm:{bind:()=>()=>null},ReactDOM:{createRoot:()=>({render(){}})},document:{getElementById:()=>({})},localStorage:{getItem:k=>store[k]??null,setItem:(k,v)=>{store[k]=String(v)},removeItem:k=>{delete store[k]}},console});
 vm.runInContext(fs.readFileSync(dir+'/life-core.js','utf8'),c);vm.runInContext(fs.readFileSync(dir+'/wisdom-core.js','utf8'),c);
-vm.runInContext(script+'\nglobalThis.api={buildState,newOb,draftFromTpl,loadState,obScreens,obShortTarget,obCommitProposal,OB_SCREENS,derive,briefCands,dayKey,eveToday,nextAction};',c);
+vm.runInContext(script+'\nglobalThis.api={buildState,newOb,draftFromTpl,loadState,obScreens,obShortTarget,obCommitProposal,obCtrlCards,OB_SCREENS,derive,briefCands,dayKey,eveToday,nextAction};',c);
 const a=c.api,LC=c.window.LC,ses={mode:'guest',name:'Gast'};const ok=[];const t=(n,f)=>{f();ok.push(n)};
 const ids=ob=>[...a.obScreens(ob)].map(x=>x.id);
 const finish=ob=>{const n=a.buildState(ob,ses);LC.ensureLife(n);return n};
@@ -44,16 +44,20 @@ t('Nutzer mit übersprungenen Fragen: Vorschläge nutzen nur vorhandene Angaben'
 
 t('Unterbrechen und fortsetzen: Fortschritt bleibt, Kurzform setzt am nächsten Kern-Screen an',()=>{const ob=a.newOb('Lea');const full=ids(ob);ob.step=full.indexOf('audit');
  const k=a.obShortTarget(ob),S2=ids({...ob,short:true});assert.equal(S2[k],'goal','von der Bestandsaufnahme direkt zum Ziel');
- ob.step=full.indexOf('owner');assert.equal(ids({...ob,short:true})[a.obShortTarget(ob)],'pillars');
+ ob.step=full.indexOf('owner');assert.equal(ids({...ob,short:true})[a.obShortTarget(ob)],'goal');
+ assert.deepEqual(full.slice(5),['pillars','mirror','audit','cost','future','compound','ctrl','obst','owner','values','standards','loop','year','goal','commit'],'Reihenfolge: Selbsterkenntnis → Eigenverantwortung → Standards → Handeln');
  const saved=JSON.parse(JSON.stringify(ob));assert.equal(saved.step,ob.step);
  const n=finish({...ob,paused:true});assert.equal(n.life.fund.ob.paused,true);assert.equal(n.life.fund.ob.mode,'full')});
 
 t('Zurückkehrender Nutzer: Spielstand lädt unverändert, Einladungen selten und ablehnbar',()=>{const ob=a.newOb('Tom');ob.areasSet=true;ob.focus='growth';ob.focusSrc='user';ob.commit={kind:'own',step:'Eine Seite lesen'};
  const n=finish(ob);store.war_within_v5=JSON.stringify(n);const r=a.loadState();LC.ensureLife(r);assert.equal(r.life.onboard.commit.text,'Eine Seite lesen');assert.equal(r.life.fund.ob.mode,'full');
- assert.equal(LC.nextInvite(r),null,'am ersten Tag keine Einladung');LC.onAdvance(r);const i=LC.nextInvite(r);assert.equal(i.sec,'standards');assert.match(i.text,/Standards für Wachstum/);
+ assert.equal(LC.nextInvite(r),null,'am ersten Tag keine Einladung');LC.onAdvance(r);const i=LC.nextInvite(r);assert.equal(i.sec,'audit','Kurzform holt zuerst die Selbsterkenntnis nach');
  LC.showInvite(r.life,i.key);LC.answerInvite(r.life,i.key,'never');for(let d=0;d<20;d++){const x=LC.nextInvite(r);assert.ok(!x||x.key!==i.key);if(x){LC.showInvite(r.life,x.key);LC.answerInvite(r.life,x.key,'later')}LC.onAdvance(r)}});
 
 t('Alles löschen: persönliche Angaben weg, App bleibt nutzbar',()=>{const ob=a.newOb('Ida');ob.audit=LC.setAudit(null,'money',{sat:2,now:'privat'});ob.future={vision:'privat'};ob.commit={kind:'own',step:'x'};
  const n=finish(ob);LC.clearFoundation(n);assert.equal(n.life.audit,undefined);assert.equal(n.life.future,undefined);assert.ok(!JSON.stringify(n.life).includes('privat'));assert.ok(a.derive(n))});
 
+t('Stufen bauen aufeinander auf: Audit prägt Eigenverantwortung',()=>{const ob=a.newOb('Jo');ob.audit=LC.setAudit(null,'mind',{obst:['energy'],change:'Abends mehr Ruhe'});
+ const cards=[...a.obCtrlCards(ob)].map(x=>x[0]);assert.ok(cards.includes('Wie viel Energie ich nach einem langen Tag habe')&&cards.includes('Ob ich an müden Tagen die kleine Version mache'),'Karten aus dem eigenen Hindernis');
+ assert.ok(!a.newOb('x').audit&&[...a.obCtrlCards(a.newOb('x'))].length===7,'ohne Audit nur allgemeine Karten')});
 console.log('PASS ftue-flows: '+ok.join(' · '));

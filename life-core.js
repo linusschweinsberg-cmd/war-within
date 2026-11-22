@@ -326,10 +326,13 @@ function standardProgress(L,area){const s=(L.standards||{})[area];if(!s||!s.std)
 function standardsForSync(L){return Object.fromEntries(Object.entries((L&&L.standards)||{}).map(([a,s])=>[a,{level:s.level,perWeek:s.std&&s.std.perWeek||null,hasMin:!!s.min,status:s.status}]))}
 
 /* ───── Dein persönliches Fundament: Abschnitte, Zustände, Einladungen ───── */
-const FUND=[{id:'model',name:'Mental Model',sub:'Success Loop und Ownership'},{id:'audit',name:'Bestandsaufnahme',sub:'Life Audit in acht Bereichen'},{id:'future',name:'Zukunftsvision',sub:'Wer könntest du werden?'},{id:'values',name:'Werte',sub:'Woran du dich misst'},{id:'standards',name:'Persönliche Standards',sub:'Verhalten und Minimum je Bereich'},{id:'goal',name:'Ziel und erste Handlung',sub:'Ein messbares Ergebnis'}];
+/* Produktprinzip: Selbsterkenntnis → Eigenverantwortung → Standards → Handeln. Abschnitte sind den Stufen zugeordnet. */
+const FUND_STAGES=[{n:1,name:"Selbsterkenntnis"},{n:2,name:"Eigenverantwortung"},{n:3,name:"Persönliche Standards"},{n:4,name:"Konsequentes Handeln"}];
+const FUND=[{id:"audit",stage:1,name:"Bestandsaufnahme",sub:"Life Audit in acht Bereichen"},{id:"future",stage:1,name:"Zukunftsvision",sub:"Wer könntest du werden?"},{id:"owner",stage:2,name:"Radical Ownership",sub:"Was liegt in deiner Hand?"},{id:"values",stage:3,name:"Werte",sub:"Woran du dich misst"},{id:"standards",stage:3,name:"Persönliche Standards",sub:"Verhalten und Minimum je Bereich"},{id:"model",stage:4,name:"Success Loop",sub:"Wie aus Handeln Fortschritt wird"},{id:"goal",stage:4,name:"Ziel und erste Handlung",sub:"Ein messbares Ergebnis"}];
 function fundState(S,id){const L=(S&&S.life)||{},F=L.fund||{};
  const st=(done,partial)=>done?'done':partial?'partial':(F.skip||{})[id]?'skipped':'open';
- if(id==='model'){const s=F.seen||{};return st(!!(s.loop&&s.owner),!!(s.loop||s.owner))}
+ if(id==='model')return st(!!(F.seen||{}).loop,false);
+ if(id==='owner')return st(!!((F.seen||{}).owner||(L.onboard&&L.onboard.own&&L.onboard.own.next)),false);
  if(id==='audit'){const sts=AUDIT_AREAS.map(a=>auditState(L.audit,a.id));const touched=sts.some(x=>x==='partial'||x==='done');return st(touched&&sts.every(x=>x==='done'||x==='skipped'),touched)}
  if(id==='future'){const f=L.future||{};return st(!!((f.success||[]).length||f.successOwn)&&!!(f.vision||f.identity),Object.keys(f).length>0)}
  if(id==='values')return st(((S.principles||[]).length||(L.values||[]).length)>0,false);
@@ -340,13 +343,16 @@ function fundSections(S){return FUND.map(x=>({...x,state:fundState(S,x.id)}))}
 function setFundSkip(L,id,on){L.fund={v:1,...(L.fund||{})};const k={...(L.fund.skip||{})};if(on)k[id]=Date.now();else delete k[id];L.fund.skip=k}
 function markSeen(L,key){L.fund={v:1,...(L.fund||{})};L.fund.seen={...(L.fund.seen||{}),[key]:Date.now()}}
 /* Höchstens eine Einladung, frühestens ab Tag 1, dann höchstens alle 3 Tage; ablehnbar, nie aufdringlich */
+/* Reihenfolge nach Stufen; eine Stufe wird erst angeboten, wenn jede Stufe davor begonnen oder bewusst übersprungen ist */
 function inviteCandidates(S){const L=S.life||{},F=L.fund||{},d=L.d||0,start=(F.ob&&F.ob.d)??0,age=d-start,sec=Object.fromEntries(fundSections(S).map(x=>[x.id,x.state])),c=[];
- const f=L.focus&&AREA[L.focus]?L.focus:null;
- if(f&&!(L.standards||{})[f]&&sec.standards!=='skipped')c.push({key:'std-'+f,sec:'standards',area:f,text:'Du hast deine persönlichen Standards für '+AREA[f].de+' noch nicht definiert. Möchtest du das jetzt tun?'});
- if(sec.model==='open'&&age>=2)c.push({key:'model',sec:'model',text:'Magst du in einer Minute sehen, wie dir die App beim Dranbleiben hilft?'});
- if(sec.audit==='open'&&age>=3)c.push({key:'audit',sec:'audit',text:'Du hast noch keine Bestandsaufnahme gemacht. Möchtest du mit einem Bereich anfangen? Etwa eine Minute.'});
- if(sec.values==='open'&&age>=5)c.push({key:'values',sec:'values',text:'Du hast noch keine Werte gewählt. Möchtest du festhalten, woran du dich messen willst?'});
- if(sec.future==='open'&&age>=7)c.push({key:'future',sec:'future',text:'Magst du dir ein Bild davon machen, wer du in drei Jahren sein könntest?'});
+ const stageOk=k=>FUND_STAGES.filter(x=>x.n<k).every(x=>FUND.filter(y=>y.stage===x.n).some(y=>sec[y.id]!=="open"));const f=L.focus&&AREA[L.focus]?L.focus:null;
+ const add=(k,sid,day,o)=>{const st=(FUND.find(x=>x.id===sid)||{}).stage;if(age>=day&&stageOk(st))c.push({key:k,sec:sid,...o})};
+ if(sec.audit==="open")add("audit","audit",1,{text:"Du hast noch keine Bestandsaufnahme gemacht. Möchtest du mit einem Bereich anfangen? Etwa eine Minute."});
+ if(sec.future==="open")add("future","future",4,{text:"Magst du dir ein Bild davon machen, wer du in drei Jahren sein könntest?"});
+ if(sec.owner==="open")add("owner","owner",6,{text:"Magst du in drei kurzen Situationen sehen, was in deiner Hand liegt und was nicht?"});
+ if(sec.values==="open")add("values","values",8,{text:"Du hast noch keine Werte gewählt. Möchtest du festhalten, woran du dich messen willst?"});
+ if(f&&!(L.standards||{})[f]&&sec.standards!=="skipped")add("std-"+f,"standards",10,{area:f,text:"Du hast deine persönlichen Standards für "+AREA[f].de+" noch nicht definiert. Möchtest du das jetzt tun?"});
+ if(sec.model==="open")add("model","model",12,{text:"Magst du in einer Minute sehen, wie dir die App beim Dranbleiben hilft?"});
  return{c,age,d}}
 function nextInvite(S){const L=S.life;if(!L)return null;const inv=(L.fund||{}).inv||{};const {c,age,d}=inviteCandidates(S);if(age<1)return null;
  if(inv.cur&&inv.cur.d===d){const k=c.find(x=>x.key===inv.cur.key);return k&&!(inv.ans||{})[d]?k:null}
@@ -479,5 +485,5 @@ function parseV(metric,s){if(s==null)return null;s=String(s).trim();if(!s)return
 
 G.LC={LIFE_V,AREAS,AREA,LINKS,ACT_AREA,areaAct,VALUES,WHY_Q,GOAL_TPL,OBSTACLES,OBST,BLOCK_MAP,RULES,LOOP,
  wkOf,curWk,actById,goalById,actionsOf,actLabel,missionTitle,plannedAt,doneIn,goalWeek,weekRate,measOf,goalNow,goalStart,better,reached,goalProgress,trend,diagnose,suggest,
- startExperiment,evalExperiment,decideExperiment,reviewWeek,weekSummary,obstacleCounts,saveWeeklyReview,onComplete,onAdvance,onDailyReview,addMeasurement,addAction,addGoal,updateGoal,setGoalStatus,insights,loopStage,newLife,ensureLife,MOODS,DEBRIEF_OBST,CHANGES,onDebrief,debriefPatterns,monthlyDue,saveMonthly,STD_LEVELS,STD_LV,STD_TPL,areaSatFrom,suggestStandard,setStandard,removeStandard,logStandard,standardWeek,standardFeedback,adaptOptions,standardProgress,standardsForSync,FUND,fundState,fundSections,setFundSkip,markSeen,nextInvite,showInvite,answerInvite,clearFoundation,FUTURE_SUCCESS,FUTURE_TXT,cleanFuture,futureSuccess,futureForSync,AUDIT_AREAS,AUDIT,AUDIT_MAX,setAudit,auditState,auditSummary,auditForSync,EVE_WHEN,EVE_RISK,ifThen,onEvening,eveningFor,eveningStats,TEMPLE_LEN,STAGES,PHASES,TEMPLE_RULES,newTemple,syncTemple,columnState,foundationLevel,templeState,closeTempleSeason,areaWeek,fmtV,parseV,syncMission};
+ startExperiment,evalExperiment,decideExperiment,reviewWeek,weekSummary,obstacleCounts,saveWeeklyReview,onComplete,onAdvance,onDailyReview,addMeasurement,addAction,addGoal,updateGoal,setGoalStatus,insights,loopStage,newLife,ensureLife,MOODS,DEBRIEF_OBST,CHANGES,onDebrief,debriefPatterns,monthlyDue,saveMonthly,STD_LEVELS,STD_LV,STD_TPL,areaSatFrom,suggestStandard,setStandard,removeStandard,logStandard,standardWeek,standardFeedback,adaptOptions,standardProgress,standardsForSync,FUND,FUND_STAGES,inviteCandidates,fundState,fundSections,setFundSkip,markSeen,nextInvite,showInvite,answerInvite,clearFoundation,FUTURE_SUCCESS,FUTURE_TXT,cleanFuture,futureSuccess,futureForSync,AUDIT_AREAS,AUDIT,AUDIT_MAX,setAudit,auditState,auditSummary,auditForSync,EVE_WHEN,EVE_RISK,ifThen,onEvening,eveningFor,eveningStats,TEMPLE_LEN,STAGES,PHASES,TEMPLE_RULES,newTemple,syncTemple,columnState,foundationLevel,templeState,closeTempleSeason,areaWeek,fmtV,parseV,syncMission};
 })(typeof window!=='undefined'?window:globalThis);
