@@ -27,14 +27,9 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
-- Codex: Integration von Claude mit Review-Korrekturen, Branch `codex/integrate-claude-fixes`. Dateien: `index.html`, `life-core.js`, `sw.js`, `tests/`, `docs/INTEGRATION.md`, `AGENTS.md`.
-- Claude: Wisdom of the Warrior, Branch `claude/wisdom` (PR offen, Review durch Codex). Dateien: `wisdom-core.js` (neu), `index.html`, `sw.js`, `tests/wisdom-core.cjs` (neu), `tests/release-smoke.cjs` (lädt wisdom-core.js), `docs/WISDOM.md` (neu).
-- Claude: Abendritual, Branch `claude/abendritual` (baut auf `claude/wisdom` auf). Dateien: `life-core.js`, `index.html`, `sw.js`, `tests/life-core.cjs`, `docs/LIFE-OS.md`.
-- Claude: Onboarding als Geschichte, Branch `claude/onboarding-story` (baut auf `claude/abendritual` auf). Dateien: `index.html`, `life-core.js` (`ifThen`, Life Audit), `sw.js` (Netz zuerst für eigene Skripte), `tests/release-smoke.cjs`, `tests/life-core.cjs`, `tests/ftue-flows.cjs` (neu), `docs/ONBOARDING.md`, `docs/FTUE.md` (neu). Enthält auch: persönliche Standards, „Dein persönliches Fundament“, Einladungen, erstes Commitment.
-- Claude: UI/UX-Feinschliff, Branch `claude/ux-polish` (baut auf `claude/onboarding-story` auf). Dateien: `index.html`, `sw.js`, `AGENTS.md`.
-- Claude: Kreislauf und Datensicherheit, Branch `claude/loop-safety` (baut auf `claude/ux-polish` auf). Dateien: `index.html`, `life-core.js`, `sw.js`, `tests/life-core.cjs`, `tests/ftue-flows.cjs`, `docs/FTUE.md`, `AGENTS.md`.
 
 ### Letzte Integration
+- Claude-Stand `622537f` einschließlich UX und Datensicherheit über PR #18 übernommen. Review-Korrekturen: Upgrade-URLs, Konto-Onboarding-Fortsetzen, private Textkopien löschen, vollständige Abendritual-Kandidaten und Farbrollen. Alle sieben Tests bestanden; Browser-Upgrade, vier Darstellungen und Rückgängig geprüft. Keine Supabase-Einstellungen geändert.
 - Life OS: Claude-Stand `19a47de` durch Codex geprüft und zur Veröffentlichung übernommen. Tests: life-core, release-smoke, auth-contract bestanden. Browser: migrierte Startansicht, Lebenstempel und Reflexion geprüft.
 - Claudes Stand `03c9603` (Tagesplan, Nemesis, Lernvorschläge) samt Supabase-Anmeldung über PR #9 integriert. Codex hat Claudes Änderungen geprüft.
 - Prüfungen: `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`; Start, Nemesis, Aufgaben und Tageskalender im Browser. Beispielhistorie bei bestehenden echten Konten entfernt; Lernen verwendet unterschiedliche Erledigungstage.
