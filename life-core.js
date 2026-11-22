@@ -188,6 +188,26 @@ function debriefPatterns(S,days=14){const L=S.life;if(!L)return[];const from=(L.
 /* Monats-Check: alle 4 Wochen kurz prüfen, ob die Ziele noch sinnvoll sind */
 function monthlyDue(L){const w=curWk(L);if(w<3)return null;const k=w%4===3?Math.floor(w/4):Math.floor(w/4)-1;return k>=0&&!(L.monthly||[]).some(x=>x.m>=k)&&(L.goals||[]).some(g=>g.status==='active')?k:null}
 function saveMonthly(S,m,decisions){const L=S.life;L.monthly=[...(L.monthly||[]),{m,t:Date.now(),decisions:decisions||{}}];Object.entries(decisions||{}).forEach(([gid,d])=>{if(d==='archive')setGoalStatus(S,gid,'archived')})}
+/* ───── Abendritual: nach dem Debrief den nächsten Tag vorbereiten ─────
+   Eine Handlung, ein Zeitfenster, optional ein Wenn-dann-Plan gegen das wahrscheinlichste Hindernis.
+   entry: {d (Abend), for (Tag der Umsetzung), mid, aid, when, risk, plan}. Ändert den Plan der Handlung nicht. */
+const EVE_WHEN=[['morgens','Morgens'],['mittags','Mittags'],['abends','Abends']];
+const EVE_RISK=[['time','Wenig Zeit'],['energy','Wenig Energie'],['distract','Ablenkung'],['none','Nichts Besonderes']];
+const EVE_ANCHOR={morgens:'Nach dem Aufstehen',mittags:'Nach dem Mittagessen',abends:'Nach der Arbeit'};
+function ifThen(risk,title,when,minutes){const T='„'+title+'“';
+ switch(risk){
+  case'time':{const m=minutes?Math.max(10,Math.round(minutes*.5/5)*5):null;return m?`Wenn der Tag voll wird, mache ich ${T} in der Kurzversion (${m} Min.).`:`Wenn der Tag voll wird, erledige ich ${T} als Erstes, bevor anderes dazwischenkommt.`}
+  case'energy':return`Wenn ich müde bin, fange ich trotzdem an. Nur die ersten 5 Minuten.`;
+  case'distract':return`Wenn ich mit ${T} anfange, liegt das Handy in einem anderen Raum.`;
+  default:return`${EVE_ANCHOR[when]||'Zur geplanten Zeit'} starte ich mit ${T}.`}}
+function onEvening(S,x){const L=S.life;if(!L||!x||!x.mid)return null;const a=(L.actions||[]).find(y=>y.missionId===x.mid&&!y.off);
+ const m=(S.missions||[]).find(y=>y.id===x.mid);const title=(a&&a.title)||(m&&m.title)||'';const when=EVE_WHEN.some(w=>w[0]===x.when)?x.when:null;const risk=x.risk||null;
+ const e={d:L.d||0,for:(L.d||0)+1,mid:x.mid,aid:a?a.id:null,when,risk,plan:ifThen(risk,title,when,a&&a.minutes),t:Date.now()};
+ L.evening=[...(L.evening||[]).filter(y=>y.for!==e.for),e].slice(-90);L.flags={...(L.flags||{}),evening:true};return e}
+const eveningFor=(L,d)=>((L&&L.evening)||[]).find(e=>e.for===d)||null;
+/* Wie oft wurde die abends festgelegte Handlung am nächsten Tag umgesetzt? Nur abgeschlossene Tage zählen. */
+function eveningStats(L,days=14){const cur=L.d||0;const ent=(L.evening||[]).filter(e=>e.aid&&e.for<cur&&e.for>=cur-days);
+ const kept=ent.filter(e=>(L.log||[]).some(x=>x.aid===e.aid&&x.d===e.for)).length;return{planned:ent.length,kept,rate:ent.length?kept/ent.length:null}}
 function addMeasurement(S,gid,v,note){const L=S.life,g=goalById(L,gid);if(!g||v==null||!isFinite(v))return null;
  if(g.metric.start==null&&!measOf(L,gid).length)g.metric.start=v;
  L.meas=[...(L.meas||[]),{id:'v'+uid(),goalId:gid,v,d:L.d,t:Date.now(),note:note||''}];
@@ -314,5 +334,5 @@ function parseV(metric,s){if(s==null)return null;s=String(s).trim();if(!s)return
 
 G.LC={LIFE_V,AREAS,AREA,LINKS,ACT_AREA,areaAct,VALUES,WHY_Q,GOAL_TPL,OBSTACLES,OBST,BLOCK_MAP,RULES,LOOP,
  wkOf,curWk,actById,goalById,actionsOf,actLabel,missionTitle,plannedAt,doneIn,goalWeek,weekRate,measOf,goalNow,goalStart,better,reached,goalProgress,trend,diagnose,suggest,
- startExperiment,evalExperiment,decideExperiment,reviewWeek,weekSummary,obstacleCounts,saveWeeklyReview,onComplete,onAdvance,onDailyReview,addMeasurement,addAction,addGoal,updateGoal,setGoalStatus,insights,loopStage,newLife,ensureLife,MOODS,DEBRIEF_OBST,CHANGES,onDebrief,debriefPatterns,monthlyDue,saveMonthly,TEMPLE_LEN,STAGES,PHASES,TEMPLE_RULES,newTemple,syncTemple,columnState,foundationLevel,templeState,closeTempleSeason,areaWeek,fmtV,parseV,syncMission};
+ startExperiment,evalExperiment,decideExperiment,reviewWeek,weekSummary,obstacleCounts,saveWeeklyReview,onComplete,onAdvance,onDailyReview,addMeasurement,addAction,addGoal,updateGoal,setGoalStatus,insights,loopStage,newLife,ensureLife,MOODS,DEBRIEF_OBST,CHANGES,onDebrief,debriefPatterns,monthlyDue,saveMonthly,EVE_WHEN,EVE_RISK,ifThen,onEvening,eveningFor,eveningStats,TEMPLE_LEN,STAGES,PHASES,TEMPLE_RULES,newTemple,syncTemple,columnState,foundationLevel,templeState,closeTempleSeason,areaWeek,fmtV,parseV,syncMission};
 })(typeof window!=='undefined'?window:globalThis);

@@ -23,6 +23,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 
 ### In Arbeit
 - Claude: Wisdom of the Warrior, Branch `claude/wisdom` (PR offen, Review durch Codex). Dateien: `wisdom-core.js` (neu), `index.html`, `sw.js`, `tests/wisdom-core.cjs` (neu), `tests/release-smoke.cjs` (lädt wisdom-core.js), `docs/WISDOM.md` (neu).
+- Claude: Abendritual, Branch `claude/abendritual` (baut auf `claude/wisdom` auf). Dateien: `life-core.js`, `index.html`, `sw.js`, `tests/life-core.cjs`, `docs/LIFE-OS.md`.
 
 ### Letzte Integration
 - Life OS: Claude-Stand `19a47de` durch Codex geprüft und zur Veröffentlichung übernommen. Tests: life-core, release-smoke, auth-contract bestanden. Browser: migrierte Startansicht, Lebenstempel und Reflexion geprüft.

@@ -1419,7 +1419,7 @@ function TodayFocus({c}){const {S}=c;const L=S.life,g=mainGoal(S);const st=loopN
   <span className="flex-1 min-w-0"><span className="block text-[11px] lbl">${Lp.n}</span><span className="block text-[13.5px] font-medium truncate">${Lp.q}</span></span>
   ${cta?html`<span role="button" onClick=${e=>{e.stopPropagation();cta[1]()}} className="chip on shrink-0">${cta[0]}</span>`:html`<${Icon} n="chevR" s=${15} cls="mute shrink-0"/>`}</button>`;
  if(!g)return html`<div className="card p-4 mt-3"><div className="lbl acc">Heute zuerst</div><div className="text-[17px] font-bold mt-1">Lege dein Hauptziel fest</div><div className="text-[13px] mute mt-1 leading-snug">Ein messbares Ergebnis. Daraus entsteht dein Plan.</div><button onClick=${()=>c.openSheet({t:'goal'})} className="btn px-4 py-2.5 mt-3 text-[13px]">Ziel festlegen</button>${loop}</div>`;
- const wk=LC.curWk(L),w=LC.goalWeek(L,g,wk),now=LC.goalNow(L,g),p=LC.goalProgress(L,g),na=nextAction(S),e=runningExp(S,g.id);
+ const wk=LC.curWk(L),w=LC.goalWeek(L,g,wk),now=LC.goalNow(L,g),p=LC.goalProgress(L,g),na=nextAction(S),e=runningExp(S,g.id),ev=eveToday(S);
  return html`<div className="card p-4 mt-3">
  <div className="flex items-center gap-2"><span className="lbl acc">Heute zuerst</span><span className="lbl ml-auto truncate" style=${{color:aCol(g.area)}}>${LC.AREA[g.area].name}</span></div>
  <button onClick=${()=>c.openSheet({t:'goal',gid:g.id})} className="block w-full text-left bg-transparent border-0 p-0 text-[17px] font-bold leading-tight mt-1 truncate">${g.title}</button>
@@ -1428,7 +1428,7 @@ function TodayFocus({c}){const {S}=c;const L=S.life,g=mainGoal(S);const st=loopN
   <div><div className="flex items-baseline justify-between gap-1"><span className="text-[11.5px] mute">Diese Woche</span><span className="num text-[13px] font-semibold">${w.done}<span className="mute font-normal"> / ${w.planned}</span></span></div><div className="mt-1.5"><${Bar} pct=${w.planned?w.done/w.planned:0} h=${4}/></div></div></div>
 
  <${TempleMini} c=${c} area=${g.area}/>
- ${na?html`<div className="mt-3.5"><${MRow} m=${na.m} c=${c} big=${true}/></div>`:w.planned&&w.done>=w.planned?html`<div className="text-[13px] mt-3 good font-medium">Wochenplan erfüllt. Ein Messwert zeigt, ob es wirkt.</div>`:null}
+ ${na?html`<div className="mt-3.5">${ev&&ev.mid===na.m.id&&html`<div className="flex items-center gap-1.5 lbl mb-1.5"><${Icon} n="moon" s=${12}/>Gestern Abend festgelegt${ev.when?' · '+ev.when:''}</div>`}<${MRow} m=${na.m} c=${c} big=${true}/>${ev&&ev.mid===na.m.id&&ev.plan&&html`<div className="text-[12.5px] mute mt-1.5 leading-snug">${ev.plan}</div>`}</div>`:w.planned&&w.done>=w.planned?html`<div className="text-[13px] mt-3 good font-medium">Wochenplan erfüllt. Ein Messwert zeigt, ob es wirkt.</div>`:null}
  ${e&&html`<div className="flex items-center gap-2 mt-2.5 text-[12.5px] mute"><span className="acc"><${Icon} n="flask" s=${14}/></span><span className="flex-1 min-w-0 truncate">Experiment: ${e.label}</span><span className="num shrink-0">${wk<e.startWk?'ab Mo':LC.doneIn(L,e.aid,wk)+'/'+e.criterion.min}</span></div>`}
  ${loop}</div>`}
 /* Danach: schlichte Liste statt großer Karten */
@@ -2549,12 +2549,31 @@ function TempleMini({c,area}){const {S}=c;const st=LC.templeState(S);const col=s
 function debriefPlan(S,D){const b=briefToday(S);const gm=goalMs(S);const ids=new Set();
  gm.forEach(x=>{if(S.done[x.m.id]||weekLeft(S,x)>0)ids.add(x.m.id)});(b?b.ids:[]).forEach(id=>{const m=D.allM.find(y=>y.id===id);if(m&&(S.done[id]||!isDone(S,m)))ids.add(id)});
  return[...ids].map(id=>D.allM.find(m=>m.id===id)).filter(m=>m&&m.id!=='m_ref')}
+/* Abendritual: Kandidaten für morgen. Ausgelassenes zuerst; sonntags beginnt morgen eine neue Woche */
+function eveCands(S,D,skipped){const gm=goalMs(S),nw=D.di===6,seen=new Set(),out=[];const push=x=>{if(x&&!seen.has(x.m.id)){seen.add(x.m.id);out.push(x)}};
+ skipped.forEach(m=>push(gm.find(x=>x.m.id===m.id&&(nw||weekLeft(S,x)>0))));gm.forEach(x=>{if(nw||weekLeft(S,x)>0)push(x)});return out.slice(0,4)}
+const dChips=(opts,val,set)=>html`<div className="flex flex-wrap gap-1.5">${opts.map(([k,l])=>html`<button key=${k} aria-pressed=${val===k} onClick=${()=>set(val===k?null:k)} className=${`chip ${val===k?'on':''}`} style=${{minHeight:38,padding:'8px 14px',fontSize:13}}>${l}</button>`)}</div>`;
+function EveningStep({c,cands,pre}){const {S}=c;const L=S.life;const [mid,setMid]=useState(pre&&cands.some(y=>y.m.id===pre)?pre:cands[0].m.id);const x=cands.find(y=>y.m.id===mid)||cands[0];
+ const [when,setWhen]=useState(()=>LC.EVE_WHEN.some(e=>e[0]===x.a.when)?x.a.when:'morgens'),[risk,setRisk]=useState(null);const st=useMemo(()=>LC.eveningStats(L),[]);
+ return html`<${Sheet} sub="Abendritual · 2/2" title="Morgen vorbereiten" onClose=${c.closeSheet}>
+ <div className="text-[13px] mute -mt-1 leading-snug">Heute Abend entscheiden, morgen nur noch anfangen.</div>
+ <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Was ist morgen das Wichtigste?</div>
+ <div className="flex flex-col gap-1.5" role="radiogroup">${cands.map(y=>{const on=y.m.id===x.m.id;return html`<button key=${y.m.id} role="radio" aria-checked=${on} onClick=${()=>setMid(y.m.id)} className="card2 p-3 text-left flex items-center gap-2.5 border-0 w-full" style=${on?{boxShadow:'0 0 0 1.5px var(--acc2) inset'}:undefined}><span className=${'chk shrink-0'+(on?' on':'')} style=${{width:20,height:20,borderRadius:10}}>${on&&html`<${Icon} n="check" s=${12} sw=${3}/>`}</span><span className="flex-1 min-w-0"><span className="block text-[13.5px] font-medium truncate">${y.a.title}</span><span className="block text-[11.5px] mute truncate">${y.g.title}</span></span></button>`})}</div>
+ <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Wann?</div>${dChips(LC.EVE_WHEN,when,setWhen)}
+ <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Was könnte dazwischenkommen?</div>${dChips(LC.EVE_RISK,risk,setRisk)}
+ <div className="card2 p-3.5 mt-4"><div className="lbl mb-1">Dein Plan für morgen</div><div className="text-[14px] font-semibold leading-snug">${x.a.title}${when?' · '+when:''}</div><div className="text-[12.5px] mute mt-1 leading-snug">${LC.ifThen(risk,x.a.title,when,x.a.minutes)}</div></div>
+ <button onClick=${()=>c.saveEvening({mid:x.m.id,when,risk})} className="btn w-full py-3.5 mt-5 text-sm">Morgen steht</button>
+ <button onClick=${c.closeSheet} className="w-full bg-transparent border-0 text-[12.5px] mute mt-1 py-2">Heute nicht</button>
+ ${st.planned>=3&&html`<div className="text-[11.5px] mute text-center mt-1">Abends festgelegt und am nächsten Tag umgesetzt: ${st.kept} von ${st.planned}</div>`}<//>`}
 function Debrief({c}){const {S,D}=c;const L=S.life;const plan=useMemo(()=>debriefPlan(S,D),[]);const done=plan.filter(m=>S.done[m.id]),skipped=plan.filter(m=>!S.done[m.id]);
+ const cands=useMemo(()=>eveCands(S,D,skipped),[]);const [eve,setEve]=useState(null);
  const prev=(L.daily||[]).find(e=>e.d===L.d)||{};const [mood,setMood]=useState(prev.mood||null),[ob,setOb]=useState((prev.obst||[])[0]||null),[ch,setCh]=useState(prev.change||(skipped.length?null:'keep'));
  const areas=[...new Set(done.map(m=>{const x=goalMs(S).find(y=>y.m.id===m.id);return x&&x.g.area}).filter(Boolean))];const st=LC.templeState(S);
  const chips=(opts,val,set)=>html`<div className="flex flex-wrap gap-1.5">${opts.map(([k,l])=>html`<button key=${k} aria-pressed=${val===k} onClick=${()=>set(val===k?null:k)} className=${`chip ${val===k?'on':''}`} style=${{minHeight:38,padding:'8px 14px',fontSize:13}}>${l}</button>`)}</div>`;
- const save=()=>c.saveDebrief({mood,obst:ob?[ob]:[],change:ch,done:done.map(m=>m.id),skipped:skipped.map(m=>m.id),next:ch==='earlier'&&skipped[0]?skipped[0].id:null});
- return html`<${Sheet} sub=${'Daily Debrief · '+DAYS_L[D.di]} title="Dein Tag" onClose=${c.closeSheet}>
+ const next=ch==='earlier'&&skipped[0]?skipped[0].id:null;
+ const save=()=>{c.saveDebrief({mood,obst:ob?[ob]:[],change:ch,done:done.map(m=>m.id),skipped:skipped.map(m=>m.id),next},{stay:cands.length>0});if(cands.length)setEve({pre:next})};
+ if(eve)return html`<${EveningStep} c=${c} cands=${cands} pre=${eve.pre}/>`;
+ return html`<${Sheet} sub=${'Daily Debrief · '+DAYS_L[D.di]+(cands.length?' · 1/2':'')} title="Dein Tag" onClose=${c.closeSheet}>
  <div className="card2 p-3.5 -mt-1"><div className="flex items-baseline justify-between"><span className="lbl">Automatisch ausgewertet</span><span className="num text-[14px] font-bold">${done.length} von ${plan.length}</span></div>
   <div className="mt-2 flex flex-col gap-1.5">${plan.map(m=>{const ok=!!S.done[m.id];return html`<div key=${m.id} className="flex items-center gap-2.5 text-[13.5px]"><span className=${'chk'+(ok?' on':'')} style=${{width:20,height:20,borderRadius:6}}>${ok&&html`<${Icon} n="check" s=${12} sw=${3}/>`}</span><span className=${'flex-1 truncate '+(ok?'':'mute')}>${m.title}</span>${!ok&&html`<span className="text-[11.5px] mute">ausgelassen</span>`}</div>`})}${!plan.length&&html`<div className="text-[13px] mute">Heute war nichts geplant.</div>`}</div></div>
  ${areas.length>0&&html`<div className="flex items-center gap-3 mt-3"><span style=${{width:70}} className="shrink-0"><${TempleSVG} st=${st} sel=${areas[0]} mini=${true} anim=${false}/></span><div className="text-[13px] leading-snug">Heute gebaut an: <b>${areas.map(a=>LC.AREA[a].name).join(', ')}</b>. Jede umgesetzte Ziel-Handlung zählt für die konstante Woche deiner Säule.</div></div>`}
@@ -2563,7 +2582,7 @@ function Debrief({c}){const {S,D}=c;const L=S.life;const plan=useMemo(()=>debrie
   <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Was möchtest du ändern?</div>${chips(LC.CHANGES,ch,setCh)}
   ${ch==='earlier'&&html`<div className="text-[12px] mute mt-1.5">„${skipped[0].title}“ steht morgen an erster Stelle.</div>`}${ch==='smaller'&&html`<div className="text-[12px] mute mt-1.5">${skipped.length===1?'Notiert. Im Wochenrückblick bekommst du eine kleinere Version als Experiment vorgeschlagen.':'Notiert. Wiederholt es sich, schlägt der Wochenrückblick eine kleinere Version vor.'} Dein Plan ändert sich nicht ungefragt.</div>`}`
  :plan.length?html`<div className="card2 p-3 mt-4 text-[13.5px] leading-snug"><b>Der Plan funktioniert.</b> Behalte ihn bei.</div>`:null}
- <button onClick=${save} disabled=${!mood} className="btn w-full py-3.5 mt-5 text-sm">Debrief abschließen</button>
+ <button onClick=${save} disabled=${!mood} className="btn w-full py-3.5 mt-5 text-sm">${cands.length?'Weiter: Morgen vorbereiten':'Debrief abschließen'}</button>
  <div className="text-[11.5px] mute text-center mt-2">${mood?'Unter 30 Sekunden. Muster wertet die App im Wochenrückblick aus.':'Eine Antwort genügt: Wie lief dein Tag?'}</div>
  <${WisdomSlot} c=${c} place="debrief" x=${{planned:plan.length,done:done.length}} cls="mt-5"/><//>`}
 function MonthlyCheck({c}){const {S}=c;const L=S.life,m=LC.monthlyDue(L);const gs=(L.goals||[]).filter(g=>g.status==='active');const [dec,setDec]=useState(()=>Object.fromEntries(gs.map(g=>[g.id,'keep'])));const wk=LC.curWk(L);
@@ -2627,7 +2646,9 @@ const mainGoal=S=>{const L=S.life;if(!L)return null;const g=LC.goalById(L,L.main
 function goalMs(S){const L=S.life;if(!L)return[];const mg=mainGoal(S),mid=mg&&mg.id;
  return(L.actions||[]).filter(a=>!a.off&&(LC.goalById(L,a.goalId)||{}).status==='active').sort((a,b)=>(b.goalId===mid)-(a.goalId===mid)).map(a=>({a,m:S.missions.find(x=>x.id===a.missionId),g:LC.goalById(L,a.goalId)})).filter(x=>x.m)}
 const weekLeft=(S,x)=>{const L=S.life,wk=LC.curWk(L);return Math.max(0,LC.plannedAt(x.a,wk)-LC.doneIn(L,x.a.id,wk))};
-const nextAction=S=>goalMs(S).find(x=>!isDone(S,x.m)&&weekLeft(S,x)>0)||null;
+/* Abends festgelegte Handlung für heute (Abendritual), solange sie offen ist */
+const eveToday=S=>{const L=S.life;const e=L&&LC.eveningFor(L,L.d||0);if(!e)return null;const m=S.missions.find(x=>x.id===e.mid);return m&&!isDone(S,m)?{...e,m}:null};
+const nextAction=S=>{const gm=goalMs(S),ev=eveToday(S);return(ev&&gm.find(x=>x.m.id===ev.mid))||gm.find(x=>!isDone(S,x.m)&&weekLeft(S,x)>0)||null};
 const runningExp=(S,gid)=>((S.life&&S.life.exps)||[]).find(e=>e.goalId===gid&&e.status==='running');
 const TRD={better:['↑','var(--good)','besser'],worse:['↓','var(--bad)','schlechter'],flat:['→','var(--mute)','unverändert'],none:['·','var(--mute)','noch zu wenig Messwerte'],stale:['·','var(--mute)','kein aktueller Messwert']};
 const SRC_L={measured:'Gemessen',self:'Selbsteinschätzung'};
@@ -3400,9 +3421,10 @@ function App({init,auth,skey='war_within_v5'}){
  const lifeUpd=fn=>upd(n=>{LC.ensureLife(n);fn(n);checkAch(n)});
  const msN=((S.life&&S.life.temple&&S.life.temple.cur.ms)||[]).length,msRef=useRef(msN);
  useEffect(()=>{const p=msRef.current;msRef.current=msN;if(msN>p){const m=S.life.temple.cur.ms[msN-1];toast('Neuer Baustein · '+LC.AREA[m.area].name+'-Säule: '+m.label,'good');setTFlash(m.area);const t=setTimeout(()=>setTFlash(null),1800);return()=>clearTimeout(t)}},[msN]);
- const saveDebrief=x=>{const doneN=x.done.length;upd(n=>{LC.ensureLife(n);LC.onDebrief(n,x);const k=dayKey(n);n.reviews=[{k,done:doneN,block:x.obst,mood:x.mood,next:x.next,t:Date.now()},...(n.reviews||[]).filter(r=>r.k!==k)].slice(0,30);n.wlog=n.wlog||{};n.wlog[k]={...(n.wlog[k]||{}),r:1};if(x.next)n.nextPrio={k:n.season+'-'+(n.day+1),mid:x.next}});setSheet(null);
+ const saveEvening=x=>{upd(n=>{LC.ensureLife(n);const e=LC.onEvening(n,x);if(e)n.nextPrio={k:n.season+'-'+(n.day+1),mid:e.mid}});setSheet(null);toast('Morgen steht. Der Tag ist abgeschlossen.','good')};
+ const saveDebrief=(x,o)=>{const doneN=x.done.length;upd(n=>{LC.ensureLife(n);LC.onDebrief(n,x);const k=dayKey(n);n.reviews=[{k,done:doneN,block:x.obst,mood:x.mood,next:x.next,t:Date.now()},...(n.reviews||[]).filter(r=>r.k!==k)].slice(0,30);n.wlog=n.wlog||{};n.wlog[k]={...(n.wlog[k]||{}),r:1};if(x.next)n.nextPrio={k:n.season+'-'+(n.day+1),mid:x.next}});if(!(o&&o.stay))setSheet(null);
   const rm=S.missions.find(m=>m.id==='m_ref');if(rm&&!isDone(S,rm))setTimeout(()=>cref.current('m_ref',null,{keep:true,msg:'über den Debrief'}),400);
-  toast(!x.skipped.length?'Debrief gespeichert. Der Plan funktioniert.':x.next?'Debrief gespeichert. Morgen zuerst: das Ausgelassene.':'Debrief gespeichert. Muster wertet der Wochenrückblick aus.','good')};
+  if(o&&o.stay)return;toast(!x.skipped.length?'Debrief gespeichert. Der Plan funktioniert.':x.next?'Debrief gespeichert. Morgen zuerst: das Ausgelassene.':'Debrief gespeichert. Muster wertet der Wochenrückblick aus.','good')};
  const saveMonthly=(m,dec)=>{lifeUpd(n=>LC.saveMonthly(n,m,dec));setSheet(null);const adj=Object.entries(dec).find(([,d])=>d==='adjust');if(adj)setTimeout(()=>setSheet({t:'goal',gid:adj[0]}),250);toast('Monats-Check gespeichert.','good')};
  const toggleWeather=()=>{const on=S.life.temple.weather;lifeUpd(n=>{n.life.temple.weather=!on});toast(on?'Verwitterung ausgeblendet. Deine Daten bleiben unverändert.':'Verwitterung wird wieder angezeigt.')};
  const toggleTempleAnim=()=>lifeUpd(n=>{n.life.temple.anim=!n.life.temple.anim});
@@ -3487,7 +3509,7 @@ function App({init,auth,skey='war_within_v5'}){
  /* Erfolge */
  const newA=S.newAch[0];
  useEffect(()=>{if(!newA)return;const t=setTimeout(()=>upd(n=>{n.newAch=n.newAch.slice(1)}),2600);return()=>clearTimeout(t)},[newA]);
- const c={auth,upd,wisFav,wisDismiss,wisToggle,saveDebrief,saveMonthly,tSel,setTSel,tFlash,toggleWeather,toggleTempleAnim,closeTempleSeason,setSkin,addLifeGoal,updLifeGoal,setLifeGoalStatus,addMeas,saveWeekly,toggleFocusMode,setAreaSat,setFocusArea,setMainGoal,saveValues,saveWhy,setActPerWeek,removeAction,addActionTo,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,togglePush,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
+ const c={auth,upd,wisFav,wisDismiss,wisToggle,saveDebrief,saveEvening,saveMonthly,tSel,setTSel,tFlash,toggleWeather,toggleTempleAnim,closeTempleSeason,setSkin,addLifeGoal,updLifeGoal,setLifeGoalStatus,addMeas,saveWeekly,toggleFocusMode,setAreaSat,setFocusArea,setMainGoal,saveValues,saveWhy,setActPerWeek,removeAction,addActionTo,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,togglePush,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
  const nav=[['home','Home','home'],['tasks','Heute','target'],['life','Bereiche','grid'],['stats','Stats','bars'],...(focusMode(S)?[]:[['solo','Duell','swords']])];const navKey={league:'stats',reflect:'home'}[tab]||tab;const revDue=LC.reviewWeek(S.life)!=null;
  const ach=newA&&ACHS.find(a=>a.id===newA);
  return html`<div data-theme=${S.theme} data-skin=${S.skin||'antik'} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(var(--acc-rgb),.12)'}}>

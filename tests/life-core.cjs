@@ -90,3 +90,16 @@ t2('Debrief: abends erledigt → kleinere Version',()=>{const S=LC.ensureLife(ba
 t2('Debrief: alles erledigt → keine künstlichen Probleme',()=>{const S=LC.ensureLife(base());const g=LC.addGoal(S,{...tpl('skill')});const a=LC.actionsOf(S.life,g.id)[0];for(let i=0;i<5;i++){LC.onDebrief(S,{mood:'good',done:[a.missionId]});LC.onAdvance(S)}assert.equal(LC.debriefPatterns(S).length,0)});
 t2('Monats-Check alle 4 Wochen',()=>{const S=LC.ensureLife(base());LC.addGoal(S,{...tpl('skill')});assert.equal(LC.monthlyDue(S.life),null);S.life.d=21;assert.equal(LC.monthlyDue(S.life),0);LC.saveMonthly(S,0,{});assert.equal(LC.monthlyDue(S.life),null)});
 console.log('PASS debrief: '+ok2.join(' · '))}
+/* Abendritual */
+{const ok3=[];const t3=(n,f)=>{f();ok3.push(n)};
+t3('Abendritual: Plan gilt für den nächsten Tag, Handlung bleibt unverändert',()=>{const S=LC.ensureLife(base());const g=LC.addGoal(S,{...tpl('skill')});const a=LC.actionsOf(S.life,g.id)[0];const before=JSON.stringify(a);
+ const e=LC.onEvening(S,{mid:a.missionId,when:'morgens',risk:'none'});assert.equal(e.for,1);assert.equal(e.aid,a.id);assert.match(e.plan,/Nach dem Aufstehen/);assert.equal(JSON.stringify(a),before);
+ assert.equal(LC.eveningFor(S.life,0),null);LC.onAdvance(S);assert.equal(LC.eveningFor(S.life,1).mid,a.missionId)});
+t3('Abendritual: erneutes Festlegen ersetzt, ungültige Eingaben werden ignoriert',()=>{const S=LC.ensureLife(base());const g=LC.addGoal(S,{...tpl('skill')});const a=LC.actionsOf(S.life,g.id)[0];
+ LC.onEvening(S,{mid:a.missionId,when:'morgens'});LC.onEvening(S,{mid:a.missionId,when:'nachts',risk:'time'});assert.equal(S.life.evening.length,1);assert.equal(S.life.evening[0].when,null);assert.match(S.life.evening[0].plan,/Kurzversion \(25 Min\.\)/);
+ assert.equal(LC.onEvening(S,{}),null)});
+t3('Abendritual: Umsetzungsquote zählt nur abgeschlossene Tage',()=>{const S=LC.ensureLife(base());const g=LC.addGoal(S,{...tpl('skill')});const a=LC.actionsOf(S.life,g.id)[0];
+ for(let i=0;i<3;i++){LC.onEvening(S,{mid:a.missionId,when:'morgens'});LC.onAdvance(S);if(i!==1)LC.onComplete(S,a.missionId)}
+ LC.onEvening(S,{mid:a.missionId,when:'morgens'});LC.onAdvance(S);const st=LC.eveningStats(S.life);assert.equal(st.planned,3);assert.equal(st.kept,2)});
+t3('Abendritual: alter Spielstand ohne evening',()=>{const S=LC.ensureLife(base());delete S.life.evening;assert.equal(LC.eveningFor(S.life,1),null);assert.equal(LC.eveningStats(S.life).planned,0)});
+console.log('PASS abendritual: '+ok3.join(' · '))}
