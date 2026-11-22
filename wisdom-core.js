@@ -138,7 +138,7 @@ const enabled=S=>W_(S).on!==false;
 const isFav=(S,id)=>(W_(S).fav||[]).includes(id);
 
 /* ───── Kontext: nur aus Daten, die der Nutzer selbst dokumentiert hat ───── */
-const curWk=L=>Math.floor((L.d||0)/7);
+const curWk=L=>Math.floor(((L.d||0)+(L.calendar?.offset||0))/7);
 function dailyAt(S,d){const L=S.life;return L&&(L.daily||[]).find(e=>e.d===d)||null}
 /* Erholung nur, wenn der Nutzer selbst wenig Energie notiert oder bewusst pausiert – nie aus verpassten Aufgaben abgeleitet */
 function recoveryNeed(S){const d=dayOf(S),L=S.life||{};if(Array.isArray(S.rest)&&S.rest.includes(S.day))return'rest';

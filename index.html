@@ -18,10 +18,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v56"></script>
-<script src="auth.js?v=ww-v56"></script>
-<script src="life-core.js?v=ww-v56"></script>
-<script src="wisdom-core.js?v=ww-v56"></script>
+<script src="supabase-config.js?v=ww-v57"></script>
+<script src="auth.js?v=ww-v57"></script>
+<script src="life-core.js?v=ww-v57"></script>
+<script src="wisdom-core.js?v=ww-v57"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -423,7 +423,7 @@ function readiness(S){
  return{score,...z,why}}
 const gradeOf=p=>p>=.9?'A':p>=.7?'B':p>=.5?'C':'D';
 const TIERS=['Bronze','Silber','Gold','Platin','Diamant'];
-const SL=S=>S.sLen||4,SDAYS=S=>(S.sLen||4)*7;
+const SL=S=>S.sLen||4,SDAYS=S=>(S.sLen||4)*7-(S.calendar?.seasonOffset||0);
 const SEASON_DEF={sLevel:0,baseCat:{fit:61,rec:54,fin:57,intel:46,career:49,time:55,rel:62,char:54,goals:42,prep:29},leagues:[],sLen:4,sTheme:'disc',sGoal:.85,sFocus:'Konstanz statt Perfektion',tier:1,potOff:.12,sThemePts:0,setup:false,sLocked:true,evalDone:false,freezes:2,mArea:'disc',mDays:2,mTarget:20,sSigned:{season:4,t:'Konstanz statt Perfektion'},codeCk:{body0:true,disc0:true,disc2:true,rec0:true},evalHist:[{week:3,season:4,grades:{body:.67,fin:1,rel:.67,disc:.67,rec:.33}}],sAreaGoals:{body:.7,fin:.7,rel:.7,disc:.7,rec:.7},sAreaPts:{body:34,fin:16,rel:20,disc:34,rec:22},gear:['Finisher-Patch'],sHist:[{season:3,theme:'body',len:4,rank:3,pts:281,cur:.81,goal:.85,ok:false,badges:['Finisher']},{season:2,theme:'disc',len:4,rank:2,pts:297,cur:.88,goal:.85,ok:true,badges:['Gipfel-Abzeichen']}]};
 const ACT0={
 body:{id:'body',name:'Körper & Training',short:'Körper',icon:'dumbbell',cat:'fit',kind:'core',cap:70,rating:74,target:'4 Trainings pro Woche'},
@@ -535,6 +535,67 @@ function initState(){
   ui:'basic',tally:{...TALLY_ALL},sTally:{...TALLY_S},tallyDemo:true,wlog:{'4-0':{b:1,r:1,ps:3,pd:3,g:1,pq:.67},'4-1':{b:1,r:0,ps:3,pd:2,g:1,pq:.5}},brief:null,nextPrio:null,reviews:[],mxv:mxvDemo(),principles:PRINC_DEMO.map(x=>({...x})),tradition:'Stoizismus',mx:{},sugg:{},detail:{},ctime:{...CTIME_DEMO},duel:{streak:3},push:false,lastStory:{season:3,week:4,title:'Ein Herzschlag-Finale',lines:['Marcus gewinnt Spielwoche 4 mit 131 Punkten, nur 3 vor dir.','Lena macht 2 Plätze gut.','Du landest auf Platz 2, 3 Punkte hinter Marcus. Stärkster Bereich: Persönliche Disziplin.']}};
  return st;
 }
+
+/* Calendar anchor: old states attach to today without rewriting their history. */
+function calendarZone(S){const wanted=S.profile&&S.profile.tz;try{new Intl.DateTimeFormat('en',{timeZone:wanted}).format();return wanted||Intl.DateTimeFormat().resolvedOptions().timeZone}catch(e){return 'UTC'}}
+function calendarDate(t,tz){const p=new Intl.DateTimeFormat('en-GB',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(t));const v=k=>p.find(x=>x.type===k).value;return v('year')+'-'+v('month')+'-'+v('day')}
+const dateNumber=d=>Date.parse(d+'T00:00:00Z')/86400000;
+const datePlus=(d,n)=>new Date((dateNumber(d)+n)*86400000).toISOString().slice(0,10);
+const weekdayOf=d=>(new Date(d+'T12:00:00Z').getUTCDay()+6)%7;
+const calendarWeekday=S=>S.calendar?weekdayOf(S.calendar.date):S.day%7;
+const seasonWeek=S=>Math.floor((S.day+(S.calendar?.seasonOffset||0))/7);
+function calendarMinutes(t,S){const p=new Intl.DateTimeFormat('en-GB',{timeZone:calendarZone(S),hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(t));return +p.find(x=>x.type==='hour').value*60 + +p.find(x=>x.type==='minute').value}
+function syncCalendar(S,t=Date.now()){
+ const tz=calendarZone(S),today=calendarDate(t,tz),C=S.calendar;LC.ensureLife(S);
+ if(!C||C.v!==1||!/^\d{4}-\d{2}-\d{2}$/.test(C.date)||!Number.isFinite(dateNumber(C.date))||C.tz!==tz||!Number.isInteger(C.seasonOffset)||Math.abs(dateNumber(today)-dateNumber(C.date))>3660){
+  const wd=weekdayOf(today),d=S.life.d||0,lifeWeek=LC.curWk(S.life),sw=seasonWeek(S),old=S.life.calendar;
+  const anchor={from:d,offset:lifeWeek*7+wd-d};const segments=old?[...(old.segments||[{from:old.from,offset:old.offset}]).filter(x=>x.from<d),anchor]:[anchor];
+  S.calendar={v:1,date:today,tz,seasonOffset:sw*7+wd-S.day};S.life.calendar={...anchor,segments};return S;
+ }
+ // A clock set backwards never reopens a previously closed day.
+ const days=dateNumber(today)-dateNumber(C.date);if(days<=0)return S;
+ for(let i=0;i<days;i++){closeCalendarDay(S,true);C.date=datePlus(C.date,1);LC.syncTemple(S)}
+ return S;
+}
+function closeCalendarDay(n,automatic=false){
+LC.ensureLife(n);
+  const di=calendarWeekday(n),week=seasonWeek(n);const was=derive(n);{const nt=nemTasks(n).filter(t=>t.kind!=='sleep'),X=nt.filter(t=>t.done).length;if(nt.length){n.duel=n.duel||{streak:0};n.duel.streak=X>=nt.length?(n.duel.streak||0)+1:0;n.duel.last={x:X,y:nt.length}}}n.wlog=n.wlog||{};if(!automatic||Object.keys(n.done||{}).length||todayTotal(n)>0)n.wlog[dayKey(n)]={...dayLive(n)};
+  if((n.todayPts[n.mArea]||0)>0)n.mDays=(n.mDays||0)+1;
+  const had=todayTotal(n)>0||n.rest.includes(n.day),lose=!had&&!((n.freezes||0)>0)&&n.streak>0;
+  n.snaps=[...(n.snaps||[]),{season:n.season,day:n.day,cats:{...n.catScore},streak:n.streak}].slice(-120);
+  if(had)n.idle=0;else{n.idle=(n.idle||0)+1;if(!automatic&&n.idle>=3&&!n.comeback){n.comeback=true;n.cbDone=0;n.nemMsg={t:'Drei Tage Pause. Ich habe keinen verpasst. Fang klein an.',ts:Date.now()}}}
+  if(!automatic&&lose&&!(n.nemMsg&&n.nemMsg.ts>Date.now()-1000))n.nemMsg={t:'Dein Streak ist weg. Meiner läuft weiter.',ts:Date.now()};
+  if(todayTotal(n)>0||n.rest.includes(n.day)){n.streak++;n.bestStreak=Math.max(n.bestStreak||0,n.streak);if(n.streak%7===0&&(n.freezes||0)<3)n.freezes=(n.freezes||0)+1}else if((n.freezes||0)>0){n.freezes--}else n.streak=0;
+  if(!automatic)OTH.forEach(o=>{const add=rnd(22,46)+(n.tier||0)*2;n.others[o.id]=Math.min(PLAN_CAP,n.others[o.id]+add);n.oSeason[o.id]+=add});
+  if(di===6){
+   if(!automatic&&was.wk>=was.plan)n.nemMsg={t:'Diese Woche warst du besser als mein Plan. Nächste Woche werde ich stärker.',ts:Date.now()};
+   const st=standingsOf(n),me=st.find(r=>r.id==='me');recordWeek(n,me.rank);if(me.rank===1&&(!automatic||weekTotal(n)>0))n.flags.league=true;
+   const lag=[...was.active].sort((a,b)=>(n.weekPts[a]||0)/n.acts[a].cap-(n.weekPts[b]||0)/n.acts[b].cap)[0];
+   const bestA=[...was.active].sort((a,b)=>(n.weekPts[b]||0)/n.acts[b].cap-(n.weekPts[a]||0)/n.acts[a].cap)[0];
+   n.evalDone=false;n.aar={week:week+1,pts:weekTotal(n),rank:me.rank,leader:st[0].full,leaderPts:st[0].pts,best:n.acts[bestA].name,weak:n.acts[lag].name,reached:Math.round(weekTotal(n)/was.plan*100),done:was.doneN,score:weekScore(n,was),chapter:phaseOf(n).n};n.aar.story=weekStory(st,n.lastWkRank,week+1,n.acts[bestA].name);n.lastStory={...n.aar.story,week:week+1,season:n.season};n.lastWkRank=Object.fromEntries(st.map(x=>[x.id,x.rank]));
+   Object.keys(n.acts).forEach(k=>n.weekPts[k]=0);n.adj=0;n.subs=3;OTH.forEach(o=>n.others[o.id]=0);
+   n.missions.filter(m=>m.freq==='weekly').forEach(m=>delete n.done[m.id]);n.counts={};
+   if(week===SL(n)-1){
+    const tbl=[{n:'Du',p:n.seasonPts},...OTH.map(o=>({n:o.name,p:n.oSeason[o.id]}))].sort((a,b)=>b.p-a.p);const rank=tbl.findIndex(x=>x.n==='Du')+1;
+    const l0=was.lvC;n.base=clamp(n.base+.3*Math.min(1,was.cur),0,.9);
+    const th=n.sTheme,thCap=(n.acts[th]?n.acts[th].cap:40)*SL(n),thOk=(n.sThemePts||0)>=.8*thCap,goalOk=was.cur>=(n.sGoal||.85);
+    const areas=CORE.map(id=>{const g=(n.sAreaGoals||{})[id]||.7,p=((n.sAreaPts||{})[id]||0)/(n.acts[id].cap*SL(n));return{id,goal:g,pct:p,ok:p>=g}});const met=areas.filter(x=>x.ok).length;
+    const mOk=(n.mDays||0)>=(n.mTarget||20);const badges=automatic&&n.seasonPts===0?[]:['Finisher'];if(mOk)badges.push('Challenge gemeistert');if(met>=4)badges.push('Wort gehalten');if(goalOk)badges.push('Gipfel-Abzeichen');if(thOk)badges.push('Meister: '+(n.acts[th]?n.acts[th].short:th));if(rank===1&&(!automatic||n.seasonPts>0))badges.push('Champion-Banner');
+    const tier0=n.tier||0;let tier1=tier0;if(rank<=2&&tier0<4&&(!automatic||n.seasonPts>0))tier1++;else if(rank>=5&&tier0>0)tier1--;
+    const potNext=was.cur>=.9?.18:was.cur<.5?.08:.12;
+    {const lvE=pathLevel(n);if(lvE>(n.sLevel||0))applyPath(n,n.sLevel||0,lvE)}
+    n.sreport={season:n.season,rank,pts:n.seasonPts,cur:was.cur,l0,l1:Math.round(30+70*clamp(n.base,0,1)),table:tbl,missions:n.seasonMissions??12,ach:Object.keys(n.ach).length,theme:th,len:SL(n),goal:n.sGoal||.85,goalOk,thOk,badges,areas,met,mOk,mDays:Math.min(n.mDays||0,n.mTarget||20),mTarget:n.mTarget||20,mArea:n.mArea,tier0,tier1,potNext,focus:n.sFocus,level:n.sLevel||0};n.sreport.grade=gradeSeason(n.sreport);
+    n.sHist=[{season:n.season,theme:th,len:SL(n),rank,pts:n.seasonPts,cur:was.cur,goal:n.sGoal||.85,ok:goalOk,badges},...(n.sHist||[])].slice(0,8);
+    n.gear=[...(n.gear||[]),...badges.map(x=>x+' · S'+n.season)].slice(-12);
+    n.tier=tier1;n.potOff=potNext;n.sThemePts=0;n.sAreaPts={};n.mDays=0;n.sLocked=false;n.setup=true;
+    if(rank===1&&(!automatic||n.seasonPts>0))n.flags.champ=true;if(was.cur>=.8)n.flags.improved=true;
+    n.missions.filter(m=>m.freq==='monthly').forEach(m=>delete n.done[m.id]);n.season++;n.sLevel=0;n.pathUp=null;n.baseCat={...n.catScore};n.snaps=[];n.seasonPts=0;OTH.forEach(o=>n.oSeason[o.id]=0);n.seasonCum=[0];n.rest=[];n.day=0;n.seasonMissions=0;n.sTally={};n.wlog={};if(n.calendar)n.calendar.seasonOffset=0;n.nextPrio=null;n.flags.wasWide=false;
+   }else n.day++;
+  }else n.day++;
+  LC.onAdvance(n);n.todayPts={};n.missions.filter(m=>m.freq==='daily'||m.freq==='multi').forEach(m=>delete n.done[m.id]);
+  n.seasonCum[n.day]=n.seasonPts;const rk=standingsOf(n);n.startRank=Object.fromEntries(rk.map(r=>[r.id,r.rank]));checkAch(n);if(automatic){n.aar=null;n.sreport=null}
+}
+
 /* ───── Berechnungen ───── */
 const weekTotal=S=>Object.values(S.weekPts).reduce((a,b)=>a+b,0)+S.adj;
 const todayTotal=S=>Object.values(S.todayPts).reduce((a,b)=>a+b,0);
@@ -547,7 +608,7 @@ function standingsOf(S){
  const rows=[{...ME,full:(S.profile&&S.profile.name)||ME.full,pts:weekTotal(S),season:S.seasonPts,rating:Math.round(30+70*clamp(S.base+1.4*S.seasonPts/(planWeek(S)*SL(S)),0,1))},...OTH.map(o=>({...o,pts:S.others[o.id],season:S.oSeason[o.id]}))];
  rows.sort((a,b)=>b.pts-a.pts||(a.id==='me'?-1:1));rows.forEach((r,i)=>r.rank=i+1);return rows}
 function derive(S){
- const di=S.day%7,week=Math.floor(S.day/7),plan=planWeek(S),seasonPlan=plan*SL(S);
+ const di=calendarWeekday(S),week=seasonWeek(S),plan=planWeek(S),seasonPlan=plan*SL(S);
  const restPast=S.rest.filter(d=>d<S.day).length;
  const cur=S.seasonPts/seasonPlan;
  let pot=clamp((S.day-restPast)/SDAYS(S)+(S.potOff??.12),0,1);if(cur>=pot)pot=Math.min(1,cur+.06);
@@ -570,7 +631,7 @@ function checkAch(n){
 // Only identified week closures are used as measured history; legacy demo values stay excluded.
 const completedWeeks=S=>(S.weekHist||[]).filter(w=>Number.isInteger(w.season)&&Number.isInteger(w.week)&&Number.isFinite(w.pts));
 function recordWeek(S,rank){
- const week=Math.floor(S.day/7)+1;
+ const week=seasonWeek(S)+1;
  const snapshot={season:S.season,week,day:S.day,pts:weekTotal(S),rank,cats:{...S.catScore},streak:S.streak,areas:{...S.weekPts},savedAt:new Date().toISOString()};
  S.weekHist=[...(S.weekHist||[]).filter(w=>w.season!==S.season||w.week!==week),snapshot];
 }
@@ -916,18 +977,18 @@ const pathLevel=S=>{let l=0;for(let i=0;i<PATH.length;i++)if(S.seasonPts>=pathSt
 /* Spielwochen als Kapitel: Fundament → Momentum → Konstanz → Endspurt */
 const WEEKN=[{k:'start',n:'Fundament',d:'Routinen legen. Klein anfangen und jeden Tag dabei sein.',col:'#9AAE6B',ic:'flag'},{k:'mom',n:'Momentum',d:'Tempo aufnehmen. Aus einzelnen Tagen wird ein Rhythmus.',col:'#7FA7AD',ic:'zap'},{k:'mid',n:'Konstanz',d:'Die Mitte entscheidet. Halte den Standard, auch wenn die Motivation sinkt.',col:'#D9774F',ic:'shield'},{k:'final',n:'Endspurt',d:'Alle Punkte zählen 10 % mehr. Beende die Saison stark.',col:'#D4A94F',ic:'flame'}];
 const weekIdx=(S,w)=>{const L=SL(S);return w>=L-1?3:w===0?0:w<(L-1)/2?1:2};
-const phaseOf=S=>{const x=WEEKN[weekIdx(S,Math.floor(S.day/7))];return{...x,bonus:x.k==='final'?.1:0}};
+const phaseOf=S=>{const x=WEEKN[weekIdx(S,seasonWeek(S))];return{...x,bonus:x.k==='final'?.1:0}};
 const ptsMult=(S,m)=>(m.act===S.sTheme?1.15:1)*(1+phaseOf(S).bonus);
 function applyPath(n,from,to){const got=[];for(let i=from;i<to;i++){const [k,l]=PATH[i];if(k==='freeze')n.freezes=Math.min(5,(n.freezes||0)+1);if(k==='title')n.title=l;if(k==='crown')n.title='Legende · Saison '+n.season;if(k!=='freeze')n.gear=[...(n.gear||[]),l+' · S'+n.season].slice(-16);got.push(l)}n.sLevel=to;return got}
 const gradeSeason=r=>{const v=Math.min(1,r.cur/(r.goal||.85))*.5+(r.met/5)*.25+(r.mOk?.15:0)+(r.rank<=2?.1:r.rank<=4?.05:0);return v>=.95?'S':v>=.8?'A':v>=.65?'B':v>=.45?'C':'D'};
-function SeasonStrip({c}){const {S}=c;const ph=phaseOf(S),lv=Math.min(S.sLevel||0,PATH.length),done=lv>=PATH.length,need=done?pathMax(S):pathStep(S,lv),prev=lv?pathStep(S,lv-1):0,p=done?1:clamp((S.seasonPts-prev)/Math.max(1,need-prev),0,1),w=Math.min(SL(S),Math.floor(S.day/7)+1);
+function SeasonStrip({c}){const {S}=c;const ph=phaseOf(S),lv=Math.min(S.sLevel||0,PATH.length),done=lv>=PATH.length,need=done?pathMax(S):pathStep(S,lv),prev=lv?pathStep(S,lv-1):0,p=done?1:clamp((S.seasonPts-prev)/Math.max(1,need-prev),0,1),w=Math.min(SL(S),seasonWeek(S)+1);
  return html`<button onClick=${()=>c.openSheet({t:'spath'})} className="card w-full p-3.5 mb-4 text-left flex items-center gap-3" style=${{borderRadius:20}}>
   <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style=${{background:`color-mix(in srgb,${ph.col} 13%,transparent)`,color:ph.col,boxShadow:`0 0 0 1px color-mix(in srgb,${ph.col} 27%,transparent) inset`}}><${Icon} n=${ph.ic} s=${20}/></div>
   <div className="flex-1 min-w-0"><div className="flex items-center justify-between gap-2"><div className="text-[13px] font-bold truncate">Saison ${S.season} · <span style=${{color:ph.col}}>${ph.n}</span>${ph.bonus?html` <span className="num text-[11px]" style=${{color:ph.col}}>+10 %</span>`:''}</div><div className="num text-[11px] mute shrink-0">W${w}/${SL(S)} · <b className="ink">${weekScore(S,c.D).total}</b>/100</div></div>
    <div className="mt-1.5"><${Bar} pct=${p} h=${5} color=${`linear-gradient(90deg,${ph.col},var(--acc))`}/></div>
    <div className="text-[11px] mute mt-1 truncate">${done?'Pfad abgeschlossen · Gipfel erreicht':`Nächste Belohnung: ${PATH[lv][1]} in ${Math.max(0,need-S.seasonPts)} Pkt.`}</div></div>
   <${Icon} n="chevR" s=${16} cls="mute"/></button>`}
-function SeasonPath({c}){const {S}=c;const ph=phaseOf(S),lv=S.sLevel||0,L=SL(S),w=Math.floor(S.day/7);
+function SeasonPath({c}){const {S}=c;const ph=phaseOf(S),lv=S.sLevel||0,L=SL(S),w=seasonWeek(S);
  const ic={badge:'award',freeze:'shield',title:'star',crown:'crown'};
  const desc={freeze:'Schützt deine Serie an einem verpassten Tag',title:'Neuer Titel in deinem Profil',crown:'Gipfelziel erreicht: Saison-Krone und Titel „Legende“',badge:'Abzeichen für deine Sammlung'};
  return html`<${Sheet} sub=${`Saison ${S.season} · ${TIERS[S.tier||0]}-Liga`} title="Saison-Pfad" onClose=${c.closeSheet}>
@@ -1347,7 +1408,7 @@ function NemesisScene({activity,now,pulse,last,behind}){const I=useId().replace(
  ${say&&html`<g key=${'b'+say.k} style=${{animation:'pop .35s ease-out'}}><rect x="206" y="44" width=${say.t.length*7.4+22} height="28" rx="14" fill="#F5F3FF"/><path d="M216 70 L210 82 L226 71Z" fill="#F5F3FF"/><text x="217" y="62" fontSize="13" fontWeight="800" fill="var(--acc-d2)">${say.t}</text></g>`}
  </svg>`}
 /* ───── NEMESIS: Karte, Zeitleiste, Vergleich, Prototyp-Uhr ───── */
-const nowMinOf=c=>c.simMin!=null?c.simMin:(()=>{const d=new Date(c.now);return d.getHours()*60+d.getMinutes()})();
+const nowMinOf=c=>c.simMin!=null?c.simMin:calendarMinutes(c.now,c.S);
 function nemLine(X,Z,Y,cur,night){
  if(Y&&X>=Y)return'Alles erledigt. Morgen wieder.';
  if(night)return X>0?'Ich schlafe. Du hast geliefert. Morgen um 6 wieder.':'Ich schlafe. Morgen um 6 geht es los.';
@@ -1403,7 +1464,7 @@ function Home({c}){const {S,D}=c;const now=nowMinOf(c);
  const hr=Math.floor(now/60),greet=hr<5?'Gute Nacht':hr<11?'Guten Morgen':hr<17?'Guten Tag':hr<22?'Guten Abend':'Gute Nacht';
  const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fl=flameOf(S.streak),fm=focusMode(S);
  return html`<div className="screen px-4 pb-6">
- <div className="flex items-start justify-between pt-5 pb-3 gap-2"><div className="min-w-0"><div className="lbl truncate">${greet}${nm?', '+nm:''} · ${deDate(c.now)}</div><h1 className="disp text-[32px] mt-1 leading-none">Heute</h1></div>
+ <div className="flex items-start justify-between pt-5 pb-3 gap-2"><div className="min-w-0"><div className="lbl truncate">${greet}${nm?', '+nm:''} · ${deDate(c.now,calendarZone(S))}</div><h1 className="disp text-[32px] mt-1 leading-none">Heute</h1></div>
   <div className="flex items-center shrink-0"><span title=${fl.t} className="flex items-center gap-1 pr-1.5" style=${{color:fl.c,minHeight:44}}><${Icon} n="flame" s=${15}/><span className="num text-[13px] font-bold">${S.streak}</span><span className="sr-only">Tage Serie</span></span>
    <button aria-label="Menü und Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0" style=${{color:'var(--gold)'}}><${Icon} n="laurel" s=${28} sw=${1.6}/></button>
    <button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0 p-0"><span className="w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-bold" style=${{background:'var(--card2)',border:'1px solid var(--line2,var(--line))',color:'var(--ink)'}}>${ini}</span></button></div></div>
@@ -1452,7 +1513,7 @@ function NextList({c}){const {S,D}=c;const skip=(nextAction(S)||{m:{}}).m.id;con
   <button aria-label=${m.title+' bearbeiten'} onClick=${()=>c.openSheet({t:'medit',mid:m.id})} className="bg-transparent border-0 mute p-1 shrink-0"><${Icon} n="dots" s=${16}/></button></div>`})}</div></div>`}
 /* Reflexion als eine Zeile */
 function ReflectLine({c}){const {S,D}=c;const L=S.life,r=reviewToday(S),due=LC.reviewWeek(L),now=nowMinOf(c),toSun=6-D.di;const ci=!r&&now>=1080;const hot=due!=null||ci;
- const txt=due!=null?'Wochenrückblick bereit':ci?'Daily Debrief: 1 Minute':(r?'Debrief erledigt':'Debrief ab 18 Uhr')+' · Rückblick '+(toSun===0?'heute':'in '+toSun+(toSun===1?' Tag':' Tagen'));
+ const days=toSun===0?7:toSun;const txt=due!=null?'Wochenrückblick bereit':ci?'Daily Debrief: 1 Minute':(r?'Debrief erledigt':'Debrief ab 18 Uhr')+' · Rückblick in '+days+(days===1?' Tag':' Tagen');
  return html`<button onClick=${()=>due!=null?c.openSheet({t:'weekly'}):ci?c.openSheet({t:'review'}):c.setTab('reflect')} className="w-full mt-3 flex items-center gap-3 px-3.5 py-3 rounded-[14px] text-left border-0" style=${{background:hot?'rgba(var(--acc-rgb),.12)':'transparent',boxShadow:'0 0 0 1px '+(hot?'rgba(var(--acc2-rgb),.35)':'var(--line)')+' inset',color:'var(--ink)'}}>
  <span className=${hot?'acc':'mute'}><${Icon} n="owl" s=${18}/></span><span className=${'flex-1 text-[13.5px] '+(hot?'font-semibold':'mute')}>${txt}</span><${Icon} n="chevR" s=${15} cls="mute"/></button>`}
 /* Nemesis als eine Zeile, Szene im eigenen Sheet */
@@ -1597,7 +1658,7 @@ function Tasks({c}){
  const opts=[['today','Fokus'],['all','Alle'],...(S.ui==='adv'?GROUPS.map(g=>[g.id,g.name]):[]),...Object.keys(S.acts).filter(id=>D.allM.some(m=>m.act===id)).map(id=>[id,S.acts[id].name])];
  const nd=fm.filter(m=>isDone(S,m)).length;
  return html`<div className="screen px-4 pb-6">
- <div className="pt-5 flex items-end justify-between gap-3"><div className="min-w-0"><div className="lbl truncate">${deDate(c.now)}</div><h1 className="disp text-[32px] mt-1 leading-none">Aufgaben</h1></div>
+ <div className="pt-5 flex items-end justify-between gap-3"><div className="min-w-0"><div className="lbl truncate">${deDate(c.now,calendarZone(S))}</div><h1 className="disp text-[32px] mt-1 leading-none">Aufgaben</h1></div>
   <div className="flex gap-2 shrink-0"><button aria-pressed=${view==='plan'} aria-label="Tagesplan anzeigen" onClick=${()=>setView(view==='plan'?'list':'plan')} className="icon-btn"><${Icon} n="calendar" s=${20} sw=${2}/></button><button aria-label="Aufgabe hinzufügen" onClick=${()=>c.openSheet({t:'add'})} className="btn w-11 h-11 flex items-center justify-center"><${Icon} n="plus" s=${22} sw=${2.4}/></button></div></div>
  <${DayProgress} c=${c} tap=${false}/>
  ${view==='plan'?html`<div className="mt-3"><${DayPlanner} c=${c}/></div>`:html`
@@ -1641,7 +1702,7 @@ function SelfCompare({c}){
    Nur Darstellung und Anordnung; Daten und Handler kommen aus den bestehenden Funktionen. Illustrationen beziehen Farben aus Theme- und Rollen-Tokens. */
 const slotOf=now=>now<300||now>=1200?'Nacht':now<660?'Morgen':now<900?'Mittag':'Abend';
 const SLOT_PAL={Morgen:['var(--mt1)','var(--acc)',1,'var(--stone)',135],Mittag:['var(--mt2)','var(--stone)',.35,'var(--stone)',75],Abend:['var(--mt1)','var(--acc-d)',1,'var(--stone)',130],Nacht:['var(--bg)','var(--mute)',.3,'var(--mute)',65]};
-const deDate=t=>new Date(t).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
+const deDate=(t,tz)=>new Date(t).toLocaleDateString('de-DE',{timeZone:tz,weekday:'long',day:'numeric',month:'long'});
 /* Hoplit als Silhouette (Linolschnitt-Anmutung): Helm, Umhang, Speer und Schild bestimmen die Kontur */
 function HopliteFig({cape='var(--nem)',plume=true,ghost}){const dk=ghost?'var(--mute)':'var(--scene-silhouette)',dk2=ghost?'var(--mute)':'var(--scene-silhouette)',dk3=ghost?'var(--mute)':'var(--scene-armour)',ac=ghost?'var(--mute)':cape;
  return html`<g><path d="M52 50 C70 52 92 60 108 88 C100 84 96 90 100 104 C92 100 86 108 90 122 C70 112 58 104 46 92Z" fill=${cape}/><path d="M52 50 C66 56 82 66 92 84" fill="none" stroke="var(--acc2)" strokeWidth="1.2" opacity=".6"/>
@@ -1695,19 +1756,20 @@ function NemDuel({c}){const {S}=c;const now=nowMinOf(c);const d=duelNow(S,now),{
  <div className="card p-4 mt-2"><div className="flex items-center justify-between"><span className="lbl">Tagesverlauf</span><button onClick=${()=>c.openSheet({t:'nemplan'})} className="chip flex items-center gap-1"><${Icon} n="edit" s=${12}/>Plan</button></div><${NemTimeline} plan=${plan} now=${now} c=${c}/></div>
  <div className="text-[12px] mute mt-3 px-1 leading-snug">Der Nemesis erledigt deinen eigenen Tagesplan in Tageszeit-Reihenfolge. Er ist der Maßstab, nicht der Richter.</div>`}
 /* Stats: Saison-Fresko (jeder Tag eine Kachel) und Kompass (Richtung des größten Bedarfs) */
-function SeasonFresco({c}){const {S,D}=c;const N=SDAYS(S),L=SL(S),wk=Math.min(L,Math.floor(S.day/7)+1),tp=dayProg(S,D),tr=tp.t?tp.n/tp.t:0;
+function SeasonFresco({c}){const {S,D}=c;const N=SDAYS(S),L=SL(S),wk=Math.min(L,seasonWeek(S)+1),tp=dayProg(S,D),tr=tp.t?tp.n/tp.t:0;
  const ratio=i=>{const w=(S.wlog||{})[S.season+'-'+i];if(!w)return null;return w.ps?w.pd/w.ps:(w.g?1:0)};
  return html`<div className="card p-4 mt-3"><div className="flex justify-between items-baseline gap-2"><span className="lbl truncate">Saison ${S.season}${S.acts[S.sTheme]?' · '+S.acts[S.sTheme].name:''}</span><b className="num text-[15px] shrink-0">Woche ${wk} von ${L}</b></div>
  <div className="fresco" role="img" aria-label=${'Saison-Fresko: Tag '+(S.day+1)+' von '+N}>${Array.from({length:N},(_,i)=>{let st;if(i<S.day){const r=ratio(i);st=r==null||r<=0?{background:'var(--line)',borderColor:'transparent'}:{background:'var(--acc)',opacity:.35+.65*Math.min(1,r),borderColor:'transparent'}}else if(i===S.day)st={background:`linear-gradient(to top,var(--acc) ${Math.round(tr*100)}%,transparent ${Math.round(tr*100)}%)`,borderColor:'var(--ink)'};else st={opacity:.5};return html`<i key=${i} style=${st}/>`})}</div>
  <div className="text-[12px] mute text-center mt-2.5">Saison-Fresko · jeder Tag ist eine Kachel · Tag ${S.day+1} von ${N}</div></div>`}
 const COMPASS_DE={health:'Gesundheit',relationships:'Beziehungen',wealth:'Finanzen',growth:'Entwicklung'};
-function StatsCompass({c}){const {S}=c;const L=S.life;const vals=LC.AREAS.map(a=>((L.areas||{})[a.id]||{sat:3}).sat||3),mi=vals.indexOf(Math.min(...vals)),ma=LC.AREAS[mi];
+function StatsCompass({c}){const {S}=c;const C=LC.compassState(S),ma=C.area&&LC.AREA[C.area],mi=ma?LC.AREAS.findIndex(a=>a.id===ma.id):-1;
  const pos=[[100,-2,'middle'],[200,104,'end'],[100,212,'middle'],[0,104,'start']];
- return html`<button onClick=${()=>{c.setTSel(ma.id);c.setTab('life')}} className="card w-full p-4 mt-2 text-left block" aria-label=${'Kompass: größter Bedarf bei '+COMPASS_DE[ma.id]+'. Bereich öffnen'}><span className="lbl block">Kompass · Richtung des größten Bedarfs</span>
- <svg viewBox="-14 -14 228 228" width="62%" style=${{display:'block',margin:'8px auto 4px'}} aria-hidden="true"><circle cx="100" cy="100" r="78" fill="none" stroke="var(--line2,var(--line))" strokeWidth="1.5"/><circle cx="100" cy="100" r="64" fill="none" stroke="var(--line)"/><path d="M100 28 L108 92 L172 100 L108 108 L100 172 L92 108 L28 100 L92 92Z" fill="var(--line)" opacity=".6"/>
+ return html`<button onClick=${()=>{if(ma)c.setTSel(ma.id);c.setTab('life')}} className="card w-full p-4 mt-2 text-left block" aria-label=${ma?'Kompass: '+ma.de+'. Bereich öffnen':'Kompass: Lebensbereiche einschätzen'}><span className="lbl block">Kompass · deine Einschätzung</span>
+ ${ma&&html`<svg viewBox="-14 -14 228 228" width="62%" style=${{display:'block',margin:'8px auto 4px'}} aria-hidden="true"><circle cx="100" cy="100" r="78" fill="none" stroke="var(--line2,var(--line))" strokeWidth="1.5"/><circle cx="100" cy="100" r="64" fill="none" stroke="var(--line)"/><path d="M100 28 L108 92 L172 100 L108 108 L100 172 L92 108 L28 100 L92 92Z" fill="var(--line)" opacity=".6"/>
  ${LC.AREAS.map((a,i)=>html`<text key=${a.id} x=${pos[i][0]} y=${pos[i][1]} textAnchor=${pos[i][2]} fontSize="12" fontFamily="Inter" fontWeight=${i===mi?700:500} fill=${i===mi?'var(--acc2)':'var(--mute)'}>${COMPASS_DE[a.id]}</text>`)}
- <g style=${{transformOrigin:'100px 100px',transform:`rotate(${mi*90}deg)`,transition:'transform .6s cubic-bezier(.16,1,.3,1)'}}><polygon points="100,26 93,100 107,100" fill="var(--acc)"/><polygon points="100,174 95,100 105,100" fill="var(--mute)" opacity=".5"/></g><circle cx="100" cy="100" r="7" fill="var(--gold)"/></svg>
- <span className="block text-center text-[15px]">Die Nadel zeigt auf <b className="acc">${COMPASS_DE[ma.id]}</b>: dort ist deine Zufriedenheit am niedrigsten (${vals[mi]}/5).</span></button>`}
+ <g style=${{transformOrigin:'100px 100px',transform:`rotate(${mi*90}deg)`,transition:'transform .6s cubic-bezier(.16,1,.3,1)'}}><polygon points="100,26 93,100 107,100" fill="var(--acc)"/><polygon points="100,174 95,100 105,100" fill="var(--mute)" opacity=".5"/></g><circle cx="100" cy="100" r="7" fill="var(--gold)"/></svg>`}
+ <span className="block text-center text-[15px] mt-3">${ma?html`Deine niedrigste Einschätzung: <b className="acc">${ma.de}</b> (${C.min}/5).`:C.state==='tie'?'Mehrere Bereiche sind gleich bewertet. Du entscheidest, was jetzt wichtig ist.':'Noch keine eigene Einschätzung. Bewerte deine Lebensbereiche, wenn du möchtest.'}</span>
+ ${C.known<4&&C.known>0&&html`<span className="block text-center mute text-[12px] mt-2">${C.known} von 4 Bereichen bewertet. Die übrigen sind noch offen.</span>`}</button>`}
 /* Duell nach Prototyp: Nemesis heute oder Schatten über die Saison */
 function Solo({c}){const {S}=c;const [mode,setMode]=useState('nem');const r=rankOf(S);
  return html`<div className="screen px-4 pb-6">
@@ -2501,7 +2563,7 @@ function ColumnDetails({c,area,st}){const {S}=c;const L=S.life,a=LC.AREA[area],c
  const exp=(L.exps||[]).filter(e=>LC.goalById(L,e.goalId)&&LC.goalById(L,e.goalId).area===area).slice(-1)[0];
  const rev=(L.reviews||[]).slice().reverse().find(r=>(r.rows||[]).some(x=>(LC.goalById(L,x.goalId)||{}).area===area)&&(r.worked||r.notWorked));
  const worse=col.weathered&&goals.map(g=>({g,t:LC.trend(L,g,wk,2)})).find(x=>x.t.state==='worse');
- const sat=(L.areas[area]||{sat:3}).sat,f=L.focus===area;
+ const sat=LC.areaRating(L,area),f=L.focus===area;
  const Sec=({t,children})=>html`<div className="mt-3.5"><div className="lbl mb-1.5">${t}</div>${children}</div>`;
  return html`<div className="card p-4 mt-3" key=${area} style=${{animation:'fadeIn .3s ease-out'}}>
  <div className="flex items-center gap-3"><span className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style=${{background:'var(--card2)',color:a.color,border:'1px solid var(--line)'}}><${Icon} n=${a.icon} s=${20}/></span>
@@ -2516,7 +2578,7 @@ function ColumnDetails({c,area,st}){const {S}=c;const L=S.life,a=LC.AREA[area],c
   <button onClick=${()=>c.openSheet({t:'trules'})} className="bg-transparent border-0 p-0 mt-1.5 acc font-semibold text-[12.5px]">Bauregeln ansehen</button><//>
  ${(exp||rev)&&html`<${Sec} t="Letzte Erkenntnis"><div className="text-[13px] leading-snug">${exp?html`<span className="acc"><${Icon} n="flask" s=${13}/></span> ${exp.label} · <span className="mute">${(EXP_ST[exp.status]||EXP_ST.running)[0]}</span>`:html`${rev.worked?'Lief: '+rev.worked:''}${rev.worked&&rev.notWorked?' · ':''}${rev.notWorked?'Hakte: '+rev.notWorked:''}`}</div><//>`}
  ${na&&html`<${Sec} t="Nächste Handlung"><${MRow} m=${na.m} c=${c}/><//>`}
- <div className="flex items-center gap-2 mt-3.5 pt-3 border-t ln"><span className="text-[12px] mute flex-1">Deine Zufriedenheit</span><div className="flex" role="radiogroup" aria-label=${'Zufriedenheit '+a.de}>${[1,2,3,4,5].map(v=>html`<button key=${v} role="radio" aria-checked=${sat===v} aria-label=${v+' von 5'} onClick=${()=>c.setAreaSat(area,v)} className="border-0 bg-transparent py-2 px-[2px]"><span className="block rounded-full" style=${{width:16,height:6,background:v<=sat?a.color:'var(--ghost)'}}/></button>`)}</div></div>
+ <div className="flex items-center gap-2 mt-3.5 pt-3 border-t ln"><span className="text-[12px] mute flex-1">Deine Zufriedenheit${sat==null?' · noch offen':''}</span><div className="flex" role="radiogroup" aria-label=${'Zufriedenheit '+a.de}>${[1,2,3,4,5].map(v=>html`<button key=${v} role="radio" aria-checked=${sat===v} aria-label=${v+' von 5'} onClick=${()=>c.setAreaSat(area,v)} className="border-0 bg-transparent py-2 px-[2px]"><span className="block rounded-full" style=${{width:16,height:6,background:v<=sat?a.color:'var(--ghost)'}}/></button>`)}</div></div>
  <div className="text-[11.5px] mute mt-1">Wirkt auf: ${LC.LINKS.filter(([x])=>x===area).map(([,b,t])=>LC.AREA[b].de+' ('+t+')').join(' · ')}</div></div>`}
 
 /* Lebensbereiche wie im Prototyp: vier Kacheln mit Linien-Icon, Name, Mini-Balken; Tippen wählt die Säule */
@@ -2706,7 +2768,7 @@ function MainGoalCard({c}){const {S}=c;const L=S.life,g=mainGoal(S);
 function ReflectRow({c}){const {S,D}=c;const L=S.life,r=reviewToday(S),due=LC.reviewWeek(L),now=nowMinOf(c),toSun=6-D.di;
  return html`<div className="grid grid-cols-2 gap-2 mt-3">
  <button onClick=${()=>r?c.setTab('reflect'):c.openSheet({t:'review'})} className="card p-3 text-left"><div className="flex items-center gap-1.5 lbl">${r?html`<span className="good"><${Icon} n="check" s=${12} sw=${3}/></span>`:html`<${Icon} n="moon" s=${12}/>`}Daily Debrief</div><div className="text-[14px] font-semibold mt-1">${r?'Erledigt':now>=1080?'Jetzt, 1 Minute':'Heute ab 18 Uhr'}</div><div className="text-[11.5px] mute">Was lief, was stand im Weg?</div></button>
- <button onClick=${()=>due!=null?c.openSheet({t:'weekly'}):c.setTab('reflect')} className="card p-3 text-left" style=${due!=null?{boxShadow:'0 0 0 1px var(--acc2) inset'}:undefined}><div className="flex items-center gap-1.5 lbl"><${Icon} n="loop" s=${12}/>Wochenrückblick</div><div className="text-[14px] font-semibold mt-1">${due!=null?'Jetzt bereit':toSun===0?'Heute':`In ${toSun} ${toSun===1?'Tag':'Tagen'}`}</div><div className="text-[11.5px] mute">${due!=null?'Auswerten und anpassen':'Sonntag: auswerten, anpassen'}</div></button></div>`}
+ <button onClick=${()=>due!=null?c.openSheet({t:'weekly'}):c.setTab('reflect')} className="card p-3 text-left" style=${due!=null?{boxShadow:'0 0 0 1px var(--acc2) inset'}:undefined}><div className="flex items-center gap-1.5 lbl"><${Icon} n="loop" s=${12}/>Wochenrückblick</div><div className="text-[14px] font-semibold mt-1">${due!=null?'Jetzt bereit':`In ${toSun||7} ${(toSun||7)===1?'Tag':'Tagen'}`}</div><div className="text-[11.5px] mute">${due!=null?'Auswerten und anpassen':'Sonntag: auswerten, anpassen'}</div></button></div>`}
 
 function LoopWheel(){const N=[['own','compass',100,28],['exec','aspis',172,100],['feed','bars',100,172],['adapt','loop',28,100]];
  return html`<svg viewBox="0 0 200 200" className="block mx-auto mb-3" style=${{width:180,height:180}} role="img" aria-label="Kreislauf: Ownership, Execution, Feedback, Adaptation">
@@ -2785,7 +2847,7 @@ function MeasureSheet({c,gid}){const {S}=c;const L=S.life,g=LC.goalById(L,gid);c
  ${v&&val==null&&html`<div className="text-[12px] bad mt-1.5">${g.metric.fmt==='time'?'Format mm:ss':'Bitte eine Zahl eingeben'}</div>`}
  <button disabled=${val==null} onClick=${()=>c.addMeas(gid,val)} className="btn w-full py-3.5 mt-3 text-sm">Messwert speichern</button>
  ${ms.length>=2&&html`<div className="card2 p-3 mt-4"><${MChart} g=${g} ms=${ms}/></div>`}
- ${ms.length>0&&html`<div className="mt-3 flex flex-col gap-1">${ms.slice(-6).reverse().map(x=>html`<div key=${x.id} className="flex justify-between text-[13px] py-1 border-b ln"><span className="mute">Woche ${LC.wkOf(x.d)+1}${x.note?' · '+x.note:''}</span><span className="num font-semibold">${LC.fmtV(g.metric,x.v)}</span></div>`)}</div>`}
+ ${ms.length>0&&html`<div className="mt-3 flex flex-col gap-1">${ms.slice(-6).reverse().map(x=>html`<div key=${x.id} className="flex justify-between text-[13px] py-1 border-b ln"><span className="mute">Woche ${LC.wkOf(x.d,L)+1}${x.note?' · '+x.note:''}</span><span className="num font-semibold">${LC.fmtV(g.metric,x.v)}</span></div>`)}</div>`}
  <div className="text-[11.5px] mute mt-3 leading-relaxed">Messwerte bringen keine Spielpunkte. Sie zeigen, ob dein Plan wirkt, und fließen in den Wochenrückblick ein.</div><//>`}
 
 function ValuesSheet({c}){const {S}=c;const [sel,setSel]=useState(()=>(S.principles||[]).map(p=>p.n));const [own,setOwn]=useState('');const [tr,setTr]=useState(S.tradition||'Keine');
@@ -3539,7 +3601,7 @@ const newOb=name=>({obv:2,story:1,short:false,step:0,dir:1,name:name||'',age:'',
 /* Neues Onboarding → bisheriges Spielstand-Format, danach Life-Modell befüllen */
 const AREA_PRI={health:'fit',relationships:'rel',wealth:'fin',growth:'intel'};
 function obCompat(ob){const A=ob.areas||{};const f=ob.focus||(ob.goal&&ob.goal.area)||'health';return{...ob,pri:[AREA_PRI[f]],sat:{fit:A.health,rec:A.health,rel:A.relationships,fin:A.wealth,career:A.wealth,intel:A.growth,char:A.growth,time:A.growth},goals:[],stats:{},missions:[{k:'ref',...MP.ref}],ui:'basic'}}
-function lifeFromOb(n,ob){LC.ensureLife(n);const L=n.life;L.values=[...(ob.values||[])];const SD=ob.stds||{};n.principles=L.values.map(v=>({id:'p'+uid(),n:v,acts:0,std:(SD[v]||'').trim()||undefined}));n.tradition='Keine';L.why={text:(ob.why||'').trim(),q:(ob.cost||[]).length?{cost:[...ob.cost]}:{}};L.areas=Object.fromEntries(LC.AREAS.map(a=>[a.id,{sat:(ob.areas||{})[a.id]||3}]));L.focus=ob.focus||(ob.goal&&ob.goal.area)||null;L.areasSet=!!ob.areasSet;if(ob.audit&&Object.keys(ob.audit.areas||{}).length)L.audit=JSON.parse(JSON.stringify(ob.audit));{const fu=LC.cleanFuture(ob.future);if(Object.keys(fu).length)L.future=fu}L.focusMode=!!ob.focusMode;
+function lifeFromOb(n,ob){LC.ensureLife(n);const L=n.life;L.values=[...(ob.values||[])];const SD=ob.stds||{};n.principles=L.values.map(v=>({id:'p'+uid(),n:v,acts:0,std:(SD[v]||'').trim()||undefined}));n.tradition='Keine';L.why={text:(ob.why||'').trim(),q:(ob.cost||[]).length?{cost:[...ob.cost]}:{}};L.areas=Object.fromEntries(LC.AREAS.map(a=>[a.id,{sat:(ob.areas||{})[a.id]||3,known:!!ob.areasSet}]));L.focus=ob.focus||(ob.goal&&ob.goal.area)||null;L.areasSet=!!ob.areasSet;if(ob.audit&&Object.keys(ob.audit.areas||{}).length)L.audit=JSON.parse(JSON.stringify(ob.audit));{const fu=LC.cleanFuture(ob.future);if(Object.keys(fu).length)L.future=fu}L.focusMode=!!ob.focusMode;
  if(ob.goal&&!(ob.skip||{}).goal&&draftOk(ob.goal)&&planOk(ob.goal)){const x=draftOut(ob.goal);if(ob.firstWhen&&x.actions[0])x.actions[0].when=ob.firstWhen;const g=LC.addGoal(n,x);const a=LC.actionsOf(L,g.id)[0];if(a){const day=ob.start==='tomorrow'?1:0;n.nextPrio={k:n.season+'-'+(n.day+day),mid:a.missionId};
   if(ob.story){const r=obRisk(ob);L.onboard={for:(L.d||0)+day,mid:a.missionId,when:x.actions[0].when||null,risk:r,plan:LC.ifThen(r,a.title,ob.firstWhen,a.minutes),start:ob.start||null,obst:[...(ob.obst||[])],ctrl:(ob.ctrl||[]).length,loop:ob.loopPick||null,own:ob.own&&(ob.own.next||'').trim()?{can:[...(ob.own.can||[])],cant:[...(ob.own.cant||[])],next:ob.own.next.trim()}:null,signed:ob.signed||null}}}}}
 /* Fundament: Standards, Commitment, gesehene Module, Pausenstatus */
@@ -3814,13 +3876,17 @@ function PerfectDay({S,onClose}){
 const useNow=ms=>{const [n,setN]=useState(Date.now());useEffect(()=>{const t=setInterval(()=>setN(Date.now()),ms);return()=>clearInterval(t)},[ms]);return n};
 const METRICS={'5-km-Lauf':[true,S=>S.stats.run5k.last,fmtT],'Bankdrücken (Verbesserung)':[false,S=>S.stats.bench.ver,x=>n1(x)+' kg'],'100 m Schwimmen':[true,S=>S.stats.swim.pr,fmtT],'Lese-Konstanz':[false,()=>120,x=>Math.round(x)+' Min.'],'Fokus-Stunden':[false,()=>18,x=>n1(x)+' h'],'Spar-Konstanz':[false,()=>5,x=>Math.round(x)+' Tage']};
 function App({init,auth,skey='war_within_v5'}){
- const [S,setS]=useState(()=>{const s=LC.ensureLife(init||loadState(skey));WC.ensure(s);LC.syncTemple(s);return s});
+ const [S,setS]=useState(()=>{const s=syncCalendar(LC.ensureLife(init||loadState(skey)));WC.ensure(s);LC.syncTemple(s);return s});
  const [tSel,setTSel]=useState(null),[tFlash,setTFlash]=useState(null);
  const [tab,setTab]=useState('home'),[statTab,setStatTab]=useState('out'),[sheet,setSheet]=useState(null),[sel,setSel]=useState(null),[coreSel,setCoreSel]=useState(null),[freq,setFreq]=useState('all');
  const [toasts,setToasts]=useState([]),[floats,setFloats]=useState([]),[flash,setFlash]=useState({}),[sparks,setSparks]=useState([]),[undo,setUndo]=useState(null);
  useEffect(()=>{if(!undo)return;const t=setTimeout(()=>setUndo(u=>u&&u.id===undo.id?null:u),5000);return()=>clearTimeout(t)},[undo&&undo.id]);
  const now=useNow(1000);const scrollRef=useRef(null);const [scrolled,setScrolled]=useState(false);const [fabOff,setFabOff]=useState(false);const lastY=useRef(0);const lock=useRef({});
- const upd=useCallback(fn=>setS(p=>{const n=structuredClone(p);fn(n);if(n.life)LC.syncTemple(n);return n}),[]);
+ const upd=useCallback(fn=>setS(p=>{const n=structuredClone(p);syncCalendar(n);fn(n);if(n.life)LC.syncTemple(n);return n}),[]);
+ const date=calendarDate(now,calendarZone(S));
+ useEffect(()=>{upd(n=>syncCalendar(n,now))},[date,calendarZone(S)]);
+ useEffect(()=>{const resume=()=>upd(n=>syncCalendar(n));addEventListener('focus',resume);document.addEventListener('visibilitychange',resume);return()=>{removeEventListener('focus',resume);document.removeEventListener('visibilitychange',resume)}},[]);
+ useEffect(()=>{setUndo(null);setSheet(null)},[S.calendar&&S.calendar.date]);
  const D=useMemo(()=>derive(S),[S]);
  useEffect(()=>{try{localStorage.setItem(skey,JSON.stringify(S))}catch(e){}},[S]);
  useEffect(()=>{if(scrollRef.current)scrollRef.current.scrollTop=0;setScrolled(false)},[tab,statTab]);
@@ -3842,7 +3908,7 @@ function App({init,auth,skey='war_within_v5'}){
  /* Missionen */
  const cref=useRef(),lref=useRef(),sref=useRef();
  /* Pünktlichkeit: im geplanten Fenster (früher zählt auch) +20 %, 30 Min. Kulanz, keine Strafe bei Verspätung */
- const nowM=simMin!=null?simMin:(()=>{const d=new Date(now);return d.getHours()*60+d.getMinutes()})();
+ const nowM=simMin!=null?simMin:calendarMinutes(now,S);
  const nemPlanNow=useMemo(()=>buildNemesisPlan(nemTasks(S)),[S]);
  const PUNCT=20,GRACE=30;
  const punctOf=mid=>{const p=nemPlanNow.find(x=>x.id===mid&&!x.virtual&&x.kind!=='sleep');return !!p&&nowM>=nemPlanNow[0].start-180&&nowM<=(p.fixed?p.start:p.end)+GRACE};
@@ -3988,7 +4054,7 @@ function App({init,auth,skey='war_within_v5'}){
  const addMeas=(gid,v)=>{const g=LC.goalById(S.life,gid),hit=g&&g.status==='active'&&LC.reached(g,v);lifeUpd(n=>{LC.addMeasurement(n,gid,v)});setSheet(null);toast(hit?'Zielwert erreicht! Das ist echter Fortschritt.':'Messwert gespeichert. Er fließt in den Wochenrückblick ein.','good')};
  const saveWeekly=p=>{lifeUpd(n=>{Object.entries(p.decisions||{}).forEach(([id,d])=>LC.decideExperiment(n,id,d));const e=p.exp?LC.startExperiment(n,{...p.exp,wk:p.wk}):null;LC.saveWeeklyReview(n,{wk:p.wk,rate:p.rate,rows:p.rows,worked:p.worked,notWorked:p.notWorked,obstacle:p.obstacle,expStarted:e&&e.id,expLabel:e&&e.label})});setSheet(null);toast(p.exp?'Experiment gestartet. Im nächsten Rückblick prüfst du, ob es wirkt.':'Wochenrückblick gespeichert.','good')};
  const toggleFocusMode=()=>{const on=focusMode(S);lifeUpd(n=>{n.life.focusMode=!on;if(on&&n.life.fund&&n.life.fund.ob)n.life.fund.ob={...n.life.fund.ob,calmOff:true}});toast(on?'Fokusmodus aus: Liga, Nemesis und Punkte sind wieder da.':'Fokusmodus an: Ziele, Handlungen und Reflexion.','good')};
- const setAreaSat=(id,v)=>lifeUpd(n=>{n.life.areas[id]={...(n.life.areas[id]||{}),sat:v}});
+ const setAreaSat=(id,v)=>lifeUpd(n=>{n.life.areas[id]={...(n.life.areas[id]||{}),sat:v,known:true}});
  const setFocusArea=id=>{lifeUpd(n=>{n.life.focus=id});toast(LC.AREA[id].de+' hat jetzt Priorität.','good')};
  const setMainGoal=gid=>{lifeUpd(n=>{n.life.main=gid});setSheet(null);toast('Hauptziel geändert.','good')};
  const saveValues=(list,tr)=>{lifeUpd(n=>{const old=n.principles||[];n.principles=list.map(v=>old.find(p=>p.n===v)||{id:'p'+uid(),n:v,acts:0});n.tradition=tr;n.life.values=[...list]});setSheet(null);toast('Werte gespeichert.','good')};
@@ -4011,44 +4077,9 @@ function App({init,auth,skey='war_within_v5'}){
   upd(n=>{const c=n.challenges.find(k=>k.id===id);c.status='done';c.res=r;const s=c.stake;if(r.win==='me'){n.adj+=s;n.seasonPts+=s;n.others[c.who]=Math.max(0,n.others[c.who]-s);n.flags.won=true}else if(r.win==='other'){n.adj-=s;n.seasonPts=Math.max(0,n.seasonPts-s);n.others[c.who]+=s}checkAch(n)});
   toast(r.win==='me'?`Duell gewonnen! +${x.stake} Pkt.`:r.win==='draw'?'Unentschieden.':`Duell verloren: −${x.stake} Pkt. Dein Fortschritt bleibt.`,r.win==='me'?'good':undefined)};
  /* Tageswechsel */
- const advance=()=>{const idle=S.streak>0&&todayTotal(S)===0&&!S.rest.includes(S.day);upd(n=>{LC.ensureLife(n);LC.onAdvance(n);
-  const di=n.day%7,week=Math.floor(n.day/7);const was=derive(n);{const nt=nemTasks(n).filter(t=>t.kind!=='sleep'),X=nt.filter(t=>t.done).length;if(nt.length){n.duel=n.duel||{streak:0};n.duel.streak=X>=nt.length?(n.duel.streak||0)+1:0;n.duel.last={x:X,y:nt.length}}}n.wlog=n.wlog||{};n.wlog[dayKey(n)]={...dayLive(n)};
-  if((n.todayPts[n.mArea]||0)>0)n.mDays=(n.mDays||0)+1;
-  const had=todayTotal(n)>0||n.rest.includes(n.day),lose=!had&&!((n.freezes||0)>0)&&n.streak>0;
-  n.snaps=[...(n.snaps||[]),{season:n.season,day:n.day,cats:{...n.catScore},streak:n.streak}].slice(-120);
-  if(had)n.idle=0;else{n.idle=(n.idle||0)+1;if(n.idle>=3&&!n.comeback){n.comeback=true;n.cbDone=0;n.nemMsg={t:'Drei Tage Pause. Ich habe keinen verpasst. Fang klein an.',ts:Date.now()}}}
-  if(lose&&!(n.nemMsg&&n.nemMsg.ts>Date.now()-1000))n.nemMsg={t:'Dein Streak ist weg. Meiner läuft weiter.',ts:Date.now()};
-  if(todayTotal(n)>0||n.rest.includes(n.day)){n.streak++;n.bestStreak=Math.max(n.bestStreak||0,n.streak);if(n.streak%7===0&&(n.freezes||0)<3)n.freezes=(n.freezes||0)+1}else if((n.freezes||0)>0){n.freezes--}else n.streak=0;
-  OTH.forEach(o=>{const add=rnd(22,46)+(n.tier||0)*2;n.others[o.id]=Math.min(PLAN_CAP,n.others[o.id]+add);n.oSeason[o.id]+=add});
-  if(di===6){
-   if(was.wk>=was.plan)n.nemMsg={t:'Diese Woche warst du besser als mein Plan. Nächste Woche werde ich stärker.',ts:Date.now()};
-   const st=standingsOf(n),me=st.find(r=>r.id==='me');recordWeek(n,me.rank);if(me.rank===1)n.flags.league=true;
-   const lag=[...was.active].sort((a,b)=>(n.weekPts[a]||0)/n.acts[a].cap-(n.weekPts[b]||0)/n.acts[b].cap)[0];
-   const bestA=[...was.active].sort((a,b)=>(n.weekPts[b]||0)/n.acts[b].cap-(n.weekPts[a]||0)/n.acts[a].cap)[0];
-   n.evalDone=false;n.aar={week:week+1,pts:weekTotal(n),rank:me.rank,leader:st[0].full,leaderPts:st[0].pts,best:n.acts[bestA].name,weak:n.acts[lag].name,reached:Math.round(weekTotal(n)/was.plan*100),done:was.doneN,score:weekScore(n,was),chapter:phaseOf(n).n};n.aar.story=weekStory(st,n.lastWkRank,week+1,n.acts[bestA].name);n.lastStory={...n.aar.story,week:week+1,season:n.season};n.lastWkRank=Object.fromEntries(st.map(x=>[x.id,x.rank]));
-   Object.keys(n.acts).forEach(k=>n.weekPts[k]=0);n.adj=0;n.subs=3;OTH.forEach(o=>n.others[o.id]=0);
-   n.missions.filter(m=>m.freq==='weekly').forEach(m=>delete n.done[m.id]);n.counts={};
-   if(week===SL(n)-1){
-    const tbl=[{n:'Du',p:n.seasonPts},...OTH.map(o=>({n:o.name,p:n.oSeason[o.id]}))].sort((a,b)=>b.p-a.p);const rank=tbl.findIndex(x=>x.n==='Du')+1;
-    const l0=was.lvC;n.base=clamp(n.base+.3*Math.min(1,was.cur),0,.9);
-    const th=n.sTheme,thCap=(n.acts[th]?n.acts[th].cap:40)*SL(n),thOk=(n.sThemePts||0)>=.8*thCap,goalOk=was.cur>=(n.sGoal||.85);
-    const areas=CORE.map(id=>{const g=(n.sAreaGoals||{})[id]||.7,p=((n.sAreaPts||{})[id]||0)/(n.acts[id].cap*SL(n));return{id,goal:g,pct:p,ok:p>=g}});const met=areas.filter(x=>x.ok).length;
-    const mOk=(n.mDays||0)>=(n.mTarget||20);const badges=['Finisher'];if(mOk)badges.push('Challenge gemeistert');if(met>=4)badges.push('Wort gehalten');if(goalOk)badges.push('Gipfel-Abzeichen');if(thOk)badges.push('Meister: '+(n.acts[th]?n.acts[th].short:th));if(rank===1)badges.push('Champion-Banner');
-    const tier0=n.tier||0;let tier1=tier0;if(rank<=2&&tier0<4)tier1++;else if(rank>=5&&tier0>0)tier1--;
-    const potNext=was.cur>=.9?.18:was.cur<.5?.08:.12;
-    {const lvE=pathLevel(n);if(lvE>(n.sLevel||0))applyPath(n,n.sLevel||0,lvE)}
-    n.sreport={season:n.season,rank,pts:n.seasonPts,cur:was.cur,l0,l1:Math.round(30+70*clamp(n.base,0,1)),table:tbl,missions:n.seasonMissions??12,ach:Object.keys(n.ach).length,theme:th,len:SL(n),goal:n.sGoal||.85,goalOk,thOk,badges,areas,met,mOk,mDays:Math.min(n.mDays||0,n.mTarget||20),mTarget:n.mTarget||20,mArea:n.mArea,tier0,tier1,potNext,focus:n.sFocus,level:n.sLevel||0};n.sreport.grade=gradeSeason(n.sreport);
-    n.sHist=[{season:n.season,theme:th,len:SL(n),rank,pts:n.seasonPts,cur:was.cur,goal:n.sGoal||.85,ok:goalOk,badges},...(n.sHist||[])].slice(0,8);
-    n.gear=[...(n.gear||[]),...badges.map(x=>x+' · S'+n.season)].slice(-12);
-    n.tier=tier1;n.potOff=potNext;n.sThemePts=0;n.sAreaPts={};n.mDays=0;n.sLocked=false;n.setup=true;
-    if(rank===1)n.flags.champ=true;if(was.cur>=.8)n.flags.improved=true;
-    n.missions.filter(m=>m.freq==='monthly').forEach(m=>delete n.done[m.id]);n.season++;n.sLevel=0;n.pathUp=null;n.baseCat={...n.catScore};n.snaps=[];n.seasonPts=0;OTH.forEach(o=>n.oSeason[o.id]=0);n.seasonCum=[0];n.rest=[];n.day=0;n.seasonMissions=0;n.sTally={};n.wlog={};n.nextPrio=null;n.flags.wasWide=false;
-   }else n.day++;
-  }else n.day++;
-  n.todayPts={};n.missions.filter(m=>m.freq==='daily'||m.freq==='multi').forEach(m=>delete n.done[m.id]);
-  n.seasonCum[n.day]=n.seasonPts;const rk=standingsOf(n);n.startRank=Object.fromEntries(rk.map(r=>[r.id,r.rank]));checkAch(n)});
+ const advance=()=>{const idle=S.streak>0&&todayTotal(S)===0&&!S.rest.includes(S.day);upd(n=>{closeCalendarDay(n);if(n.calendar)n.calendar.date=datePlus(n.calendar.date,1)});
   if(sheet&&sheet.t!=='aar')setSheet(null);toast(idle?(S.freezes>0?'Streak-Schonung eingesetzt. Deine Serie bleibt bestehen.':'Serie unterbrochen. Ein neuer Start zählt sofort.'):'Neuer Tag. Dein Tagesplan ist bereit.');if(S.health&&S.health.on)setTimeout(()=>sref.current(),1200)};
- const saveEval=g=>{upd(n=>{n.evalHist=[{week:n.aar?n.aar.week:Math.floor(n.day/7)+1,season:n.season,grades:g},...(n.evalHist||[])].slice(0,12);n.evalDone=true;n.codeCk={};CORE.forEach(id=>{const ct=n.acts[id].cat;n.catScore[ct]=Math.round(clamp((n.catScore[ct]??40)*.7+g[id]*100*.3,0,100))})});toast('Evaluation gespeichert.','good')};
+ const saveEval=g=>{upd(n=>{n.evalHist=[{week:n.aar?n.aar.week:seasonWeek(n)+1,season:n.season,grades:g},...(n.evalHist||[])].slice(0,12);n.evalDone=true;n.codeCk={};CORE.forEach(id=>{const ct=n.acts[id].cat;n.catScore[ct]=Math.round(clamp((n.catScore[ct]??40)*.7+g[id]*100*.3,0,100))})});toast('Evaluation gespeichert.','good')};
  const toggleCode=k=>upd(n=>{n.codeCk=n.codeCk||{};n.codeCk[k]=!n.codeCk[k]});
  const addProto=(id,title)=>{upd(n=>{n.missions.push({id:'x'+uid(),act:id,title:'Protokoll: '+title,pts:10,freq:'weekly',cat:n.acts[id].cat})});toast('Protokoll als Wochenmission hinzugefügt.','good')};
  const dismissAar=()=>{upd(n=>{n.aar=null});setSheet(null)};
@@ -4058,7 +4089,7 @@ function App({init,auth,skey='war_within_v5'}){
  /* Erfolge */
  const newA=S.newAch[0];
  useEffect(()=>{if(!newA)return;const t=setTimeout(()=>upd(n=>{n.newAch=n.newAch.slice(1)}),2600);return()=>clearTimeout(t)},[newA]);
- const c={auth,upd,restore:x=>setS(x),wisFav,wisDismiss,wisToggle,saveDebrief,saveEvening,saveMonthly,tSel,setTSel,tFlash,toggleWeather,toggleTempleAnim,closeTempleSeason,setSkin,addLifeGoal,updLifeGoal,setLifeGoalStatus,addMeas,saveWeekly,toggleFocusMode,setAreaSat,setFocusArea,setMainGoal,saveValues,saveWhy,setActPerWeek,removeAction,addActionTo,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,togglePush,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
+ const c={auth,upd,restore:x=>setS(syncCalendar(structuredClone(x))),wisFav,wisDismiss,wisToggle,saveDebrief,saveEvening,saveMonthly,tSel,setTSel,tFlash,toggleWeather,toggleTempleAnim,closeTempleSeason,setSkin,addLifeGoal,updLifeGoal,setLifeGoalStatus,addMeas,saveWeekly,toggleFocusMode,setAreaSat,setFocusArea,setMainGoal,saveValues,saveWhy,setActPerWeek,removeAction,addActionTo,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,togglePush,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
  const nav=[['home','Heute','home'],['tasks','Aufgaben','target'],['life','Mein Leben','grid'],['stats','Fortschritt','bars'],...(focusMode(S)?[]:[['solo','Duell','swords']])];const navKey={league:'stats',reflect:'home'}[tab]||tab;const revDue=LC.reviewWeek(S.life)!=null;
  const ach=newA&&ACHS.find(a=>a.id===newA);
  return html`<div data-theme=${S.theme} data-skin=${S.skin||'antik'} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(var(--acc-rgb),.12)'}}>
