@@ -166,3 +166,13 @@ t6('Fundament: alles löschen behält Ziele',()=>{const S=LC.ensureLife(base());
  LC.clearFoundation(S);assert.equal(S.life.audit,undefined);assert.equal(S.life.standards,undefined);assert.equal(S.principles[0].std,undefined);assert.equal(S.life.goals.length,1)});
 t6('Ältere Konten: Einladungen erst ab dem Tag nach dem ersten Öffnen',()=>{const S=base();S.day=30;LC.ensureLife(S);assert.equal(S.life.fund.ob.mode,'legacy');assert.equal(LC.nextInvite(S),null,'nicht beim ersten Öffnen');LC.onAdvance(S);assert.ok(LC.nextInvite(S),'ab dem nächsten Tag')});
 console.log('PASS standards+fundament: '+ok6.join(' · '))}
+/* Kreislauf mit Standards: Abendritual, Monats-Check, Neueinschätzung */
+{const ok7=[];const t7=(n,f)=>{f();ok7.push(n)};
+t7('Abendritual: Standard ohne Handlung für morgen festlegen',()=>{const S=LC.ensureLife(base());LC.setStandard(S.life,'health',{std:{text:'Bewegung',perWeek:2,minutes:30}});
+ const e=LC.onEvening(S,{std:'health',when:'morgens',risk:'time'});assert.equal(e.std,'health');assert.equal(e.mid,null);assert.match(e.plan,/Kurzversion \(15 Min\.\)/);LC.onAdvance(S);assert.equal(LC.eveningFor(S.life,1).std,'health');
+ assert.equal(LC.onEvening(S,{std:'wealth'}),null,'ohne Standard kein Plan')});
+t7('Monats-Check auch mit Standards ohne Ziel',()=>{const S=LC.ensureLife(base());S.life.d=21;assert.equal(LC.monthlyDue(S.life),null);LC.setStandard(S.life,'growth',{std:{text:'Lesen',perWeek:3}});assert.equal(LC.monthlyDue(S.life),0)});
+t7('Neueinschätzung: Ausgangslage bleibt, heute wird aktualisiert',()=>{const S=LC.ensureLife(base());LC.setStandard(S.life,'health',{std:{text:'x',perWeek:2},current:{sat:3}});
+ LC.rerateStandard(S.life,'health',6);const s=S.life.standards.health;assert.equal(s.base.sat,3);assert.equal(s.current.sat,6);assert.equal(s.rated.length,1);assert.equal(LC.standardProgress(S.life,'health').nowSat,6);
+ LC.setStandard(S.life,'wealth',{std:{text:'y',perWeek:1}});LC.rerateStandard(S.life,'wealth',4);assert.equal(S.life.standards.wealth.base.sat,4,'erste Einschätzung wird Ausgangslage')});
+console.log('PASS kreislauf: '+ok7.join(' · '))}

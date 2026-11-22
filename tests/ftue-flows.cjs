@@ -5,7 +5,7 @@ const source=fs.readFileSync(dir+'/index.html','utf8');
 const script=[...source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).find(s=>s.includes('function loadState'));
 const store={};const c=vm.createContext({window:{authApi:{}},React:{},htm:{bind:()=>()=>null},ReactDOM:{createRoot:()=>({render(){}})},document:{getElementById:()=>({})},localStorage:{getItem:k=>store[k]??null,setItem:(k,v)=>{store[k]=String(v)},removeItem:k=>{delete store[k]}},console});
 vm.runInContext(fs.readFileSync(dir+'/life-core.js','utf8'),c);vm.runInContext(fs.readFileSync(dir+'/wisdom-core.js','utf8'),c);
-vm.runInContext(script+'\nglobalThis.api={buildState,newOb,draftFromTpl,loadState,obScreens,obShortTarget,obCommitProposal,obCtrlCards,OB_SCREENS,derive,briefCands,dayKey,eveToday,nextAction};',c);
+vm.runInContext(script+'\nglobalThis.api={buildState,newOb,draftFromTpl,loadState,obScreens,obShortTarget,obCommitProposal,obCtrlCards,focusMode,OB_SCREENS,derive,briefCands,dayKey,eveToday,nextAction};',c);
 const a=c.api,LC=c.window.LC,ses={mode:'guest',name:'Gast'};const ok=[];const t=(n,f)=>{f();ok.push(n)};
 const ids=ob=>[...a.obScreens(ob)].map(x=>x.id);
 const finish=ob=>{const n=a.buildState(ob,ses);LC.ensureLife(n);return n};
@@ -60,4 +60,6 @@ t('Alles löschen: persönliche Angaben weg, App bleibt nutzbar',()=>{const ob=a
 t('Stufen bauen aufeinander auf: Audit prägt Eigenverantwortung',()=>{const ob=a.newOb('Jo');ob.audit=LC.setAudit(null,'mind',{obst:['energy'],change:'Abends mehr Ruhe'});
  const cards=[...a.obCtrlCards(ob)].map(x=>x[0]);assert.ok(cards.includes('Wie viel Energie ich nach einem langen Tag habe')&&cards.includes('Ob ich an müden Tagen die kleine Version mache'),'Karten aus dem eigenen Hindernis');
  assert.ok(!a.newOb('x').audit&&[...a.obCtrlCards(a.newOb('x'))].length===7,'ohne Audit nur allgemeine Karten')});
+t('Erste Woche: ruhiger Start, jederzeit aufhebbar',()=>{const ob=a.newOb('Ben');ob.commit={kind:'own',step:'x'};const n=finish(ob);assert.equal(n.life.fund.ob.calmUntil,7);assert.equal(a.focusMode(n),true,'Nemesis und Punkte zunächst im Hintergrund');
+ n.life.d=7;assert.equal(a.focusMode(n),false,'nach einer Woche alles sichtbar');n.life.d=2;n.life.fund.ob.calmOff=true;assert.equal(a.focusMode(n),false)});
 console.log('PASS ftue-flows: '+ok.join(' · '));

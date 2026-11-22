@@ -112,7 +112,7 @@ html,body{background:radial-gradient(1200px 600px at 50% -10%,var(--body-glow) 0
 @keyframes holdBar{from{width:0}to{width:100%}}
 /* ───── UX: Lesbarkeit & Tap-Ziele ───── */
 .lbl{font-size:10.5px;letter-spacing:.12em}
-[class~="text-[9px]"],[class~="text-[9.5px]"],[class~="text-[10px]"],[class~="text-[10.5px]"]{font-size:11px!important;line-height:1.45}
+[class~="text-[9px]"],[class~="text-[9.5px]"],[class~="text-[10px]"],[class~="text-[10.5px]"]{font-size:11.5px!important;line-height:1.45}
 [class~="text-[11px]"],[class~="text-[11.5px]"]{font-size:12px!important}
 .chip{min-height:32px;display:inline-flex;align-items:center;justify-content:center}
 .mute{color:color-mix(in srgb,var(--mute) 85%,var(--ink))}
@@ -153,7 +153,7 @@ input[type=range]{accent-color:var(--acc)}
 .card{box-shadow:0 1px 0 var(--hi) inset,0 10px 26px -20px rgba(0,0,0,.7)}
 [data-theme=light] .card{box-shadow:0 1px 0 #fff inset,0 8px 22px -18px rgba(60,40,140,.35)}
 /* Typografie: feste Stufen · Meta 11,5 · Hinweis 13 · Text 15 · Überschrift 18 */
-[class~="text-[9px]"],[class~="text-[9.5px]"],[class~="text-[10px]"],[class~="text-[10.5px]"],[class~="text-[11px]"]{font-size:11.5px!important;line-height:1.45}
+[class~="text-[9px]"],[class~="text-[9.5px]"],[class~="text-[10px]"],[class~="text-[10.5px]"],[class~="text-[11px]"]{font-size:12px!important;line-height:1.45}
 [class~="text-[11.5px]"],[class~="text-[12px]"],[class~="text-[12.5px]"],[class~="text-[13px]"]{font-size:13px!important;line-height:1.45}
 [class~="text-[13.5px]"],[class~="text-[14px]"],[class~="text-[14.5px]"]{font-size:15px!important;line-height:1.4}
 [class~="text-[17px]"],[class~="text-[18px]"]{font-size:18px!important}
@@ -1412,7 +1412,8 @@ function Home({c}){const {S,D}=c;const now=nowMinOf(c);
  <${StandardsToday} c=${c}/>
  <${ReflectLine} c=${c}/>
  <${InviteCard} c=${c}/>
- <div className="mt-3"><${DayScene} c=${c}/></div>
+ <${CalmCard} c=${c}/>
+ ${!fm&&html`<div className="mt-3"><${DayScene} c=${c}/></div>`}
  <${DayProgress} c=${c}/>
  ${!fm&&html`<${DuelPair} c=${c}/>`}
  ${!fm&&D.di===6&&html`<div className="mt-3"><${Finale} c=${c}/></div>`}
@@ -2298,6 +2299,7 @@ function Settings({c}){const {S}=c;
  <button onClick=${c.wisToggle} aria-pressed=${WC.enabled(S)} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="scroll" s=${18} cls="acc"/><div className="flex-1">Wisdom of the Warrior<div className="text-[11px] mute font-normal">Kurze Impulse auf Heute, im Debrief und bei Meilensteinen. Höchstens einer pro Stelle und Tag.</div></div><span className=${`chip ${WC.enabled(S)?'on':''}`}>${WC.enabled(S)?'An':'Aus'}</span></button>
  <button onClick=${()=>c.openSheet({t:'codex'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="bookmark" s=${18} cls="acc"/>Wisdom Codex öffnen</button>
  <button onClick=${c.togglePush} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="bell" s=${18} cls="acc"/><div className="flex-1">Erinnerungen<div className="text-[11px] mute font-normal">Blockstart, Rückfrage am Ende, Abendbericht um 21 Uhr. Ruhig von 21 bis 6 Uhr.</div></div><span className=${`chip ${S.push?'on':''}`}>${S.push?'An':'Aus'}</span></button>
+ <${DataBackup} c=${c}/>
  <div className="ghost p-3.5"><div className="text-[14px] font-medium flex items-center gap-3 mb-2.5"><${Icon} n="helmet" s=${18} cls="acc"/>Design</div><${Seg} opts=${[['antik','Antik'],['violet','Violett']]} val=${S.skin||'antik'} on=${c.setSkin}/></div>
  <div className="ghost p-3.5"><div className="text-[14px] font-medium flex items-center gap-3 mb-2.5"><${Icon} n="star" s=${18} cls="acc"/>Fortschrittsbild</div><${Seg} opts=${VIZ.map(v=>[v[0],v[1]])} val=${S.viz||'ball'} on=${c.setViz}/></div>
  <button onClick=${()=>c.openSheet({t:'account'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="user" s=${18} cls="acc"/>Konto & Profil</button>
@@ -2573,7 +2575,7 @@ function debriefPlan(S,D){const b=briefToday(S);const gm=goalMs(S);const ids=new
  return[...ids].map(id=>D.allM.find(m=>m.id===id)).filter(m=>m&&m.id!=='m_ref')}
 /* Abendritual: Kandidaten für morgen. Ausgelassenes zuerst; sonntags beginnt morgen eine neue Woche */
 function eveCands(S,D,skipped){const gm=goalMs(S),nw=D.di===6,seen=new Set(),out=[];const push=x=>{if(x&&!seen.has(x.m.id)){seen.add(x.m.id);out.push(x)}};
- skipped.forEach(m=>push(gm.find(x=>x.m.id===m.id&&(nw||weekLeft(S,x)>0))));gm.forEach(x=>{if(nw||weekLeft(S,x)>0)push(x)});return out.slice(0,4)}
+ skipped.forEach(m=>push(gm.find(x=>x.m.id===m.id&&(nw||weekLeft(S,x)>0))));gm.forEach(x=>{if(nw||weekLeft(S,x)>0)push(x)});const sc=Object.values((S.life&&S.life.standards)||{}).filter(x=>x.std&&!x.aid&&x.status!=='paused').map(x=>({a:{title:x.std.text,minutes:x.std.minutes,when:''},g:{title:'Standard · '+LC.AREA[x.area].de},m:{id:'std:'+x.area}}));return [...out.slice(0,4),...sc].slice(0,5)}
 const dChips=(opts,val,set)=>html`<div className="flex flex-wrap gap-1.5">${opts.map(([k,l])=>html`<button key=${k} aria-pressed=${val===k} onClick=${()=>set(val===k?null:k)} className=${`chip ${val===k?'on':''}`} style=${{minHeight:38,padding:'8px 14px',fontSize:13}}>${l}</button>`)}</div>`;
 function EveningStep({c,cands,pre}){const {S}=c;const L=S.life;const [mid,setMid]=useState(pre&&cands.some(y=>y.m.id===pre)?pre:cands[0].m.id);const x=cands.find(y=>y.m.id===mid)||cands[0];
  const [when,setWhen]=useState(()=>LC.EVE_WHEN.some(e=>e[0]===x.a.when)?x.a.when:'morgens'),[risk,setRisk]=useState(null);const st=useMemo(()=>LC.eveningStats(L),[]);
@@ -2612,6 +2614,7 @@ function MonthlyCheck({c}){const {S}=c;const L=S.life,m=LC.monthlyDue(L);const g
  <div className="text-[13px] mute -mt-1 mb-3 leading-relaxed">Einmal im Monat, nicht jeden Tag: Passt das Ziel noch zu dir, und bewegt sich das Ergebnis?</div>
  <div className="flex flex-col gap-2.5">${gs.map(g=>{const p=LC.goalProgress(L,g),t=LC.trend(L,g,wk,4),[ar,tc,tl]=TRD[t.state]||TRD.none;return html`<div key=${g.id} className="card2 p-3.5"><div className="text-[14px] font-semibold">${g.title}</div><div className="text-[12.5px] mute mt-0.5 num">${g.metric.name}: ${LC.fmtV(g.metric,LC.goalNow(L,g))} → ${LC.fmtV(g.metric,g.metric.target)} · <span style=${{color:tc}}>${ar} ${tl}</span>${p!=null?' · '+Math.round(p*100)+' %':''}</div>
   <div className="grid grid-cols-3 gap-1.5 mt-2.5">${[['keep','Behalten'],['adjust','Anpassen'],['archive','Archivieren']].map(([k,l])=>html`<button key=${k} aria-pressed=${dec[g.id]===k} onClick=${()=>setDec({...dec,[g.id]:k})} className=${`chip ${dec[g.id]===k?'on':''}`}>${l}</button>`)}</div></div>`})}</div>
+ <${MonthlyRerate} c=${c}/>
  <button onClick=${()=>c.saveMonthly(m??Math.floor(wk/4),dec)} className="btn w-full py-3.5 mt-4 text-sm">Monats-Check abschließen</button><//>`}
 
 /* ───── WISDOM OF THE WARRIOR: kurze Impulse als antike Inschrift ─────
@@ -2662,7 +2665,7 @@ function WisdomCodex({c,init}){const {S}=c;const [mode,setMode]=useState(init===
    Logik in life-core.js (window.LC). Hier nur Darstellung und Verknüpfung mit dem Spielstand. */
 const LC=window.LC;
 const aCol=id=>(LC.AREA[id]||{}).color||'var(--acc2)';
-const focusMode=S=>!!(S.life&&S.life.focusMode);
+const focusMode=S=>!!(S.life&&S.life.focusMode)||calmLeft(S)>0;
 const activeGoals=S=>((S.life&&S.life.goals)||[]).filter(g=>g.status==='active');
 const mainGoal=S=>{const L=S.life;if(!L)return null;const g=LC.goalById(L,L.main);return g&&g.status==='active'?g:activeGoals(S)[0]||null};
 function goalMs(S){const L=S.life;if(!L)return[];const mg=mainGoal(S),mid=mg&&mg.id;
@@ -2867,6 +2870,7 @@ function WeeklyReview({c}){const {S}=c;const L=S.life;const due=LC.reviewWeek(L)
  const steps=['Überblick','Erkenntnisse','Anpassung'];const pats=useMemo(()=>LC.debriefPatterns(S),[]);const [pat,setPat]=useState(null);
  const usePat=p=>{setPat(p);setGid(p.goalId);setAid(p.aid);setOb(p.obst||'pattern');setPick('pattern');setWant(true);setSt(2)};
  const save=()=>c.saveWeekly({wk,rate:sum.rate,rows:rows.map(r=>({goalId:r.g.id,code:r.dg.code,planned:r.w.planned,done:r.w.done,trend:r.t.state})),worked:worked.trim(),notWorked:notW.trim(),obstacle:want&&ob&&A?{goalId:gid,aid,code:ob,text:obText.trim()}:null,decisions:dec,exp:want&&chosen?{goalId:gid,aid,obstacle:ob,obstacleText:obText.trim(),sug:chosen,weeks:wks}:null});
+ if(!rows.length&&Object.values(L.standards||{}).some(x=>x.std&&x.status!=='paused'))return html`<${Sheet} sub=${'Wochenrückblick · Woche '+(wk+1)} title="Deine Woche" onClose=${c.closeSheet}><div className="text-[13px] mute -mt-1 leading-relaxed">Ehrlich hinschauen, ohne Urteil: Was hast du gehalten, wo passt der Standard nicht zu deiner Woche?</div><${WeeklyStandards} c=${c} wk=${wk}/><button onClick=${()=>c.saveWeekly({wk,rate:null,rows:[],worked:'',notWorked:'',decisions:{}})} className="btn w-full py-3.5 mt-5 text-sm">Rückblick abschließen</button><button onClick=${()=>c.openSheet({t:'goal'})} className="bg-transparent border-0 w-full py-3 text-[13px] acc font-semibold">Ein Ziel dazu festlegen</button><//>`;
  if(!rows.length)return html`<${Sheet} sub=${'Wochenrückblick · Woche '+(wk+1)} title="Noch kein Ziel" onClose=${c.closeSheet}><div className="text-[13.5px] mute leading-relaxed">Der Rückblick vergleicht Plan, Umsetzung und Ergebnis. Lege dafür zuerst ein Ziel mit Handlungen an.</div><button onClick=${()=>c.openSheet({t:'goal'})} className="btn w-full py-3.5 mt-4 text-sm">Ziel festlegen</button><//>`;
  return html`<${Sheet} sub=${`Wochenrückblick · Woche ${wk+1} · ${st+1}/3`} title=${['Was ist passiert?','Was lernst du daraus?','Was änderst du?'][st]} onClose=${c.closeSheet}>
  <div className="flex gap-1.5 mb-4">${steps.map((_,i)=>html`<div key=${i} className="flex-1 h-1 rounded-full" style=${{background:i<=st?'var(--acc2)':'var(--ghost)'}}/>`)}</div>
@@ -2875,6 +2879,7 @@ function WeeklyReview({c}){const {S}=c;const L=S.life;const due=LC.reviewWeek(L)
   <div className="flex flex-col gap-2.5">${rows.map(({g,dg,w,t})=>{const [ar,col,tl]=TRD[t.state]||TRD.none;return html`<div key=${g.id} className="card2 p-3.5"><div className="text-[14px] font-semibold">${g.title}</div>
    <div className="grid grid-cols-2 gap-2 mt-2"><div><div className="lbl">Prozess</div><div className="num text-[16px] font-bold">${w.done}/${w.planned}</div><div className="mt-1"><${Bar} pct=${w.planned?w.done/w.planned:0} h=${4}/></div></div><div><div className="lbl">Ergebnis</div><div className="text-[16px] font-bold" style=${{color:col}}>${ar} <span className="text-[13px] font-semibold">${tl}</span></div><div className="text-[11.5px] mute num">${LC.fmtV(g.metric,t.last!=null?t.last:LC.goalNow(L,g))} · Ziel ${LC.fmtV(g.metric,g.metric.target)}</div></div></div>
    <div className="text-[12.5px] mt-2 leading-snug">${dg.text}</div>${dg.code==='measure'||t.state==='none'||t.state==='stale'?html`<button onClick=${()=>c.openSheet({t:'measure',gid:g.id})} className="chip mt-2">Messwert eintragen</button>`:null}</div>`})}</div>
+  <${WeeklyStandards} c=${c} wk=${wk}/>
   ${sum.exps.length>0&&html`<div className="lbl mt-5 mb-2">Experimente überprüfen</div><div className="flex flex-col gap-2.5">${sum.exps.map(({e,r})=>html`<div key=${e.id} className="card2 p-3.5"><div className="text-[13.5px] font-semibold">${e.label}</div><div className="text-[12.5px] mute mt-0.5">Hypothese: ${e.hypothesis}</div>
    <div className="text-[13px] mt-2 font-semibold" style=${{color:r.ok?'var(--good)':'var(--bad)'}}>${r.ok?'Bestätigt':'Nicht bestätigt'}: ${r.done} von ${r.need} Einheiten${e.criterion.outcome?' · Ergebnis '+((TRD[r.outcome]||TRD.none)[2]):''}</div>
    <div className="grid grid-cols-3 gap-1.5 mt-2.5">${[['adopt','Übernehmen'],['revert','Zurücknehmen'],['extend','Verlängern']].map(([k,l])=>html`<button key=${k} aria-pressed=${dec[e.id]===k} onClick=${()=>setDec({...dec,[e.id]:k})} className=${`chip ${dec[e.id]===k?'on':''}`}>${l}</button>`)}</div></div>`)}</div>`}
@@ -3342,10 +3347,11 @@ function StandardsSheet({c,area}){const {S}=c;const L=S.life;const rel=appReleva
   ${Object.keys(L.standards||{}).length>0&&html`<div className="mt-4 flex flex-col gap-1">${Object.keys(L.standards).map(a=>html`<button key=${a} type="button" onClick=${()=>{if(del===a){c.upd(n=>LC.removeStandard(n.life,a));setDel(null);c.toast('Standard gelöscht.')}else setDel(a)}} className="bg-transparent border-0 py-1.5 text-[12px] bad text-left">${del===a?`Standard ${LC.AREA[a].de} wirklich löschen? Tippe erneut`:`Standard ${LC.AREA[a].de} löschen`}</button>`)}</div>`}<//>`}
 /* Heute: aktive Standards mit Erledigt und Minimum (nur ohne verknüpfte Handlung braucht es „Erledigt“) */
 function StandardsToday({c}){const {S}=c;const L=S.life;const list=Object.values(L.standards||{}).filter(s=>s.std&&s.status!=='paused');if(!list.length)return null;
- const log=(a,k)=>{c.upd(n=>{LC.ensureLife(n);LC.logStandard(n.life,a,k)});c.toast(k==='min'?'Minimum notiert. Drangeblieben zählt.':'Standard notiert.','good')};
+ const log=(a,k)=>{const before=S;c.upd(n=>{LC.ensureLife(n);LC.logStandard(n.life,a,k)});c.toast(k==='min'?'Minimum notiert. Drangeblieben zählt.':'Standard notiert.','good',{undo:()=>c.restore(before)})};
  return html`<div className="card p-3.5 mt-3"><div className="flex items-center justify-between"><div className="lbl">Deine Standards</div><button type="button" onClick=${()=>c.openSheet({t:'standards'})} className="bg-transparent border-0 p-0 text-[12px] acc font-semibold">Ändern</button></div>
   <div className="flex flex-col gap-2.5 mt-2">${list.map(s=>{const w=LC.standardWeek(L,s.area,LC.curWk(L)),f=LC.standardFeedback(L,s.area);return html`<div key=${s.area}>
    <div className="flex items-center gap-2"><span className="text-[11px] lbl shrink-0" style=${{color:aCol(s.area)}}>${LC.AREA[s.area].de}</span><span className="text-[13.5px] font-medium flex-1 min-w-0 truncate">${s.std.text}</span><span className="num text-[12.5px] shrink-0">${w?w.done:0}/${w?w.per:s.std.perWeek}</span></div>
+   ${(()=>{const ev=LC.eveningFor(L,L.d||0);return ev&&ev.std===s.area?html`<div className="text-[11.5px] mt-1"><span className="acc font-semibold">Gestern Abend festgelegt${ev.when?' · '+ev.when:''}.</span> <span className="mute">${ev.plan}</span></div>`:null})()}
    <div className="mt-1.5"><${Bar} pct=${w?Math.min(1,w.done/w.per):0} h=${4} color=${aCol(s.area)}/></div>
    <div className="flex flex-wrap items-center gap-1.5 mt-2">${!s.aid&&html`<button type="button" onClick=${()=>log(s.area,'std')} className="chip">Erledigt</button>`}${s.min&&html`<button type="button" onClick=${()=>log(s.area,'min')} className="chip" title=${s.min.text}>Minimum: ${s.min.text.length>26?s.min.text.slice(0,25)+'…':s.min.text}</button>`}
     ${f&&f.adapt&&html`<button type="button" onClick=${()=>c.openSheet({t:'standards',area:s.area})} className="bg-transparent border-0 p-0 text-[12px] acc">Anpassen?</button>`}</div>
@@ -3414,10 +3420,41 @@ function ObCommit({ob,u}){const P=useMemo(()=>obCommitProposal(ob),[]);const C=o
 function CommitCard({c}){const {S}=c;const L=S.life,k=L&&L.onboard&&L.onboard.commit;if(!k||k.done||k.mid||!(k.text||'').trim())return null;
  return html`<div className="card p-4 mt-3" style=${{boxShadow:'0 0 0 1.5px color-mix(in srgb,var(--acc2) 50%,transparent) inset'}}><div className="lbl acc">Dein erster Schritt</div><div className="text-[16px] font-semibold mt-1 leading-snug">${k.text}</div>
   <div className="text-[12px] mute mt-1">Nicht das, was du dir vornimmst, zählt, sondern das, was du tust.</div>
-  <div className="flex gap-2 mt-3"><button type="button" onClick=${()=>{c.upd(n=>{n.life.onboard.commit={...n.life.onboard.commit,done:true,doneD:n.life.d||0}});c.toast('Erster Schritt erledigt. Genau so geht es weiter.','good')}} className="btn px-5 py-2.5 text-[13.5px]">Erledigt</button>
+  <div className="flex gap-2 mt-3"><button type="button" onClick=${()=>{c.upd(n=>{n.life.onboard.commit={...n.life.onboard.commit,done:true,doneD:n.life.d||0}});c.toast('Erster Schritt erledigt. Genau so geht es weiter.','good',{undo:()=>c.restore(S)})}} className="btn px-5 py-2.5 text-[13.5px]">Erledigt</button>
   <button type="button" onClick=${()=>c.upd(n=>{n.life.onboard.commit={...n.life.onboard.commit,done:true,dropped:true}})} className="ghost px-4 py-2.5 text-[12.5px] font-semibold">Ausblenden</button></div></div>`}
 
 const OB_BODY={standards:ObStandards,commit:ObCommit,future:ObFuture,audit:ObAudit,owner:ObOwner,loop:ObLoop,still:ObStill,what:ObWhat,resp:ObResp,ready:ObReady,name:ObName,pillars:ObPillarsS,mirror:ObMirror,cost:ObCost,compound:ObCompound,year:ObYear,goal:ObGoal,ctrl:ObCtrl,obst:ObObst,values:ObValues,sign:ObSign,first:ObFirst};
+
+/* ───── Sicherung: Export und Import (alles bleibt lokal; die Datei enthält private Texte) ───── */
+function DataBackup({c}){const {S}=c;const [pend,setPend]=useState(null),[err,setErr]=useState('');const ref=useRef(null);
+ const exp=()=>{try{const d=new Date().toISOString().slice(0,10);const blob=new Blob([JSON.stringify({app:'war-within',v:1,exported:new Date().toISOString(),state:S},null,1)],{type:'application/json'});const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download='war-within-sicherung-'+d+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);c.toast('Sicherung gespeichert. Die Datei enthält auch deine privaten Texte, bewahre sie sicher auf.','good')}catch(e){c.toast('Export hat nicht geklappt.','warn')}};
+ const pick=e=>{const f=e.target.files&&e.target.files[0];e.target.value='';setErr('');if(!f)return;if(f.size>5e6){setErr('Die Datei ist zu groß für eine Sicherung.');return}
+  const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);const st=j&&j.app==='war-within'?j.state:j;if(!st||st.v!==5||!Array.isArray(st.missions))throw 0;setPend({st,at:j.exported||null})}catch(x){setErr('Das ist keine gültige Sicherung von The War Within.')}};r.onerror=()=>setErr('Die Datei konnte nicht gelesen werden.');r.readAsText(f)};
+ const apply=()=>{const before=S;const st=LC.ensureLife(pend.st);c.restore(st);setPend(null);c.toast('Sicherung wiederhergestellt.','good',{undo:()=>c.restore(before)})};
+ return html`<div className="card2 p-3.5"><div className="flex items-center gap-2"><${Icon} n="lock" s=${15} cls="acc"/><div className="text-[14px] font-semibold flex-1">Daten sichern</div></div>
+  <div className="text-[12px] mute mt-1 leading-snug">Deine Daten liegen nur auf diesem Gerät. Mit einer Sicherung nimmst du sie auf ein neues Gerät mit.</div>
+  <div className="grid grid-cols-2 gap-2 mt-2.5"><button type="button" onClick=${exp} className="chip justify-center">Exportieren</button><button type="button" onClick=${()=>ref.current&&ref.current.click()} className="chip justify-center">Importieren</button></div>
+  <input ref=${ref} type="file" accept="application/json,.json" className="hidden" onChange=${pick} aria-label="Sicherung auswählen"/>
+  ${err&&html`<div role="alert" className="text-[12px] mt-2" style=${{color:'var(--bad)'}}>${err}</div>`}
+  ${pend&&html`<div className="card p-3 mt-2.5"><div className="text-[13px] leading-snug">Sicherung${pend.at?' vom '+new Date(pend.at).toLocaleDateString('de-DE'):''} · Saison ${pend.st.season}, Tag ${pend.st.day+1}. Sie ersetzt deinen aktuellen Stand.</div><div className="flex gap-2 mt-2"><button type="button" onClick=${apply} className="btn px-4 py-2 text-[13px]">Ersetzen</button><button type="button" onClick=${()=>setPend(null)} className="ghost px-4 py-2 text-[13px] font-semibold">Abbrechen</button></div></div>`}</div>`}
+/* ───── Wochenrückblick: Standards mit Wochenstand und Anpassung ───── */
+function WeeklyStandards({c,wk}){const {S}=c;const L=S.life;const list=Object.values(L.standards||{}).filter(s=>s.std&&s.status!=='paused');if(!list.length)return null;
+ return html`<div className="lbl mt-5 mb-2">Deine Standards</div><div className="flex flex-col gap-2.5">${list.map(s=>{const w=LC.standardWeek(L,s.area,wk),f=LC.standardFeedback(L,s.area);const T={met:['Gehalten','var(--good)'],partial:['Teilweise','var(--acc2)'],min:['Minimum gehalten','var(--gold)'],nodata:['Keine Einträge','var(--mute)']}[w?w.state:'nodata'];
+  return html`<div key=${s.area} className="card2 p-3.5"><div className="flex items-baseline gap-2"><span className="lbl" style=${{color:aCol(s.area)}}>${LC.AREA[s.area].de}</span><span className="text-[11.5px] font-semibold ml-auto" style=${{color:T[1]}}>${T[0]}</span></div>
+   <div className="text-[14px] font-semibold mt-1">${s.std.text}</div><div className="text-[12.5px] mute num">${w?w.done:0} von ${w?w.per:s.std.perWeek}${w&&w.min?' · '+w.min+'× Minimum':''}</div>
+   ${f&&f.comeback&&html`<div className="text-[12.5px] good mt-1">Comeback nach einer Pause. Das ist Beharrlichkeit.</div>`}
+   ${f&&f.adapt&&html`<div className="text-[12.5px] leading-snug mt-1.5">${f.adapt.text}</div><button type="button" onClick=${()=>c.openSheet({t:'standards',area:s.area})} className="chip mt-2">Standard anpassen</button>`}</div>`})}</div>`}
+/* ───── Monats-Check: Ausgangslage neu einschätzen ───── */
+function MonthlyRerate({c}){const {S}=c;const L=S.life;const list=Object.values(L.standards||{}).filter(s=>s.std);if(!list.length)return null;
+ return html`<div className="lbl mt-5 mb-1">Wo stehst du heute?</div><div className="text-[12px] mute mb-2">Deine eigene Einschätzung, 1 bis 10. Verglichen wird nur mit deinem eigenen Anfang.</div>
+  <div className="flex flex-col gap-2.5">${list.map(s=>{const v=(s.current&&s.current.sat)??null,b=s.base&&s.base.sat;return html`<div key=${s.area} className="card2 p-3.5"><div className="flex items-baseline gap-2"><span className="text-[13.5px] font-semibold">${LC.AREA[s.area].de}</span>${b!=null&&html`<span className="text-[11.5px] mute ml-auto">Zu Beginn: ${b}/10</span>`}</div>
+   <div className="grid grid-cols-10 gap-1 mt-2" role="radiogroup" aria-label=${'Heute in '+LC.AREA[s.area].de}>${Array.from({length:10},(_,i)=>i+1).map(n=>html`<button key=${n} type="button" role="radio" aria-checked=${v===n} onClick=${()=>c.upd(x=>{LC.rerateStandard(x.life,s.area,n)})} className="h-8 rounded-lg text-[12px] font-bold border-0" style=${{background:v===n?aCol(s.area):'var(--ghost)',color:v===n?'var(--bg)':'var(--ink)'}}>${n}</button>`)}</div>
+   ${b!=null&&v!=null&&v!==b&&html`<div className="text-[12px] mt-1.5">${v>b?'Seit Beginn: +'+(v-b)+'. Dein eigener Fortschritt.':'Gerade schwerer als zu Beginn. Das ist ein Signal, kein Urteil.'}</div>`}</div>`})}</div>`}
+/* ───── Erste Woche: ruhiger Start ───── */
+const calmLeft=S=>{const L=S.life,o=L&&L.fund&&L.fund.ob;if(!o||o.calmOff||o.calmUntil==null)return 0;return Math.max(0,o.calmUntil-(L.d||0))};
+function CalmCard({c}){const {S}=c;const n=calmLeft(S);if(!n||(S.life&&S.life.focusMode))return null;
+ return html`<div className="card2 p-3.5 mt-3"><div className="text-[13px] leading-snug">Deine erste Woche: Punkte, Liga und Nemesis bleiben noch im Hintergrund, damit dein erster Schritt im Mittelpunkt steht. Noch ${n} ${n===1?'Tag':'Tage'}.</div>
+  <button type="button" onClick=${()=>c.upd(x=>{x.life.fund.ob={...x.life.fund.ob,calmOff:true}})} className="bg-transparent border-0 p-0 mt-2 text-[12.5px] acc font-semibold">Jetzt alles zeigen</button></div>`}
 
 /* ───── KONTO, ANMELDUNG & ONBOARDING ───── */
 const AUTH_KEY='war_within_auth_v1';
@@ -3511,7 +3548,7 @@ function lifeFromOb2(n,ob){const L=n.life;
  if(step){let mid=null;if(C.kind==='goal'){const g=(L.goals||[]).find(y=>y.status==='active');const ac=g&&LC.actionsOf(L,g.id)[0];if(ac)mid=ac.missionId}
   if(C.area&&LC.AREA[C.area]&&C.std&&(C.std.text||'').trim()&&!((L.standards||{})[C.area]||{}).std){const sug=LC.suggestStandard({area:C.area,level:'new'});LC.setStandard(L,C.area,{std:C.std,min:sug.min},'Erstes Commitment');const s=L.standards[C.area];const g=(L.goals||[]).find(y=>y.status==='active'&&y.area===C.area);const ac=g&&LC.actionsOf(L,g.id)[0];if(ac)s.aid=ac.id}
   L.onboard={...(L.onboard||{}),commit:{text:step.slice(0,120),kind:C.kind||'own',area:C.area||null,mid,d:L.d||0,done:false}};if(mid)n.nextPrio={k:dayKey(n),mid}}
- L.fund={v:1,...(L.fund||{}),ob:{mode:ob.short?'short':'full',paused:!!ob.paused,d:L.d||0,t:Date.now()}};
+ L.fund={v:1,...(L.fund||{}),ob:{mode:ob.short?'short':'full',paused:!!ob.paused,d:L.d||0,t:Date.now(),calmUntil:(L.d||0)+7}};
  if(ob.loopDone)LC.markSeen(L,'loop');if(ob.ownDone)LC.markSeen(L,'owner')}
 const satOf=(ob,id)=>ob.sat[id]||3;
 function goalObj(g,ob){
@@ -3786,7 +3823,7 @@ function App({init,auth,skey='war_within_v5'}){
  const D=useMemo(()=>derive(S),[S]);
  useEffect(()=>{try{localStorage.setItem(skey,JSON.stringify(S))}catch(e){}},[S]);
  useEffect(()=>{if(scrollRef.current)scrollRef.current.scrollTop=0;setScrolled(false)},[tab,statTab]);
- const toast=useCallback((msg,kind)=>{const id=uid();setToasts(t=>[...t.slice(-2),{id,msg,kind}]);setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)),3300)},[]);
+ const toast=useCallback((msg,kind,o)=>{const id=uid();setToasts(t=>[...t.slice(-2),{id,msg,kind,undo:o&&o.undo}]);setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)),o&&o.undo?5500:3300)},[]);
  const burst=(pos,col)=>{const p=pos&&pos.currentTarget?pos.currentTarget.getBoundingClientRect():pos&&pos.left!=null?pos:null;const x=p?p.left+(p.width||0)/2:innerWidth/2,y=p?p.top+(p.height||0)/2:innerHeight*.45;const id=uid();const parts=Array.from({length:16},(_,i)=>{const a=i/16*Math.PI*2+Math.random()*.4,r=46+Math.random()*58;return{dx:Math.cos(a)*r,dy:Math.sin(a)*r,s:4+Math.random()*5,rot:Math.round(Math.random()*360)+'deg',c:i%3===0?'#fff':col,sq:i%2===0}});setSparks(v=>[...v,{id,x,y,parts}]);setTimeout(()=>setSparks(v=>v.filter(z=>z.id!==id)),900)};
  const fx=(pos,text)=>{const id=uid();const p=pos&&pos.currentTarget?pos.currentTarget.getBoundingClientRect():pos&&pos.left!=null?pos:{left:200,top:420,width:0};setFloats(f=>[...f,{id,x:p.left+(p.width||0)/2,y:p.top,text}]);setTimeout(()=>setFloats(f=>f.filter(x=>x.id!==id)),1200)};
  const [simMin,setSimMin]=useState(null);
@@ -3831,7 +3868,7 @@ function App({init,auth,skey='war_within_v5'}){
   const fm=focusMode(S),la=(S.life.actions||[]).find(x=>x.missionId===mid&&!x.off),lwk=LC.curWk(S.life),limp=la?`Umsetzung ${LC.doneIn(S.life,la.id,lwk)+1}/${LC.plannedAt(la,lwk)} diese Woche`:null;
   if(!fm){fx(pos,award>0?`+${award}`:'Limit');if(award>0)burst(pos,ACOL[m.act]||'var(--acc2)')}try{navigator.vibrate&&navigator.vibrate(award>0?[12,40,18]:8)}catch(e){}
   {const b=briefToday(S);if(b&&b.ids.includes(mid)&&b.ids.filter(id=>{const x=S.missions.find(y=>y.id===id);return x&&!isDone(S,x)}).length===1)setTimeout(()=>toast('Alle Prioritäten erledigt. Tag gewonnen.','good'),900)}
-  toast(fm?`Erledigt · ${limp||impactOf(S,m)}`:award>0&&room>0?`+${award} Pkt.${plus>0?' · pünktlich +'+plus:''} · ${limp||impactOf(S,m)}${extra.msg?' · '+extra.msg:''}`:`${a.short} hat das Wochenlimit erreicht. Punkte nicht, aber die Umsetzung zählt.`,award>0&&room>0||fm?'good':undefined);
+  toast(fm?`Erledigt · ${limp||impactOf(S,m)}`:award>0&&room>0?`+${award} Pkt.${plus>0?' · pünktlich +'+plus:''} · ${limp||impactOf(S,m)}${extra.msg?' · '+extra.msg:''}`:`${a.short} hat das Wochenlimit erreicht. Punkte nicht, aber die Umsetzung zählt.`,award>0&&room>0||fm?'good':undefined,{undo:()=>setS(S)});
   if(!extra.keep)setSheet(null)};
  const start=(mid,ev,opt={})=>{const m=S.missions.find(x=>x.id===mid);if(isDone(S,m)){toast(m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
   if(!isActive(S,m.act)){toast(`${S.acts[m.act].name} sitzt auf der Bank. Wechsle sie im Squad ein.`,'warn');return}
@@ -3848,8 +3885,10 @@ function App({init,auth,skey='war_within_v5'}){
  useEffect(()=>{const P=pushRef.current,prev=P.prev;P.prev=nowM;if(prev==null||!S.push||nowM<=prev||nowM-prev>20)return;
   const hit=t=>t>prev&&t<=nowM,quiet=t=>t>=1260||t<360,ev=[];
   nemPlanNow.forEach(p=>{if(p.virtual||p.kind==='sleep'||p.done)return;if(hit(p.start)&&!quiet(p.start))ev.push(['start',p]);if(hit(p.end)&&!quiet(p.end))ev.push(['end',p])});
+  {const own=eveToday(S),se=S.life&&LC.eveningFor(S.life,S.life.d||0),T={morgens:480,mittags:750,abends:1080};const w=own?own.when:se&&se.std?se.when:null,t=T[w];
+   if(t&&hit(t)&&!quiet(t))ev.push(['own',{id:'own',title:own?own.m.title:((S.life.standards||{})[se.std]||{std:{}}).std.text}])}
   if(hit(1260))ev.push(['report',null]);const e=ev[ev.length-1];if(!e)return;const key=dayKey(S)+e[0]+(e[1]?e[1].id:'');if(P.sent[key])return;P.sent[key]=1;
-  const [type,q]=e;if(type==='start')notify(q.name+' beginnt um '+fmtHM(q.start)+'.','Er ist schon dabei.');else if(type==='end')notify(q.name+' erledigt?','Ja oder später, ein Tipp genügt.',q.id);else{const d=duelOf(S);notify('Abendbericht:','Du '+d.X+', er '+d.Y+'. '+d.lines[1])}},[nowM,S.push]);
+  const [type,q]=e;if(type==='start')notify(q.name+' beginnt um '+fmtHM(q.start)+'.','Er ist schon dabei.');else if(type==='end')notify(q.name+' erledigt?','Ja oder später, ein Tipp genügt.',q.id);else if(type==='own')notify('Dein Schritt für heute:',q.title+'. Wie gestern festgelegt.');else{const d=duelOf(S);notify('Abendbericht:','Du '+d.X+', er '+d.Y+'. '+d.lines[1])}},[nowM,S.push]);
  useEffect(()=>{if(!('serviceWorker' in navigator))return;const h=e=>{const d=e.data||{};if(d.type==='ask'&&d.id&&askRef.current){const q=askRef.current.plan.find(x=>x.id===d.id);if(q)askRef.current.fn(q,d.action==='yes'?'yes':'later')}};navigator.serviceWorker.addEventListener('message',h);return()=>navigator.serviceWorker.removeEventListener('message',h)},[]);
  const togglePush=async()=>{if(S.push){upd(n=>{n.push=false});toast('Erinnerungen aus.');return}let ok='unsupported';try{if('Notification' in window)ok=await Notification.requestPermission()}catch(e){}
   upd(n=>{n.push=true});toast(ok==='granted'?'Erinnerungen an: zum Blockstart, zur Rückfrage und um 21 Uhr. Ruhig von 21 bis 6 Uhr.':'Erinnerungen an, vorerst nur in der App: Benachrichtigungen sind im Browser nicht erlaubt.','good')};
@@ -3930,7 +3969,7 @@ function App({init,auth,skey='war_within_v5'}){
  const lifeUpd=fn=>upd(n=>{LC.ensureLife(n);fn(n);checkAch(n)});
  const msN=((S.life&&S.life.temple&&S.life.temple.cur.ms)||[]).length,msRef=useRef(msN);
  useEffect(()=>{const p=msRef.current;msRef.current=msN;if(msN>p){const m=S.life.temple.cur.ms[msN-1];toast('Neuer Baustein · '+LC.AREA[m.area].de+'-Säule: '+m.label,'good');setTFlash(m.area);const t=setTimeout(()=>setTFlash(null),1800);return()=>clearTimeout(t)}},[msN]);
- const saveEvening=x=>{upd(n=>{LC.ensureLife(n);const e=LC.onEvening(n,x);if(e)n.nextPrio={k:n.season+'-'+(n.day+1),mid:e.mid}});setSheet(null);toast('Morgen steht. Der Tag ist abgeschlossen.','good')};
+ const saveEvening=x=>{upd(n=>{LC.ensureLife(n);const sx=String(x.mid||'').startsWith('std:')?{std:x.mid.slice(4),when:x.when,risk:x.risk}:x;const e=LC.onEvening(n,sx);if(e&&e.mid)n.nextPrio={k:n.season+'-'+(n.day+1),mid:e.mid}});setSheet(null);toast('Morgen steht. Der Tag ist abgeschlossen.','good')};
  const saveDebrief=(x,o)=>{const doneN=x.done.length;upd(n=>{LC.ensureLife(n);LC.onDebrief(n,x);const k=dayKey(n);n.reviews=[{k,done:doneN,block:x.obst,mood:x.mood,next:x.next,t:Date.now()},...(n.reviews||[]).filter(r=>r.k!==k)].slice(0,30);n.wlog=n.wlog||{};n.wlog[k]={...(n.wlog[k]||{}),r:1};if(x.next)n.nextPrio={k:n.season+'-'+(n.day+1),mid:x.next}});if(!(o&&o.stay))setSheet(null);
   const rm=S.missions.find(m=>m.id==='m_ref');if(rm&&!isDone(S,rm))setTimeout(()=>cref.current('m_ref',null,{keep:true,msg:'über den Debrief'}),400);
   if(o&&o.stay)return;toast(!x.skipped.length?'Debrief gespeichert. Der Plan funktioniert.':x.next?'Debrief gespeichert. Morgen zuerst: das Ausgelassene.':'Debrief gespeichert. Muster wertet der Wochenrückblick aus.','good')};
@@ -3947,7 +3986,7 @@ function App({init,auth,skey='war_within_v5'}){
  const setLifeGoalStatus=(gid,st)=>{lifeUpd(n=>{LC.setGoalStatus(n,gid,st);if(st==='achieved')n.life.flags={...(n.life.flags||{}),goal:true}});setSheet(null);toast(st==='achieved'?'Ziel erreicht. Stark. Zeit für das nächste.':st==='archived'?'Ziel archiviert. Verlauf und Messwerte bleiben.':'Ziel wieder aktiv.','good')};
  const addMeas=(gid,v)=>{const g=LC.goalById(S.life,gid),hit=g&&g.status==='active'&&LC.reached(g,v);lifeUpd(n=>{LC.addMeasurement(n,gid,v)});setSheet(null);toast(hit?'Zielwert erreicht! Das ist echter Fortschritt.':'Messwert gespeichert. Er fließt in den Wochenrückblick ein.','good')};
  const saveWeekly=p=>{lifeUpd(n=>{Object.entries(p.decisions||{}).forEach(([id,d])=>LC.decideExperiment(n,id,d));const e=p.exp?LC.startExperiment(n,{...p.exp,wk:p.wk}):null;LC.saveWeeklyReview(n,{wk:p.wk,rate:p.rate,rows:p.rows,worked:p.worked,notWorked:p.notWorked,obstacle:p.obstacle,expStarted:e&&e.id,expLabel:e&&e.label})});setSheet(null);toast(p.exp?'Experiment gestartet. Im nächsten Rückblick prüfst du, ob es wirkt.':'Wochenrückblick gespeichert.','good')};
- const toggleFocusMode=()=>{const on=focusMode(S);lifeUpd(n=>{n.life.focusMode=!on});toast(on?'Fokusmodus aus: Liga, Nemesis und Punkte sind wieder da.':'Fokusmodus an: Ziele, Handlungen und Reflexion.','good')};
+ const toggleFocusMode=()=>{const on=focusMode(S);lifeUpd(n=>{n.life.focusMode=!on;if(on&&n.life.fund&&n.life.fund.ob)n.life.fund.ob={...n.life.fund.ob,calmOff:true}});toast(on?'Fokusmodus aus: Liga, Nemesis und Punkte sind wieder da.':'Fokusmodus an: Ziele, Handlungen und Reflexion.','good')};
  const setAreaSat=(id,v)=>lifeUpd(n=>{n.life.areas[id]={...(n.life.areas[id]||{}),sat:v}});
  const setFocusArea=id=>{lifeUpd(n=>{n.life.focus=id});toast(LC.AREA[id].de+' hat jetzt Priorität.','good')};
  const setMainGoal=gid=>{lifeUpd(n=>{n.life.main=gid});setSheet(null);toast('Hauptziel geändert.','good')};
@@ -4018,7 +4057,7 @@ function App({init,auth,skey='war_within_v5'}){
  /* Erfolge */
  const newA=S.newAch[0];
  useEffect(()=>{if(!newA)return;const t=setTimeout(()=>upd(n=>{n.newAch=n.newAch.slice(1)}),2600);return()=>clearTimeout(t)},[newA]);
- const c={auth,upd,wisFav,wisDismiss,wisToggle,saveDebrief,saveEvening,saveMonthly,tSel,setTSel,tFlash,toggleWeather,toggleTempleAnim,closeTempleSeason,setSkin,addLifeGoal,updLifeGoal,setLifeGoalStatus,addMeas,saveWeekly,toggleFocusMode,setAreaSat,setFocusArea,setMainGoal,saveValues,saveWhy,setActPerWeek,removeAction,addActionTo,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,togglePush,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
+ const c={auth,upd,restore:x=>setS(x),wisFav,wisDismiss,wisToggle,saveDebrief,saveEvening,saveMonthly,tSel,setTSel,tFlash,toggleWeather,toggleTempleAnim,closeTempleSeason,setSkin,addLifeGoal,updLifeGoal,setLifeGoalStatus,addMeas,saveWeekly,toggleFocusMode,setAreaSat,setFocusArea,setMainGoal,saveValues,saveWhy,setActPerWeek,removeAction,addActionTo,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,togglePush,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
  const nav=[['home','Heute','home'],['tasks','Aufgaben','target'],['life','Mein Leben','grid'],['stats','Fortschritt','bars'],...(focusMode(S)?[]:[['solo','Duell','swords']])];const navKey={league:'stats',reflect:'home'}[tab]||tab;const revDue=LC.reviewWeek(S.life)!=null;
  const ach=newA&&ACHS.find(a=>a.id===newA);
  return html`<div data-theme=${S.theme} data-skin=${S.skin||'antik'} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(var(--acc-rgb),.12)'}}>
@@ -4037,7 +4076,7 @@ function App({init,auth,skey='war_within_v5'}){
  ${ach&&html`<div key=${newA} className="absolute inset-0 z-[60] flex items-center justify-center" style=${{background:'rgba(5,5,10,.82)',animation:'fadeIn .25s'}} onClick=${()=>upd(n=>{n.newAch=n.newAch.slice(1)})}>
   ${Array.from({length:18}).map((_,i)=>{const ang=i/18*Math.PI*2,r=110+(i%3)*40;return html`<span key=${i} className="absolute w-2 h-2 rounded-full" style=${{background:i%2?'var(--acc)':'var(--acc3)','--dx':Math.cos(ang)*r+'px','--dy':Math.sin(ang)*r+'px',animation:`burst 1.4s ease-out ${i*.03}s both`}}/>`})}
   <div className="text-center relative px-8" style=${{animation:'pop .6s ease-out'}}><div className="flex justify-center mb-4"><${ShieldBadge} icon=${ach.i} s=${84}/></div><div className="flex justify-center mb-2" style=${{color:'var(--gold)'}}><${Icon} n="laurel" s=${34} sw=${1.4}/></div><div className="text-[11px] tracking-[.22em] font-semibold" style=${{color:'var(--gold)'}}>ERFOLG FREIGESCHALTET</div><div className="text-3xl font-bold mt-2 text-white">${ach.n}</div><div className="mt-2 text-sm" style=${{color:'#B9B7CC'}}>${ach.d}</div></div></div>`}
- <div className="absolute top-3 inset-x-3 z-[70] flex flex-col gap-2 pointer-events-none">${toasts.map(t=>html`<div key=${t.id} className="px-4 py-3 rounded-2xl text-[13px] font-medium border" style=${{animation:'toastIn .25s ease-out',background:'var(--glass)',backdropFilter:'blur(10px)',borderColor:t.kind==='good'?'rgba(var(--good-rgb),.45)':t.kind==='warn'?'rgba(var(--acc-rgb),.55)':'var(--line)'}}>${t.msg}</div>`)}</div>
+ <div className="absolute top-3 inset-x-3 z-[70] flex flex-col gap-2 pointer-events-none">${toasts.map(t=>html`<div key=${t.id} className="px-4 py-3 rounded-2xl text-[13px] font-medium border" style=${{animation:'toastIn .25s ease-out',background:'var(--glass)',backdropFilter:'blur(10px)',borderColor:t.kind==='good'?'rgba(var(--good-rgb),.45)':t.kind==='warn'?'rgba(var(--acc-rgb),.55)':'var(--line)'}}>${t.msg}${t.undo&&html`<button type="button" onClick=${()=>{t.undo();setToasts(x=>x.filter(y=>y.id!==t.id))}} className="bg-transparent border-0 p-0 ml-3 font-bold acc pointer-events-auto" style=${{minHeight:28}}>Rückgängig</button>`}</div>`)}</div>
  ${sparks.map(b=>html`<div key=${b.id} aria-hidden="true" className="fixed z-[79] pointer-events-none" style=${{left:b.x,top:b.y}}>${b.parts.map((q,i)=>html`<span key=${i} className="absolute" style=${{left:0,top:0,width:q.s,height:q.s,borderRadius:q.sq?2:999,background:q.c,boxShadow:`0 0 8px ${q.c}`,'--dx':q.dx+'px','--dy':q.dy+'px','--rot':q.rot,animation:'spark .8s cubic-bezier(.2,.8,.3,1) forwards'}}/>`)}</div>`)}
  ${S.perfectShow&&html`<${PerfectDay} S=${S} onClose=${()=>upd(n=>{n.perfectShow=false})}/>`}
  ${floats.map(f=>html`<div key=${f.id} className="num fixed z-[80] pointer-events-none font-bold text-2xl" style=${{left:f.x,top:f.y,color:'var(--acc3)',animation:'floatUp 1.1s ease-out forwards',textShadow:'0 0 16px rgba(var(--acc-rgb),.9)'}}>${f.text}</div>`)}

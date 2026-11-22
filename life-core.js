@@ -186,7 +186,7 @@ function debriefPatterns(S,days=14){const L=S.life;if(!L)return[];const from=(L.
     sug:{id:'pattern',kind:'pattern',label:m?`Kleinere Version: ${m} Minuten`:'Kleinere Version: Minimalschritt',hypothesis:`Mit einer kleineren Version fange ich „${a.title}“ auch an schwierigen Tagen an.`,change:m?{minutes:m}:{rule:'Minimalschritt genügt'},criterion:{min:Math.max(1,p-1),outcome:false},why:'Aus deinen Debriefs erkannt'}})}});
  return out.sort((x,y)=>y.skips-x.skips)}
 /* Monats-Check: alle 4 Wochen kurz prüfen, ob die Ziele noch sinnvoll sind */
-function monthlyDue(L){const w=curWk(L);if(w<3)return null;const k=w%4===3?Math.floor(w/4):Math.floor(w/4)-1;return k>=0&&!(L.monthly||[]).some(x=>x.m>=k)&&(L.goals||[]).some(g=>g.status==='active')?k:null}
+function monthlyDue(L){const w=curWk(L);if(w<3)return null;const k=w%4===3?Math.floor(w/4):Math.floor(w/4)-1;return k>=0&&!(L.monthly||[]).some(x=>x.m>=k)&&((L.goals||[]).some(g=>g.status==='active')||Object.values(L.standards||{}).some(s=>s.std&&s.status!=='paused'))?k:null}
 function saveMonthly(S,m,decisions){const L=S.life;L.monthly=[...(L.monthly||[]),{m,t:Date.now(),decisions:decisions||{}}];Object.entries(decisions||{}).forEach(([gid,d])=>{if(d==='archive')setGoalStatus(S,gid,'archived')})}
 /* ───── Abendritual: nach dem Debrief den nächsten Tag vorbereiten ─────
    Eine Handlung, ein Zeitfenster, optional ein Wenn-dann-Plan gegen das wahrscheinlichste Hindernis.
@@ -200,9 +200,9 @@ function ifThen(risk,title,when,minutes){const T='„'+title+'“';
   case'energy':return`Wenn ich müde bin, fange ich trotzdem an. Nur die ersten 5 Minuten.`;
   case'distract':return`Wenn ich mit ${T} anfange, liegt das Handy in einem anderen Raum.`;
   default:return`${EVE_ANCHOR[when]||'Zur geplanten Zeit'} starte ich mit ${T}.`}}
-function onEvening(S,x){const L=S.life;if(!L||!x||!x.mid)return null;const a=(L.actions||[]).find(y=>y.missionId===x.mid&&!y.off);
- const m=(S.missions||[]).find(y=>y.id===x.mid);const title=(a&&a.title)||(m&&m.title)||'';const when=EVE_WHEN.some(w=>w[0]===x.when)?x.when:null;const risk=x.risk||null;
- const e={d:L.d||0,for:(L.d||0)+1,mid:x.mid,aid:a?a.id:null,when,risk,plan:ifThen(risk,title,when,a&&a.minutes),t:Date.now()};
+function onEvening(S,x){const L=S.life;const sd=x&&x.std&&L&&(L.standards||{})[x.std];if(!L||!x||(!x.mid&&!(sd&&sd.std)))return null;const a=x.mid?(L.actions||[]).find(y=>y.missionId===x.mid&&!y.off):null;
+ const m=x.mid?(S.missions||[]).find(y=>y.id===x.mid):null;const title=sd?sd.std.text:(a&&a.title)||(m&&m.title)||'';const when=EVE_WHEN.some(w=>w[0]===x.when)?x.when:null;const risk=x.risk||null;
+ const e={d:L.d||0,for:(L.d||0)+1,mid:sd?null:x.mid,std:sd?x.std:undefined,aid:a?a.id:null,when,risk,plan:ifThen(risk,title,when,sd?sd.std.minutes:a&&a.minutes),t:Date.now()};
  L.evening=[...(L.evening||[]).filter(y=>y.for!==e.for),e].slice(-90);L.flags={...(L.flags||{}),evening:true};return e}
 const eveningFor=(L,d)=>((L&&L.evening)||[]).find(e=>e.for===d)||null;
 /* Wie oft wurde die abends festgelegte Handlung am nächsten Tag umgesetzt? Nur abgeschlossene Tage zählen. */
@@ -295,6 +295,7 @@ function setStandard(L,area,p,why){if(!L||!AREA[area])return null;L.standards=L.
  n.std=s||null;n.min=m||null;if(p.aid!==undefined)n.aid=p.aid||null;if(p.status==='active'||p.status==='paused')n.status=p.status;n.updated=Date.now();
  const empty=!n.std&&!n.min&&!(n.desired||'').trim()&&!(n.current&&(n.current.note||n.current.sat!=null));
  if(empty){delete L.standards[area];return null}L.standards[area]=n;return n}
+function rerateStandard(L,area,sat){const s=(L.standards||{})[area];if(!s)return null;const v=sat==null||sat===''?null:clamp(Math.round(+sat),1,10);s.current={...(s.current||{note:''}),sat:v};s.rated=[...(s.rated||[]),{wk:curWk(L),sat:v}].slice(-24);s.updated=Date.now();if(s.base&&s.base.sat==null&&v!=null)s.base={...s.base,sat:v};return s}
 function removeStandard(L,area){if(L&&L.standards)delete L.standards[area];if(L&&L.stdLog)L.stdLog=L.stdLog.filter(x=>x.area!==area)}
 function logStandard(L,area,kind){const s=(L.standards||{})[area];if(!s)return null;const e={area,d:L.d||0,wk:curWk(L),kind:kind==='min'?'min':'std',t:Date.now()};L.stdLog=[...(L.stdLog||[]),e].slice(-1000);return e}
 /* Soll in Woche wk: Änderungen gelten ab ihrer Woche (wie plannedAt) */
@@ -485,5 +486,5 @@ function parseV(metric,s){if(s==null)return null;s=String(s).trim();if(!s)return
 
 G.LC={LIFE_V,AREAS,AREA,LINKS,ACT_AREA,areaAct,VALUES,WHY_Q,GOAL_TPL,OBSTACLES,OBST,BLOCK_MAP,RULES,LOOP,
  wkOf,curWk,actById,goalById,actionsOf,actLabel,missionTitle,plannedAt,doneIn,goalWeek,weekRate,measOf,goalNow,goalStart,better,reached,goalProgress,trend,diagnose,suggest,
- startExperiment,evalExperiment,decideExperiment,reviewWeek,weekSummary,obstacleCounts,saveWeeklyReview,onComplete,onAdvance,onDailyReview,addMeasurement,addAction,addGoal,updateGoal,setGoalStatus,insights,loopStage,newLife,ensureLife,MOODS,DEBRIEF_OBST,CHANGES,onDebrief,debriefPatterns,monthlyDue,saveMonthly,STD_LEVELS,STD_LV,STD_TPL,areaSatFrom,suggestStandard,setStandard,removeStandard,logStandard,standardWeek,standardFeedback,adaptOptions,standardProgress,standardsForSync,FUND,FUND_STAGES,inviteCandidates,fundState,fundSections,setFundSkip,markSeen,nextInvite,showInvite,answerInvite,clearFoundation,FUTURE_SUCCESS,FUTURE_TXT,cleanFuture,futureSuccess,futureForSync,AUDIT_AREAS,AUDIT,AUDIT_MAX,setAudit,auditState,auditSummary,auditForSync,EVE_WHEN,EVE_RISK,ifThen,onEvening,eveningFor,eveningStats,TEMPLE_LEN,STAGES,PHASES,TEMPLE_RULES,newTemple,syncTemple,columnState,foundationLevel,templeState,closeTempleSeason,areaWeek,fmtV,parseV,syncMission};
+ startExperiment,evalExperiment,decideExperiment,reviewWeek,weekSummary,obstacleCounts,saveWeeklyReview,onComplete,onAdvance,onDailyReview,addMeasurement,addAction,addGoal,updateGoal,setGoalStatus,insights,loopStage,newLife,ensureLife,MOODS,DEBRIEF_OBST,CHANGES,onDebrief,debriefPatterns,monthlyDue,saveMonthly,STD_LEVELS,STD_LV,STD_TPL,areaSatFrom,suggestStandard,setStandard,rerateStandard,removeStandard,logStandard,standardWeek,standardFeedback,adaptOptions,standardProgress,standardsForSync,FUND,FUND_STAGES,inviteCandidates,fundState,fundSections,setFundSkip,markSeen,nextInvite,showInvite,answerInvite,clearFoundation,FUTURE_SUCCESS,FUTURE_TXT,cleanFuture,futureSuccess,futureForSync,AUDIT_AREAS,AUDIT,AUDIT_MAX,setAudit,auditState,auditSummary,auditForSync,EVE_WHEN,EVE_RISK,ifThen,onEvening,eveningFor,eveningStats,TEMPLE_LEN,STAGES,PHASES,TEMPLE_RULES,newTemple,syncTemple,columnState,foundationLevel,templeState,closeTempleSeason,areaWeek,fmtV,parseV,syncMission};
 })(typeof window!=='undefined'?window:globalThis);

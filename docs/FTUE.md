@@ -130,6 +130,15 @@ S.life (Spielstand)
 - Standard und erster Schritt sind editierbar. „Eigenen Schritt formulieren“ ersetzt den Vorschlag.
 - „Zum ersten Schritt“ führt auf „Heute“. Dort steht der Schritt ganz oben: als Mission, wenn er mit einer Handlung verknüpft ist, sonst als Karte „Dein erster Schritt“ mit „Erledigt“.
 
+## Kreislauf nach dem Onboarding
+
+- **Erste Woche ruhig:** Sieben Tage lang sind Punkte, Liga, Nemesis und Duell ausgeblendet. Eine Karte auf „Heute“ erklärt das, „Jetzt alles zeigen“ hebt es auf.
+- **Abendritual:** Auch Standards ohne verknüpfte Handlung lassen sich für morgen festlegen. Am nächsten Tag stehen sie mit „Gestern Abend festgelegt“ in der Standards-Karte.
+- **Erinnerung:** Bei eingeschalteten Erinnerungen kommt zur selbst gewählten Zeit (morgens 8:00, mittags 12:30, abends 18:00) ein Hinweis auf den festgelegten Schritt.
+- **Wochenrückblick:** Er zeigt die Standards mit Wochenstand, Comeback und Anpassungsvorschlag. Ohne Ziel gibt es einen eigenen Rückblick „Deine Woche“ nur mit Standards.
+- **Monats-Check:** Er gilt auch für Standards ohne Ziel. „Wo stehst du heute?“ (1–10) aktualisiert die eigene Einschätzung (`rerateStandard`). Die Ausgangslage bleibt für den Vergleich erhalten.
+- **Rückgängig und Sicherung:** siehe AGENTS.md.
+
 ## Löschen und Ändern
 
 - Jeder Abschnitt lässt sich einzeln bearbeiten.
