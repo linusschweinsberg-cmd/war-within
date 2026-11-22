@@ -21,6 +21,7 @@ Code: `OB_SCREENS` (Reihenfolge, Station, Pause), `OB_BODY` (Komponenten), `Onbo
 | 5 | Konfrontation | Spiegel | Niedrigster Bereich hervorgehoben; „Anpassen“ | Feststellung statt Urteil | – |
 | 5b | Konfrontation | Life Audit (freiwillig) | Angebot „Möchtest du genauer hinsehen?“ → Dialog je Bereich, siehe unten | Ehrliche Bestandsaufnahme ohne Pflicht | `audit`, `auditOpen`, `auditCur` → `life.audit` |
 | 6 | Konfrontation | Preis des Stillstands | Bis zu zwei Chips | Kosten spürbar, ohne Schuld | `cost` → `life.why.q.cost` |
+| 6b | Potenzial | Wer könntest du werden? | Siehe unten, ca. 3 Min. | Eigenes Erfolgsbild, heutiges vs. mögliches Ich, Beharrlichkeit | `future`, `futureCur`, `futureDone` → `life.future` |
 | 7 | Potenzial | Kleine Zahl, lange Zeit | Zähler 1 Tag → 1 Jahr (20 Min. täglich) | Compounding ohne Versprechen | – |
 | 8 | Potenzial | Ein Jahr weiter | Bereich wählen, ein Satz | Zukunftsbild als Anker | `focus`, `why` |
 | 9 | Potenzial | Messbar machen | `GoalForm` (Ziel) | Vision → Ergebnis | `goal` |
@@ -63,6 +64,26 @@ Kernsatz: „Auch wenn du nicht alles kontrollieren kannst, kannst du Verantwort
 3. **Abschluss:** „Das ist Ownership. Nicht Schuld, sondern Handlungsspielraum.“ Der eigene nächste Schritt wird angezeigt. Ownership ist Schritt 1 im Success Loop (`LC.LOOP[0].q`: „Was kann ich kontrollieren?“). Daraus wächst Selbstwirksamkeit.
 
 Erneut aufrufbar über „Wie es wirkt“ › „Ownership in drei Situationen“ (Sheet `ownerdemo`). Das ist die Kurzfassung ohne persönliche Fragen. Das Modul ist nicht Teil der Kurzversion.
+
+## Modul: Wer könntest du werden? (`FutureStory`)
+
+Steht direkt nach dem Life Audit und dem Preis des Stillstands, am Anfang der Station „Potenzial“. Alles ist freiwillig.
+
+0. **Einstieg:** „Wer könntest du werden? Nicht, wer du hättest sein sollen. Sondern wer du werden kannst.“
+1. **Eigenes Erfolgsbild:** „Was bedeutet Erfolg für dich?“ Es gibt bis zu drei Anregungen (`LC.FUTURE_SUCCESS`, ohne Status- oder Geldziele als Vorgabe) und ein eigenes Feld. Dazu der Hinweis: „Kein Maßstab von außen. Geld, Status oder Titel zählen hier nur, wenn sie dir selbst wirklich wichtig sind.“
+2. **Rückblick ohne Urteil:** Fragen 1–3 im Wortlaut, eingeleitet mit „Nicht, um zu bereuen. Sondern um zu sehen, was in dir steckt.“ Jede Antwort bekommt eine stärkende Rückmeldung, z. B. „Das zeigt, was in dir steckt. Es ist nicht verloren.“ Mit „Diese Fragen auslassen“ springt man direkt nach vorn.
+3. **Vorblick:** Fragen 4 und 5 (Leben in drei Jahren, die Person dafür).
+4. **Gegenüberstellung:** Bis zu drei Bereiche aus dem Life Audit, jeweils „Heute“ und „In drei Jahren“. „Heute“ wird aus dem Audit vorausgefüllt, falls dort etwas steht.
+5. **Ansicht:** zwei Spalten, MEIN HEUTIGES ICH und MEIN MÖGLICHES ZUKÜNFTIGES ICH. Ein Regler blendet zwischen beiden. In der Mitte sind beide voll sichtbar. Unter dem möglichen Ich steht „Wer ich dafür bin“ (Frage 5).
+6. **Sheer Indefatigability:** „Unermüdliche Beharrlichkeit. Nicht jeden Tag Höchstleistung. Sondern immer wieder anfangen.“ Zwölf Wochen „Alles oder nichts“ (21 Einheiten) stehen gegen „Beharrlich, mit Pausen“ (27). Ausdrücklich: Pausen, Krankheit und schwache Wochen gehören dazu. Die Verbindung zum Modell: Die App zählt Comebacks, also Resilienz im Success Loop.
+
+**Weiterverwendung:**
+- „Ein Jahr weiter“ übernimmt den Fokus aus dem ersten gewählten Bereich und das Warum aus dem Zukunftsbild (editierbar). Ein zweites Zukunftsbild wird dort nicht mehr abgefragt.
+- Der Ziel-Screen zeigt „Dein Bild in drei Jahren“ und „Erfolg heißt für dich“ über dem Formular.
+- Werte und Standards zeigen „Wer du werden willst“ (Frage 5).
+- In der App zeigt die Karte unter „Mein Leben“ die Person und das Erfolgsbild. Das Sheet `future` bietet Gegenüberstellung und Bearbeiten.
+
+**Datenschutz:** Für die Freitexte gilt dasselbe wie beim Life Audit. Sie bleiben lokal. `LC.futureForSync` liefert nur Struktur, keine Texte.
 
 ## Modul: Life Audit (`LifeAudit`, Logik in `life-core.js`)
 

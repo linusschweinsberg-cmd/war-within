@@ -248,6 +248,20 @@ function auditSummary(audit){const A=(audit||{}).areas||{};const by={};AREAS.for
  return{rated,touched,areas,obst:Object.entries(obst).sort((p,q)=>q[1]-p[1]).map(([id,n])=>({id,n})),wish,total:AUDIT_AREAS.length}}
 function auditForSync(audit){const A=(audit||{}).areas||{};return{v:1,areas:Object.fromEntries(Object.entries(A).map(([id,x])=>[id,{sat:x.sat??null,obst:[...(x.obst||[])],hasText:!!(x.now||x.proud||x.change),skip:!!x.skip}]))}}
 
+/* ───── „Wer könntest du werden?“ – eigenes Erfolgsbild, heutiges vs. mögliches Ich ─────
+   Erfolg definiert der Nutzer selbst (Auswahl ist nur Anregung, eigene Formulierung möglich).
+   Freitexte sind privat wie im Life Audit; futureForSync liefert nur Struktur, keine Texte. */
+const FUTURE_SUCCESS=['Zeit für das, was mir wichtig ist','Gesund und kräftig bleiben','Tiefe Beziehungen','Etwas meisterhaft können','Innere Ruhe','Für andere da sein','Finanzielle Sicherheit','Freiheit, selbst zu entscheiden','Etwas Eigenes aufbauen','Neues erleben'];
+const FUTURE_TXT={past1:200,past2:200,past3:200,vision:280,identity:200,successOwn:120,now:120,then:120};
+function cleanFuture(x){const o={};if(!x)return o;const t=(k,v)=>typeof v==='string'&&v.trim()?v.slice(0,FUTURE_TXT[k]):null;
+ ['past1','past2','past3','vision','identity','successOwn'].forEach(k=>{const v=t(k,x[k]);if(v)o[k]=v});
+ const su=(x.success||[]).filter(s=>FUTURE_SUCCESS.includes(s));if(su.length)o.success=[...new Set(su)].slice(0,3);
+ const rows=(x.rows||[]).filter(r=>r&&AUDIT[r.area]).map(r=>{const y={area:r.area};const n=t('now',r.now),th=t('then',r.then);if(n)y.now=n;if(th)y.then=th;return y});
+ const seen=new Set();const R=rows.filter(r=>!seen.has(r.area)&&seen.add(r.area)).slice(0,4);if(R.length)o.rows=R;return o}
+/* Erfolgsbild als lesbarer Satz (für Ziel- und Standardsetzung) */
+const futureSuccess=f=>[...((f&&f.success)||[]),...(f&&f.successOwn?[f.successOwn.trim()]:[])];
+function futureForSync(f){const x=cleanFuture(f);return{v:1,success:[...(x.success||[])],hasOwn:!!x.successOwn,hasVision:!!x.vision,hasIdentity:!!x.identity,rows:(x.rows||[]).map(r=>({area:r.area,hasNow:!!r.now,hasThen:!!r.then}))}}
+
 /* ───── Ziele und Handlungen anlegen / ändern ───── */
 function addAction(S,goal,x){const L=S.life,area=goal.area,act=areaAct(S,area);const a={id:'a'+uid(),goalId:goal.id,title:x.title,perWeek:clamp(+x.perWeek||1,1,7),minutes:x.minutes||null,when:x.when||'',since:curWk(L)};
  const mid=x.missionId&&(S.missions||[]).some(m=>m.id===x.missionId)?x.missionId:null;
@@ -368,5 +382,5 @@ function parseV(metric,s){if(s==null)return null;s=String(s).trim();if(!s)return
 
 G.LC={LIFE_V,AREAS,AREA,LINKS,ACT_AREA,areaAct,VALUES,WHY_Q,GOAL_TPL,OBSTACLES,OBST,BLOCK_MAP,RULES,LOOP,
  wkOf,curWk,actById,goalById,actionsOf,actLabel,missionTitle,plannedAt,doneIn,goalWeek,weekRate,measOf,goalNow,goalStart,better,reached,goalProgress,trend,diagnose,suggest,
- startExperiment,evalExperiment,decideExperiment,reviewWeek,weekSummary,obstacleCounts,saveWeeklyReview,onComplete,onAdvance,onDailyReview,addMeasurement,addAction,addGoal,updateGoal,setGoalStatus,insights,loopStage,newLife,ensureLife,MOODS,DEBRIEF_OBST,CHANGES,onDebrief,debriefPatterns,monthlyDue,saveMonthly,AUDIT_AREAS,AUDIT,AUDIT_MAX,setAudit,auditState,auditSummary,auditForSync,EVE_WHEN,EVE_RISK,ifThen,onEvening,eveningFor,eveningStats,TEMPLE_LEN,STAGES,PHASES,TEMPLE_RULES,newTemple,syncTemple,columnState,foundationLevel,templeState,closeTempleSeason,areaWeek,fmtV,parseV,syncMission};
+ startExperiment,evalExperiment,decideExperiment,reviewWeek,weekSummary,obstacleCounts,saveWeeklyReview,onComplete,onAdvance,onDailyReview,addMeasurement,addAction,addGoal,updateGoal,setGoalStatus,insights,loopStage,newLife,ensureLife,MOODS,DEBRIEF_OBST,CHANGES,onDebrief,debriefPatterns,monthlyDue,saveMonthly,FUTURE_SUCCESS,FUTURE_TXT,cleanFuture,futureSuccess,futureForSync,AUDIT_AREAS,AUDIT,AUDIT_MAX,setAudit,auditState,auditSummary,auditForSync,EVE_WHEN,EVE_RISK,ifThen,onEvening,eveningFor,eveningStats,TEMPLE_LEN,STAGES,PHASES,TEMPLE_RULES,newTemple,syncTemple,columnState,foundationLevel,templeState,closeTempleSeason,areaWeek,fmtV,parseV,syncMission};
 })(typeof window!=='undefined'?window:globalThis);

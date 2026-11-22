@@ -116,3 +116,11 @@ t4('Audit: Übersicht wertet Fehlendes nicht als schlecht',()=>{let A=LC.setAudi
 t4('Audit: Synchronisationsform enthält keine Freitexte',()=>{const A=LC.setAudit({},'people',{sat:6,now:'Sehr privat',proud:'auch privat',change:'privat'});const y=JSON.stringify(LC.auditForSync(A));
  assert.ok(!/privat/.test(y));assert.ok(/"hasText":true/.test(y));assert.ok(/"sat":6/.test(y))});
 console.log('PASS life-audit: '+ok4.join(' · '))}
+/* Wer könntest du werden? */
+{const ok5=[];const t5=(n,f)=>{f();ok5.push(n)};
+t5('Zukunft: nur eigene Inhalte, leere und fremde Werte fliegen raus',()=>{const f=LC.cleanFuture({success:['Innere Ruhe','Reich werden','Innere Ruhe'],successOwn:'  ',vision:'v'.repeat(400),past1:'',rows:[{area:'body',now:'müde',then:''},{area:'body',now:'doppelt'},{area:'gibtsnicht',now:'x'}]});
+ assert.deepEqual([...f.success],['Innere Ruhe'],'keine aufgezwungenen Maßstäbe, nur aus Auswahl');assert.equal(f.successOwn,undefined);assert.equal(f.vision.length,LC.FUTURE_TXT.vision);assert.equal(f.past1,undefined);
+ assert.equal(f.rows.length,1);assert.equal(f.rows[0].now,'müde');assert.equal(f.rows[0].then,undefined)});
+t5('Zukunft: eigenes Erfolgsbild zählt gleichwertig',()=>{assert.deepEqual([...LC.futureSuccess({success:['Innere Ruhe'],successOwn:'Mit meinen Kindern Zeit haben'})],['Innere Ruhe','Mit meinen Kindern Zeit haben'])});
+t5('Zukunft: Synchronisationsform ohne Texte',()=>{const y=JSON.stringify(LC.futureForSync({vision:'Sehr persönlich',identity:'Jemand, der dranbleibt',rows:[{area:'mind',now:'privat',then:'privat'}]}));assert.ok(!/persönlich|dranbleibt|privat/.test(y));assert.ok(/"hasVision":true/.test(y))});
+console.log('PASS zukunft: '+ok5.join(' · '))}
