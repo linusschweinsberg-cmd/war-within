@@ -12,7 +12,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Rückgängig: Abhaken, Standards (Erledigt/Minimum), erster Schritt und Import zeigen 5 Sekunden „Rückgängig“ (Snapshot des Spielstands, `c.restore`).
 - Sicherung: Optionen › „Daten sichern“ exportiert/importiert den Spielstand als JSON (enthält private Texte, bleibt beim Nutzer). Import prüft `v===5`, ersetzt erst nach Bestätigung und ist rückgängig machbar.
 - Erste Woche nach dem Onboarding: `life.fund.ob.calmUntil` (7 Tage) blendet Punkte, Liga, Nemesis und Duell aus (über `focusMode`); „Jetzt alles zeigen“ oder Fokusmodus aus beendet das vorzeitig.
-- Service Worker: Seite und eigene `.js`-Dateien werden zuerst aus dem Netz geladen, CDN-Dateien zuerst aus dem Cache. So stammen `index.html` und `life-core.js` immer aus derselben Version.
+- Service Worker: Seite und eigene `.js`-Dateien werden zuerst aus dem Netz geladen, CDN-Dateien zuerst aus dem Cache. Eigene Skript-URLs tragen zusätzlich die Release-Version, damit auch ein zuvor installierter cache-first-Worker neue Abhängigkeiten lädt. Beim Release URL-Versionen und APP_SHELL zusammen mit VERSION erhöhen.
 - Life-OS-Logik (Ziele, Messwerte, Handlungen, Rückblicke, Experimente, Migration) liegt in `life-core.js` (`window.LC`), Daten in `S.life`. Details: `docs/LIFE-OS.md`.
 - Wisdom of the Warrior (Bibliothek mit 72 Impulsen, regelbasierte Auswahl, Favoriten) liegt in `wisdom-core.js` (`window.WC`), Daten in `S.wisdom`. Details: `docs/WISDOM.md`.
 - Der Rest liegt in einem <script>-Block, Abschnitte: Daten (CORE, M0, SEASON_DEF, Punkte-Katalog), UI (Ring, Radar, LifeTree), Start/Aufgaben/Duell, Liga, Stats, Sheets, App.
@@ -27,6 +27,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
+- Codex: Integration von Claude mit Review-Korrekturen, Branch `codex/integrate-claude-fixes`. Dateien: `index.html`, `life-core.js`, `sw.js`, `tests/`, `docs/INTEGRATION.md`, `AGENTS.md`.
 - Claude: Wisdom of the Warrior, Branch `claude/wisdom` (PR offen, Review durch Codex). Dateien: `wisdom-core.js` (neu), `index.html`, `sw.js`, `tests/wisdom-core.cjs` (neu), `tests/release-smoke.cjs` (lädt wisdom-core.js), `docs/WISDOM.md` (neu).
 - Claude: Abendritual, Branch `claude/abendritual` (baut auf `claude/wisdom` auf). Dateien: `life-core.js`, `index.html`, `sw.js`, `tests/life-core.cjs`, `docs/LIFE-OS.md`.
 - Claude: Onboarding als Geschichte, Branch `claude/onboarding-story` (baut auf `claude/abendritual` auf). Dateien: `index.html`, `life-core.js` (`ifThen`, Life Audit), `sw.js` (Netz zuerst für eigene Skripte), `tests/release-smoke.cjs`, `tests/life-core.cjs`, `tests/ftue-flows.cjs` (neu), `docs/ONBOARDING.md`, `docs/FTUE.md` (neu). Enthält auch: persönliche Standards, „Dein persönliches Fundament“, Einladungen, erstes Commitment.
@@ -40,7 +41,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v42` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v56` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`, `node tests/ftue-flows.cjs` (Abläufe: neu, vollständig, übersprungen, zurückkehrend). Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Produktprinzip (verbindlich)

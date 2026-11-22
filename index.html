@@ -18,10 +18,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js"></script>
-<script src="auth.js"></script>
-<script src="life-core.js"></script>
-<script src="wisdom-core.js"></script>
+<script src="supabase-config.js?v=ww-v56"></script>
+<script src="auth.js?v=ww-v56"></script>
+<script src="life-core.js?v=ww-v56"></script>
+<script src="wisdom-core.js?v=ww-v56"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -144,8 +144,8 @@ input[type=range]{accent-color:var(--acc)}
 @keyframes flinch{0%{filter:none}35%{filter:brightness(2.2)}100%{filter:none}}
 /* ───── Design-System v2 ─────
    Farbrollen: Lila = du · Rot = Nemesis · Grün = erledigt · Gold = Belohnung · Orange = Warnung */
-:root,[data-theme=dark]{--you:var(--acc2);--nem:#FF5C7A;--done:#34D399;--gold:#FBBF24;--warn:#F59E0B}
-[data-theme=light]{--you:var(--acc-d);--nem:#E11D48;--done:#047857;--gold:#B45309;--warn:#B45309;--acc2:var(--acc-d);--mute:#55596D;--line:rgba(20,22,40,.12);--ghost:rgba(20,22,40,.06);--mr1:#D6CEF3;--mr2:#AFA2E0;--mr3:#8676CC}
+:root,[data-theme=dark]{--you:var(--acc2);--nem:#9AA7B6;--done:#34D399;--gold:#FBBF24;--warn:#F59E0B}
+[data-theme=light]{--you:var(--acc-d);--nem:#4D5967;--done:#047857;--gold:#B45309;--warn:#B45309;--acc2:var(--acc-d);--mute:#55596D;--line:rgba(20,22,40,.12);--ghost:rgba(20,22,40,.06);--mr1:#D6CEF3;--mr2:#AFA2E0;--mr3:#8676CC}
 /* Ruhe: weniger Glanz, keine Dauer-Effekte ohne Bedeutung */
 .app:after{opacity:.018}
 .bar-fill:after{display:none}
@@ -200,8 +200,8 @@ html,body{background:radial-gradient(1200px 600px at 50% -10%,#24150D 0%,#080605
 .no-anim *{animation:none!important}
 .t-weathered{filter:saturate(.5) brightness(.92)}
 /* Wählbar: klassisches Violett */
-[data-skin=violet][data-theme=dark]{--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--acc3:#C4B5FD;--acc-d:#6D28D9;--acc-d2:#4C1D95;--acc-rgb:139,92,246;--acc2-rgb:167,139,250;--acc3-rgb:196,181,253;--good:#34D399;--good-rgb:52,211,153;--gold:#FBBF24;--gold-rgb:251,191,36;--sky:#7DD3FC;--sky-rgb:56,189,248;--you:#A78BFA;--nem:#FF5C7A;--done:#34D399;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05);--glow:rgba(139,92,246,.22);--body-glow:#1A1230;--card-g:linear-gradient(180deg,#1C1C21 0%,#17171A 100%);--card2-g:linear-gradient(180deg,#26262C,#212126);--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mtr:#CFC4FF}
-[data-skin=violet][data-theme=light]{--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.12);--ink:#14161C;--mute:#55596D;--acc:#7C3AED;--acc2:#6D28D9;--acc3:#8B5CF6;--acc-d:#5B21B6;--acc-d2:#4C1D95;--acc-rgb:124,58,237;--acc2-rgb:109,40,217;--acc3-rgb:139,92,246;--good:#0E9F6E;--good-rgb:14,159,110;--gold:#B45309;--gold-rgb:180,83,9;--sky:#0369A1;--sky-rgb:3,105,161;--you:#6D28D9;--nem:#E11D48;--done:#047857;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.06);--glow:rgba(124,58,237,.14);--card-g:linear-gradient(180deg,#FFFFFF 0%,#FBFAFF 100%);--card2-g:linear-gradient(180deg,#F3F0FC,#ECE8FA);--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#D6CEF3;--mr2:#AFA2E0;--mr3:#8676CC;--msn:#FFFFFF;--mgr:#6657AE;--mtr:#FFFFFF}
+[data-skin=violet][data-theme=dark]{--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--acc3:#C4B5FD;--acc-d:#6D28D9;--acc-d2:#4C1D95;--acc-rgb:139,92,246;--acc2-rgb:167,139,250;--acc3-rgb:196,181,253;--good:#34D399;--good-rgb:52,211,153;--gold:#FBBF24;--gold-rgb:251,191,36;--sky:#7DD3FC;--sky-rgb:56,189,248;--you:#A78BFA;--nem:#9AA7B6;--done:#34D399;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05);--glow:rgba(139,92,246,.22);--body-glow:#1A1230;--card-g:linear-gradient(180deg,#1C1C21 0%,#17171A 100%);--card2-g:linear-gradient(180deg,#26262C,#212126);--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mtr:#CFC4FF}
+[data-skin=violet][data-theme=light]{--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.12);--ink:#14161C;--mute:#55596D;--acc:#7C3AED;--acc2:#6D28D9;--acc3:#8B5CF6;--acc-d:#5B21B6;--acc-d2:#4C1D95;--acc-rgb:124,58,237;--acc2-rgb:109,40,217;--acc3-rgb:139,92,246;--good:#0E9F6E;--good-rgb:14,159,110;--gold:#B45309;--gold-rgb:180,83,9;--sky:#0369A1;--sky-rgb:3,105,161;--you:#6D28D9;--nem:#4D5967;--done:#047857;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.06);--glow:rgba(124,58,237,.14);--card-g:linear-gradient(180deg,#FFFFFF 0%,#FBFAFF 100%);--card2-g:linear-gradient(180deg,#F3F0FC,#ECE8FA);--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#D6CEF3;--mr2:#AFA2E0;--mr3:#8676CC;--msn:#FFFFFF;--mgr:#6657AE;--mtr:#FFFFFF}
 [data-skin=violet] .chip.on{background:linear-gradient(135deg,var(--acc2),var(--acc))}
 /* ───── Designkonzept (Nov 2026): Stein statt Neon, ein Akzent ─────
    Tokens aus „THE WAR WITHIN – Designkonzept“ 3.1. Terrakotta = Handlung/Fortschritt (auch Haken), Gold = Auszeichnung,
@@ -292,6 +292,7 @@ html:has([data-skin=antik]),body:has([data-skin=antik]){background:#050404}
 .wis-rt{display:block;font-family:'Cinzel',serif;font-weight:500;font-size:15px;line-height:23px;letter-spacing:.03em}
 .wis-rc{display:flex;justify-content:space-between;gap:8px;margin-top:6px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
 @media (max-width:359px){.wis-k{letter-spacing:.12em}}
+:root{--scene-silhouette:color-mix(in srgb,var(--bg) 70%,black);--scene-armour:color-mix(in srgb,var(--bg) 85%,var(--mute));--scene-ridge:color-mix(in srgb,var(--bg) 80%,var(--mute))}
 </style>
 </head>
 <body>
@@ -1637,20 +1638,20 @@ function SelfCompare({c}){
   <div className="grid grid-cols-2 gap-2 mt-2"><div className="card2 p-3"><div className="text-[10.5px] mute">Streak jetzt / Best</div><div className="disp text-[26px]">${S.streak} <span className="text-[14px] mute">/ ${Math.max(S.streak,S.bestStreak||0)}</span></div></div><div className="card2 p-3"><div className="text-[10.5px] mute">Ø Erfolgsgrad</div><div className="disp text-[26px]">${q?q.avg:'–'}</div></div></div>
   <div className="text-[10.5px] mute mt-3 leading-relaxed">Vergleich mit deinen Startwerten (im Prototyp Demo-Werte). Wochenpunkte: nur gespeicherte Abschlüsse, ohne laufende Woche. Ø je Zeitraum; Prozentvergleich ab acht Wochen. Vergleiche dich mit dir, nicht mit anderen.</div></div>`}
 /* ───── PROTOTYP-SCREENS (Designkonzept 5.2–5.6): Szene, Tagesfortschritt, Duell, Saison-Fresko, Kompass ─────
-   Nur Darstellung und Anordnung; Daten und Handler kommen aus den bestehenden Funktionen. Illustrationsfarben stehen im SVG. */
+   Nur Darstellung und Anordnung; Daten und Handler kommen aus den bestehenden Funktionen. Illustrationen beziehen Farben aus Theme- und Rollen-Tokens. */
 const slotOf=now=>now<300||now>=1200?'Nacht':now<660?'Morgen':now<900?'Mittag':'Abend';
-const SLOT_PAL={Morgen:['#3a2216','#C4502B',1,'#E8D9C3',135],Mittag:['#2b2420','#E8D9C3',.35,'#E8D9C3',75],Abend:['#2a1210','#B03A22',1,'#D9B99A',130],Nacht:['#0c0c11','#C9C2B5',.3,'#A89C8C',65]};
+const SLOT_PAL={Morgen:['var(--mt1)','var(--acc)',1,'var(--stone)',135],Mittag:['var(--mt2)','var(--stone)',.35,'var(--stone)',75],Abend:['var(--mt1)','var(--acc-d)',1,'var(--stone)',130],Nacht:['var(--bg)','var(--mute)',.3,'var(--mute)',65]};
 const deDate=t=>new Date(t).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
 /* Hoplit als Silhouette (Linolschnitt-Anmutung): Helm, Umhang, Speer und Schild bestimmen die Kontur */
-function HopliteFig({cape='#7d2315',plume=true,ghost}){const dk=ghost?'#8a7a66':'#080606',dk2=ghost?'#8a7a66':'#060505',dk3=ghost?'#8a7a66':'#120e0c',ac=ghost?'#A89C8C':'#C4502B';
- return html`<g><path d="M52 50 C70 52 92 60 108 88 C100 84 96 90 100 104 C92 100 86 108 90 122 C70 112 58 104 46 92Z" fill=${cape}/><path d="M52 50 C66 56 82 66 92 84" fill="none" stroke="#e0714a" strokeWidth="1.2" opacity=".6"/>
- <path d="M38 112 L33 160 L30 178 L42 180 L46 160 L50 120Z" fill=${dk2}/><path d="M52 112 L58 160 L60 178 L72 178 L66 158 L62 112Z" fill=${dk2}/><path d="M32 150 L46 150 L44 170 L31 170Z M57 150 L68 150 L69 170 L58 170Z" fill=${ghost?'#8a7a66':'#2b201a'}/>
+function HopliteFig({cape='var(--nem)',plume=true,ghost}){const dk=ghost?'var(--mute)':'var(--scene-silhouette)',dk2=ghost?'var(--mute)':'var(--scene-silhouette)',dk3=ghost?'var(--mute)':'var(--scene-armour)',ac=ghost?'var(--mute)':cape;
+ return html`<g><path d="M52 50 C70 52 92 60 108 88 C100 84 96 90 100 104 C92 100 86 108 90 122 C70 112 58 104 46 92Z" fill=${cape}/><path d="M52 50 C66 56 82 66 92 84" fill="none" stroke="var(--acc2)" strokeWidth="1.2" opacity=".6"/>
+ <path d="M38 112 L33 160 L30 178 L42 180 L46 160 L50 120Z" fill=${dk2}/><path d="M52 112 L58 160 L60 178 L72 178 L66 158 L62 112Z" fill=${dk2}/><path d="M32 150 L46 150 L44 170 L31 170Z M57 150 L68 150 L69 170 L58 170Z" fill=${ghost?'var(--mute)':'var(--scene-armour)'}/>
  <path d="M36 98 L68 98 L74 124 L30 124Z" fill=${dk3}/><path d="M36 98 L68 98" stroke=${ac} strokeWidth="2"/><path d="M34 52 Q52 46 70 52 L66 100 L38 100Z" fill=${dk}/>
- <path d="M40 58 Q52 54 64 58" stroke="#8a7a66" strokeWidth="1.2" fill="none"/><path d="M42 70 Q52 66 62 70 M43 80 Q52 76 61 80" stroke="#3a2b22" strokeWidth="1.2" fill="none"/><path d="M34 54 L24 68 L22 86 L28 88 L36 72Z" fill=${dk}/>
- <rect x="20.5" y="-6" width="3" height="200" fill="#8a7a66"/><path d="M22 -26 L16 -4 L28 -4Z" fill="#E8D9C3"/><rect x="47" y="40" width="10" height="10" fill=${dk}/>
- <path d="M36 32 C36 14 44 8 52 8 C60 8 68 14 68 32 L68 44 L62 44 L62 36 L42 36 L42 44 L36 44Z" fill=${dk} stroke="#8a7a66" strokeWidth="1.2"/><path d="M44 28 H60 M52 28 V40" stroke="#E8D9C3" strokeWidth="1.2" opacity=".7"/>
+ <path d="M40 58 Q52 54 64 58" stroke="var(--mute)" strokeWidth="1.2" fill="none"/><path d="M42 70 Q52 66 62 70 M43 80 Q52 76 61 80" stroke="var(--line2)" strokeWidth="1.2" fill="none"/><path d="M34 54 L24 68 L22 86 L28 88 L36 72Z" fill=${dk}/>
+ <rect x="20.5" y="-6" width="3" height="200" fill="var(--mute)"/><path d="M22 -26 L16 -4 L28 -4Z" fill="var(--stone)"/><rect x="47" y="40" width="10" height="10" fill=${dk}/>
+ <path d="M36 32 C36 14 44 8 52 8 C60 8 68 14 68 32 L68 44 L62 44 L62 36 L42 36 L42 44 L36 44Z" fill=${dk} stroke="var(--mute)" strokeWidth="1.2"/><path d="M44 28 H60 M52 28 V40" stroke="var(--stone)" strokeWidth="1.2" opacity=".7"/>
  ${plume&&html`<path d="M52 8 C50 -6 66 -10 78 0 C70 -2 62 2 58 10Z" fill=${ac}/>`}
- <circle cx="66" cy="92" r="26" fill=${ghost?'#5a4e42':'#1a1411'} stroke="#8a7a66" strokeWidth="2"/><circle cx="66" cy="92" r="21" fill="none" stroke="#3a2b22" strokeWidth="1.5"/><path d="M66 78 L78 106 H72 L66 92 L60 106 H54Z" fill=${ac} opacity=".9"/></g>`}
+ <circle cx="66" cy="92" r="26" fill=${ghost?'var(--mute)':'var(--scene-armour)'} stroke="var(--mute)" strokeWidth="2"/><circle cx="66" cy="92" r="21" fill="none" stroke="var(--line2)" strokeWidth="1.5"/><path d="M66 78 L78 106 H72 L66 92 L60 106 H54Z" fill=${ac} opacity=".9"/></g>`}
 /* Home-Szene: Sonnenscheibe nach Tageszeit, Tempel, Felsgrat; der Nemesis zeigt, was er gerade erledigt */
 function DayScene({c}){const {S}=c;const now=nowMinOf(c),sl=slotOf(now),[bg,sun,op,stone,sy]=SLOT_PAL[sl],fm=focusMode(S);
  const plan=buildNemesisPlan(nemTasks(S)),cur=getCurrentActivity(plan,now),night=now<plan[0].start||cur.kind==='sleep',g=mainGoal(S);
@@ -1658,8 +1659,8 @@ function DayScene({c}){const {S}=c;const now=nowMinOf(c),sl=slotOf(now),[bg,sun,
  return html`<button onClick=${()=>fm?c.setTab('tasks'):c.openSheet({t:'nemesis'})} className="scene-card" aria-label=${cap+': '+txt}>
  <svg viewBox="0 0 360 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="360" height="230" fill=${bg}/><circle cx="200" cy=${sy} r="78" fill=${sun} opacity=${op}/>
   <g fill=${stone} opacity=".8"><rect x="280" y="118" width="60" height="4"/>${[284,293,302,311,320,329].map(x=>html`<rect key=${x} x=${x} y="100" width="4" height="18"/>`)}<path d="M278 100 L310 88 L342 100Z"/></g>
-  <path d="M0 175 L70 158 L120 170 L190 150 L240 165 L300 140 L360 160 V230 H0Z" fill="#1a1210"/><path d="M0 196 L90 184 L170 190 L250 178 L360 192 V230 H0Z" fill="#080606"/>
-  <g transform="translate(118,30) scale(1.05)"><${HopliteFig} cape=${fm?'#C4502B':'#7d2315'} plume=${!fm}/></g></svg>
+  <path d="M0 175 L70 158 L120 170 L190 150 L240 165 L300 140 L360 160 V230 H0Z" fill="var(--scene-ridge)"/><path d="M0 196 L90 184 L170 190 L250 178 L360 192 V230 H0Z" fill="var(--scene-silhouette)"/>
+  <g transform="translate(118,30) scale(1.05)"><${HopliteFig} cape=${fm?'var(--acc)':'var(--nem)'} plume=${!fm}/></g></svg>
  <span className="scene-lbl"><span className="scene-cap">${cap}</span><b>${txt}</b></span></button>`}
 /* Tagesfortschritt: tägliche und wöchentliche Missionen von heute */
 /* Fokus des Tages: Ziel-Handlungen, Kernaufgaben, Briefing (im Comeback die Comeback-Liste) */
@@ -1673,12 +1674,12 @@ function DuelPair({c,tap=true}){const d=duelNow(c.S,nowMinOf(c));const cells=[['
  return tap?html`<button onClick=${()=>c.setTab('solo')} className="grid grid-cols-2 gap-2 mt-2 w-full bg-transparent border-0 p-0" aria-label=${'Duell: du '+d.X+', Nemesis '+d.Z+' von '+d.Y+'. Zum Duell'}>${cells}</button>`:html`<div className="grid grid-cols-2 gap-2 mt-2">${cells}</div>`}
 /* Arena: zwei Hopliten, der Führende steht höher; keine Effekte */
 function ArenaScene({c,lead,label='Nemesis',ghost}){const sl=slotOf(nowMinOf(c)),[sky,sun,op]=SLOT_PAL[sl];const rows=[0,1,2,3];
- return html`<svg viewBox="0 0 360 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style=${{display:'block',width:'100%',height:'100%'}}><rect width="360" height="220" fill=${sky}/><circle cx="180" cy="84" r="58" fill=${sun} opacity=${op}/><rect x="0" y="80" width="360" height="4" fill="#3a2e26"/>
- ${rows.map(i=>html`<g key=${i}><rect x="0" y=${84+i*16} width="360" height="16" fill=${i%2?'#1c1410':'#241a14'}/>${Array.from({length:18},(_,k)=>html`<rect key=${k} x=${8+(i%2)*10+k*20} y=${87+i*16} width="3" height="10" fill="#E8D9C3" opacity=".12"/>`)}</g>`)}
- <rect x="0" y="148" width="360" height="72" fill="#3d2e22"/><ellipse cx="180" cy="192" rx="210" ry="34" fill="#4a382a"/><path d="M180 150 V218" stroke="#E8D9C3" opacity=".15" strokeDasharray="4 5"/><ellipse cx="180" cy="192" rx="140" ry="22" fill="none" stroke="#E8D9C3" opacity=".12"/>
- <g transform=${`translate(42,${lead==='me'?22:30}) scale(.75)`}><${HopliteFig} cape="#C4502B" plume=${false}/></g>
- <g transform=${`translate(318,${lead==='nem'?22:30}) scale(-.75,.75)`} opacity=${ghost?.6:1}><${HopliteFig} cape=${ghost?'#A89C8C':'#7d2315'} ghost=${ghost}/></g>
- <text x="62" y="212" fontSize="10" fontFamily="Inter" fontWeight="600" letterSpacing="1.5" fill="#E8D9C3" opacity=".8">DU</text><text x="298" y="212" textAnchor="end" fontSize="10" fontFamily="Inter" fontWeight="600" letterSpacing="1.5" fill="#E8D9C3" opacity=".8">${label.toUpperCase()}</text></svg>`}
+ return html`<svg viewBox="0 0 360 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style=${{display:'block',width:'100%',height:'100%'}}><rect width="360" height="220" fill=${sky}/><circle cx="180" cy="84" r="58" fill=${sun} opacity=${op}/><rect x="0" y="80" width="360" height="4" fill="var(--bg2)"/>
+ ${rows.map(i=>html`<g key=${i}><rect x="0" y=${84+i*16} width="360" height="16" fill=${i%2?'var(--card)':'var(--card2)'}/>${Array.from({length:18},(_,k)=>html`<rect key=${k} x=${8+(i%2)*10+k*20} y=${87+i*16} width="3" height="10" fill="var(--stone)" opacity=".12"/>`)}</g>`)}
+ <rect x="0" y="148" width="360" height="72" fill="var(--bg2)"/><ellipse cx="180" cy="192" rx="210" ry="34" fill="var(--card2)"/><path d="M180 150 V218" stroke="var(--stone)" opacity=".15" strokeDasharray="4 5"/><ellipse cx="180" cy="192" rx="140" ry="22" fill="none" stroke="var(--stone)" opacity=".12"/>
+ <g transform=${`translate(42,${lead==='me'?22:30}) scale(.75)`}><${HopliteFig} cape="var(--acc)" plume=${false}/></g>
+ <g transform=${`translate(318,${lead==='nem'?22:30}) scale(-.75,.75)`} opacity=${ghost?.6:1}><${HopliteFig} cape=${ghost?'var(--mute)':'var(--nem)'} ghost=${ghost}/></g>
+ <text x="62" y="212" fontSize="10" fontFamily="Inter" fontWeight="600" letterSpacing="1.5" fill="var(--stone)" opacity=".8">DU</text><text x="298" y="212" textAnchor="end" fontSize="10" fontFamily="Inter" fontWeight="600" letterSpacing="1.5" fill="var(--stone)" opacity=".8">${label.toUpperCase()}</text></svg>`}
 /* Duell heute: Szene, Punkte, Tauziehen, Runden nach Tageszeit, Reaktion, Tagesverlauf */
 function NemDuel({c}){const {S}=c;const now=nowMinOf(c);const d=duelNow(S,now),{plan,X,Y,Z}=d;const cur=getCurrentActivity(plan,now),night=now<plan[0].start||cur.kind==='sleep';
  const lead=X>Z?'me':X<Z?'nem':'',tug=X+Z?Math.min(92,Math.max(8,X/(X+Z)*100)):50;
@@ -2575,7 +2576,7 @@ function debriefPlan(S,D){const b=briefToday(S);const gm=goalMs(S);const ids=new
  return[...ids].map(id=>D.allM.find(m=>m.id===id)).filter(m=>m&&m.id!=='m_ref')}
 /* Abendritual: Kandidaten für morgen. Ausgelassenes zuerst; sonntags beginnt morgen eine neue Woche */
 function eveCands(S,D,skipped){const gm=goalMs(S),nw=D.di===6,seen=new Set(),out=[];const push=x=>{if(x&&!seen.has(x.m.id)){seen.add(x.m.id);out.push(x)}};
- skipped.forEach(m=>push(gm.find(x=>x.m.id===m.id&&(nw||weekLeft(S,x)>0))));gm.forEach(x=>{if(nw||weekLeft(S,x)>0)push(x)});const sc=Object.values((S.life&&S.life.standards)||{}).filter(x=>x.std&&!x.aid&&x.status!=='paused').map(x=>({a:{title:x.std.text,minutes:x.std.minutes,when:''},g:{title:'Standard · '+LC.AREA[x.area].de},m:{id:'std:'+x.area}}));return [...out.slice(0,4),...sc].slice(0,5)}
+ skipped.forEach(m=>push(gm.find(x=>x.m.id===m.id&&(nw||weekLeft(S,x)>0))));gm.forEach(x=>{if(nw||weekLeft(S,x)>0)push(x)});const sc=Object.values((S.life&&S.life.standards)||{}).filter(x=>x.std&&!x.aid&&x.status!=='paused').map(x=>({a:{title:x.std.text,minutes:x.std.minutes,when:''},g:{title:'Standard · '+LC.AREA[x.area].de},m:{id:'std:'+x.area}}));return [...out,...sc]}
 const dChips=(opts,val,set)=>html`<div className="flex flex-wrap gap-1.5">${opts.map(([k,l])=>html`<button key=${k} aria-pressed=${val===k} onClick=${()=>set(val===k?null:k)} className=${`chip ${val===k?'on':''}`} style=${{minHeight:38,padding:'8px 14px',fontSize:13}}>${l}</button>`)}</div>`;
 function EveningStep({c,cands,pre}){const {S}=c;const L=S.life;const [mid,setMid]=useState(pre&&cands.some(y=>y.m.id===pre)?pre:cands[0].m.id);const x=cands.find(y=>y.m.id===mid)||cands[0];
  const [when,setWhen]=useState(()=>LC.EVE_WHEN.some(e=>e[0]===x.a.when)?x.a.when:'morgens'),[risk,setRisk]=useState(null);const st=useMemo(()=>LC.eveningStats(L),[]);
@@ -3460,8 +3461,8 @@ function CalmCard({c}){const {S}=c;const n=calmLeft(S);if(!n||(S.life&&S.life.fo
 const AUTH_KEY='war_within_auth_v1';
 const GUEST_KEY='war_within_v5',ACC_KEY='war_within_acc_v1';
 const authApi=window.authApi;
-const loadAuth=()=>{try{const r=localStorage.getItem(AUTH_KEY);if(r){const a=JSON.parse(r);if(a&&typeof a==='object')return {...a,session:a.session?.mode==='guest'?a.session:null}}}catch(e){}return{session:null,account:null,onboarded:false,ob:null}};
-const saveAuth=a=>{try{localStorage.setItem(AUTH_KEY,JSON.stringify(a))}catch(e){}};
+const loadAuth=()=>{try{const r=localStorage.getItem(AUTH_KEY);if(r){const a=JSON.parse(r);if(a&&typeof a==='object')return {...a,obUserId:a.ob?(a.obUserId||(a.session?.mode==='supabase'?a.session.id:null)):null,session:a.session?.mode==='guest'?a.session:null}}}catch(e){}return{session:null,account:null,onboarded:false,ob:null}};
+const saveAuth=a=>{try{localStorage.setItem(AUTH_KEY,JSON.stringify({...a,obUserId:a.ob?(a.session?.mode==='supabase'?a.session.id:a.obUserId||null):null}))}catch(e){}};
 const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const guessTz=()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||'Europe/Berlin'}catch(e){return'Europe/Berlin'}};
 const TZS=['Europe/Berlin','Europe/Vienna','Europe/Zurich','Europe/London','Europe/Paris','Europe/Madrid','Europe/Istanbul','America/New_York','America/Chicago','America/Los_Angeles','Asia/Dubai','Asia/Tokyo','Australia/Sydney','UTC'];
@@ -3780,7 +3781,7 @@ function Root(){
  const [A,setA]=useState(loadAuth);const [ready,setReady]=useState(false);const [authError,setAuthError]=useState('');const [boot,setBoot]=useState({init:null,key:0});
  const set=useCallback(fn=>setA(p=>{const n={...p,...fn(p)};saveAuth(n);return n}),[]);
  useEffect(()=>{let active=true;
- const apply=({session,recovery})=>{if(!active)return;setBoot(b=>({init:null,key:b.key+1}));setA(p=>{const next={...p,session:session||(p.session?.mode==='guest'?p.session:null),recovery:!!recovery,onboarded:session?!!localStorage.getItem(ACC_KEY+'_'+session.id):false,ob:session?.id===p.session?.id?p.ob:null};if(session?.id===p.session?.id)next.onboarded=p.onboarded;saveAuth(next);return next});setReady(true)};
+ const apply=({session,recovery})=>{if(!active)return;setBoot(b=>({init:null,key:b.key+1}));setA(p=>{const sameUser=session?session.id===(p.session?.id||p.obUserId):p.session?.mode==='guest';const next={...p,session:session||(p.session?.mode==='guest'?p.session:null),recovery:!!recovery,onboarded:session?!!localStorage.getItem(ACC_KEY+'_'+session.id):false,ob:sameUser?p.ob:null,obUserId:session&&sameUser&&p.ob?session.id:null};if(sameUser)next.onboarded=p.onboarded;saveAuth(next);return next});setReady(true)};
  const unsub=authApi.subscribe(apply);authApi.restore().then(apply).catch(e=>{if(active){setAuthError(e.message);setReady(true)}});return()=>{active=false;unsub()};},[]);
  const skey=A.session&&A.session.mode!=='guest'?ACC_KEY+'_'+A.session.id:GUEST_KEY;
  const theme=(()=>{try{const st=JSON.parse(localStorage.getItem(skey)||'{}');window.__wwSkin=st.skin||'antik';return st.theme||'dark'}catch(e){return'dark'}})();

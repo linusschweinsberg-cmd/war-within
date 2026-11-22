@@ -5,7 +5,7 @@ const source=fs.readFileSync(dir+'/index.html','utf8');
 const script=[...source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).find(s=>s.includes('function loadState'));
 const store={};const c=vm.createContext({window:{authApi:{}},React:{},htm:{bind:()=>()=>null},ReactDOM:{createRoot:()=>({render(){}})},document:{getElementById:()=>({})},localStorage:{getItem:k=>store[k]??null,setItem:(k,v)=>{store[k]=String(v)},removeItem:k=>{delete store[k]}},console});
 vm.runInContext(fs.readFileSync(dir+'/life-core.js','utf8'),c);vm.runInContext(fs.readFileSync(dir+'/wisdom-core.js','utf8'),c);
-vm.runInContext(script+'\nglobalThis.api={buildState,newOb,draftFromTpl,loadState,obScreens,obShortTarget,obCommitProposal,obCtrlCards,focusMode,OB_SCREENS,derive,briefCands,dayKey,eveToday,nextAction};',c);
+vm.runInContext(script+'\nglobalThis.api={buildState,newOb,draftFromTpl,loadState,obScreens,obShortTarget,obCommitProposal,obCtrlCards,eveCands,initState,focusMode,OB_SCREENS,derive,briefCands,dayKey,eveToday,nextAction};',c);
 const a=c.api,LC=c.window.LC,ses={mode:'guest',name:'Gast'};const ok=[];const t=(n,f)=>{f();ok.push(n)};
 const ids=ob=>[...a.obScreens(ob)].map(x=>x.id);
 const finish=ob=>{const n=a.buildState(ob,ses);LC.ensureLife(n);return n};
@@ -63,3 +63,7 @@ t('Stufen bauen aufeinander auf: Audit prägt Eigenverantwortung',()=>{const ob=
 t('Erste Woche: ruhiger Start, jederzeit aufhebbar',()=>{const ob=a.newOb('Ben');ob.commit={kind:'own',step:'x'};const n=finish(ob);assert.equal(n.life.fund.ob.calmUntil,7);assert.equal(a.focusMode(n),true,'Nemesis und Punkte zunächst im Hintergrund');
  n.life.d=7;assert.equal(a.focusMode(n),false,'nach einer Woche alles sichtbar');n.life.d=2;n.life.fund.ob.calmOff=true;assert.equal(a.focusMode(n),false)});
 console.log('PASS ftue-flows: '+ok.join(' · '));
+
+t('Fundament löschen entfernt auch die ins Warum kopierte Vision',()=>{const ob=a.newOb('Test');ob.future={vision:'PRIVATE_VISION_MARKER'};ob.why=ob.future.vision;ob.goal=a.draftFromTpl(LC.GOAL_TPL[0]);const S=finish(ob);const goals=JSON.stringify(S.life.goals),log=JSON.stringify(S.life.log);assert.ok(JSON.stringify(S).includes('PRIVATE_VISION_MARKER'));LC.clearFoundation(S);assert.ok(!JSON.stringify(S).includes('PRIVATE_VISION_MARKER'));assert.equal(JSON.stringify(S.life.goals),goals);assert.equal(JSON.stringify(S.life.log),log)});
+t('Sonntag: alle aktiven Ziel-Handlungen und Standards sind erreichbar',()=>{const S=LC.ensureLife(a.initState());for(let i=0;i<5;i++)LC.addGoal(S,{...LC.GOAL_TPL.find(x=>x.id==='skill'),title:'Ziel '+i});S.day=6;S.life.d=6;LC.setStandard(S.life,'wealth',{std:{text:'Eigener Standard',perWeek:1}});const active=S.life.actions.filter(x=>!x.off&&S.life.goals.find(g=>g.id===x.goalId)?.status==='active');const before=JSON.stringify(active),cands=a.eveCands(S,a.derive(S),[]);assert.ok(active.length>4);for(const ac of active)assert.ok(cands.some(x=>x.m.id===ac.missionId));assert.ok(cands.some(x=>x.m.id==='std:wealth'));assert.equal(JSON.stringify(active),before)});
+console.log('PASS integration regressions: private copies cleared, complete Sunday candidates');
