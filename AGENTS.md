@@ -27,6 +27,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
+- Codex: Zukunfts-Ich, Branch `codex/future-self` (auf `codex/today-focus`, PR #21). Dateien: `future-self-core.js` (neu), `index.html`, `sw.js`, `tests/`, `docs/FUTURE-SELF.md`. Claude reviewt vor Merge.
 - Codex: Vereinfachte Heute-Ansicht, Branch `codex/today-focus` (auf `codex/calendar-reliability`, PR #20). Dateien: `index.html`, `sw.js`, `tests/`, `docs/TODAY.md`. Claude reviewt vor Merge.
 - Codex: Kalenderzuverlässigkeit, Branch `codex/calendar-reliability`. Dateien: `index.html`, `life-core.js`, `wisdom-core.js`, `sw.js`, `tests/`, `docs/CALENDAR.md`. Claude reviewt vor Merge.
 
