@@ -18,10 +18,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v57"></script>
-<script src="auth.js?v=ww-v57"></script>
-<script src="life-core.js?v=ww-v57"></script>
-<script src="wisdom-core.js?v=ww-v57"></script>
+<script src="supabase-config.js?v=ww-v58"></script>
+<script src="auth.js?v=ww-v58"></script>
+<script src="life-core.js?v=ww-v58"></script>
+<script src="wisdom-core.js?v=ww-v58"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -1458,28 +1458,68 @@ function NemPlan({c}){const {S}=c;const sel=S.nem||nemDefault(S);const pool=nemP
   <button onClick=${()=>c.setNem(m.id,on?null:NK_TOD[k])} className="w-full bg-transparent border-0 p-0 flex items-center gap-3 text-left ink"><span className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" style=${{background:on?'var(--acc)':'transparent',border:on?'none':'1.5px solid var(--line)',color:'#fff'}}>${on&&html`<${Icon} n="check" s=${14} sw=${3}/>`}</span><span className="flex-1 text-[13.5px] font-medium">${m.title}</span><span className="text-[10.5px] mute">${(SCN[k]||SCN.idle).label}</span></button>
   ${on&&(typeof sel[m.id]==='object'?html`<div className="text-[12px] mute mt-2">${fmtHM(sel[m.id].s)} · ${sel[m.id].d} Min. · im Tagesplan verschieben</div>`:html`<div className="mt-2.5"><${Seg} opts=${TOD.map(t=>[t[0],TOD_L[t[0]]])} val=${sel[m.id]} on=${v=>c.setNem(m.id,v)}/></div>`)}</div>`})}</div>
  <button onClick=${c.closeSheet} className="btn w-full py-3.5 mt-4 text-sm">Fertig</button></${Sheet}>`}
-/* Home nach Prototyp: Datum, Gruß, Szene, Tagesfortschritt, Du gegen Nemesis, Hauptziel, Reflexion, Weisheit */
-function Home({c}){const {S,D}=c;const now=nowMinOf(c);
- const nm=((S.profile&&S.profile.name)||(c.auth&&c.auth.session&&c.auth.session.mode!=='guest'&&c.auth.session.name)||'').trim();
- const hr=Math.floor(now/60),greet=hr<5?'Gute Nacht':hr<11?'Guten Morgen':hr<17?'Guten Tag':hr<22?'Guten Abend':'Gute Nacht';
- const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fl=flameOf(S.streak),fm=focusMode(S);
+/* Today: one main action, two next priorities, one honest scheduled block. */
+function todayPriorities(S,D){
+ if(D.restToday)return[];
+ const L=S.life||{},gm=goalMs(S),out=[],seen=new Set(),commit=L.onboard&&L.onboard.commit;
+ const push=x=>{if(x&&!seen.has(x.key)){seen.add(x.key);out.push(x)}};
+ const mission=m=>{if(!m||isDone(S,m))return;const x=gm.find(y=>y.m.id===m.id);if(x&&weekLeft(S,x)<=0)return;return{key:'m:'+m.id,kind:'mission',m,g:x&&x.g,minutes:x&&x.a.minutes||null,title:m.title}};
+ const standards=Object.values(L.standards||{}).filter(x=>x.std&&!x.aid&&x.status!=='paused').filter(x=>{const w=LC.standardWeek(L,x.area,LC.curWk(L));return(!w||w.done<w.per)&&!(L.stdLog||[]).some(e=>e.area===x.area&&e.d===(L.d||0))}).map(x=>({key:'std:'+x.area,kind:'standard',std:x,area:x.area,title:x.std.text,minutes:x.std.minutes||null}));
+ const evening=LC.eveningFor(L,L.d||0),ev=eveToday(S);
+ if(ev){const x=mission(ev.m);if(x)push({...x,source:ev.src==='ob'?'Beim Start festgelegt':'Gestern Abend festgelegt',plan:ev.plan,when:ev.when})}
+ if(evening&&evening.std){const x=standards.find(x=>x.area===evening.std);if(x)push({...x,source:'Gestern Abend festgelegt',plan:evening.plan,when:evening.when})}
+ if(commit&&!commit.done&&!commit.mid&&(commit.text||'').trim())push({key:'commit',kind:'commit',title:commit.text,area:commit.area,source:'Dein erster Schritt'});
+ const np=S.nextPrio&&S.nextPrio.k===dayKey(S)&&D.allM.find(m=>m.id===S.nextPrio.mid);push(mission(np));
+ const na=nextAction(S);if(na)push(mission(na.m));
+ const brief=briefToday(S);if(brief)(brief.ids||[]).forEach(id=>push(mission(D.allM.find(m=>m.id===id))));
+ standards.filter(x=>!(commit&&!commit.done&&!commit.mid&&commit.kind==='standard'&&commit.area===x.area)).forEach(push);
+ briefCands(S,D).forEach(m=>push(mission(m)));
+ return out.slice(0,3);
+}
+function nextTimeBlock(S,now){
+ const blocks=Object.entries(S.nem||{}).map(([id,v])=>{const m=S.missions.find(m=>m.id===id);if(!m||!v||typeof v!=='object'||!Number.isFinite(v.s)||!Number.isFinite(v.d)||v.s<0||v.s>=1440||v.d<=0||v.s+v.d>1440||isDone(S,m)||kindOf(m)==='sleep')return null;return{m,start:v.s,end:v.s+v.d,minutes:v.d}}).filter(Boolean).sort((a,b)=>a.start-b.start||a.m.id.localeCompare(b.m.id));
+ const active=blocks.find(b=>b.start<=now&&b.end>now);if(active)return{...active,state:'active'};
+ const future=blocks.find(b=>b.start>now);if(future)return{...future,state:'next'};
+ const past=blocks.filter(b=>b.end<=now).sort((a,b)=>b.end-a.end)[0];return past?{...past,state:'past'}:null;
+}
+function completePriority(c,item,e,kind='std'){
+ if(item.kind==='mission'){c.start(item.m.id,e,{noHint:true});return}
+ const before=c.S;c.upd(n=>{if(item.kind==='commit')n.life.onboard.commit={...n.life.onboard.commit,done:true,doneD:n.life.d||0};else LC.logStandard(n.life,item.area,kind)});
+ c.toast(item.kind==='commit'?'Erster Schritt erledigt.':kind==='min'?'Minimum notiert.':'Standard notiert.','good',{undo:()=>c.restore(before)});
+}
+function PriorityAction({c,item,primary=false,separator=false}){const finish=e=>completePriority(c,item,e);
+ const detail=()=>item.kind==='mission'?c.openSheet({t:'medit',mid:item.m.id}):item.kind==='standard'?c.openSheet({t:'standards',area:item.area}):c.openSheet({t:'fundament'});
+ const context=item.g?item.g.title:item.kind==='standard'?LC.AREA[item.area].de:null;
+ return html`<div className=${primary?'card p-4 mt-2':'py-3'} data-today-priority=${primary?'primary':'next'} style=${separator?{borderTop:'1px solid var(--line)'}:undefined}>
+ ${item.source&&html`<div className="text-[12px] acc font-semibold mb-1">${item.source}${item.when?' · '+item.when:''}</div>`}
+ <div className=${primary?'text-[21px] font-bold leading-snug break-words':'text-[15px] font-semibold leading-snug break-words'}>${item.title}</div>
+ ${context&&html`<div className="text-[12.5px] mute leading-snug mt-1 break-words">${context}</div>`}
+ ${item.minutes&&html`<div className="text-[12px] mute mt-1">${item.minutes} Minuten</div>`}
+ ${item.plan&&html`<div className="text-[12.5px] mute mt-2 leading-snug">${item.plan}</div>`}
+ <div className="flex items-center gap-2 flex-wrap mt-3">
+ <button type="button" onClick=${finish} aria-label=${'Erledigen: '+item.title} className=${primary?'btn inline-flex items-center justify-center gap-2 px-5 py-3 text-[14px]':'chip'} style=${{minHeight:44}}><${Icon} n="check" s=${16}/> ${item.kind==='mission'&&wantsLog(c.S,item.m)?'Erfassen':'Erledigt'}</button>
+ ${item.kind==='standard'&&item.std.min&&html`<button type="button" onClick=${e=>completePriority(c,item,e,'min')} className="chip" style=${{minHeight:44}} title=${item.std.min.text}>Minimum</button>`}
+ <button type="button" onClick=${detail} className="bg-transparent border-0 acc px-2 py-2 text-[12.5px]" style=${{minHeight:44}} aria-label=${'Details: '+item.title}>Details</button></div></div>`}
+function TodayPriorities({c}){const items=todayPriorities(c.S,c.D);
+ if(c.D.restToday)return html`<div className="card p-4 mt-2"><div className="lbl acc">Heute ist Ruhetag</div><div className="text-[16px] font-semibold mt-2">Erholung hat Platz in deinem Plan.</div><div className="text-[13px] mute mt-1">Deine Aufgaben bleiben unter Aufgaben erreichbar.</div></div>`;
+ if(!items.length)return html`<div className="card p-4 mt-2"><div className="lbl acc">Heute zuerst</div><div className="text-[17px] font-semibold mt-2">Gerade ist keine weitere Handlung offen.</div><div className="text-[13px] mute mt-1">Du kannst deinen Tag abschließen oder einen nächsten Schritt planen.</div><div className="flex flex-wrap gap-2 mt-3"><button type="button" className="btn px-4 py-3 text-[13px]" onClick=${()=>c.openSheet({t:'review'})}>Tag reflektieren</button><button type="button" className="chip" onClick=${()=>c.openSheet({t:'goal'})}>Ziel festlegen</button></div></div>`;
+ return html`<section aria-label="Deine Prioritäten für heute"><div className="lbl acc mt-2">Heute zuerst</div><${PriorityAction} key=${items[0].key} item=${items[0]} c=${c} primary=${true}/>
+ ${items.length>1&&html`<div className="mt-4"><div className="lbl">Danach · Vorschläge</div><div className="card px-4 mt-2" style=${{borderColor:'var(--line)'}}>${items.slice(1).map((x,i)=>html`<${PriorityAction} key=${x.key} item=${x} c=${c} separator=${i>0}/>` )}</div></div>`}</section>`}
+function NextTimeBlock({c}){const b=nextTimeBlock(c.S,nowMinOf(c));
+ return html`<section className="card p-4 mt-3" aria-label="Dein nächster Zeitblock"><div className="flex items-center gap-2"><${Icon} n="calendar" s=${17}/><div className="lbl">${!b?'Dein nächster Zeitblock':b.state==='active'?'Jetzt eingeplant':b.state==='past'?'Zeitblock vergangen':'Nächster Zeitblock'}</div></div>
+ ${b?html`<div className="text-[15px] font-semibold mt-2 break-words">${b.m.title}</div><div className="text-[13px] num mute mt-1">${fmtHM(b.start)}–${fmtHM(b.end)} · ${b.minutes} Minuten</div>${b.state==='past'&&html`<div className="text-[12.5px] mute mt-1">Noch offen. Passe die Zeit an, wenn du möchtest.</div>`}`:html`<div className="text-[14px] mt-2">Noch kein fester Zeitblock.</div><div className="text-[12.5px] mute mt-1">Reserviere eine konkrete Uhrzeit für deine wichtigste Handlung.</div>`}
+ <button type="button" onClick=${()=>c.openSheet({t:'dayplan'})} className="chip mt-3" style=${{minHeight:44}}>${b?'Tagesplan anpassen':'Tagesplan öffnen'}</button></section>`}
+function Home({c}){const {S}=c;const [more,setMore]=useState(false),now=nowMinOf(c),nm=((S.profile&&S.profile.name)||'').trim(),hr=Math.floor(now/60),greet=hr<5?'Gute Nacht':hr<11?'Guten Morgen':hr<17?'Guten Tag':hr<22?'Guten Abend':'Gute Nacht';
+ const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fm=focusMode(S);
  return html`<div className="screen px-4 pb-6">
  <div className="flex items-start justify-between pt-5 pb-3 gap-2"><div className="min-w-0"><div className="lbl truncate">${greet}${nm?', '+nm:''} · ${deDate(c.now,calendarZone(S))}</div><h1 className="disp text-[32px] mt-1 leading-none">Heute</h1></div>
-  <div className="flex items-center shrink-0"><span title=${fl.t} className="flex items-center gap-1 pr-1.5" style=${{color:fl.c,minHeight:44}}><${Icon} n="flame" s=${15}/><span className="num text-[13px] font-bold">${S.streak}</span><span className="sr-only">Tage Serie</span></span>
-   <button aria-label="Menü und Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0" style=${{color:'var(--gold)'}}><${Icon} n="laurel" s=${28} sw=${1.6}/></button>
-   <button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0 p-0"><span className="w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-bold" style=${{background:'var(--card2)',border:'1px solid var(--line2,var(--line))',color:'var(--ink)'}}>${ini}</span></button></div></div>
+ <div className="flex shrink-0"><button aria-label="Menü und Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="icon-btn"><${Icon} n="dots" s=${22}/></button><button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="icon-btn ml-1 font-semibold">${ini}</button></div></div>
  ${S.setup&&html`<button onClick=${()=>c.openSheet({t:'newseason'})} className="btn w-full py-3 mb-3 text-sm">Neue Saison einrichten</button>`}
- <${CommitCard} c=${c}/>
- <${TodayFocus} c=${c}/>
- <${StandardsToday} c=${c}/>
+ <${TodayPriorities} c=${c}/><${NextTimeBlock} c=${c}/>
+ <button type="button" onClick=${()=>c.setTab('tasks')} className="ghost w-full py-3 mt-2 text-[13px] font-semibold">Alle Aufgaben ansehen</button>
  <${ReflectLine} c=${c}/>
- <${InviteCard} c=${c}/>
- <${CalmCard} c=${c}/>
- ${!fm&&html`<div className="mt-3"><${DayScene} c=${c}/></div>`}
- <${DayProgress} c=${c}/>
- ${!fm&&html`<${DuelPair} c=${c}/>`}
- ${!fm&&D.di===6&&html`<div className="mt-3"><${Finale} c=${c}/></div>`}
- <${WisdomSlot} c=${c} place="today"/>
+ <details className="mt-4" onToggle=${e=>setMore(e.currentTarget.open)}><summary className="text-[13px] mute py-3 cursor-pointer">Standards, Impulse und mehr</summary>
+ ${more&&html`<${StandardsToday} c=${c}/><button type="button" className="chip mt-3" onClick=${()=>c.openSheet({t:'loopinfo'})}>Wie dein Handeln wirkt</button><${InviteCard} c=${c}/><${CalmCard} c=${c}/><${WisdomSlot} c=${c} place="today"/>${!fm&&html`<div className="mt-3"><${DayScene} c=${c}/></div><${DuelPair} c=${c}/>`}`}</details>
  </div>`}
 /* Heute zuerst: Ziel, Ergebnis/Umsetzung, nächste Handlung, Loop-Phase */
 function TodayFocus({c}){const {S}=c;const L=S.life,g=mainGoal(S);const st=loopNow(c),Lp=LC.LOOP.find(x=>x.id===st);
@@ -2454,6 +2494,7 @@ function SheetHost({c}){
   case'weekly':b=html`<${WeeklyReview} c=${c}/>`;break;
   case'values':b=html`<${ValuesSheet} c=${c}/>`;break;
   case'why':b=html`<${WhySheet} c=${c}/>`;break;
+  case'dayplan':b=html`<${Sheet} sub="Planung" title="Dein Tagesplan" onClose=${c.closeSheet}><${DayPlanner} c=${c}/><//>`;break;
   case'nemesis':b=html`<${NemesisSheet} c=${c}/>`;break;
   case'loopinfo':b=html`<${LoopInfo} c=${c}/>`;break;
   case'loopdemo':b=html`<${LoopDemo} c=${c}/>`;break;
@@ -3944,7 +3985,7 @@ function App({init,auth,skey='war_within_v5'}){
   if(wantsLog(S,m)){openSheet({t:'log',kind:m.log,mid});return}
   if(opt.detail){openSheet({t:'rate',mid});return}
   setUndo({prev:S,title:m.title,id:uid()});complete(mid,ev,{keep:true});
-  if(!S.tipHold){upd(n=>{n.tipHold=true});setTimeout(()=>toast(S.ui==='adv'?'Tipp: Lange drücken, um Erfolgsgrad und Details anzugeben.':'Tipp: Lange drücken, um eine Mission zu bearbeiten.'),1600)}};
+  if(!S.tipHold&&!opt.noHint){upd(n=>{n.tipHold=true});setTimeout(()=>toast(S.ui==='adv'?'Tipp: Lange drücken, um Erfolgsgrad und Details anzugeben.':'Tipp: Lange drücken, um eine Mission zu bearbeiten.'),1600)}};
  /* Rückfrage am Ende eines Zeitfensters: Ja (innerhalb von 30 Min. = pünktlich), Später (+30 Min.), Heute nicht. Nie automatisch abhaken. */
  /* Erinnerungen: Blockstart, Rückfrage am Ende, Abendbericht um 21 Uhr; ruhig 21–6 Uhr. System-Benachrichtigung nur mit Erlaubnis, sonst in der App. */
  const pushRef=useRef({prev:null,sent:{}}),askRef=useRef(null);
