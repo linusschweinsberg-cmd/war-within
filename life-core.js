@@ -196,7 +196,7 @@ const EVE_RISK=[['time','Wenig Zeit'],['energy','Wenig Energie'],['distract','Ab
 const EVE_ANCHOR={morgens:'Nach dem Aufstehen',mittags:'Nach dem Mittagessen',abends:'Nach der Arbeit'};
 function ifThen(risk,title,when,minutes){const T='„'+title+'“';
  switch(risk){
-  case'time':{const m=minutes?Math.max(10,Math.round(minutes*.5/5)*5):null;return m?`Wenn der Tag voll wird, mache ich ${T} in der Kurzversion (${m} Min.).`:`Wenn der Tag voll wird, erledige ich ${T} als Erstes, bevor anderes dazwischenkommt.`}
+  case'time':{const m=minutes>=20?Math.max(10,Math.round(minutes*.5/5)*5):null; /* Kurzversion nur, wenn sie wirklich kürzer ist */return m?`Wenn der Tag voll wird, mache ich ${T} in der Kurzversion (${m} Min.).`:`Wenn der Tag voll wird, erledige ich ${T} als Erstes, bevor anderes dazwischenkommt.`}
   case'energy':return`Wenn ich müde bin, fange ich trotzdem an. Nur die ersten 5 Minuten.`;
   case'distract':return`Wenn ich mit ${T} anfange, liegt das Handy in einem anderen Raum.`;
   default:return`${EVE_ANCHOR[when]||'Zur geplanten Zeit'} starte ich mit ${T}.`}}

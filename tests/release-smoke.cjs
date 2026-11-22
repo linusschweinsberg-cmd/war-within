@@ -18,4 +18,10 @@ const LC=c.window.LC,ob=a.newOb('Test');ob.values=['Mut','Integrität'];ob.focus
 const n=a.buildState(ob,{mode:'guest',name:'Test'});LC.ensureLife(n);const g=n.life.goals[0],ac=n.life.actions[0];assert.equal(n.life.goals.length,1);assert.equal(g.metric.dir,'down');assert.equal(LC.goalNow(n.life,g),1650);assert.ok(n.missions.some(m=>m.id===ac.missionId&&m.times===3));assert.ok(n.missions.some(m=>m.id==='m_ref'));assert.equal(n.nextPrio.mid,ac.missionId);assert.equal(n.principles.length,2);
 assert.equal(a.briefCands(n,a.derive(n))[0].id,ac.missionId,'Ziel-Handlung steht im Tagesbriefing vorn');
 c.localStorage.getItem=()=>JSON.stringify(n);loaded=a.loadState();assert.ok(!loaded.missions.some(m=>m.id==='m_cal'),'keine Demo-Missionen in echten Konten');LC.ensureLife(loaded);assert.equal(loaded.life.goals[0].id,g.id);
+/* Onboarding als Geschichte: Standards, Kosten, Hindernis und Startzeitpunkt landen im Spielstand */
+{const ob2=a.newOb('Story');Object.assign(ob2,{values:['Disziplin'],stds:{Disziplin:'Ich halte, was ich mir zusage.'},cost:['Energie'],obst:['time'],start:'tomorrow',signed:1,focus:'growth',firstWhen:'morgens'});ob2.goal=a.draftFromTpl(LC.GOAL_TPL.find(x=>x.id==='lang'));
+ const m=a.buildState(ob2,{mode:'guest',name:'Story'});LC.ensureLife(m);const ac2=m.life.actions[0];
+ assert.equal(m.principles[0].std,'Ich halte, was ich mir zusage.');assert.deepEqual([...m.life.why.q.cost],['Energie']);
+ assert.equal(m.nextPrio.k,m.season+'-1','Start morgen setzt die Priorität für Tag 1');assert.equal(m.life.onboard.for,1);assert.equal(m.life.onboard.mid,ac2.missionId);assert.match(m.life.onboard.plan,/Kurzversion \(10 Min\.\)/);
+ const k=a.newOb('Kurz');assert.ok(k.story&&!k.short)}
 console.log('PASS: full script syntax, existing account migration, no fabricated completion history, distinct-day learning, empty schedule, weekly snapshot, Supabase integration, life-os onboarding, goal-first briefing, no demo missions in real accounts.');

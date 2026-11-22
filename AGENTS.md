@@ -5,7 +5,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 ## Technik
 - Single-file: React 18 (UMD via CDN), Tailwind (CDN), htm (Tagged Templates: html`...`, Komponenten <${Comp}/>, Ende <//>).
 - State: `useState(loadState)`, `upd(fn)`, `derive(S)`; Spielstand in localStorage: `war_within_v5` (Gast/Demo) bzw. `war_within_acc_v1_<Supabase-Nutzer-ID>` (E-Mail-Konto).
-- Einstieg: `Root` → `AuthFlow` (Willkommen/Registrieren/Login) → `Onboarding` (8 Schritte: Intro, Profil, Kompass, Warum, Bereiche, Ziel, Plan, Briefing; `buildState(ob)` erzeugt den Spielstand) → `App`. Sitzung und Onboarding-Fortschritt in `war_within_auth_v1`, niemals Passwörter.
+- Einstieg: `Root` → `AuthFlow` (Willkommen/Registrieren/Login) → `Onboarding` (Geschichte in 6 Stationen und 17 Screens, Kurzversion mit 5; `OB_SCREENS`/`OB_BODY`, Details `docs/ONBOARDING.md`; `buildState(ob)` erzeugt den Spielstand) → `App`. Sitzung und Onboarding-Fortschritt in `war_within_auth_v1`, niemals Passwörter.
 - Auth läuft über `auth.js` mit Supabase; öffentliche Konfiguration in `supabase-config.js`; Profil liegt in `S.profile`, Konto-Bereich im Sheet `account`.
 - Theme über `data-theme` (dunkel/hell) und `data-skin` (`antik` Standard, `violet` wählbar) als CSS-Variablen. Design „Antik“ folgt dem Designkonzept (Nov 2026, Tokens im CSS-Block „Designkonzept“): Hintergrund #0E0C0B bzw. Pergament, Knochen/Grau als Text, ein Akzent Terrakotta = Handlung/Fortschritt (auch Haken der Checkboxen), Gold = Auszeichnung (z. B. Balken bei 100 %), Oliv = Erledigt-Hinweis/Rekord, Stahl = Nemesis. Schriften: Oswald (Titel, Versalien), Inter (Text), Cinzel (Zitate, Wortmarke). Karten matt mit 1 px Kontur, Radius 16; flache Tab-Leiste mit Unterstrich; Aufgabenzeile mit eckiger Checkbox rechts. Keine festen Hex-Farben im Code, nur Variablen.
 - Life-OS-Logik (Ziele, Messwerte, Handlungen, Rückblicke, Experimente, Migration) liegt in `life-core.js` (`window.LC`), Daten in `S.life`. Details: `docs/LIFE-OS.md`.
@@ -24,6 +24,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 ### In Arbeit
 - Claude: Wisdom of the Warrior, Branch `claude/wisdom` (PR offen, Review durch Codex). Dateien: `wisdom-core.js` (neu), `index.html`, `sw.js`, `tests/wisdom-core.cjs` (neu), `tests/release-smoke.cjs` (lädt wisdom-core.js), `docs/WISDOM.md` (neu).
 - Claude: Abendritual, Branch `claude/abendritual` (baut auf `claude/wisdom` auf). Dateien: `life-core.js`, `index.html`, `sw.js`, `tests/life-core.cjs`, `docs/LIFE-OS.md`.
+- Claude: Onboarding als Geschichte, Branch `claude/onboarding-story` (baut auf `claude/abendritual` auf). Dateien: `index.html`, `life-core.js` (`ifThen`), `sw.js`, `tests/release-smoke.cjs`, `tests/life-core.cjs`, `docs/ONBOARDING.md` (neu).
 
 ### Letzte Integration
 - Life OS: Claude-Stand `19a47de` durch Codex geprüft und zur Veröffentlichung übernommen. Tests: life-core, release-smoke, auth-contract bestanden. Browser: migrierte Startansicht, Lebenstempel und Reflexion geprüft.

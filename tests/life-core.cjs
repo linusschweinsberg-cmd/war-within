@@ -97,7 +97,7 @@ t3('Abendritual: Plan gilt für den nächsten Tag, Handlung bleibt unverändert'
  assert.equal(LC.eveningFor(S.life,0),null);LC.onAdvance(S);assert.equal(LC.eveningFor(S.life,1).mid,a.missionId)});
 t3('Abendritual: erneutes Festlegen ersetzt, ungültige Eingaben werden ignoriert',()=>{const S=LC.ensureLife(base());const g=LC.addGoal(S,{...tpl('skill')});const a=LC.actionsOf(S.life,g.id)[0];
  LC.onEvening(S,{mid:a.missionId,when:'morgens'});LC.onEvening(S,{mid:a.missionId,when:'nachts',risk:'time'});assert.equal(S.life.evening.length,1);assert.equal(S.life.evening[0].when,null);assert.match(S.life.evening[0].plan,/Kurzversion \(25 Min\.\)/);
- assert.equal(LC.onEvening(S,{}),null)});
+ assert.equal(LC.onEvening(S,{}),null);assert.doesNotMatch(LC.ifThen('time','Sparen','morgens',5),/Kurzversion/,'keine Kurzversion, die länger ist')});
 t3('Abendritual: Umsetzungsquote zählt nur abgeschlossene Tage',()=>{const S=LC.ensureLife(base());const g=LC.addGoal(S,{...tpl('skill')});const a=LC.actionsOf(S.life,g.id)[0];
  for(let i=0;i<3;i++){LC.onEvening(S,{mid:a.missionId,when:'morgens'});LC.onAdvance(S);if(i!==1)LC.onComplete(S,a.missionId)}
  LC.onEvening(S,{mid:a.missionId,when:'morgens'});LC.onAdvance(S);const st=LC.eveningStats(S.life);assert.equal(st.planned,3);assert.equal(st.kept,2)});
