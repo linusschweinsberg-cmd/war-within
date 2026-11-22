@@ -27,6 +27,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
+- Codex: Kalenderzuverlässigkeit, Branch `codex/calendar-reliability`. Dateien: `index.html`, `life-core.js`, `wisdom-core.js`, `sw.js`, `tests/`, `docs/CALENDAR.md`. Claude reviewt vor Merge.
 
 ### Letzte Integration
 - Claude-Stand `622537f` einschließlich UX und Datensicherheit über PR #18 übernommen. Review-Korrekturen: Upgrade-URLs, Konto-Onboarding-Fortsetzen, private Textkopien löschen, vollständige Abendritual-Kandidaten und Farbrollen. Alle sieben Tests bestanden; Browser-Upgrade, vier Darstellungen und Rückgängig geprüft. Keine Supabase-Einstellungen geändert.
@@ -36,7 +37,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v56` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v57` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`, `node tests/ftue-flows.cjs` (Abläufe: neu, vollständig, übersprungen, zurückkehrend). Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Produktprinzip (verbindlich)

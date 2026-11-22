@@ -53,8 +53,8 @@ const OBST=Object.fromEntries(OBSTACLES.map(o=>[o.id,o]));
 /* Tagesrückblick-Auswahl → Hindernis-Code (verbindet Tages- mit Wochenrückblick) */
 const BLOCK_MAP={'Zu wenig Zeit':'time','Wenig Energie':'energy','Ablenkung':'distract','Unklarer Plan':'unclear','Etwas Unerwartetes':'unexpected'};
 
-const wkOf=d=>Math.floor(d/7);
-const curWk=L=>wkOf(L.d||0);
+const wkOf=(d,L)=>{const C=L&&L.calendar,A=C&&(C.segments||[C]).filter(x=>d>=x.from).at(-1);return Math.floor((d+(A?A.offset:0))/7)};
+const curWk=L=>wkOf(L.d||0,L);
 const actById=(L,id)=>(L.actions||[]).find(a=>a.id===id);
 const goalById=(L,id)=>(L.goals||[]).find(g=>g.id===id);
 const actionsOf=(L,gid)=>(L.actions||[]).filter(a=>a.goalId===gid&&!a.off);
@@ -76,9 +76,9 @@ const better=(g,a,b)=>g.metric.dir==='down'?b<a:b>a; /* ist b besser als a? */
 function reached(g,v){if(v==null||g.metric.target==null)return false;return g.metric.dir==='down'?v<=g.metric.target:v>=g.metric.target}
 function goalProgress(L,g){const s=goalStart(L,g),n=goalNow(L,g),t=g.metric.target;if(s==null||n==null||t==null||t===s)return null;return clamp((n-s)/(t-s),0,1)}
 /* Trend: letzte Messung bis Wochenende wk gegen den Stand vor dem Fenster (span Wochen) */
-function trend(L,g,wk,span=2){const m=measOf(L,g.id).filter(x=>wkOf(x.d)<=wk);if(m.length<2)return{state:'none',n:m.length};
- const inWin=m.filter(x=>wkOf(x.d)>wk-span);if(!inWin.length)return{state:'stale',n:m.length,last:m[m.length-1].v};
- const before=m.filter(x=>wkOf(x.d)<=wk-span);const prev=before.length?before[before.length-1].v:m[0].v,last=m[m.length-1].v;
+function trend(L,g,wk,span=2){const m=measOf(L,g.id).filter(x=>wkOf(x.d,L)<=wk);if(m.length<2)return{state:'none',n:m.length};
+ const inWin=m.filter(x=>wkOf(x.d,L)>wk-span);if(!inWin.length)return{state:'stale',n:m.length,last:m[m.length-1].v};
+ const before=m.filter(x=>wkOf(x.d,L)<=wk-span);const prev=before.length?before[before.length-1].v:m[0].v,last=m[m.length-1].v;
  const range=Math.abs((g.metric.target??prev)-(goalStart(L,g)??prev))||Math.abs(prev)||1;const delta=g.metric.dir==='down'?prev-last:last-prev;
  const state=Math.abs(delta)<range*.01?'flat':delta>0?'better':'worse';return{state,prev,last,delta,n:m.length}}
 
@@ -138,7 +138,7 @@ function startExperiment(S,{goalId,aid,obstacle,obstacleText,sug,wk,weeks=1}){co
  L.exps=[...(L.exps||[]),e];return e}
 function evalExperiment(L,e){const g=goalById(L,e.goalId);let done=0,need=0;for(let w=e.startWk;w<=e.endWk;w++){done+=doneIn(L,e.aid,w);need+=e.criterion.min}
  const t=g?trend(L,g,e.endWk,e.endWk-e.startWk+1):{state:'none'};const execOk=done>=need;const outOk=!e.criterion.outcome||t.state==='better';
- return{done,need,execOk,outcome:t.state,ok:execOk&&outOk,due:curWk(L)>e.endWk||(L.d%7===6&&curWk(L)===e.endWk)}}
+ return{done,need,execOk,outcome:t.state,ok:execOk&&outOk,due:curWk(L)>e.endWk||(((L.d+(L.calendar?.offset||0))%7)===6&&curWk(L)===e.endWk)}}
 function decideExperiment(S,eid,decision){const L=S.life,e=(L.exps||[]).find(x=>x.id===eid);if(!e)return;const r=evalExperiment(L,e);e.result=r;
  if(decision==='adopt'){e.status=r.ok?'success':'adopted';e.decision='adopt'}
  else if(decision==='extend'){e.endWk+=1;return}
@@ -147,8 +147,8 @@ function decideExperiment(S,eid,decision){const L=S.life,e=(L.exps||[]).find(x=>
 
 /* ───── Wochenrückblick ───── */
 /* Welche Woche ist auszuwerten? Sonntag: die laufende; sonst die letzte, falls offen. */
-function reviewWeek(L){const w=curWk(L),di=(L.d||0)%7;const done=k=>(L.reviews||[]).some(r=>r.wk===k);
- if(di>=5&&!done(w))return w;if(w>0&&!done(w-1))return w-1;return null}
+function reviewWeek(L){const w=curWk(L),di=((L.d||0)+(L.calendar?.offset||0))%7;const done=k=>(L.reviews||[]).some(r=>r.wk===k);
+ if(di>=(L.calendar?6:5)&&!done(w))return w;if(w>0&&!done(w-1))return w-1;return null}
 function weekSummary(S,wk){const L=S.life;const goals=(L.goals||[]).filter(g=>g.status==='active');
  const rows=goals.map(g=>{const dg=diagnose(L,g,wk);return{g,dg,w:dg.w||goalWeek(L,g,wk),t:trend(L,g,wk,2)}});
  const exps=(L.exps||[]).filter(e=>e.status==='running'&&e.endWk<=wk).map(e=>({e,r:evalExperiment(L,e)}));
@@ -427,7 +427,7 @@ function syncTemple(S){const L=S.life;if(!L)return[];if(!L.temple)L.temple=newTe
   for(let k=C.startWk;k<Math.min(w,C.startWk+C.len);k++){if(k*7<d0)continue;const a=areaWeek(L,area,k);if(a.planned&&a.rate>=.8){add(area,'week','week-'+area+'-'+k,k);const prev=areaWeek(L,area,k-1);if(k>C.startWk&&prev.planned&&prev.done===0)add(area,'comeback','cb-'+area+'-'+k,k)}}
   (L.goals||[]).filter(g=>g.area===area).forEach(g=>{
    /* Ergebnis-Viertel: nur durch Messwerte nach der Startwoche des Ziels */
-   const s=goalStart(L,g),t=g.metric.target;if(s!=null&&t!=null&&t!==s){measOf(L,g.id).filter(m=>wkOf(m.d)>g.startWk&&inSeason(T,wkOf(m.d))).forEach(m=>{const p=(m.v-s)/(t-s);[.25,.5,.75].forEach(q=>{if(p>=q)add(area,'quarter','q-'+g.id+'-'+q,wkOf(m.d),{label:'Ergebnis '+Math.round(q*100)+' %: '+g.title})})})}
+   const s=goalStart(L,g),t=g.metric.target;if(s!=null&&t!=null&&t!==s){measOf(L,g.id).filter(m=>wkOf(m.d,L)>g.startWk&&inSeason(T,wkOf(m.d,L))).forEach(m=>{const p=(m.v-s)/(t-s);[.25,.5,.75].forEach(q=>{if(p>=q)add(area,'quarter','q-'+g.id+'-'+q,wkOf(m.d,L),{label:'Ergebnis '+Math.round(q*100)+' %: '+g.title})})})}
    if(g.status==='achieved'&&g.achievedWk!=null&&g.achievedWk>g.startWk&&inSeason(T,g.achievedWk))add(area,'goal','goal-'+g.id,g.achievedWk,{label:'Ziel erreicht: '+g.title})});
   (L.exps||[]).filter(e=>e.status==='success'&&areaOf(L,e.goalId)===area&&inSeason(T,e.closed??e.endWk)).forEach(e=>add(area,'exp','exp-'+e.id,e.closed??e.endWk,{label:'Bewährt: '+e.label}));
   /* Verwitterung nur bei dokumentierter Verschlechterung; Restaurierung bei Verbesserung */
@@ -459,7 +459,10 @@ function loopStage({hasGoal,openToday,doneToday,reviewDue,dailyDone,evening}){
 /* ───── Migration / Initialisierung ───── */
 const OLD_KIND={save:{tpl:'reserve',area:'wealth',mid:'m_save'},learn:{tpl:'lang',area:'growth',mid:'m_lang'},run:{tpl:null,area:'health',mid:'m_run',metric:{name:'Längster Lauf am Stück',unit:'km',dir:'up',target:21.1,src:'measured'}},pace:{tpl:'run5k',area:'health',mid:'m_run'},read:{tpl:'books',area:'growth',mid:'m_read'},fit:{tpl:'strength',area:'health',mid:'m_train'},sleep:{tpl:'sleep',area:'health',mid:'m_sleep'},rel:{tpl:'friends',area:'relationships',mid:'m_rel'},biz:{tpl:'income',area:'wealth',mid:null},focus:{tpl:'skill',area:'growth',mid:'m_focus'},disc:{tpl:'skill',area:'growth',mid:'m_hard'}};
 const perWeekOf=m=>m.freq==='daily'?7:m.freq==='multi'?(m.times||1):1;
-function newLife(d){return{v:LIFE_V,d:d||0,values:[],why:{text:'',q:{}},areas:Object.fromEntries(AREAS.map(a=>[a.id,{sat:3}])),focus:null,goals:[],actions:[],meas:[],log:[],daily:[],reviews:[],exps:[],flags:{},focusMode:false,main:null}}
+function areaRating(L,id){const r=(L.areas||{})[id]||{};return (r.known===true||(r.known==null&&L.areasSet===true))&&Number.isFinite(r.sat)&&r.sat>=1&&r.sat<=5?r.sat:null}
+function compassState(S){const L=S.life||{},rows=AREAS.map(a=>{const r=(L.areas||{})[a.id]||{};return{id:a.id,sat:r.sat,known:r.known===true||(r.known==null&&L.areasSet===true)}}).filter(r=>r.known&&Number.isFinite(r.sat)&&r.sat>=1&&r.sat<=5);
+ if(!rows.length)return{state:'unknown',area:null,known:0,min:null};const min=Math.min(...rows.map(r=>r.sat)),tied=rows.filter(r=>r.sat===min);return{state:tied.length===1?'rated':'tie',area:tied.length===1?tied[0].id:null,known:rows.length,min}}
+function newLife(d){return{v:LIFE_V,d:d||0,values:[],why:{text:'',q:{}},areas:Object.fromEntries(AREAS.map(a=>[a.id,{sat:3,known:false}])),focus:null,goals:[],actions:[],meas:[],log:[],daily:[],reviews:[],exps:[],flags:{},focusMode:false,main:null}}
 function ensureLife(S){if(!S||typeof S!=='object')return S;if(S.life&&S.life.v===LIFE_V){const L=S.life;['goals','actions','meas','log','daily','reviews','exps'].forEach(k=>{if(!Array.isArray(L[k]))L[k]=[]});if(!L.areas)L.areas=newLife().areas;if(!L.why)L.why={text:'',q:{}};if(!L.temple)L.temple=newTemple(curWk(L),L.d||0);if(!L.fund)L.fund={v:1,ob:{mode:'legacy',d:L.d||0,t:Date.now()}};return S}
  const L=newLife(S.day||0);S.life=L;
  /* Zufriedenheit aus bisherigen Angaben übernehmen */
@@ -474,7 +477,7 @@ function ensureLife(S){if(!S||typeof S!=='object')return S;if(S.life&&S.life.v==
   L.goals.push(g);
   const m=k.mid&&(S.missions||[]).find(x=>x.id===k.mid);if(m&&!L.actions.some(a=>a.missionId===m.id)){const a={id:'a'+uid(),goalId:g.id,title:m.title,perWeek:perWeekOf(m),missionId:m.id,since:0};L.actions.push(a);
    /* bereits in dieser Woche Erledigtes übernehmen, damit Umsetzung und Aufgabenliste übereinstimmen */
-   const n=m.freq==='multi'?((S.counts||{})[m.id]||0):(S.done||{})[m.id]?1:0;for(let i=0;i<n;i++)L.log.push({aid:a.id,d:L.d,wk:wkOf(L.d),t:Date.now(),src:'migration'})}
+   const n=m.freq==='multi'?((S.counts||{})[m.id]||0):(S.done||{})[m.id]?1:0;for(let i=0;i<n;i++)L.log.push({aid:a.id,d:L.d,wk:wkOf(L.d,L),t:Date.now(),src:'migration'})}
   const cur=o.kind==='save'&&S.save?S.save.saved:null;if(cur!=null){g.metric.start=cur;L.meas.push({id:'v'+uid(),goalId:g.id,v:cur,d:L.d,t:Date.now(),note:'Übernommen'})}});
  L.main=L.goals[0]?L.goals[0].id:null;if(!L.focus&&L.goals[0])L.focus=L.goals[0].area;L.temple=newTemple(curWk(L),L.d||0);L.fund={v:1,ob:{mode:'legacy',d:L.d||0,t:Date.now()}};
  return S}
@@ -485,6 +488,6 @@ function fmtV(metric,v){if(v==null||v===''||!isFinite(v))return'–';if(metric.f
 function parseV(metric,s){if(s==null)return null;s=String(s).trim();if(!s)return null;if(metric.fmt==='time'){const m=/^(\d{1,3}):([0-5]\d)$/.exec(s);return m?(+m[1])*60+(+m[2]):null}const n=parseFloat(s.replace(/\./g,'').replace(',','.'));return isFinite(n)?n:null}
 
 G.LC={LIFE_V,AREAS,AREA,LINKS,ACT_AREA,areaAct,VALUES,WHY_Q,GOAL_TPL,OBSTACLES,OBST,BLOCK_MAP,RULES,LOOP,
- wkOf,curWk,actById,goalById,actionsOf,actLabel,missionTitle,plannedAt,doneIn,goalWeek,weekRate,measOf,goalNow,goalStart,better,reached,goalProgress,trend,diagnose,suggest,
+ areaRating,compassState,wkOf,curWk,actById,goalById,actionsOf,actLabel,missionTitle,plannedAt,doneIn,goalWeek,weekRate,measOf,goalNow,goalStart,better,reached,goalProgress,trend,diagnose,suggest,
  startExperiment,evalExperiment,decideExperiment,reviewWeek,weekSummary,obstacleCounts,saveWeeklyReview,onComplete,onAdvance,onDailyReview,addMeasurement,addAction,addGoal,updateGoal,setGoalStatus,insights,loopStage,newLife,ensureLife,MOODS,DEBRIEF_OBST,CHANGES,onDebrief,debriefPatterns,monthlyDue,saveMonthly,STD_LEVELS,STD_LV,STD_TPL,areaSatFrom,suggestStandard,setStandard,rerateStandard,removeStandard,logStandard,standardWeek,standardFeedback,adaptOptions,standardProgress,standardsForSync,FUND,FUND_STAGES,inviteCandidates,fundState,fundSections,setFundSkip,markSeen,nextInvite,showInvite,answerInvite,clearFoundation,FUTURE_SUCCESS,FUTURE_TXT,cleanFuture,futureSuccess,futureForSync,AUDIT_AREAS,AUDIT,AUDIT_MAX,setAudit,auditState,auditSummary,auditForSync,EVE_WHEN,EVE_RISK,ifThen,onEvening,eveningFor,eveningStats,TEMPLE_LEN,STAGES,PHASES,TEMPLE_RULES,newTemple,syncTemple,columnState,foundationLevel,templeState,closeTempleSeason,areaWeek,fmtV,parseV,syncMission};
 })(typeof window!=='undefined'?window:globalThis);
