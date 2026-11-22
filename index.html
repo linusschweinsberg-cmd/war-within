@@ -18,10 +18,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v58"></script>
-<script src="auth.js?v=ww-v58"></script>
-<script src="life-core.js?v=ww-v58"></script>
-<script src="wisdom-core.js?v=ww-v58"></script>
+<script src="supabase-config.js?v=ww-v59"></script>
+<script src="auth.js?v=ww-v59"></script>
+<script src="life-core.js?v=ww-v59"></script>
+<script src="wisdom-core.js?v=ww-v59"></script>
+<script src="future-self-core.js?v=ww-v59"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -143,7 +144,7 @@ input[type=range]{accent-color:var(--acc)}
 @keyframes drift{0%,100%{transform:translateX(-3px)}50%{transform:translateX(3px)}}
 @keyframes flinch{0%{filter:none}35%{filter:brightness(2.2)}100%{filter:none}}
 /* ───── Design-System v2 ─────
-   Farbrollen: Lila = du · Rot = Nemesis · Grün = erledigt · Gold = Belohnung · Orange = Warnung */
+   Farbrollen: Lila = du · Rot = Zukunfts-Ich · Grün = erledigt · Gold = Belohnung · Orange = Warnung */
 :root,[data-theme=dark]{--you:var(--acc2);--nem:#9AA7B6;--done:#34D399;--gold:#FBBF24;--warn:#F59E0B}
 [data-theme=light]{--you:var(--acc-d);--nem:#4D5967;--done:#047857;--gold:#B45309;--warn:#B45309;--acc2:var(--acc-d);--mute:#55596D;--line:rgba(20,22,40,.12);--ghost:rgba(20,22,40,.06);--mr1:#D6CEF3;--mr2:#AFA2E0;--mr3:#8676CC}
 /* Ruhe: weniger Glanz, keine Dauer-Effekte ohne Bedeutung */
@@ -162,11 +163,11 @@ input[type=range]{accent-color:var(--acc)}
 .card{border-radius:22px!important}
 .card2,.ghost,.btn,.inp{border-radius:14px!important}
 .chip{border-radius:999px!important}
-/* Marken-Linie: schmaler roter Strich für alles, was den Nemesis betrifft */
+/* Marken-Linie: schmaler roter Strich für alles, was den Zukunfts-Ich betrifft */
 .nem-line{height:2px;border-radius:2px;background:linear-gradient(90deg,var(--nem),transparent 80%)}
 
 /* ───── Design „Antik“ (Standard): Knochen, Stein, Rost, Bronze auf warmem Schwarz ─────
-   Farbrollen: Rost = du und Handeln · Bronze = Ergebnis und Belohnung · Oliv = erledigt · Stahl = Nemesis · Patina = Ruhe */
+   Farbrollen: Rost = du und Handeln · Bronze = Ergebnis und Belohnung · Oliv = erledigt · Stahl = Zukunfts-Ich · Patina = Ruhe */
 [data-theme=dark]{--bg:#0D0B09;--bg2:#15110E;--card:#1A1612;--card2:#241E19;--line:rgba(237,226,206,.08);--ink:#EFE6D6;--mute:#A6998A;--acc:#B4472A;--acc2:#E08A5F;--acc3:#EBC3A4;--acc-d:#8A3219;--acc-d2:#5A2010;--acc-rgb:180,71,42;--acc2-rgb:224,138,95;--acc3-rgb:235,195,164;
  --good:#9AAE6B;--good-rgb:154,174,107;--bad:#E46A57;--gold:#D4A94F;--gold-rgb:212,169,79;--sky:#8FB7BC;--sky-rgb:127,167,173;--you:#E08A5F;--nem:#9AA7B6;--done:#9AAE6B;--warn:#D9A04A;
  --glass:rgba(22,18,15,.94);--hero:linear-gradient(160deg,#2B1A11 0%,#16120F 62%);--ghost:rgba(237,226,206,.05);--hi:rgba(255,240,220,.05);--glow:rgba(180,71,42,.16);--body-glow:#24150D;
@@ -293,6 +294,7 @@ html:has([data-skin=antik]),body:has([data-skin=antik]){background:#050404}
 .wis-rc{display:flex;justify-content:space-between;gap:8px;margin-top:6px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
 @media (max-width:359px){.wis-k{letter-spacing:.12em}}
 :root{--scene-silhouette:color-mix(in srgb,var(--bg) 70%,black);--scene-armour:color-mix(in srgb,var(--bg) 85%,var(--mute));--scene-ridge:color-mix(in srgb,var(--bg) 80%,var(--mute))}
+.future-self :is(button,summary):focus-visible,[data-future-self=true] :is(button,summary):focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -563,12 +565,12 @@ LC.ensureLife(n);
   if((n.todayPts[n.mArea]||0)>0)n.mDays=(n.mDays||0)+1;
   const had=todayTotal(n)>0||n.rest.includes(n.day),lose=!had&&!((n.freezes||0)>0)&&n.streak>0;
   n.snaps=[...(n.snaps||[]),{season:n.season,day:n.day,cats:{...n.catScore},streak:n.streak}].slice(-120);
-  if(had)n.idle=0;else{n.idle=(n.idle||0)+1;if(!automatic&&n.idle>=3&&!n.comeback){n.comeback=true;n.cbDone=0;n.nemMsg={t:'Drei Tage Pause. Ich habe keinen verpasst. Fang klein an.',ts:Date.now()}}}
-  if(!automatic&&lose&&!(n.nemMsg&&n.nemMsg.ts>Date.now()-1000))n.nemMsg={t:'Dein Streak ist weg. Meiner läuft weiter.',ts:Date.now()};
+  if(had)n.idle=0;else{n.idle=(n.idle||0)+1;if(!automatic&&n.idle>=3&&!n.comeback){n.comeback=true;n.cbDone=0;n.nemMsg={t:'Ein neuer Anfang kann kleiner sein. Prüfe deinen Plan.',ts:Date.now()}}}
+  if(!automatic&&lose&&!(n.nemMsg&&n.nemMsg.ts>Date.now()-1000))n.nemMsg={t:'Die Serie ist unterbrochen. Entscheide über den nächsten machbaren Schritt.',ts:Date.now()};
   if(todayTotal(n)>0||n.rest.includes(n.day)){n.streak++;n.bestStreak=Math.max(n.bestStreak||0,n.streak);if(n.streak%7===0&&(n.freezes||0)<3)n.freezes=(n.freezes||0)+1}else if((n.freezes||0)>0){n.freezes--}else n.streak=0;
   if(!automatic)OTH.forEach(o=>{const add=rnd(22,46)+(n.tier||0)*2;n.others[o.id]=Math.min(PLAN_CAP,n.others[o.id]+add);n.oSeason[o.id]+=add});
   if(di===6){
-   if(!automatic&&was.wk>=was.plan)n.nemMsg={t:'Diese Woche warst du besser als mein Plan. Nächste Woche werde ich stärker.',ts:Date.now()};
+   if(!automatic&&was.wk>=was.plan)n.nemMsg={t:'Deine dokumentierten Handlungen liegen über dem Planmodell. Prüfe die nächste Woche.',ts:Date.now()};
    const st=standingsOf(n),me=st.find(r=>r.id==='me');recordWeek(n,me.rank);if(me.rank===1&&(!automatic||weekTotal(n)>0))n.flags.league=true;
    const lag=[...was.active].sort((a,b)=>(n.weekPts[a]||0)/n.acts[a].cap-(n.weekPts[b]||0)/n.acts[b].cap)[0];
    const bestA=[...was.active].sort((a,b)=>(n.weekPts[b]||0)/n.acts[b].cap-(n.weekPts[a]||0)/n.acts[a].cap)[0];
@@ -927,7 +929,7 @@ function Ripple({c}){
 /* ───── HOME ───── */
 const cbList=(S,D)=>ESS.map(id=>D.allM.find(m=>m.id===id)).filter(m=>m&&!isDone(S,m)).sort((a,b)=>a.pts-b.pts).slice(0,3);
 function NemesisFace({size=120}){
- return html`<svg width=${size} height=${size} viewBox="0 0 120 120" role="img" aria-label="Nemesis: spartanischer Krieger">
+ return html`<svg width=${size} height=${size} viewBox="0 0 120 120" role="img" aria-label="Zukunfts-Ich: spartanischer Krieger">
  <defs><linearGradient id="nmh" x1="0" x2="1" y1="0" y2="1"><stop offset="0" style=${{stopColor:'var(--nem-l)'}}/><stop offset=".55" style=${{stopColor:'var(--nem)'}}/><stop offset="1" style=${{stopColor:'var(--nem-d)'}}/></linearGradient></defs>
  <path d="M22 50 C20 18 60 4 98 28 C88 22 70 20 56 28 C44 22 30 30 22 50Z" style=${{fill:'var(--acc)'}}/>
  <path d="M60 22 C36 22 26 40 26 60 L26 92 C26 100 32 106 40 108 L52 110 L52 82 C52 76 48 72 42 72 L40 72 L40 58 L80 58 L80 72 L78 72 C72 72 68 76 68 82 L68 110 L80 108 C88 106 94 100 94 92 L94 60 C94 40 84 22 60 22Z" fill="url(#nmh)" style=${{stroke:'var(--nem-d)'}} strokeWidth="1.5"/>
@@ -938,10 +940,10 @@ function Nemesis({c}){
  const {S,D}=c;const cb=!!S.comeback;const tot=cb?3:D.allM.length,dn=cb?Math.min(3,S.cbDone||0):D.doneN;
  const gap=D.gap;const me=D.cur,he=Math.max(D.pot,me+.02);
  const you=Math.round(me*100),him=Math.round(he*100);
- const msg=S.nemMsg&&Date.now()-S.nemMsg.ts<57600000?S.nemMsg.t:null;
- const line=cb?'Sanfter Neustart: Ich warte. Schaffe nur diese 3 Aufgaben heute.':msg?msg:dn===tot&&tot>0?'Heute gleichauf. Das passiert dir nicht oft genug. Bleib dran.':gap<=6?'Er ist nah dran, aber nicht schneller. Halte deinen Standard.':gap<12?'Er hat heute schon alles erledigt. Hol auf, Aufgabe für Aufgabe.':'Er macht jeden Tag alles richtig. Du holst nur auf, indem du anfängst.';
+ const msg=null;
+ const line=FS.duelLine(S);
  return html`<div className="rounded-[28px] p-4 relative overflow-hidden" style=${{background:'radial-gradient(120% 80% at 50% 0%,rgba(var(--nem-rgb),.16),#0F0A12 62%)',border:'1px solid rgba(var(--nem-rgb),.28)'}}>
-  <div className="flex items-center justify-between"><div className="lbl" style=${{color:'var(--nem)'}}>Dein Arch-Nemesis</div><button aria-label="Info" onClick=${()=>c.openSheet({t:'info',k:'self'})} className="bg-transparent border-0 mute p-0"><${Icon} n="info" s=${16}/></button></div>
+  <div className="flex items-center justify-between"><div className="lbl" style=${{color:'var(--nem)'}}>Dein Zukunfts-Ich</div><button aria-label="Info" onClick=${()=>c.openSheet({t:'info',k:'self'})} className="bg-transparent border-0 mute p-0"><${Icon} n="info" s=${16}/></button></div>
   <div className="flex justify-center mt-1"><${NemesisFace} size=${124}/></div>
   <div className="text-center mt-1"><div className="disp disp-i text-[30px]">Die bessere Version</div><div className="text-[12px] mute mt-0.5">Er hält jeden Plan. Jeden Tag. Ohne Ausrede.</div></div>
   <div className="grid grid-cols-3 gap-2 mt-4 text-center items-end"><div><div className="lbl">Du</div><div className="disp text-[34px] mt-0.5">${you} %</div></div>
@@ -950,7 +952,7 @@ function Nemesis({c}){
   <div className="mt-3 relative h-3 rounded-full overflow-hidden" style=${{background:'rgba(255,255,255,.06)'}}><div className="absolute inset-y-0 left-0 rounded-full" style=${{width:him+'%',background:'linear-gradient(90deg,rgba(var(--nem-rgb),.35),var(--nem))'}}/><div className="absolute inset-y-0 left-0 rounded-full" style=${{width:you+'%',background:'linear-gradient(90deg,var(--acc-d),var(--acc2))',transition:'width .6s'}}/></div>
   <div className="flex justify-between text-[10px] mute mt-1.5"><span style=${{color:'var(--acc2)'}}>Dein Stand in der Saison</span><span style=${{color:'var(--nem)'}}>Sein Stand</span></div>
   <div className="grid grid-cols-2 gap-2 mt-3"><div className="rounded-2xl p-3" style=${{background:'rgba(255,255,255,.04)'}}><div className="lbl">Du heute</div><div className="disp text-[26px] mt-0.5">${dn}<span className="mute text-[16px]">/${tot}</span></div></div><div className="rounded-2xl p-3" style=${{background:'rgba(var(--nem-rgb),.1)'}}><div className="lbl" style=${{color:'var(--nem)'}}>Er heute</div><div className="disp text-[26px] mt-0.5" style=${{color:'var(--nem)'}}>${tot}<span className="text-[16px]" style=${{opacity:.6}}>/${tot}</span></div></div></div>
-  <div className="mt-3 rounded-2xl p-3" style=${{background:'rgba(var(--nem-rgb),.08)',border:'1px solid rgba(var(--nem-rgb),.2)'}}>${(msg||cb)&&html`<div className="lbl mb-1" style=${{color:'var(--nem)'}}>${cb?'Rückfall-Modus':'Nemesis sagt'}</div>`}<div className="text-[13px] font-medium leading-snug">${msg&&!cb?'„'+line+'“':line}</div></div>
+  <div className="mt-3 rounded-2xl p-3" style=${{background:'rgba(var(--nem-rgb),.08)',border:'1px solid rgba(var(--nem-rgb),.2)'}}>${(msg||cb)&&html`<div className="lbl mb-1" style=${{color:'var(--nem)'}}>${cb?'Rückfall-Modus':'Zukunfts-Ich sagt'}</div>`}<div className="text-[13px] font-medium leading-snug">${msg&&!cb?'„'+line+'“':line}</div></div>
   <button onClick=${()=>c.setTab('tasks')} className="btn w-full py-3 mt-3 text-sm" style=${{background:'linear-gradient(135deg,#FF4D6D,#B3153C)'}}>Aufholen</button></div>`}
 function QuoteSlider(){
  const ref=useRef(null),[i,setI]=useState(0),pause=useRef(0);
@@ -1275,9 +1277,9 @@ function Compound({c}){const {S,D}=c;const C=compoundOf(S,D),dm=D.allM.filter(m=
  <${WhatIf}/>
  ${S.ui==='adv'&&html`<div className="mt-4"><${Ripple} c=${c}/></div>`}
  </div>`}
-/* ───── NEMESIS: Datenmodell & Tagesplan ─────
+/* ───── ZUKUNFTS-ICH: Datenmodell & Tagesplan ─────
    tasks[] = {id,name,icon,timeOfDay,done,kind}; buildNemesisPlan(tasks) → sortierter Tagesplan mit start/end (Minuten);
-   getCurrentActivity(plan,now) → aktuelle Szene. Der Nemesis hält sich immer an die gewählte Tageszeit. */
+   getCurrentActivity(plan,now) → aktuelle Szene. Der Zukunfts-Ich hält sich immer an die gewählte Tageszeit. */
 const TOD=[['morgen','Morgen',360,660],['mittag','Mittag',660,840],['nachmittag','Nachmittag',840,1080],['abend','Abend',1080,1350]];
 const TOD_L={morgen:'Morgen',mittag:'Mittag',nachmittag:'Nachm.',abend:'Abend'};
 const NK_W={wake:.25};const NK_ORDER={wake:0,training:1,pullup:1,stretch:1,run:1,walk:2,eat:3,save:5,budget:5,cook:3,work:4,learn:4,write:4,call:5,read:6,meditate:7,idle:8,sleep:9};
@@ -1306,7 +1308,7 @@ function buildNemesisPlan(tasks){
 function getCurrentActivity(plan,now){const t=now<plan[0].start?now+1440:now;return plan.find(p=>t>=p.start&&t<p.end)||plan[plan.length-1]}
 const nemDoneAt=(p,plan,now)=>now>=plan[0].start&&p.end<=now;
 const fmtHM=m=>{m=((Math.round(m)%1440)+1440)%1440;return Math.floor(m/60)+':'+String(m%60).padStart(2,'0')};
-/* ───── NEMESIS: Figur & Szenen (SVG, Gelenke per CSS animiert) ─────
+/* ───── ZUKUNFTS-ICH: Figur & Szenen (SVG, Gelenke per CSS animiert) ─────
    Winkel: 0 = nach unten, -90 = nach vorn (rechts), 90 = nach hinten, 180 = nach oben. */
 const jst=(a,an,d,dl)=>an?{'--a0':an[0]+'deg','--a1':an[1]+'deg',animation:`jnt ${d}s ease-in-out ${dl}s infinite alternate`}:{transform:`rotate(${a||0}deg)`};
 const PROPS={
@@ -1391,7 +1393,7 @@ const TEASE=['Tick, tack.','Ich warte nicht.','Noch da?','Ich bin schon weiter.'
 function NemesisScene({activity,now,pulse,last,behind}){const I=useId().replace(/:/g,'');const [say,setSay]=useState(null);const first=useRef(true);
  useEffect(()=>{if(first.current){first.current=false;return}setSay({t:last&&last.on?'Pünktlich. So wie ich.':NEM_SAY[rnd(0,NEM_SAY.length-1)],k:Date.now()});const t=setTimeout(()=>setSay(null),2600);return()=>clearTimeout(t)},[pulse]);
  const sc=SCN[activity]||SCN.idle,[s1,s2,isSun]=SKY(now);const night=!isSun;
- return html`<svg viewBox="0 0 360 210" className="w-full block" style=${{borderRadius:20}} role="img" aria-label=${`Dein Nemesis: ${sc.label}`}>
+ return html`<svg viewBox="0 0 360 210" className="w-full block" style=${{borderRadius:20}} role="img" aria-label=${`Dein Zukunfts-Ich: ${sc.label}`}>
  <defs><linearGradient id=${'ns'+I} x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor=${s1}/><stop offset="1" stopColor=${s2}/></linearGradient><radialGradient id=${'ng'+I}><stop offset="0" style=${{stopColor:'var(--acc)'}} stopOpacity=".35"/><stop offset="1" style=${{stopColor:'var(--acc)'}} stopOpacity="0"/></radialGradient></defs>
  <rect width="360" height="210" style=${{fill:'var(--mr1)'}}/>
  <rect x="22" y="20" width="76" height="62" rx="6" fill=${`url(#ns${I})`}/>
@@ -1407,17 +1409,9 @@ function NemesisScene({activity,now,pulse,last,behind}){const I=useId().replace(
  <rect y="196" width="360" height="14" fill="#000" opacity=".12"/>
  ${say&&html`<g key=${'b'+say.k} style=${{animation:'pop .35s ease-out'}}><rect x="206" y="44" width=${say.t.length*7.4+22} height="28" rx="14" fill="#F5F3FF"/><path d="M216 70 L210 82 L226 71Z" fill="#F5F3FF"/><text x="217" y="62" fontSize="13" fontWeight="800" fill="var(--acc-d2)">${say.t}</text></g>`}
  </svg>`}
-/* ───── NEMESIS: Karte, Zeitleiste, Vergleich, Prototyp-Uhr ───── */
+/* ───── ZUKUNFTS-ICH: Karte, Zeitleiste, Vergleich, Prototyp-Uhr ───── */
 const nowMinOf=c=>c.simMin!=null?c.simMin:calendarMinutes(c.now,c.S);
-function nemLine(X,Z,Y,cur,night){
- if(Y&&X>=Y)return'Alles erledigt. Morgen wieder.';
- if(night)return X>0?'Ich schlafe. Du hast geliefert. Morgen um 6 wieder.':'Ich schlafe. Morgen um 6 geht es los.';
- const g=Z-X;
- if(g>=3)return`${g} Aufgaben Rückstand. Ich warte nicht.`;
- if(g===2)return`Zwei vorne. Während du zögerst, bin ich beim nächsten Punkt.`;
- if(g===1)return`Eine Aufgabe Rückstand. Hol sie dir. Jetzt.`;
- if(g===0)return Z===0?'Der Tag ist jung. Ich fange an. Du auch?':'Gleichstand. Halt mit.';
- return g===-1?'Du bist vorne. Bleib da.':'Du bist mir voraus. Heute schlägst du mich.'}
+function nemLine(X,Z,Y,cur,night){return 'Plan-Simulation: '+X+' dokumentierte Handlungen · '+Z+' im Modell. Entscheide über deinen nächsten machbaren Schritt.'}
 function NemTimeline({plan,now,c}){const ref=useRef(null);const night=now<plan[0].start;const cur=getCurrentActivity(plan,now);
  useEffect(()=>{const el=ref.current&&ref.current.querySelector('[data-cur="1"]');if(el&&ref.current)ref.current.scrollTo({left:el.offsetLeft-ref.current.clientWidth/2+el.clientWidth/2,behavior:'smooth'})},[cur.id]);
  const t0=360,t1=1440,pos=clamp((now-t0)/(t1-t0),0,1);
@@ -1425,12 +1419,12 @@ function NemTimeline({plan,now,c}){const ref=useRef(null);const night=now<plan[0
  <div className="relative h-1.5 rounded-full mx-1" style=${{background:'var(--ghost)'}}><div className="absolute inset-y-0 left-0 rounded-full" style=${{width:pos*100+'%',background:'linear-gradient(90deg,var(--acc-d),var(--acc2))',transition:'width .6s'}}/><div className="absolute -top-1 w-1 h-3.5 rounded" style=${{left:`calc(${pos*100}% - 2px)`,background:'var(--nem)'}}/></div>
  <div className="flex justify-between text-[10px] mute mt-1 px-1 num"><span>6:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
  <div ref=${ref} className="flex gap-1.5 overflow-x-auto mt-2 pb-1" style=${{scrollbarWidth:'none'}}>${plan.map(p=>{const nd=!night&&nemDoneAt(p,plan,now),isCur=p.id===cur.id,ud=p.done;
-  return html`<button key=${p.id} data-cur=${isCur?'1':'0'} disabled=${p.virtual||ud} onClick=${e=>{if(!p.virtual&&!ud)c.start(p.id,e)}} aria-label=${`${p.name}, ${fmtHM(p.start)}: Nemesis ${nd?'erledigt':isCur?'gerade dabei':'kommt noch'}${ud?', du: erledigt':p.virtual?'':', antippen zum Abhaken'}`} className="shrink-0 border-0 rounded-2xl px-2 py-2 flex flex-col items-center gap-1 relative" style=${{width:62,background:isCur?'rgba(var(--acc-rgb),.2)':'var(--ghost)',boxShadow:isCur?'0 0 0 1.5px var(--acc2) inset':'none',opacity:!nd&&!isCur?.5:1}}>
+  return html`<button key=${p.id} data-cur=${isCur?'1':'0'} disabled=${p.virtual||ud} onClick=${e=>{if(!p.virtual&&!ud)c.start(p.id,e)}} aria-label=${`${p.name}, ${fmtHM(p.start)}: Zukunfts-Ich ${nd?'erledigt':isCur?'gerade dabei':'kommt noch'}${ud?', du: erledigt':p.virtual?'':', antippen zum Abhaken'}`} className="shrink-0 border-0 rounded-2xl px-2 py-2 flex flex-col items-center gap-1 relative" style=${{width:62,background:isCur?'rgba(var(--acc-rgb),.2)':'var(--ghost)',boxShadow:isCur?'0 0 0 1.5px var(--acc2) inset':'none',opacity:!nd&&!isCur?.5:1}}>
    <span className="w-8 h-8 rounded-xl flex items-center justify-center" style=${{background:nd?'var(--nem)':isCur?'transparent':'var(--card2)',color:nd?'#fff':'var(--acc2)',animation:isCur?'ringPulse 2s infinite':'none'}}><${Icon} n=${nd?'check':p.icon} s=${15} sw=${nd?3:1.9}/></span>
    <span className="text-[10.4px] leading-tight text-center font-semibold" style=${{display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>${p.name}</span>
    <span className="num text-[10.4px] mute">${fmtHM(p.start)}</span>
    ${ud&&(()=>{const pt=c.S.punct&&c.S.punct.k===dayKey(c.S)&&c.S.punct.ids.includes(p.id);return html`<span className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center" style=${{background:pt?'var(--gold)':'var(--done)',color:'#fff'}}><${Icon} n=${pt?'zap':'check'} s=${10} sw=${3}/></span>`})()}</button>`})}</div>
- <div className="flex gap-3 text-[10.5px] mute mt-1.5 px-1"><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded" style=${{background:'var(--nem)'}}/>Nemesis erledigt</span><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full" style=${{background:'var(--done)'}}/>Du erledigt</span><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full" style=${{background:'var(--gold)'}}/>pünktlich</span></div></div>`}
+ <div className="flex gap-3 text-[10.5px] mute mt-1.5 px-1"><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded" style=${{background:'var(--nem)'}}/>Zukunfts-Ich erledigt</span><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full" style=${{background:'var(--done)'}}/>Du erledigt</span><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full" style=${{background:'var(--gold)'}}/>pünktlich</span></div></div>`}
 function NemesisCard({c}){const {S}=c;const now=nowMinOf(c);
  const tasks=nemTasks(S),plan=buildNemesisPlan(tasks),cur=getCurrentActivity(plan,now),night=now<plan[0].start||cur.kind==='sleep';
  const cnt=plan.filter(p=>!p.virtual&&p.kind!=='sleep'),Y=cnt.length,Z=cnt.filter(p=>nemDoneAt(p,plan,now)).length,X=cnt.filter(p=>p.done).length;
@@ -1439,11 +1433,11 @@ function NemesisCard({c}){const {S}=c;const now=nowMinOf(c);
  useEffect(()=>{const p=prevRef.current;prevRef.current=cur;if(p&&p.id!==cur.id&&!p.virtual&&p.kind!=='sleep'){setFin(p.name);const t=setTimeout(()=>setFin(null),2800);return()=>clearTimeout(t)}},[cur.id]);
  return html`<div className="card p-3" style=${{borderRadius:26}}>
  <div className="nem-line mx-1.5 mb-2.5"/>
- <div className="flex items-start justify-between px-1.5 pt-1 gap-2"><div className="min-w-0"><div className="lbl flex items-center gap-1.5" style=${{color:'var(--nem)'}}><${Icon} n="helmet" s=${14} sw=${1.8}/>Dein Nemesis · ${fmtHM(now)}${c.simMin!=null?' (simuliert)':''}</div><div className="disp text-[26px] mt-1 leading-none truncate">${cur.name}</div><div className="text-[11.5px] mute mt-1">${(SCN[cur.kind]||SCN.idle).label} · ${fmtHM(cur.start)}–${fmtHM(cur.end)}</div></div>
+ <div className="flex items-start justify-between px-1.5 pt-1 gap-2"><div className="min-w-0"><div className="lbl flex items-center gap-1.5" style=${{color:'var(--nem)'}}><${Icon} n="helmet" s=${14} sw=${1.8}/>Dein Zukunfts-Ich · ${fmtHM(now)}${c.simMin!=null?' (simuliert)':''}</div><div className="disp text-[26px] mt-1 leading-none truncate">${cur.name}</div><div className="text-[11.5px] mute mt-1">${(SCN[cur.kind]||SCN.idle).label} · ${fmtHM(cur.start)}–${fmtHM(cur.end)}</div></div>
   <button onClick=${()=>c.openSheet({t:'nemplan'})} className="chip shrink-0 flex items-center gap-1"><${Icon} n="edit" s=${12}/>Plan</button></div>
- <div className="mt-2.5 relative">${fin&&html`<div key=${fin} className="absolute left-3 top-3 z-10 rounded-full px-3 py-1.5 text-[12px] font-bold flex items-center gap-1.5" style=${{background:'rgba(var(--good-rgb),.92)',color:'#052E1F',animation:'pop .4s ease-out'}}><${Icon} n="check" s=${13} sw=${3}/>Er hat erledigt: ${fin}</div>`}<${NemesisScene} activity=${cur.kind} now=${now} pulse=${S.pulse} last=${S.lastDone} behind=${!night&&Z-X>=2}/></div>
+ <div className="mt-2.5 relative">${fin&&html`<div key=${fin} className="absolute left-3 top-3 z-10 rounded-full px-3 py-1.5 text-[12px] font-bold flex items-center gap-1.5" style=${{background:'rgba(var(--good-rgb),.92)',color:'#052E1F',animation:'pop .4s ease-out'}}><${Icon} n="check" s=${13} sw=${3}/>Im Planmodell abgeschlossen: ${fin}</div>`}<${NemesisScene} activity=${cur.kind} now=${now} pulse=${S.pulse} last=${S.lastDone} behind=${!night&&Z-X>=2}/></div>
  <div className="mt-3 rounded-2xl px-3.5 py-3 flex items-start gap-2.5" style=${{background:behind?'rgba(var(--nem-rgb),.09)':'rgba(var(--acc-rgb),.1)',boxShadow:`0 0 0 1px ${behind?'rgba(var(--nem-rgb),.25)':'rgba(var(--acc2-rgb),.25)'} inset`}}><span style=${{color:behind?'var(--nem)':'var(--acc2)'}} className="mt-0.5"><${Icon} n="swords" s=${16}/></span><div className="text-[14.5px] font-semibold leading-snug">${line}</div></div>
- <div className="grid grid-cols-2 gap-2 mt-3">${[['Du',X,'var(--you)','linear-gradient(90deg,var(--acc-d),var(--you))'],['Nemesis',Z,'var(--nem)','linear-gradient(90deg,var(--nem-d),var(--nem))']].map(([l,v,col,bg])=>html`<div key=${l} className="card2 p-3"><div className="flex items-baseline justify-between"><span className="lbl" style=${{color:col}}>${l}</span><span className="num"><b key=${l+v} className="text-[20px] ink" style=${{animation:'pop .4s ease-out',display:'inline-block'}}>${v}</b><span className="mute text-[12px]">/${Y}</span></span></div><div className="h-1.5 rounded-full mt-2 overflow-hidden" style=${{background:'var(--ghost)'}}><div className="h-full rounded-full" style=${{width:(Y?v/Y:0)*100+'%',background:bg,transition:'width .6s'}}/></div></div>`)}</div>
+ <div className="grid grid-cols-2 gap-2 mt-3">${[['Du',X,'var(--you)','linear-gradient(90deg,var(--acc-d),var(--you))'],['Zukunfts-Ich',Z,'var(--nem)','linear-gradient(90deg,var(--nem-d),var(--nem))']].map(([l,v,col,bg])=>html`<div key=${l} className="card2 p-3"><div className="flex items-baseline justify-between"><span className="lbl" style=${{color:col}}>${l}</span><span className="num"><b key=${l+v} className="text-[20px] ink" style=${{animation:'pop .4s ease-out',display:'inline-block'}}>${v}</b><span className="mute text-[12px]">/${Y}</span></span></div><div className="h-1.5 rounded-full mt-2 overflow-hidden" style=${{background:'var(--ghost)'}}><div className="h-full rounded-full" style=${{width:(Y?v/Y:0)*100+'%',background:bg,transition:'width .6s'}}/></div></div>`)}</div>
  <${NemTimeline} plan=${plan} now=${now} c=${c}/>
  </div>`}
 function TimeDebug({c}){const [open,setOpen]=useState(false);const now=nowMinOf(c);
@@ -1452,7 +1446,7 @@ function TimeDebug({c}){const [open,setOpen]=useState(false);const now=nowMinOf(
  ${open&&html`<div className="mt-3"><input type="range" min="0" max="1425" step="15" value=${now} onChange=${e=>c.setSimMin(+e.target.value)} aria-label="Uhrzeit" className="w-full"/>
   <div className="flex flex-wrap gap-1.5 mt-2">${[['Morgen',450],['Mittag',750],['Nachm.',930],['Abend',1200],['Nacht',180]].map(([l,m])=>html`<button key=${l} onClick=${()=>c.setSimMin(m)} className=${`chip ${c.simMin===m?'on':''}`}>${l} ${fmtHM(m)}</button>`)}<button onClick=${()=>c.setSimMin(null)} className=${`chip ${c.simMin==null?'on':''}`}>Live</button></div></div>`}</div>`}
 function NemPlan({c}){const {S}=c;const sel=S.nem||nemDefault(S);const pool=nemPool(S);
- return html`<${Sheet} sub="Nemesis-Plan" title="Was würde er heute tun?" onClose=${c.closeSheet}>
+ return html`<${Sheet} sub="Zukunfts-Ich-Plan" title="Was würde er heute tun?" onClose=${c.closeSheet}>
  <div className="text-[12.5px] mute mb-3 leading-snug">Wähle Aufgaben und Tageszeit. Genaue Uhrzeiten legst du im Tagesplan fest.</div>
  <div className="flex flex-col gap-2">${pool.map(m=>{const on=!!sel[m.id],k=kindOf(m);return html`<div key=${m.id} className="card2 p-3">
   <button onClick=${()=>c.setNem(m.id,on?null:NK_TOD[k])} className="w-full bg-transparent border-0 p-0 flex items-center gap-3 text-left ink"><span className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" style=${{background:on?'var(--acc)':'transparent',border:on?'none':'1.5px solid var(--line)',color:'#fff'}}>${on&&html`<${Icon} n="check" s=${14} sw=${3}/>`}</span><span className="flex-1 text-[13.5px] font-medium">${m.title}</span><span className="text-[10.5px] mute">${(SCN[k]||SCN.idle).label}</span></button>
@@ -1556,11 +1550,11 @@ function ReflectLine({c}){const {S,D}=c;const L=S.life,r=reviewToday(S),due=LC.r
  const days=toSun===0?7:toSun;const txt=due!=null?'Wochenrückblick bereit':ci?'Daily Debrief: 1 Minute':(r?'Debrief erledigt':'Debrief ab 18 Uhr')+' · Rückblick in '+days+(days===1?' Tag':' Tagen');
  return html`<button onClick=${()=>due!=null?c.openSheet({t:'weekly'}):ci?c.openSheet({t:'review'}):c.setTab('reflect')} className="w-full mt-3 flex items-center gap-3 px-3.5 py-3 rounded-[14px] text-left border-0" style=${{background:hot?'rgba(var(--acc-rgb),.12)':'transparent',boxShadow:'0 0 0 1px '+(hot?'rgba(var(--acc2-rgb),.35)':'var(--line)')+' inset',color:'var(--ink)'}}>
  <span className=${hot?'acc':'mute'}><${Icon} n="owl" s=${18}/></span><span className=${'flex-1 text-[13.5px] '+(hot?'font-semibold':'mute')}>${txt}</span><${Icon} n="chevR" s=${15} cls="mute"/></button>`}
-/* Nemesis als eine Zeile, Szene im eigenen Sheet */
+/* Zukunfts-Ich als eine Zeile, Szene im eigenen Sheet */
 function NemesisLine({c}){const {S}=c;const now=nowMinOf(c);const plan=buildNemesisPlan(nemTasks(S)),cur=getCurrentActivity(plan,now);const cnt=plan.filter(p=>!p.virtual&&p.kind!=='sleep'),Y=cnt.length,Z=cnt.filter(p=>nemDoneAt(p,plan,now)).length,X=cnt.filter(p=>p.done).length;
  return html`<button onClick=${()=>c.openSheet({t:'nemesis'})} className="w-full mt-2 flex items-center gap-3 px-3.5 py-3 rounded-[14px] text-left border-0 bg-transparent" style=${{boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}>
- <span style=${{color:'var(--nem)'}}><${Icon} n="helmet" s=${18} sw=${1.8}/></span><span className="flex-1 min-w-0"><span className="block text-[13.5px] font-medium truncate">Nemesis: ${(SCN[cur.kind]||SCN.idle).label.toLowerCase()}</span><span className="block text-[11.5px] mute num">Er ${Z}/${Y} · du ${X}/${Y}${Z>X?' · '+(Z-X)+' Rückstand':''}</span></span><${Icon} n="chevR" s=${15} cls="mute"/></button>`}
-function NemesisSheet({c}){const now=nowMinOf(c);return html`<${Sheet} sub="Arena · optional" title="Dein Nemesis" onClose=${c.closeSheet}><${NemesisCard} c=${c}/>${now>=1260&&html`<div className="mt-3"><${DuelReport} c=${c}/></div>`}<div className="mt-3"><${LearnCard} c=${c}/></div><//>`}
+ <span style=${{color:'var(--nem)'}}><${Icon} n="helmet" s=${18} sw=${1.8}/></span><span className="flex-1 min-w-0"><span className="block text-[13.5px] font-medium truncate">Zukunfts-Ich: ${(SCN[cur.kind]||SCN.idle).label.toLowerCase()}</span><span className="block text-[11.5px] mute num">Er ${Z}/${Y} · du ${X}/${Y}${Z>X?' · '+(Z-X)+' Rückstand':''}</span></span><${Icon} n="chevR" s=${15} cls="mute"/></button>`}
+function NemesisSheet({c}){const now=nowMinOf(c);return html`<${Sheet} sub="Arena · optional" title="Dein Zukunfts-Ich" onClose=${c.closeSheet}><${NemesisCard} c=${c}/>${now>=1260&&html`<div className="mt-3"><${DuelReport} c=${c}/></div>`}<div className="mt-3"><${LearnCard} c=${c}/></div><//>`}
 function HomeLegacy({c}){
  const {S,D}=c;const R=readiness(S);const a=D.standings[D.me.rank-2];
  const h=D.gap<=6?'Du bist nah an deinem Potenzial. Halte den Standard.':D.gap<12?'Schließe die Lücke Mission für Mission.':'Eine große Lücke ist nur ein Plan, den du noch nicht gestartet hast.';
@@ -1663,7 +1657,7 @@ function LearnCard({c}){const s=learnSuggest(c.S);if(!s)return null;const X=t=>8
  <div className="flex items-start gap-3"><span className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style=${{background:'rgba(var(--acc-rgb),.16)',color:'var(--acc2)'}}><${Icon} n="rotate" s=${16}/></span><div className="flex-1 min-w-0"><div className="lbl acc">Dein Plan lernt mit</div><div className="text-[14px] font-semibold mt-0.5 leading-snug">${s.name} auf ${fmtHM(s.to)} legen?</div><div className="text-[12px] mute mt-1 leading-snug">Du hast es an ${s.near} von ${s.n} Tagen gegen ${fmtHM(s.to+s.dur)} erledigt, geplant ist ${fmtHM(s.from)}.</div></div></div>
  <svg viewBox="0 0 300 34" className="w-full mt-2 block" aria-hidden="true"><line x1="8" x2="292" y1="22" y2="22" style=${{stroke:'var(--line)'}}/>${[360,720,1080,1440].map(t=>html`<text key=${t} x=${X(t)} y="33" fontSize="8" textAnchor="middle" style=${{fill:'var(--mute)'}}>${t>=1440?'24:00':fmtHM(t)}</text>`)}
   <rect x=${X(s.from)-2} y="8" width="4" height="14" rx="2" fill="var(--nem)" opacity=".7"/>${s.ts.map((t,i)=>html`<circle key=${i} cx=${X(t)} cy=${18-(i%3)*4} r="3" style=${{fill:'var(--acc2)'}} opacity=".8"/>`)}</svg>
- <div className="flex gap-2 mt-2.5"><button onClick=${()=>c.upd(n=>{n.sugDis={...(n.sugDis||{}),[s.id]:s.to}})} className="ghost flex-1 py-2.5 text-[13px] font-semibold">Lassen</button><button onClick=${()=>{c.setNemTime(s.id,{s:s.to,d:s.dur});c.toast(`${s.name} liegt jetzt um ${fmtHM(s.to)}. Der Nemesis zieht mit.`,'good')}} className="btn flex-[1.5] py-2.5 text-[13px]">Auf ${fmtHM(s.to)}</button></div></div>`}
+ <div className="flex gap-2 mt-2.5"><button onClick=${()=>c.upd(n=>{n.sugDis={...(n.sugDis||{}),[s.id]:s.to}})} className="ghost flex-1 py-2.5 text-[13px] font-semibold">Lassen</button><button onClick=${()=>{c.setNemTime(s.id,{s:s.to,d:s.dur});c.toast(`${s.name} liegt jetzt um ${fmtHM(s.to)}. Der Zukunfts-Ich zieht mit.`,'good')}} className="btn flex-[1.5] py-2.5 text-[13px]">Auf ${fmtHM(s.to)}</button></div></div>`}
 /* ───── Tagesduell & Abendbericht (ab 21 Uhr) ───── */
 function duelOf(S){const plan=buildNemesisPlan(nemTasks(S)),cnt=plan.filter(p=>!p.virtual&&p.kind!=='sleep'),Y=cnt.length,X=cnt.filter(p=>p.done).length;
  const pt=S.punct&&S.punct.k===dayKey(S)?cnt.filter(p=>p.done&&S.punct.ids.includes(p.id)):[],miss=cnt.filter(p=>!p.done);
@@ -1672,7 +1666,7 @@ function duelOf(S){const plan=buildNemesisPlan(nemTasks(S)),cnt=plan.filter(p=>!
 function DuelReport({c}){const {S}=c;const d=duelOf(S),st=(S.duel&&S.duel.streak)||0;
  return html`<div className="card p-4 mb-3 rise" style=${{borderRadius:24,background:'radial-gradient(120% 80% at 50% 0%,rgba(var(--nem-rgb),.12),var(--card) 65%)',borderColor:'rgba(var(--nem-rgb),.28)'}}>
  <div className="nem-line mb-2.5"/><div className="flex items-center justify-between"><div className="lbl" style=${{color:'var(--nem)'}}>Abendbericht · Tagesduell</div><span className="text-[11px] mute">ab 21 Uhr</span></div>
- <div className="flex items-end justify-around mt-3"><div className="text-center"><div className="disp text-[40px] leading-none" style=${{color:'var(--good)'}}>${d.X}</div><div className="lbl mt-1">Du</div></div><div className="text-[13px] mute pb-3">gegen</div><div className="text-center"><div className="disp text-[40px] leading-none" style=${{color:'var(--nem)'}}>${d.Y}</div><div className="lbl mt-1">Nemesis</div></div></div>
+ <div className="flex items-end justify-around mt-3"><div className="text-center"><div className="disp text-[40px] leading-none" style=${{color:'var(--good)'}}>${d.X}</div><div className="lbl mt-1">Du</div></div><div className="text-[13px] mute pb-3">gegen</div><div className="text-center"><div className="disp text-[40px] leading-none" style=${{color:'var(--nem)'}}>${d.Y}</div><div className="lbl mt-1">Zukunfts-Ich</div></div></div>
  <div className="mt-3 rounded-2xl p-3" style=${{background:'rgba(var(--nem-rgb),.08)',boxShadow:'0 0 0 1px rgba(var(--nem-rgb),.2) inset'}}><div className="lbl mb-1" style=${{color:'var(--nem)'}}>Er sagt</div><div className="text-[14px] font-semibold leading-snug">„${d.lines.join(' ')}“</div></div>
  <div className="flex items-center justify-between mt-3 text-[12.5px]"><span className="mute">Duell-Serie</span><span className="font-semibold" style=${{color:'var(--gold)'}}>${d.won?st+1:st} ${(d.won?st+1:st)===1?'Tag':'Tage'} eingeholt${d.won?' · heute dabei':''}</span></div></div>`}
 /* ───── Realitäts-Check im Tagesplan ───── */
@@ -1753,10 +1747,10 @@ function HopliteFig({cape='var(--nem)',plume=true,ghost}){const dk=ghost?'var(--
  <path d="M36 32 C36 14 44 8 52 8 C60 8 68 14 68 32 L68 44 L62 44 L62 36 L42 36 L42 44 L36 44Z" fill=${dk} stroke="var(--mute)" strokeWidth="1.2"/><path d="M44 28 H60 M52 28 V40" stroke="var(--stone)" strokeWidth="1.2" opacity=".7"/>
  ${plume&&html`<path d="M52 8 C50 -6 66 -10 78 0 C70 -2 62 2 58 10Z" fill=${ac}/>`}
  <circle cx="66" cy="92" r="26" fill=${ghost?'var(--mute)':'var(--scene-armour)'} stroke="var(--mute)" strokeWidth="2"/><circle cx="66" cy="92" r="21" fill="none" stroke="var(--line2)" strokeWidth="1.5"/><path d="M66 78 L78 106 H72 L66 92 L60 106 H54Z" fill=${ac} opacity=".9"/></g>`}
-/* Home-Szene: Sonnenscheibe nach Tageszeit, Tempel, Felsgrat; der Nemesis zeigt, was er gerade erledigt */
+/* Home-Szene: Sonnenscheibe nach Tageszeit, Tempel, Felsgrat; der Zukunfts-Ich zeigt, was er gerade erledigt */
 function DayScene({c}){const {S}=c;const now=nowMinOf(c),sl=slotOf(now),[bg,sun,op,stone,sy]=SLOT_PAL[sl],fm=focusMode(S);
  const plan=buildNemesisPlan(nemTasks(S)),cur=getCurrentActivity(plan,now),night=now<plan[0].start||cur.kind==='sleep',g=mainGoal(S);
- const cap=(fm?'Dein Tag · ':'Nemesis · ')+sl,txt=fm?(g?g.title:'Lege dein Hauptziel fest'):night?'Er schläft. Morgen geht es weiter.':cur.name;
+ const cap=(fm?'Dein Tag · ':'Zukunfts-Ich · ')+sl,txt=fm?(g?g.title:'Lege dein Hauptziel fest'):night?'Er schläft. Morgen geht es weiter.':cur.name;
  return html`<button onClick=${()=>fm?c.setTab('tasks'):c.openSheet({t:'nemesis'})} className="scene-card" aria-label=${cap+': '+txt}>
  <svg viewBox="0 0 360 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="360" height="230" fill=${bg}/><circle cx="200" cy=${sy} r="78" fill=${sun} opacity=${op}/>
   <g fill=${stone} opacity=".8"><rect x="280" y="118" width="60" height="4"/>${[284,293,302,311,320,329].map(x=>html`<rect key=${x} x=${x} y="100" width="4" height="18"/>`)}<path d="M278 100 L310 88 L342 100Z"/></g>
@@ -1769,12 +1763,12 @@ function focusMs(S,D){const b=(briefToday(S)||{ids:[]}).ids,g=goalMs(S).map(x=>x
 function dayProg(S,D){const f=focusMs(S,D),dm=D.allM.filter(m=>m.freq==='daily'||m.freq==='multi');return{n:f.filter(m=>isDone(S,m)).length,t:f.length,extra:dm.filter(m=>isDone(S,m)&&!f.includes(m)).length}}
 function DayProgress({c,tap=true}){const p=dayProg(c.S,c.D);const body=html`<span className="flex justify-between items-baseline"><span className="lbl">Fokus heute</span><b className="num text-[15px]">${p.n} von ${p.t}${p.extra?html`<span className="mute font-normal text-[12px]"> · +${p.extra} extra</span>`:null}</b></span><span className="block mt-2"><${Bar} pct=${p.t?p.n/p.t:0} h=${8}/></span>`;
  return tap?html`<button onClick=${()=>c.setTab('tasks')} className="card w-full p-4 mt-2 text-left block" aria-label=${'Fokus heute: '+p.n+' von '+p.t+' erledigt'+(p.extra?', '+p.extra+' zusätzlich':'')+'. Zur Aufgabenliste'}>${body}</button>`:html`<div className="card p-4 mt-3">${body}</div>`}
-/* Du gegen Nemesis: erledigte Einheiten seines und deines Tagesplans */
+/* Du gegen Zukunfts-Ich: erledigte Einheiten seines und deines Tagesplans */
 function duelNow(S,now){const plan=buildNemesisPlan(nemTasks(S)),cnt=plan.filter(p=>!p.virtual&&p.kind!=='sleep');return{plan,cnt,Y:cnt.length,X:cnt.filter(p=>p.done).length,Z:cnt.filter(p=>nemDoneAt(p,plan,now)).length}}
-function DuelPair({c,tap=true}){const d=duelNow(c.S,nowMinOf(c));const cells=[['Du',d.X,'var(--ink)'],['Nemesis',d.Z,'var(--gold)']].map(([l,v,col])=>html`<span key=${l} className="card p-3 block text-center"><span className="lbl block">${l}</span><span className="duel-n num block" style=${{color:col}}>${v}</span><span className="text-[12px] mute block">von ${d.Y}</span></span>`);
- return tap?html`<button onClick=${()=>c.setTab('solo')} className="grid grid-cols-2 gap-2 mt-2 w-full bg-transparent border-0 p-0" aria-label=${'Duell: du '+d.X+', Nemesis '+d.Z+' von '+d.Y+'. Zum Duell'}>${cells}</button>`:html`<div className="grid grid-cols-2 gap-2 mt-2">${cells}</div>`}
+function DuelPair({c,tap=true}){const d=duelNow(c.S,nowMinOf(c));const cells=[['Du',d.X,'var(--ink)'],['Zukunfts-Ich',d.Z,'var(--gold)']].map(([l,v,col])=>html`<span key=${l} className="card p-3 block text-center"><span className="lbl block">${l}</span><span className="duel-n num block" style=${{color:col}}>${v}</span><span className="text-[12px] mute block">von ${d.Y}</span></span>`);
+ return tap?html`<button onClick=${()=>c.setTab('solo')} className="grid grid-cols-2 gap-2 mt-2 w-full bg-transparent border-0 p-0" aria-label=${'Duell: du '+d.X+', Zukunfts-Ich '+d.Z+' von '+d.Y+'. Zum Duell'}>${cells}</button>`:html`<div className="grid grid-cols-2 gap-2 mt-2">${cells}</div>`}
 /* Arena: zwei Hopliten, der Führende steht höher; keine Effekte */
-function ArenaScene({c,lead,label='Nemesis',ghost}){const sl=slotOf(nowMinOf(c)),[sky,sun,op]=SLOT_PAL[sl];const rows=[0,1,2,3];
+function ArenaScene({c,lead,label='Zukunfts-Ich',ghost}){const sl=slotOf(nowMinOf(c)),[sky,sun,op]=SLOT_PAL[sl];const rows=[0,1,2,3];
  return html`<svg viewBox="0 0 360 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style=${{display:'block',width:'100%',height:'100%'}}><rect width="360" height="220" fill=${sky}/><circle cx="180" cy="84" r="58" fill=${sun} opacity=${op}/><rect x="0" y="80" width="360" height="4" fill="var(--bg2)"/>
  ${rows.map(i=>html`<g key=${i}><rect x="0" y=${84+i*16} width="360" height="16" fill=${i%2?'var(--card)':'var(--card2)'}/>${Array.from({length:18},(_,k)=>html`<rect key=${k} x=${8+(i%2)*10+k*20} y=${87+i*16} width="3" height="10" fill="var(--stone)" opacity=".12"/>`)}</g>`)}
  <rect x="0" y="148" width="360" height="72" fill="var(--bg2)"/><ellipse cx="180" cy="192" rx="210" ry="34" fill="var(--card2)"/><path d="M180 150 V218" stroke="var(--stone)" opacity=".15" strokeDasharray="4 5"/><ellipse cx="180" cy="192" rx="140" ry="22" fill="none" stroke="var(--stone)" opacity=".12"/>
@@ -1786,7 +1780,7 @@ function NemDuel({c}){const {S}=c;const now=nowMinOf(c);const d=duelNow(S,now),{
  const lead=X>Z?'me':X<Z?'nem':'',tug=X+Z?Math.min(92,Math.max(8,X/(X+Z)*100)):50;
  const rounds=TOD.map(([k,l,s,e])=>{const inS=p=>p.start>=s&&p.start<e,mine=d.cnt.filter(p=>inS(p)&&p.done).length,nem=d.cnt.filter(p=>inS(p)&&nemDoneAt(p,plan,now)).length,on=!night&&now>=s;
   const [r,col]=!on?['–','var(--mute)']:mine>nem?['Du','var(--acc2)']:mine<nem?['Nem.','var(--gold)']:['=','var(--ink)'];return{k,l:l==='Nachmittag'?'Nachm.':l,r,col}});
- return html`<div className="scene-card mt-3" style=${{height:200}} role="img" aria-label=${'Arena: du '+X+', Nemesis '+Z}><${ArenaScene} c=${c} lead=${lead}/></div>
+ return html`<div className="scene-card mt-3" style=${{height:200}} role="img" aria-label=${'Arena: du '+X+', Zukunfts-Ich '+Z}><${ArenaScene} c=${c} lead=${lead}/></div>
  <${DuelPair} c=${c} tap=${false}/>
  <div className="card p-4 mt-2"><div className="lbl">Tauziehen</div><div className="tug mt-3 mb-1" role="img" aria-label=${'Tauziehen: '+Math.round(tug)+' Prozent für dich'}><i style=${{left:tug+'%'}}/></div></div>
  <div className="grid grid-cols-4 gap-1.5 mt-2" role="list" aria-label="Runden nach Tageszeit">${rounds.map(x=>html`<div key=${x.k} role="listitem" className="rd"><div className="lbl" style=${{letterSpacing:'.02em'}}>${x.l}</div><b style=${{color:x.col}}>${x.r}</b></div>`)}</div>
@@ -1794,7 +1788,7 @@ function NemDuel({c}){const {S}=c;const now=nowMinOf(c);const d=duelNow(S,now),{
  ${now>=1260&&html`<div className="mt-2"><${DuelReport} c=${c}/></div>`}
  ${S.comeback&&html`<div className="card p-4 mt-2"><div className="lbl acc">Neuanfang</div><div className="text-[15px] mt-1 leading-snug">Heute zählt nur eine Mini-Aufgabe. Kein Punkteverlust, kein Rückstand.</div></div>`}
  <div className="card p-4 mt-2"><div className="flex items-center justify-between"><span className="lbl">Tagesverlauf</span><button onClick=${()=>c.openSheet({t:'nemplan'})} className="chip flex items-center gap-1"><${Icon} n="edit" s=${12}/>Plan</button></div><${NemTimeline} plan=${plan} now=${now} c=${c}/></div>
- <div className="text-[12px] mute mt-3 px-1 leading-snug">Der Nemesis erledigt deinen eigenen Tagesplan in Tageszeit-Reihenfolge. Er ist der Maßstab, nicht der Richter.</div>`}
+ <div className="text-[12px] mute mt-3 px-1 leading-snug">Das Zukunfts-Ich ist hier eine Plan-Simulation. Modellstände sind keine tatsächlichen Handlungen einer Person und kein Urteil über dich.</div>`}
 /* Stats: Saison-Fresko (jeder Tag eine Kachel) und Kompass (Richtung des größten Bedarfs) */
 function SeasonFresco({c}){const {S,D}=c;const N=SDAYS(S),L=SL(S),wk=Math.min(L,seasonWeek(S)+1),tp=dayProg(S,D),tr=tp.t?tp.n/tp.t:0;
  const ratio=i=>{const w=(S.wlog||{})[S.season+'-'+i];if(!w)return null;return w.ps?w.pd/w.ps:(w.g?1:0)};
@@ -1810,11 +1804,11 @@ function StatsCompass({c}){const {S}=c;const C=LC.compassState(S),ma=C.area&&LC.
  <g style=${{transformOrigin:'100px 100px',transform:`rotate(${mi*90}deg)`,transition:'transform .6s cubic-bezier(.16,1,.3,1)'}}><polygon points="100,26 93,100 107,100" fill="var(--acc)"/><polygon points="100,174 95,100 105,100" fill="var(--mute)" opacity=".5"/></g><circle cx="100" cy="100" r="7" fill="var(--gold)"/></svg>`}
  <span className="block text-center text-[15px] mt-3">${ma?html`Deine niedrigste Einschätzung: <b className="acc">${ma.de}</b> (${C.min}/5).`:C.state==='tie'?'Mehrere Bereiche sind gleich bewertet. Du entscheidest, was jetzt wichtig ist.':'Noch keine eigene Einschätzung. Bewerte deine Lebensbereiche, wenn du möchtest.'}</span>
  ${C.known<4&&C.known>0&&html`<span className="block text-center mute text-[12px] mt-2">${C.known} von 4 Bereichen bewertet. Die übrigen sind noch offen.</span>`}</button>`}
-/* Duell nach Prototyp: Nemesis heute oder Schatten über die Saison */
+/* Duell nach Prototyp: Zukunfts-Ich heute oder Schatten über die Saison */
 function Solo({c}){const {S}=c;const [mode,setMode]=useState('nem');const r=rankOf(S);
  return html`<div className="screen px-4 pb-6">
  <div className="pt-5"><div className="lbl truncate">Saison ${S.season} · ${r.name}</div><h1 className="disp text-[32px] mt-1 leading-none">Duell</h1></div>
- <div className="mt-3"><${Seg} opts=${[['nem','Nemesis · heute'],['season','Schatten · Saison']]} val=${mode} on=${setMode}/></div>
+ <div className="mt-3"><${Seg} opts=${[['nem','Zukunfts-Ich · heute'],['season','Schatten · Saison']]} val=${mode} on=${setMode}/></div>
  ${mode==='nem'?html`<${NemDuel} c=${c}/>`:html`<${SoloSeason} c=${c}/>`}</div>`}
 function SoloSeason({c}){
  const {S,D}=c;const plan=D.seasonPlan;
@@ -2369,7 +2363,7 @@ function Catalog({c}){
  <button onClick=${c.closeSheet} className="btn w-full py-3.5 mt-5 text-sm">Verstanden</button></${Sheet}>`}
 function Info({c,k}){
  const T={
- self:['Dein Arch-Nemesis','Dein Arch-Nemesis ist die bessere Version von dir: Er erfüllt jeden realistischen Plan, jeden Tag, ohne Ausrede. Seine Werte folgen deinem nachhaltigen Plan und pausieren an bewussten Ruhetagen. Der Abstand zeigt, wie weit du heute von ihm entfernt bist. Überholst du ihn, wird er neu berechnet und wieder ein Stück besser. Er ist ein Spiegel, kein Urteil.'],
+ self:['Dein Zukunfts-Ich','Eine mögliche Version von dir, keine reale Person und kein Erfolgsversprechen. Der optionale Duellvergleich simuliert deinen Tagesplan und erhält die bisherigen Daten. Die Rückmeldung deines Zukunfts-Ichs verwendet nur deine eigenen Einträge. Erholung und reale Einschränkungen gehören zu deinem Maßstab.'],
  matrix:['Lebensmatrix','Zehn Bereiche nach dem Vorbild von „The Code“. Jeder Wert hat eine Quelle: gemessen, selbst gemeldet oder Spielwertung. Charakter und Intellekt sind subjektive Spielwerte, keine wissenschaftlichen Messungen.'],
  score:['Punktelogik (vorläufig)','Mission-Punkte × Qualitätsfaktor (−50 % bis +20 %), gedeckelt durch das Wochenlimit jeder Aktivität. So lohnt nicht, möglichst viele Aufgaben anzulegen. Vier getrennte Ebenen: reale Leistung, Disziplin, Liga-Punkte (Woche), Aktivitäts-Rating (dauerhaft). Saison-Punkte setzen zurück; Rekorde und Charakterfortschritt nie.']}[k];
  return html`<${Sheet} sub="Info" title=${T[0]} onClose=${c.closeSheet}><div className="text-[13.5px] leading-relaxed">${T[1]}</div><button onClick=${c.closeSheet} className="btn w-full py-3.5 mt-5 text-sm">Verstanden</button></${Sheet}>`}
@@ -2394,8 +2388,9 @@ function Integ({c}){const S=c.S;return html`<${Sheet} sub="Zukunft" title="Integ
 function Settings({c}){const {S}=c;
  return html`<${Sheet} sub="Einstellungen & Demo" title="Optionen" onClose=${c.closeSheet}>
  <div className="flex flex-col gap-2">
+ <button type="button" onClick=${()=>c.openSheet({t:'futureSelf'})} className="ghost p-3.5 flex items-center gap-3 text-left"><${FutureSelfMark}/><span className="flex-1 text-[14px]">Dein Zukunfts-Ich<span className="block text-[11.5px] mute">${FS.settings(S).enabled?'Fragen und Präsenz einstellen':'Deaktiviert · hier wieder aktivieren'}</span></span></button>
  <div className="ghost p-3.5 flex items-center gap-3 text-[14px] font-medium"><${Icon} n="eye" s=${18} cls="acc"/><div className="flex-1">Erlebnismodus<div className="text-[11px] mute font-normal">Beide nutzen dieselben Daten, nichts geht verloren</div></div><${ModeToggle} c=${c}/></div>
- <button onClick=${c.toggleFocusMode} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="target" s=${18} cls="acc"/><div className="flex-1">Fokusmodus<div className="text-[11px] mute font-normal">Ohne Liga, Nemesis und Punkte. Deine Daten bleiben.</div></div><span className=${`chip ${focusMode(S)?'on':''}`}>${focusMode(S)?'An':'Aus'}</span></button>
+ <button onClick=${c.toggleFocusMode} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="target" s=${18} cls="acc"/><div className="flex-1">Fokusmodus<div className="text-[11px] mute font-normal">Ohne Liga, Planvergleich und Punkte. Deine Daten bleiben.</div></div><span className=${`chip ${focusMode(S)?'on':''}`}>${focusMode(S)?'An':'Aus'}</span></button>
  <button onClick=${c.toggleWeather} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="temple" s=${18} cls="acc"/><div className="flex-1">Verwitterung im Tempel<div className="text-[11px] mute font-normal">Zeigt gemessene Rückschritte als leichte Risse. Nie bei fehlenden Daten.</div></div><span className=${`chip ${S.life.temple.weather?'on':''}`}>${S.life.temple.weather?'An':'Aus'}</span></button>
  <button onClick=${c.toggleTempleAnim} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="column" s=${18} cls="acc"/><div className="flex-1">Tempel-Animationen<div className="text-[11px] mute font-normal">Bausteine gleiten ein. Bei „Bewegung reduzieren“ automatisch aus.</div></div><span className=${`chip ${S.life.temple.anim?'on':''}`}>${S.life.temple.anim?'An':'Aus'}</span></button>
  <button onClick=${()=>{c.closeSheet();c.setTab('reflect')}} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="owl" s=${18} cls="acc"/><div className="flex-1">Reflexion<div className="text-[11px] mute font-normal">Daily Debrief, Wochenrückblick, Experimente, Muster</div></div><${Icon} n="chevR" s=${16} cls="mute"/></button>
@@ -2477,7 +2472,13 @@ function NewSeason({c}){const S=c.S;const [ag,setAg]=useState({...(S.sAreaGoals|
  <div className="mt-4"><${HoldBtn} label="Halten zum Unterschreiben" onDone=${()=>c.startSeason(th,len,goal,fo.trim()||'Konstanz statt Perfektion',ag)}/></div><div className="text-[10.5px] mute mt-2 text-center">Mit dem Unterschreiben bindest du dich an deine Ziele und die Challenge für diese Saison.</div></${Sheet}>`}
 const S_key=c=>(c.S.evalDone?'d':'n')+(c.S.evalHist||[]).length;
 function SheetHost({c}){
- const sh=c.sheet;if(!sh)return null;let b=null;
+ const sh=c.sheet,futureRef=useRef(null);
+ useEffect(()=>{if(!sh)return;const el=futureRef.current,previous=document.activeElement;if(!el)return;
+  const controls=()=>[...el.querySelectorAll('button:not([disabled]),summary,input,select,textarea,a[href]')].filter(x=>x.getClientRects().length);
+  const first=controls()[0];if(first)first.focus();const key=e=>{if(sh.t!=='futureSelf')return;if(e.key==='Escape'){e.preventDefault();c.closeSheet()}if(e.key==='Tab'){const a=controls(),i=a.indexOf(document.activeElement);if(!a.length){e.preventDefault();return}if(e.shiftKey&&(i<=0)){e.preventDefault();a[a.length-1].focus()}else if(!e.shiftKey&&(i===a.length-1||i<0)){e.preventDefault();a[0].focus()}}};el.addEventListener('keydown',key);
+  return()=>{el.removeEventListener('keydown',key);if(previous&&previous.isConnected)previous.focus();else document.querySelector('[aria-label="Hauptnavigation"] button')?.focus()};
+ },[sh&&sh.t]);
+ if(!sh)return null;let b=null;
  switch(sh.t){
   case'log':b=html`<${LogSheet} key=${sh.kind+(sh.mid||'')} c=${c} sh=${sh}/>`;break;
   case'add':b=html`<${AddMission} c=${c}/>`;break;
@@ -2502,6 +2503,7 @@ function SheetHost({c}){
   case'audit':b=html`<${AuditSheet} c=${c}/>`;break;
   case'standards':b=html`<${StandardsSheet} c=${c} area=${sh.area}/>`;break;
   case'fundament':b=html`<${FundamentSheet} c=${c}/>`;break;
+  case'futureSelf':b=html`<${FutureSelfPanel} c=${c}/>`;break;
   case'future':b=html`<${FutureSheet} c=${c}/>`;break;
   case'newleague':b=html`<${NewLeague} c=${c}/>`;break;
   case'newchal':b=html`<${NewChal} c=${c} pre=${sh.pre}/>`;break;
@@ -2527,7 +2529,7 @@ function SheetHost({c}){
   case'spath':b=html`<${SeasonPath} c=${c}/>`;break;
  }
  const lock=sh.t==='aar'||sh.t==='season';
- return html`<div className="absolute inset-0 z-50 flex items-end" style=${{background:'rgba(0,0,0,.6)',animation:'fadeIn .2s'}} onClick=${()=>{if(!lock)c.closeSheet()}}><div role="dialog" aria-modal="true" className="sheet w-full rounded-t-[24px] p-5 pb-8 max-h-[90%] overflow-y-auto border-t ln" style=${{background:'var(--card2)'}} onClick=${e=>e.stopPropagation()}><div className="w-9 h-1 rounded-full mx-auto mb-4" style=${{background:'var(--line2,var(--line))'}}/>${b}</div></div>`}
+ return html`<div className="absolute inset-0 z-50 flex items-end" style=${{background:'rgba(0,0,0,.6)',animation:'fadeIn .2s'}} onClick=${()=>{if(!lock)c.closeSheet()}}><div data-future-self=${sh.t==='futureSelf'} ref=${futureRef} role="dialog" aria-modal="true" aria-label=${sh.t==='futureSelf'?'Dein Zukunfts-Ich':undefined} className="sheet w-full rounded-t-[24px] p-5 pb-8 max-h-[90%] overflow-y-auto border-t ln" style=${{background:'var(--card2)'}} onClick=${e=>e.stopPropagation()}><div className="w-9 h-1 rounded-full mx-auto mb-4" style=${{background:'var(--line2,var(--line))'}}/>${b}</div></div>`}
 /* ───── ANTIKE BAUSTEINE: Heldenbanner, Rang, Wappen ───── */
 function SpartaBanner(){return html`<svg viewBox="0 0 360 150" preserveAspectRatio="xMaxYMax slice" className="w-full h-full block" aria-hidden="true">
  <circle cx="304" cy="74" r="34" style=${{fill:'var(--acc)'}} opacity=".85"/>
@@ -2765,9 +2767,46 @@ function WisdomCodex({c,init}){const {S}=c;const [mode,setMode]=useState(init===
  ${!list.length&&html`<div className="card2 p-4 text-[13px] mute mt-3 leading-snug text-center">${cat&&base.length?'In diesem Thema ist hier noch nichts.':mode==='fav'?'Noch keine Inschriften. Tippe das Lesezeichen an einer Weisheit, um sie hier aufzubewahren.':mode==='seen'?'Noch nichts gelesen. Impulse erscheinen auf „Heute“, im Daily Debrief und bei Meilensteinen.':'Keine Weisheit in dieser Auswahl.'}</div>`}
  <div className="text-[11.5px] mute text-center mt-4 leading-snug">Alle Texte sind eigene Formulierungen von THE WAR WITHIN, keine Zitate. Lesen und Speichern bringen keine Punkte und keinen Tempel-Fortschritt.</div><//>`}
 
+/* Future Self uses the same Hoplite figure as the plan simulation. */
+function futureSelfContext(c){return{LC,day:dayKey(c.S),isDone,choices:todayPriorities(c.S,c.D),block:nextTimeBlock(c.S,nowMinOf(c)),loop:loopNow(c)}}
+function FutureSelfMark({size=40}){return html`<svg width=${size} height=${size} viewBox="10 -24 108 212" aria-hidden="true" focusable="false"><${HopliteFig} cape="var(--nem)" plume=${true}/></svg>`}
+function FutureSelfDock({c}){const p=FS.settings(c.S),key=dayKey(c.S),h=!c.sheet&&FS.hint(c.S,key,todayPriorities(c.S,c.D)),[shown,setShown]=useState(null);
+ useEffect(()=>{if(h){setShown({day:key,text:h});c.upd(n=>FS.markHint(n,key))}},[h,key]);
+ useEffect(()=>{if(!p.enabled||p.minimized||!p.hints)setShown(null)},[p.enabled,p.minimized,p.hints]);
+ if(!p.enabled)return null;
+ const hint=shown&&shown.day===key&&p.hints&&!p.minimized?shown.text:null;
+ return html`<aside aria-label="Zugang zum Zukunfts-Ich" className="future-self shrink-0 relative px-4 py-1.5" style=${{borderTop:'1px solid var(--line)',background:'var(--card)'}}>
+ ${hint&&html`<div className="flex items-center gap-2 pb-1"><button type="button" onClick=${()=>{setShown(null);c.openSheet({t:'futureSelf'})}} className="text-left bg-transparent border-0 flex-1 text-[12px] leading-snug" style=${{color:'var(--mute)',minHeight:44}}>${hint}</button><button type="button" aria-label="Tageshinweis ausblenden" className="icon-btn shrink-0" onClick=${()=>setShown(null)}><${Icon} n="x" s=${16}/></button></div>`}
+ <div className=${'flex items-center gap-2'+(p.minimized?' justify-end':'')}>
+ <button type="button" aria-label="Dein Zukunfts-Ich öffnen" title="Dein Zukunfts-Ich" onClick=${()=>c.openSheet({t:'futureSelf'})} className=${'flex items-center text-left bg-transparent border-0 p-0'+(p.minimized?'':' flex-1 min-w-0')} style=${{minWidth:44,minHeight:44,color:'var(--ink)'}}><span className="shrink-0 rounded-full" style=${{background:'var(--ghost)'}}><${FutureSelfMark}/></span>${!p.minimized&&html`<span className="min-w-0 ml-2"><span className="block text-[13.5px] font-semibold">Dein Zukunfts-Ich</span><span className="block text-[11px] mute">Deine Entscheidungen. Dein Maßstab.</span></span>`}</button>
+ <button type="button" aria-label=${p.minimized?'Zukunfts-Ich-Präsenz vergrößern':'Zukunfts-Ich-Präsenz minimieren'} className="icon-btn shrink-0" onClick=${()=>c.upd(n=>FS.configure(n,{minimized:!p.minimized}))}><${Icon} n=${p.minimized?'plus':'minus'} s=${16}/></button></div></aside>`}
+function FutureSelfPanel({c}){const prefs=FS.settings(c.S),[mode,setMode]=useState(prefs.lastMode),ctx=futureSelfContext(c),answer=mode&&prefs.enabled?FS.respond(c.S,mode,ctx):null;
+ const ask=m=>{const r=FS.respond(c.S,m,ctx);setMode(m);c.upd(n=>FS.record(n,m,r.rule,dayKey(n)))};
+ const act=()=>{const a=answer&&answer.action;if(!a)return;if(a.kind==='item')completePriority(c,a.item);else c.openSheet({t:{goal:'goal',review:'review',plan:'dayplan'}[a.kind]||'goal'})};
+ const V=({title,rows,empty})=>html`<div className="mt-4"><div className="lbl">${title}</div>${rows.length?html`<ul className="list-disc pl-5 mt-1.5 space-y-1 text-[13px] leading-snug">${rows.map((x,i)=>html`<li key=${i}>${x}</li>`)}</ul>`:html`<div className="text-[12.5px] mute mt-1">${empty}</div>`}</div>`;
+ return html`<${Sheet} sub="Mögliche Zukunft · lokale Simulation" title="Dein Zukunfts-Ich" onClose=${c.closeSheet}>
+ <div className="flex gap-3 items-center"><span className="shrink-0"><${FutureSelfMark} size=${64}/></span><p className="text-[13px] leading-snug">${FS.TEXT.identity}</p></div>
+ <p className="text-[12px] mute mt-2 leading-snug">Eine mögliche Version von dir, keine reale Person und kein Erfolgsversprechen. Rückmeldung nur aus deinen Einträgen. Persönliche Texte bleiben auf diesem Gerät.</p>
+ ${prefs.enabled?html`<div className="flex flex-col gap-2 mt-4" role="group" aria-label="Fragen an dein Zukunfts-Ich">${[['confront','Konfrontiere mich'],['next','Was würde mein Zukunfts-Ich tun?'],['verdict','Mein Tagesurteil']].map(([id,label])=>html`<button type="button" key=${id} aria-pressed=${mode===id} className=${mode===id?'btn px-3 py-3 text-[13px] text-left':'ghost px-3 py-3 text-[13px] text-left'} style=${{minHeight:44}} onClick=${()=>ask(id)}>${label}</button>`)}</div>
+ ${answer?html`<section aria-label="Rückmeldung deines Zukunfts-Ichs" aria-live="polite" className="card2 p-3.5 mt-4 break-words"><div className="lbl acc">${answer.loop} · dein Success Loop</div><h3 className="text-[17px] font-semibold mt-2">${answer.title}</h3><p className="text-[14px] leading-relaxed mt-2">${answer.message}</p>${answer.next&&html`<p className="text-[13px] mute mt-2">${answer.next}</p>`}
+ ${answer.demo&&html`<p className="text-[12px] mute mt-2">Dieser Gaststand enthält Beispieldaten. Sie sind keine Auswertung deiner Person.</p>`}
+ ${(answer.identity||answer.vision)&&html`<p className="text-[12.5px] mt-3">Dein beschriebenes Zukunftsbild: „${answer.identity||answer.vision}“</p>`}
+ ${answer.values.length>0&&html`<p className="text-[12.5px] mt-2">${answer.demo?'Werte im Beispiel:':'Deine Werte:'} ${answer.values.join(' · ')}</p>`}
+ ${answer.why&&html`<details className="mt-2"><summary className="text-[12.5px] acc py-2 cursor-pointer">Dein eigenes Warum</summary><p className="text-[12.5px] mute leading-snug">${answer.why}</p></details>`}
+ ${answer.evidence.length>0&&html`<details className="mt-3"><summary className="text-[12.5px] acc py-2 cursor-pointer">Worauf sich das stützt</summary><ul className="list-disc pl-5 text-[12.5px] mt-1 space-y-2">${answer.evidence.map((e,i)=>html`<li key=${i}><span className="font-medium">${e.label}</span><br/><span className="mute">${e.value}</span></li>`)}</ul></details>`}
+ ${mode==='verdict'&&html`<${V} title="Im aktuellen Spieltag erfasst" rows=${answer.done} empty="Keine heutigen Erledigungen dokumentiert."/><${V} title="Offene Zusagen aus deinem Tagesplan" rows=${answer.open} empty="Keine offenen Zusagen aus einem bestätigten Tagesplan erkennbar."/>${answer.suggestions.length>0&&html`<${V} title="Mögliche nächste Handlungen · keine neuen Pflichten" rows=${answer.suggestions} empty=""/>`}<div className="mt-4"><div className="lbl">Morgen konkret</div><p className="text-[13px] mt-1">${answer.tomorrow}</p></div>`}
+ <${V} title="Was ich nicht weiß" rows=${answer.missing} empty="Auch vollständige App-Einträge erklären nicht alle Umstände deines Tages."/>
+ ${answer.action&&html`<button type="button" className="btn px-4 py-3 w-full mt-4 text-[13px]" onClick=${act}>${answer.action.label}</button>`}
+ ${answer.action&&answer.action.kind==='item'&&html`<button type="button" className="ghost px-4 py-3 w-full mt-2 text-[13px]" onClick=${()=>c.openSheet({t:'dayplan'})}>Im Tagesplan einplanen</button>`}
+ </section>`:html`<p className="text-[13px] mute mt-4">Wähle eine Frage. Du entscheidest, wann du Rückmeldung möchtest.</p>`}`:html`<div className="card2 p-3 mt-4 text-[13px]">Die Funktion ist deaktiviert. Die bestehende Planung und deine Daten bleiben erhalten.</div>`}
+ <div className="mt-5 border-t pt-3" style=${{borderColor:'var(--line)'}}><div className="lbl">Präsenz einstellen</div><button type="button" onClick=${()=>c.openSheet({t:'future'})} className="ghost w-full text-left px-3 py-3 mt-2 text-[13px]">Eigenes Zukunftsbild bearbeiten</button>
+ <button type="button" aria-pressed=${prefs.enabled} onClick=${()=>c.upd(n=>FS.configure(n,{enabled:!prefs.enabled}))} className="ghost w-full text-left px-3 py-3 mt-2 text-[13px]">${prefs.enabled?'Zukunfts-Ich deaktivieren':'Zukunfts-Ich aktivieren'}</button>
+ ${prefs.enabled&&html`<button type="button" aria-pressed=${prefs.minimized} onClick=${()=>c.upd(n=>FS.configure(n,{minimized:!prefs.minimized}))} className="ghost w-full text-left px-3 py-3 mt-2 text-[13px]">${prefs.minimized?'Präsenz wieder vergrößern':'Präsenz minimieren'}</button><button type="button" aria-pressed=${prefs.hints} onClick=${()=>c.upd(n=>FS.configure(n,{hints:!prefs.hints}))} className="ghost w-full text-left px-3 py-3 mt-2 text-[13px]">Tageshinweis · ${prefs.hints?'an':'aus'}</button><p className="text-[11.5px] mute mt-1">Optional: höchstens ein Hinweis pro Tag in der Zugangsleiste. Kein automatisches Dialogfenster.</p>`}</div><//>`}
+
 /* ───── LIFE OS: Heute · Mein Leben · Fortschritt · Reflexion ─────
    Logik in life-core.js (window.LC). Hier nur Darstellung und Verknüpfung mit dem Spielstand. */
 const LC=window.LC;
+const FS=window.FS;
 const aCol=id=>(LC.AREA[id]||{}).color||'var(--acc2)';
 const focusMode=S=>!!(S.life&&S.life.focusMode)||calmLeft(S)>0;
 const activeGoals=S=>((S.life&&S.life.goals)||[]).filter(g=>g.status==='active');
@@ -3101,7 +3140,7 @@ function ObReady({ob,u,goId}){const pv=ob.readyChoice==='preview';
  const Opt=({k,t,s,on})=>html`<button type="button" onClick=${on} aria-pressed=${ob.readyChoice===k} className="card w-full p-4 text-left border-0 flex items-center gap-3" style=${ob.readyChoice===k?{boxShadow:'0 0 0 1.5px var(--acc2) inset'}:undefined}><span className="flex-1"><span className="block text-[15px] font-semibold leading-snug">${t}</span><span className="block text-[12.5px] mute mt-0.5">${s}</span></span><${Icon} n="chevR" s=${16} cls="mute shrink-0"/></button>`;
  if(pv)return html`<div><${Lines} l=${['So funktioniert es.']}/>
   <div className="flex flex-col gap-2 mt-5">${OB_HOW.map(([i,t,s],k)=>html`<div key=${t} className="card p-3.5 flex gap-3 story-in" style=${obIn(.5+k*.35)}><span className="acc shrink-0 mt-0.5"><${Icon} n=${i} s=${18}/></span><div><div className="text-[14.5px] font-semibold">${t}</div><div className="text-[12.5px] mute leading-snug mt-0.5">${s}</div></div></div>`)}</div>
-  <p className="story-in text-[12.5px] mute mt-4 leading-relaxed" style=${obIn(1.8)}>Deine Antworten bleiben bei dir. Du kannst alles später ändern.</p>
+  <p className="story-in text-[12.5px] mute mt-4 leading-relaxed" style=${obIn(1.8)}>Deine Antworten bleiben bei dir. Du kannst alles später ändern. Dein Zukunfts-Ich ist danach über der Navigation erreichbar: freiwillig, lokal und als mögliche Zukunft, nicht als Erfolgsversprechen.</p>
   <div className="flex flex-col gap-2 mt-5 story-in" style=${obIn(2.1)}><button type="button" onClick=${()=>goId('name',{short:false,readyChoice:'preview'})} className="btn w-full py-3.5 text-[14.5px]">Jetzt ehrlich hinsehen · ca. 15 Min., pausierbar</button>
   <button type="button" onClick=${()=>goId('name',{short:true,readyChoice:'preview'})} className="ghost w-full py-3.5 text-[14px] font-semibold">Mit dem Nötigsten starten · ca. 2 Min.</button>
   <button type="button" onClick=${()=>u(()=>({readyChoice:null}))} className="bg-transparent border-0 py-2 text-[12.5px] mute">Zurück zur Frage</button></div></div>`;
@@ -3557,7 +3596,7 @@ function MonthlyRerate({c}){const {S}=c;const L=S.life;const list=Object.values(
 /* ───── Erste Woche: ruhiger Start ───── */
 const calmLeft=S=>{const L=S.life,o=L&&L.fund&&L.fund.ob;if(!o||o.calmOff||o.calmUntil==null)return 0;return Math.max(0,o.calmUntil-(L.d||0))};
 function CalmCard({c}){const {S}=c;const n=calmLeft(S);if(!n||(S.life&&S.life.focusMode))return null;
- return html`<div className="card2 p-3.5 mt-3"><div className="text-[13px] leading-snug">Deine erste Woche: Punkte, Liga und Nemesis bleiben noch im Hintergrund, damit dein erster Schritt im Mittelpunkt steht. Noch ${n} ${n===1?'Tag':'Tage'}.</div>
+ return html`<div className="card2 p-3.5 mt-3"><div className="text-[13px] leading-snug">Deine erste Woche: Punkte, Liga und Planvergleich bleiben noch im Hintergrund, damit dein erster Schritt im Mittelpunkt steht. Noch ${n} ${n===1?'Tag':'Tage'}.</div>
   <button type="button" onClick=${()=>c.upd(x=>{x.life.fund.ob={...x.life.fund.ob,calmOff:true}})} className="bg-transparent border-0 p-0 mt-2 text-[12.5px] acc font-semibold">Jetzt alles zeigen</button></div>`}
 
 /* ───── KONTO, ANMELDUNG & ONBOARDING ───── */
@@ -3824,7 +3863,7 @@ function Onboarding({A,set,theme,onDone}){
   <button type="button" onClick=${()=>finish(true)} className="bg-transparent border-0 w-full py-2.5 text-[13px] mute">Direkt in die App</button><//>`}<//>`}
 
 /* ───── Konto & Profil (Sheet) ───── */
-const NOTIF=[['daily','Tägliche Erinnerung','Ein kurzer Hinweis auf deine wichtigsten Missionen'],['weekly','Wochenrückblick','Sonntags: Abendrückblick und Evaluation'],['nemesis','Nachrichten vom Nemesis','Sticheleien und Anerkennung deines Rivalen']];
+const NOTIF=[['daily','Tägliche Erinnerung','Ein kurzer Hinweis auf deine wichtigsten Missionen'],['weekly','Wochenrückblick','Sonntags: Abendrückblick und Evaluation'],['nemesis','Nachrichten vom Zukunfts-Ich','Freiwillige Rückmeldung aus deinen eigenen Einträgen']];
 const SHARE_L={fit:'Körperwerte',fin:'Finanzen',focus:'Fokus-Stunden',run5k:'5-km-Zeit',swim:'Schwimmzeit',bench:'Bankdrücken',pull:'Klimmzüge',read:'Lesezeit'};
 function Account({c}){
  const {S}=c;const au=c.auth||{};const P=S.profile||{};const [v,setV]=useState('menu');const [cf,setCf]=useState('');
@@ -3917,7 +3956,7 @@ function PerfectDay({S,onClose}){
 const useNow=ms=>{const [n,setN]=useState(Date.now());useEffect(()=>{const t=setInterval(()=>setN(Date.now()),ms);return()=>clearInterval(t)},[ms]);return n};
 const METRICS={'5-km-Lauf':[true,S=>S.stats.run5k.last,fmtT],'Bankdrücken (Verbesserung)':[false,S=>S.stats.bench.ver,x=>n1(x)+' kg'],'100 m Schwimmen':[true,S=>S.stats.swim.pr,fmtT],'Lese-Konstanz':[false,()=>120,x=>Math.round(x)+' Min.'],'Fokus-Stunden':[false,()=>18,x=>n1(x)+' h'],'Spar-Konstanz':[false,()=>5,x=>Math.round(x)+' Tage']};
 function App({init,auth,skey='war_within_v5'}){
- const [S,setS]=useState(()=>{const s=syncCalendar(LC.ensureLife(init||loadState(skey)));WC.ensure(s);LC.syncTemple(s);return s});
+ const [S,setS]=useState(()=>{const s=syncCalendar(LC.ensureLife(init||loadState(skey)));WC.ensure(s);FS.ensure(s);LC.syncTemple(s);return s});
  const [tSel,setTSel]=useState(null),[tFlash,setTFlash]=useState(null);
  const [tab,setTab]=useState('home'),[statTab,setStatTab]=useState('out'),[sheet,setSheet]=useState(null),[sel,setSel]=useState(null),[coreSel,setCoreSel]=useState(null),[freq,setFreq]=useState('all');
  const [toasts,setToasts]=useState([]),[floats,setFloats]=useState([]),[flash,setFlash]=useState({}),[sparks,setSparks]=useState([]),[undo,setUndo]=useState(null);
@@ -3965,8 +4004,8 @@ function App({init,auth,skey='war_within_v5'}){
    n.acts[m.act].rating=Math.min(99,n.acts[m.act].rating+m.pts*.04);const ct=m.cat||n.acts[m.act].cat;n.catScore[ct]=Math.min(100,(n.catScore[ct]??40)+m.pts*.12);
    n.autoDone=n.autoDone||{};n.autoDone[mid]=!!extra.auto;
    if(extra.q!=null){n.qLog=n.qLog||[];n.qLog.unshift({act:m.act,q:extra.q,t:Date.now()});n.qLog=n.qLog.slice(0,40)}
-   if(extra.q!=null&&extra.q>=85&&Math.random()<.5)n.nemMsg={t:['Übertroffen? Gut. Ich habe es auch getan.','Starker Zug. Aber ein Tag ist kein Standard.','Das war sauber. Mach es morgen wieder.'][rnd(0,2)],ts:Date.now()};
-   if(n.comeback){n.cbDone=(n.cbDone||0)+1;if(n.cbDone>=3){n.comeback=false;n.cbDone=0;n.idle=0;n.nemMsg={t:'Du bist zurück. Nicht schlecht. Morgen wieder volle Last.',ts:Date.now()}}}
+   if(extra.q!=null&&extra.q>=85&&Math.random()<.5)n.nemMsg={t:['Eine Umsetzung ist erfasst. Entscheide, was du wiederholst.','Du hast gehandelt. Prüfe deinen nächsten Schritt.','Das war sauber. Mach es morgen wieder.'][rnd(0,2)],ts:Date.now()};
+   if(n.comeback){n.cbDone=(n.cbDone||0)+1;if(n.cbDone>=3){n.comeback=false;n.cbDone=0;n.idle=0;n.nemMsg={t:'Wiedereinstieg erfasst. Behalte ein machbares Pensum.',ts:Date.now()}}}
    n.pulse++;n.lastDone={id:mid,on:!!pu,ts:Date.now()};n.ctime=n.ctime||{};n.ctime[mid]=[...(n.ctime[mid]||[]).filter(x=>x.day!==dayKey(n)),{t:nowM,day:dayKey(n)}].slice(-14);if(pu){const k=dayKey(n);if(!(n.punct&&n.punct.k===k))n.punct={k,ids:[]};if(!n.punct.ids.includes(mid))n.punct.ids.push(mid)}n.seasonMissions=(n.seasonMissions??12)+1;n.tally=n.tally||{};n.tally[mid]=(n.tally[mid]||0)+1;n.sTally=n.sTally||{};n.sTally[mid]=(n.sTally[mid]||0)+1;
    {const lv=pathLevel(n);if(lv>(n.sLevel||0)){const got=applyPath(n,n.sLevel||0,lv);n.pathUp={lv,got,ts:Date.now()}}}
    if(!isPerfect(n)&&dailyAllDone(n)){n.perfect={k:dayKey(n),ts:Date.now()};n.perfectDays=(n.perfectDays||0)+1;n.perfectShow=true}
@@ -3996,7 +4035,7 @@ function App({init,auth,skey='war_within_v5'}){
   {const own=eveToday(S),se=S.life&&LC.eveningFor(S.life,S.life.d||0),T={morgens:480,mittags:750,abends:1080};const w=own?own.when:se&&se.std?se.when:null,t=T[w];
    if(t&&hit(t)&&!quiet(t))ev.push(['own',{id:'own',title:own?own.m.title:((S.life.standards||{})[se.std]||{std:{}}).std.text}])}
   if(hit(1260))ev.push(['report',null]);const e=ev[ev.length-1];if(!e)return;const key=dayKey(S)+e[0]+(e[1]?e[1].id:'');if(P.sent[key])return;P.sent[key]=1;
-  const [type,q]=e;if(type==='start')notify(q.name+' beginnt um '+fmtHM(q.start)+'.','Er ist schon dabei.');else if(type==='end')notify(q.name+' erledigt?','Ja oder später, ein Tipp genügt.',q.id);else if(type==='own')notify('Dein Schritt für heute:',q.title+'. Wie gestern festgelegt.');else{const d=duelOf(S);notify('Abendbericht:','Du '+d.X+', er '+d.Y+'. '+d.lines[1])}},[nowM,S.push]);
+  const [type,q]=e;if(type==='start')notify(q.name+' beginnt um '+fmtHM(q.start)+'.','Ein Zeitfenster aus deinem Plan.');else if(type==='end')notify(q.name+' erledigt?','Ja oder später, ein Tipp genügt.',q.id);else if(type==='own')notify('Dein Schritt für heute:',q.title+'. Wie gestern festgelegt.');else{const d=duelOf(S);notify('Abendbericht:','Prüfe deine dokumentierten Handlungen und deinen nächsten Schritt.')}},[nowM,S.push]);
  useEffect(()=>{if(!('serviceWorker' in navigator))return;const h=e=>{const d=e.data||{};if(d.type==='ask'&&d.id&&askRef.current){const q=askRef.current.plan.find(x=>x.id===d.id);if(q)askRef.current.fn(q,d.action==='yes'?'yes':'later')}};navigator.serviceWorker.addEventListener('message',h);return()=>navigator.serviceWorker.removeEventListener('message',h)},[]);
  const togglePush=async()=>{if(S.push){upd(n=>{n.push=false});toast('Erinnerungen aus.');return}let ok='unsupported';try{if('Notification' in window)ok=await Notification.requestPermission()}catch(e){}
   upd(n=>{n.push=true});toast(ok==='granted'?'Erinnerungen an: zum Blockstart, zur Rückfrage und um 21 Uhr. Ruhig von 21 bis 6 Uhr.':'Erinnerungen an, vorerst nur in der App: Benachrichtigungen sind im Browser nicht erlaubt.','good')};
@@ -4032,7 +4071,7 @@ function App({init,auth,skey='war_within_v5'}){
   const todo=jobs.filter(([id])=>{const m=S.missions.find(x=>x.id===id);return m&&!isDone(S,m)});
   todo.forEach(([id,run,q],i)=>setTimeout(()=>{if(run)lref.current('run',run,id,true,q);else cref.current(id,null,{bonus:qBonus(q),q,auto:true,msg:'Auto (Demo) · '+qLabel(q),keep:true})},i*1100+500));
   toast(`Health-Sync (Demo): ${steps.toLocaleString('de-DE')} Schritte, ${n1(sleep)} h Schlaf. ${todo.length?todo.length+' Missionen automatisch abgehakt.':'Nichts Neues abzuhaken.'}`,'good')};
- const simComeback=()=>{upd(n=>{n.comeback=true;n.cbDone=0;n.idle=3;n.nemMsg={t:'Drei Tage Pause. Ich habe keinen verpasst. Fang klein an.',ts:Date.now()}});setSheet(null);toast('Rückfall-Modus (Demo) aktiv.')};
+ const simComeback=()=>{upd(n=>{n.comeback=true;n.cbDone=0;n.idle=3;n.nemMsg={t:'Ein neuer Anfang kann kleiner sein. Prüfe deinen Plan.',ts:Date.now()}});setSheet(null);toast('Rückfall-Modus (Demo) aktiv.')};
  const toggleAuto=()=>{upd(n=>{n.health={...(n.health||{}),auto:n.health&&n.health.auto===false}});toast(S.health&&S.health.auto===false?'Auto-Wertung an.':'Auto-Wertung aus. Du bewertest alles selbst.')};
  const toggleHealth=()=>{if(S.health&&S.health.on){upd(n=>{n.health={...n.health,on:false}});toast('Health-Verbindung (Demo) getrennt.')}else syncHealth()};
  cref.current=complete;lref.current=logSave;sref.current=syncHealth;
@@ -4094,7 +4133,7 @@ function App({init,auth,skey='war_within_v5'}){
  const setLifeGoalStatus=(gid,st)=>{lifeUpd(n=>{LC.setGoalStatus(n,gid,st);if(st==='achieved')n.life.flags={...(n.life.flags||{}),goal:true}});setSheet(null);toast(st==='achieved'?'Ziel erreicht. Stark. Zeit für das nächste.':st==='archived'?'Ziel archiviert. Verlauf und Messwerte bleiben.':'Ziel wieder aktiv.','good')};
  const addMeas=(gid,v)=>{const g=LC.goalById(S.life,gid),hit=g&&g.status==='active'&&LC.reached(g,v);lifeUpd(n=>{LC.addMeasurement(n,gid,v)});setSheet(null);toast(hit?'Zielwert erreicht! Das ist echter Fortschritt.':'Messwert gespeichert. Er fließt in den Wochenrückblick ein.','good')};
  const saveWeekly=p=>{lifeUpd(n=>{Object.entries(p.decisions||{}).forEach(([id,d])=>LC.decideExperiment(n,id,d));const e=p.exp?LC.startExperiment(n,{...p.exp,wk:p.wk}):null;LC.saveWeeklyReview(n,{wk:p.wk,rate:p.rate,rows:p.rows,worked:p.worked,notWorked:p.notWorked,obstacle:p.obstacle,expStarted:e&&e.id,expLabel:e&&e.label})});setSheet(null);toast(p.exp?'Experiment gestartet. Im nächsten Rückblick prüfst du, ob es wirkt.':'Wochenrückblick gespeichert.','good')};
- const toggleFocusMode=()=>{const on=focusMode(S);lifeUpd(n=>{n.life.focusMode=!on;if(on&&n.life.fund&&n.life.fund.ob)n.life.fund.ob={...n.life.fund.ob,calmOff:true}});toast(on?'Fokusmodus aus: Liga, Nemesis und Punkte sind wieder da.':'Fokusmodus an: Ziele, Handlungen und Reflexion.','good')};
+ const toggleFocusMode=()=>{const on=focusMode(S);lifeUpd(n=>{n.life.focusMode=!on;if(on&&n.life.fund&&n.life.fund.ob)n.life.fund.ob={...n.life.fund.ob,calmOff:true}});toast(on?'Fokusmodus aus: Liga, Planvergleich und Punkte sind wieder da.':'Fokusmodus an: Ziele, Handlungen und Reflexion.','good')};
  const setAreaSat=(id,v)=>lifeUpd(n=>{n.life.areas[id]={...(n.life.areas[id]||{}),sat:v,known:true}});
  const setFocusArea=id=>{lifeUpd(n=>{n.life.focus=id});toast(LC.AREA[id].de+' hat jetzt Priorität.','good')};
  const setMainGoal=gid=>{lifeUpd(n=>{n.life.main=gid});setSheet(null);toast('Hauptziel geändert.','good')};
@@ -4133,18 +4172,20 @@ function App({init,auth,skey='war_within_v5'}){
  const c={auth,upd,restore:x=>setS(syncCalendar(structuredClone(x))),wisFav,wisDismiss,wisToggle,saveDebrief,saveEvening,saveMonthly,tSel,setTSel,tFlash,toggleWeather,toggleTempleAnim,closeTempleSeason,setSkin,addLifeGoal,updLifeGoal,setLifeGoalStatus,addMeas,saveWeekly,toggleFocusMode,setAreaSat,setFocusArea,setMainGoal,saveValues,saveWhy,setActPerWeek,removeAction,addActionTo,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,togglePush,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
  const nav=[['home','Heute','home'],['tasks','Aufgaben','target'],['life','Mein Leben','grid'],['stats','Fortschritt','bars'],...(focusMode(S)?[]:[['solo','Duell','swords']])];const navKey={league:'stats',reflect:'home'}[tab]||tab;const revDue=LC.reviewWeek(S.life)!=null;
  const ach=newA&&ACHS.find(a=>a.id===newA);
+ const fp=FS.settings(S),dockOffset=fp.enabled?(fp.hints&&!fp.minimized?240:180):104;
  return html`<div data-theme=${S.theme} data-skin=${S.skin||'antik'} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(var(--acc-rgb),.12)'}}>
  <div className="absolute inset-0 pointer-events-none overflow-hidden"><div className="absolute rounded-full" style=${{top:-110,left:-80,width:300,height:300,background:'rgba(var(--acc-rgb),.13)',filter:'blur(70px)'}}/><div className="absolute rounded-full" style=${{top:260,right:-140,width:260,height:260,background:'rgba(var(--sky-rgb),.07)',filter:'blur(80px)'}}/></div>
- <div ref=${scrollRef} onScroll=${e=>{const y=e.currentTarget.scrollTop,v=y>70;if(v!==scrolled)setScrolled(v);const dn=y>lastY.current+4,up=y<lastY.current-4;if(dn&&!fabOff&&y>120)setFabOff(true);else if((up||y<120)&&fabOff)setFabOff(false);lastY.current=y}} className="flex-1 overflow-y-auto relative scroll-fade" style=${{paddingBottom:96}}>
+ <div ref=${scrollRef} onScroll=${e=>{const y=e.currentTarget.scrollTop,v=y>70;if(v!==scrolled)setScrolled(v);const dn=y>lastY.current+4,up=y<lastY.current-4;if(dn&&!fabOff&&y>120)setFabOff(true);else if((up||y<120)&&fabOff)setFabOff(false);lastY.current=y}} className="flex-1 overflow-y-auto relative scroll-fade" style=${{paddingBottom:dockOffset}}>
   ${['league','reflect'].includes(tab)&&html`<div className="px-4 pt-4 -mb-2 flex gap-2"><button onClick=${()=>setTab(navKey)} className="chip flex items-center gap-1"><${Icon} n="chevL" s=${14}/>${navKey==='home'?'Heute':'Fortschritt'}</button></div>`}${tab==='home'&&html`<${Home} c=${c}/>`}${tab==='life'&&html`<${MyLife} c=${c}/>`}${tab==='reflect'&&html`<${Reflect} c=${c}/>`}${tab==='tasks'&&html`<${Tasks} c=${c}/>`}${tab==='solo'&&html`<${Solo} c=${c}/>`}${tab==='league'&&html`<${League} c=${c}/>`}${tab==='stats'&&html`<${Stats} c=${c}/>`}</div>
  ${(()=>{const T={home:'Heute',life:'Mein Leben',reflect:'Reflexion',tasks:'Aufgaben',solo:'Duell · Saison '+S.season,league:'Liga',stats:'Fortschritt'}[tab];return html`<div aria-hidden=${!scrolled} className="topbar absolute top-0 inset-x-0 z-20 px-4 flex items-center justify-between pointer-events-none" style=${{height:52,paddingTop:'env(safe-area-inset-top)',opacity:scrolled?1:0,transform:scrolled?'none':'translateY(-8px)',background:'var(--glass)',backdropFilter:'blur(16px) saturate(1.4)',WebkitBackdropFilter:'blur(16px) saturate(1.4)',borderBottom:'1px solid var(--line)'}}><div className="disp text-[19px]">${T}</div><button tabIndex=${scrolled?0:-1} onClick=${()=>{if(scrollRef.current)scrollRef.current.scrollTo({top:0,behavior:'smooth'})}} className="chip pointer-events-auto" style=${{padding:'4px 10px',minHeight:28}} aria-label="Nach oben"><${Icon} n="up" s=${14}/></button></div>`})()}
  
  <div className="absolute bottom-0 inset-x-0 z-30" style=${{paddingBottom:'env(safe-area-inset-bottom)',background:'var(--bg)',borderTop:'1px solid var(--line)'}}>
+  <${FutureSelfDock} c=${c}/>
   <nav aria-label="Hauptnavigation" className="flex px-1 pt-1.5 pb-2">${nav.map(([k,l,i])=>{const on=navKey===k;return html`<button key=${k} aria-label=${l+(k==='home'&&revDue?', Wochenrückblick bereit':'')} aria-current=${on?'page':undefined} onClick=${()=>{setTab(k);setSel(null);try{navigator.vibrate&&navigator.vibrate(6)}catch(e){}}} className="relative flex-1 flex flex-col items-center justify-center gap-1 border-0 bg-transparent" style=${{minHeight:52,color:on?'var(--acc2)':'var(--mute)',transition:'color .14s'}}><${Icon} n=${i} s=${24} sw=${2}/>${k==='home'&&revDue&&html`<span aria-hidden="true" className="absolute rounded-full" style=${{top:4,right:'calc(50% - 17px)',width:7,height:7,background:'var(--acc)'}}/>`}<span className="text-[12px] font-medium">${l}</span>${on&&html`<span aria-hidden="true" className="absolute" style=${{bottom:-4,left:'25%',right:'25%',height:2,borderRadius:2,background:'var(--acc)'}}/>`}</button>`})}</nav></div>
- ${tab==='home'&&!undo&&!sheet&&dueAsk&&html`<div key=${'ask'+dueAsk.id} role="status" className="absolute z-40 left-3 right-3 rounded-[22px] p-3" style=${{bottom:100,background:'var(--glass)',backdropFilter:'blur(14px)',WebkitBackdropFilter:'blur(14px)',border:'1px solid rgba(var(--acc2-rgb),.4)',boxShadow:'0 14px 34px -12px rgba(0,0,0,.6)',animation:'toastIn .3s ease-out'}}>
+ ${tab==='home'&&S.push&&!undo&&!sheet&&dueAsk&&html`<div key=${'ask'+dueAsk.id} role="status" className="absolute z-40 left-3 right-3 rounded-[22px] p-3" style=${{bottom:dockOffset,background:'var(--glass)',backdropFilter:'blur(14px)',WebkitBackdropFilter:'blur(14px)',border:'1px solid rgba(var(--acc2-rgb),.4)',boxShadow:'0 14px 34px -12px rgba(0,0,0,.6)',animation:'toastIn .3s ease-out'}}>
   <div className="flex items-center gap-3"><span className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style=${{background:'rgba(var(--acc-rgb),.18)',color:'var(--acc2)'}}><${Icon} n=${dueAsk.icon} s=${18}/></span><div className="flex-1 min-w-0"><div className="text-[13.5px] font-semibold truncate">${dueAsk.name} erledigt?</div><div className="text-[11.5px] mute">Geplant ${fmtHM(dueAsk.start)}–${fmtHM(dueAsk.end)}${nowM<=dueAsk.end+GRACE?' · jetzt bestätigt = pünktlich':''}</div></div><button aria-label="Heute nicht mehr fragen" onClick=${()=>answerAsk(dueAsk,'no')} className="bg-transparent border-0 mute p-1 shrink-0"><${Icon} n="x" s=${16}/></button></div>
   <div className="flex gap-2 mt-2.5"><button onClick=${()=>answerAsk(dueAsk,'later')} className="ghost flex-1 py-2.5 text-[13px] font-semibold">Später</button><button onClick=${()=>answerAsk(dueAsk,'yes')} className="btn flex-[1.6] py-2.5 text-[13px]">Ja, erledigt</button></div></div>`}
- ${undo&&!sheet&&html`<div key=${undo.id} className="absolute z-40 left-4 flex items-center gap-3 pl-4 pr-1.5 py-1.5 rounded-full" style=${{bottom:104,background:'var(--glass)',backdropFilter:'blur(14px)',WebkitBackdropFilter:'blur(14px)',border:'1px solid var(--line)',boxShadow:'0 12px 30px -10px rgba(0,0,0,.6)',animation:'toastIn .25s ease-out',maxWidth:'calc(100% - 104px)'}}><span className="text-[12.5px] font-medium truncate">Erledigt: ${undo.title}</span><button onClick=${()=>{setS(undo.prev);setUndo(null);toast('Rückgängig gemacht')}} className="chip on shrink-0" style=${{padding:'6px 12px'}}>Rückgängig</button></div>`}
+ ${undo&&!sheet&&html`<div key=${undo.id} className="absolute z-40 left-4 flex items-center gap-3 pl-4 pr-1.5 py-1.5 rounded-full" style=${{bottom:dockOffset,background:'var(--glass)',backdropFilter:'blur(14px)',WebkitBackdropFilter:'blur(14px)',border:'1px solid var(--line)',boxShadow:'0 12px 30px -10px rgba(0,0,0,.6)',animation:'toastIn .25s ease-out',maxWidth:'calc(100% - 104px)'}}><span className="text-[12.5px] font-medium truncate">Erledigt: ${undo.title}</span><button onClick=${()=>{setS(undo.prev);setUndo(null);toast('Rückgängig gemacht')}} className="chip on shrink-0" style=${{padding:'6px 12px'}}>Rückgängig</button></div>`}
  <${SheetHost} c=${c}/>
  ${ach&&html`<div key=${newA} className="absolute inset-0 z-[60] flex items-center justify-center" style=${{background:'rgba(5,5,10,.82)',animation:'fadeIn .25s'}} onClick=${()=>upd(n=>{n.newAch=n.newAch.slice(1)})}>
   ${Array.from({length:18}).map((_,i)=>{const ang=i/18*Math.PI*2,r=110+(i%3)*40;return html`<span key=${i} className="absolute w-2 h-2 rounded-full" style=${{background:i%2?'var(--acc)':'var(--acc3)','--dx':Math.cos(ang)*r+'px','--dy':Math.sin(ang)*r+'px',animation:`burst 1.4s ease-out ${i*.03}s both`}}/>`})}
