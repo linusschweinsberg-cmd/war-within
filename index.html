@@ -1588,10 +1588,10 @@ function RealityCheck({c,blocks}){const {S}=c;const bl=blocks.filter(b=>b.kind!=
 /* Heute nach Prototyp: Datum, Titel, Tagesfortschritt, Bereichs-Chips, ruhige Liste; Tagesplan über das Kalender-Symbol */
 function Tasks({c}){
  const {S,D}=c;
- const [grp,setGrp]=useState('today'),[view,setView]=useState('list');
- const bIds=(briefToday(S)||{ids:[]}).ids,pr=id=>bIds.includes(id)?bIds.indexOf(id)-10:ESS.indexOf(id);
+ const [grp,setGrp]=useState('today'),[view,setView]=useState('list'),[more,setMore]=useState(false),[showDone,setShowDone]=useState(false);
+ const bIds=(briefToday(S)||{ids:[]}).ids,gIds=goalMs(S).map(x=>x.m.id),pr=id=>gIds.includes(id)?gIds.indexOf(id)-30:bIds.includes(id)?bIds.indexOf(id)-10:ESS.indexOf(id);
  const gOf=m=>{const g=GROUPS.find(x=>x.core.includes(m.act));return g?g.id:GROUPS[GROUPS.length-1].id};
- const fm=[...D.allM].filter(m=>grp==='all'||(grp==='today'?(S.comeback?cbList(S,D).some(x=>x.id===m.id):(ESS.includes(m.id)||bIds.includes(m.id))):(gOf(m)===grp||m.act===grp))).sort((a,b)=>(isDone(S,a)-isDone(S,b))||(grp==='today'?pr(a.id)-pr(b.id):0));
+ const fm=[...D.allM].filter(m=>grp==='all'||(grp==='today'?(S.comeback?cbList(S,D).some(x=>x.id===m.id):(gIds.includes(m.id)||ESS.includes(m.id)||bIds.includes(m.id))):(gOf(m)===grp||m.act===grp))).sort((a,b)=>(isDone(S,a)-isDone(S,b))||(grp==='today'?pr(a.id)-pr(b.id):0));
  const opts=[['today','Fokus'],['all','Alle'],...(S.ui==='adv'?GROUPS.map(g=>[g.id,g.name]):[]),...Object.keys(S.acts).filter(id=>D.allM.some(m=>m.act===id)).map(id=>[id,S.acts[id].name])];
  const nd=fm.filter(m=>isDone(S,m)).length;
  return html`<div className="screen px-4 pb-6">
@@ -1599,8 +1599,14 @@ function Tasks({c}){
   <div className="flex gap-2 shrink-0"><button aria-pressed=${view==='plan'} aria-label="Tagesplan anzeigen" onClick=${()=>setView(view==='plan'?'list':'plan')} className="icon-btn"><${Icon} n="calendar" s=${20} sw=${2}/></button><button aria-label="Aufgabe hinzufügen" onClick=${()=>c.openSheet({t:'add'})} className="btn w-11 h-11 flex items-center justify-center"><${Icon} n="plus" s=${22} sw=${2.4}/></button></div></div>
  <${DayProgress} c=${c} tap=${false}/>
  ${view==='plan'?html`<div className="mt-3"><${DayPlanner} c=${c}/></div>`:html`
- <div className="mt-3"><${Seg} opts=${opts} val=${grp} on=${setGrp}/></div>
- <div className="flex flex-col gap-2 mt-2">${fm.map(m=>html`<${MRow} key=${m.id} m=${m} c=${c}/>`)}</div>
+ <div className="mt-3"><${Seg} opts=${opts} val=${grp} on=${v=>{setGrp(v);setMore(false)}}/></div>
+ ${(()=>{const open=fm.filter(m=>!isDone(S,m)),done=fm.filter(m=>isDone(S,m)),N=3,top=grp==='today'&&!more?open.slice(0,N):open,rest=open.length-top.length;
+  return html`<div className="flex flex-col gap-2 mt-2">${top.map(m=>html`<${MRow} key=${m.id} m=${m} c=${c}/>`)}</div>
+  ${rest>0&&html`<button type="button" onClick=${()=>setMore(true)} className="ghost w-full py-3 mt-2 text-[13px] font-semibold">Weitere ${rest} für heute anzeigen</button>`}
+  ${grp==='today'&&more&&open.length>N&&html`<button type="button" onClick=${()=>setMore(false)} className="bg-transparent border-0 w-full py-2 mt-1 text-[12.5px] mute">Nur die wichtigsten drei zeigen</button>`}
+  ${open.length===0&&fm.length>0&&html`<div className="card2 p-3.5 mt-2 text-[13.5px] text-center">Alles für heute erledigt. Stark.</div>`}
+  ${done.length>0&&html`<button type="button" aria-expanded=${showDone} onClick=${()=>setShowDone(!showDone)} className="bg-transparent border-0 w-full py-2.5 mt-2 text-[12.5px] mute flex items-center justify-center gap-1.5">Erledigt (${done.length})<${Icon} n="chevR" s=${13} style=${{transform:showDone?'rotate(90deg)':'none',transition:'transform .2s'}}/></button>`}
+  ${showDone&&html`<div className="flex flex-col gap-2">${done.map(m=>html`<${MRow} key=${m.id} m=${m} c=${c}/>`)}</div>`}`})()}
  ${fm.length===0&&html`<div className="card p-4 text-center"><div className="text-[15px] mute">Keine Mission in dieser Auswahl.</div><button onClick=${()=>c.openSheet({t:'add'})} className="chip mt-3">Mission hinzufügen</button></div>`}
  <div className="text-[12px] mute text-center mt-3 leading-snug">Antippen = erledigt · nach rechts wischen = erledigt · lange drücken = Details</div>
  <div className="text-center text-[13px] mute mt-3">${nd} von ${fm.length} erledigt${avgQ(S)?` · Ø Erfolgsgrad ${avgQ(S).avg}`:''}<button onClick=${()=>c.openSheet({t:'catalog'})} className="acc font-semibold bg-transparent border-0 text-[13px] block mx-auto mt-1" style=${{minHeight:44}}>Punkte-Katalog</button></div>`}</div>`}
@@ -2800,12 +2806,10 @@ function GoalCard({c,g}){const {S}=c;const L=S.life,wk=LC.curWk(L),now=LC.goalNo
  ${p!=null&&html`<div className="mt-2"><${Bar} pct=${p} h=${5} color="var(--good)"/></div>`}
  ${!ach&&html`<div className="border-t ln mt-3 pt-2.5 flex flex-col gap-1.5">${acts.map(a=>html`<div key=${a.id} className="flex items-center gap-2 text-[13px]"><span className="flex-1 min-w-0 truncate">${LC.missionTitle(a)}</span><span className="num mute shrink-0">${LC.doneIn(L,a.id,wk)}/${LC.plannedAt(a,wk)} Woche</span></div>`)}${!acts.length&&html`<div className="text-[12.5px] mute">Noch keine Handlung. Über den Stift fügst du eine hinzu.</div>`}</div>`}</div>`}
 function MyLife({c}){const {S}=c;const L=S.life;const P=S.principles||[];const goals=L.goals||[],act=goals.filter(g=>g.status==='active'),ach=goals.filter(g=>g.status==='achieved');const W=L.why||{};
- return html`<div className="screen px-4 pb-6"><div className="pt-5 relative"><span className="page-emblem"><${Icon} n="compass" s=${76} sw=${1}/></span><div className="lbl">Dein Kompass · Bereiche Leben</div><h1 className="disp text-[40px] mt-1">Mein Leben</h1><div className="text-[13px] mute mt-1 leading-snug">Werte geben die Richtung. Ziele machen sie messbar. Handlungen bringen dich hin.</div><div className="meander mt-3" aria-hidden="true"/></div>
+ return html`<div className="screen px-4 pb-6"><div className="pt-5 relative"><span className="page-emblem"><${Icon} n="compass" s=${76} sw=${1}/></span><div className="lbl">Dein Kompass</div><h1 className="disp text-[40px] mt-1">Mein Leben</h1><div className="text-[13px] mute mt-1 leading-snug">Werte geben die Richtung. Ziele machen sie messbar. Handlungen bringen dich hin.</div><div className="meander mt-3" aria-hidden="true"/></div>
  <${TempleView} c=${c}/>
  <${WisdomSlot} c=${c} place="season"/>
  <${FundamentCard} c=${c}/>
- <${AuditCard} c=${c}/>
- <${FutureCard} c=${c}/>
  ${WC.enabled(S)&&(()=>{const n=((S.wisdom&&S.wisdom.fav)||[]).length;return html`<button onClick=${()=>c.openSheet({t:'codex',f:n?'fav':'all'})} className="ghost w-full p-3 mt-3 flex items-center gap-3 text-left text-[14px] font-medium"><span className="wis-ic" aria-hidden="true"><${Icon} n="scroll" s=${15} sw=${1.6}/></span><div className="flex-1">Wisdom Codex<div className="text-[11.5px] mute font-normal">${n?n+(n===1?' Inschrift':' Inschriften')+' gespeichert':'Deine Sammlung kurzer Lebensweisheiten'}</div></div><${Icon} n="chevR" s=${15} cls="mute"/></button>`})()}
  <${Title} right=${html`<button onClick=${()=>c.openSheet({t:'values'})} className="chip">${P.length?'Bearbeiten':'Wählen'}</button>`}>Fundament · Werte<//>
  ${P.length?html`<div className="card p-3.5"><div className="flex flex-wrap gap-1.5">${P.map(p=>html`<button key=${p.id} onClick=${()=>c.actPrinciple(p.id)} className="chip" aria-label=${p.n+': heute danach gehandelt'}>${p.n}${p.acts?html`<span className="num mute ml-1.5">${p.acts}</span>`:null}</button>`)}</div><div className="text-[11.5px] mute mt-2">Tippe einen Wert, wenn du heute bewusst danach gehandelt hast.${S.tradition&&S.tradition!=='Keine'?' Inspiration: '+S.tradition+'.':''}</div></div>`

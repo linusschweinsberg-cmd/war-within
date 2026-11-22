@@ -459,7 +459,7 @@ function loopStage({hasGoal,openToday,doneToday,reviewDue,dailyDone,evening}){
 const OLD_KIND={save:{tpl:'reserve',area:'wealth',mid:'m_save'},learn:{tpl:'lang',area:'growth',mid:'m_lang'},run:{tpl:null,area:'health',mid:'m_run',metric:{name:'Längster Lauf am Stück',unit:'km',dir:'up',target:21.1,src:'measured'}},pace:{tpl:'run5k',area:'health',mid:'m_run'},read:{tpl:'books',area:'growth',mid:'m_read'},fit:{tpl:'strength',area:'health',mid:'m_train'},sleep:{tpl:'sleep',area:'health',mid:'m_sleep'},rel:{tpl:'friends',area:'relationships',mid:'m_rel'},biz:{tpl:'income',area:'wealth',mid:null},focus:{tpl:'skill',area:'growth',mid:'m_focus'},disc:{tpl:'skill',area:'growth',mid:'m_hard'}};
 const perWeekOf=m=>m.freq==='daily'?7:m.freq==='multi'?(m.times||1):1;
 function newLife(d){return{v:LIFE_V,d:d||0,values:[],why:{text:'',q:{}},areas:Object.fromEntries(AREAS.map(a=>[a.id,{sat:3}])),focus:null,goals:[],actions:[],meas:[],log:[],daily:[],reviews:[],exps:[],flags:{},focusMode:false,main:null}}
-function ensureLife(S){if(!S||typeof S!=='object')return S;if(S.life&&S.life.v===LIFE_V){const L=S.life;['goals','actions','meas','log','daily','reviews','exps'].forEach(k=>{if(!Array.isArray(L[k]))L[k]=[]});if(!L.areas)L.areas=newLife().areas;if(!L.why)L.why={text:'',q:{}};if(!L.temple)L.temple=newTemple(curWk(L),L.d||0);return S}
+function ensureLife(S){if(!S||typeof S!=='object')return S;if(S.life&&S.life.v===LIFE_V){const L=S.life;['goals','actions','meas','log','daily','reviews','exps'].forEach(k=>{if(!Array.isArray(L[k]))L[k]=[]});if(!L.areas)L.areas=newLife().areas;if(!L.why)L.why={text:'',q:{}};if(!L.temple)L.temple=newTemple(curWk(L),L.d||0);if(!L.fund)L.fund={v:1,ob:{mode:'legacy',d:L.d||0,t:Date.now()}};return S}
  const L=newLife(S.day||0);S.life=L;
  /* Zufriedenheit aus bisherigen Angaben übernehmen */
  const sat=(S.profile&&S.profile.sat)||{};const avg=ks=>{const v=ks.map(k=>sat[k]).filter(x=>x);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):3};
@@ -475,7 +475,7 @@ function ensureLife(S){if(!S||typeof S!=='object')return S;if(S.life&&S.life.v==
    /* bereits in dieser Woche Erledigtes übernehmen, damit Umsetzung und Aufgabenliste übereinstimmen */
    const n=m.freq==='multi'?((S.counts||{})[m.id]||0):(S.done||{})[m.id]?1:0;for(let i=0;i<n;i++)L.log.push({aid:a.id,d:L.d,wk:wkOf(L.d),t:Date.now(),src:'migration'})}
   const cur=o.kind==='save'&&S.save?S.save.saved:null;if(cur!=null){g.metric.start=cur;L.meas.push({id:'v'+uid(),goalId:g.id,v:cur,d:L.d,t:Date.now(),note:'Übernommen'})}});
- L.main=L.goals[0]?L.goals[0].id:null;if(!L.focus&&L.goals[0])L.focus=L.goals[0].area;L.temple=newTemple(curWk(L),L.d||0);
+ L.main=L.goals[0]?L.goals[0].id:null;if(!L.focus&&L.goals[0])L.focus=L.goals[0].area;L.temple=newTemple(curWk(L),L.d||0);L.fund={v:1,ob:{mode:'legacy',d:L.d||0,t:Date.now()}};
  return S}
 
 /* ───── Formatierung ───── */
