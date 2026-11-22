@@ -1,5 +1,7 @@
 # Onboarding als Geschichte
 
+> **Aktueller Stand:** Reihenfolge, Zustände, Überspringen, Pause, Fortsetzen und das Fundament sind in `docs/FTUE.md` beschrieben. Die gültige Reihenfolge ist: Story und Mental Model → Ownership → Bestandsaufnahme → Potenzial → Standards → erstes Commitment. Die Tabelle unten beschreibt die einzelnen Screens. Die Screens „Wert-Sätze“, „Wann beginnst du?“ und „Tag 1“ sind entfallen. Ihre Aufgaben übernehmen „Persönliche Standards“ und „Erstes Commitment“.
+
 Der Nutzer ist der Protagonist. Ein Gedanke pro Screen, Text erscheint zeilenweise (`Lines`, ca. 0,8 s Abstand), „Weiter“ blendet erst nach der Pause ein (`wait` je Screen). Bei `prefers-reduced-motion` entfallen Pausen und Verzögerungen. Oben stehen sechs Punkte für die Stationen statt eines Prozentbalkens.
 
 Code: `OB_SCREENS` (Reihenfolge, Station, Pause), `OB_BODY` (Komponenten), `Onboarding` (Rahmen). Daten im Objekt `ob` (`obv: 2, story: 1`), gespeichert in `war_within_auth_v1`; `buildState` → `lifeFromOb` übernimmt sie in den Spielstand.
@@ -64,6 +66,29 @@ Kernsatz: „Auch wenn du nicht alles kontrollieren kannst, kannst du Verantwort
 3. **Abschluss:** „Das ist Ownership. Nicht Schuld, sondern Handlungsspielraum.“ Der eigene nächste Schritt wird angezeigt. Ownership ist Schritt 1 im Success Loop (`LC.LOOP[0].q`: „Was kann ich kontrollieren?“). Daraus wächst Selbstwirksamkeit.
 
 Erneut aufrufbar über „Wie es wirkt“ › „Ownership in drei Situationen“ (Sheet `ownerdemo`). Das ist die Kurzfassung ohne persönliche Fragen. Das Modul ist nicht Teil der Kurzversion.
+
+## Modul: Persönliche Standards (`StandardsPanel`, Logik in `life-core.js`)
+
+Für jeden Lebensbereich gibt es vier Teile:
+1. **Wo stehst du heute?** (1–10; vorbelegt aus Audit oder Säulen nur auf Klick, sonst offen), dazu die Erfahrung: Einsteiger, Wiedereinstieg oder Erfahren.
+2. **Was möchtest du langfristig erreichen?** (vorgeschlagen aus der Gegenüberstellung)
+3. **Dein Standard** (Text, Häufigkeit, Minuten)
+4. **Dein Minimum** („die kleinste sinnvolle Handlung, die auch an schwierigen Tagen geht“)
+
+Der Vorschlag nennt seine Quellen und lässt sich übernehmen oder überschreiben. Bereiche mit eigenen Angaben sind als „für dich“ markiert.
+
+**In der App:**
+- Die Karte „Deine Standards“ auf Heute zeigt „Erledigt“ (nur ohne verknüpfte Ziel-Handlung), „Minimum“ und den Wochenstand.
+- Das Sheet `standards` zeigt den Stand der Woche und seit Beginn, die Ausgangslage damals und heute, Comebacks und Anpassungsvorschläge: eine Einheit weniger, kürzer, ruhen lassen oder anspruchsvoller.
+- Jede Änderung wird im Verlauf gespeichert, alte Wochen behalten ihr damaliges Soll.
+
+## Modul: Erstes Commitment (`ObCommit`, `CommitCard`)
+
+- Kernsatz: „Deine Zukunft verändert sich nicht durch das, was du dir vornimmst, sondern durch das, was du wiederholt tust.“
+- Der Vorschlag (`obCommitProposal`) nutzt in dieser Reihenfolge: den selbst gewählten Fokus, das Ziel, die Gegenüberstellung, Veränderungswünsche aus dem Audit, die Säulen. Gibt es keine eigenen Angaben, folgt eine universelle Mini-Auswahl.
+- Standard und Schritt sind editierbar. „Eigenen Schritt formulieren“ ersetzt den Vorschlag, „Ohne ersten Schritt starten“ ist möglich.
+- Darunter stehen die vier Loop-Schritte, bezogen auf diesen Schritt.
+- „Zum ersten Schritt“ führt auf Heute: als Mission ganz oben, wenn eine Ziel-Handlung existiert, sonst als Karte „Dein erster Schritt“ mit „Erledigt“ und „Ausblenden“.
 
 ## Modul: Wer könntest du werden? (`FutureStory`)
 

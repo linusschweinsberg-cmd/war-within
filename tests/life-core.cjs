@@ -124,3 +124,40 @@ t5('Zukunft: nur eigene Inhalte, leere und fremde Werte fliegen raus',()=>{const
 t5('Zukunft: eigenes Erfolgsbild zählt gleichwertig',()=>{assert.deepEqual([...LC.futureSuccess({success:['Innere Ruhe'],successOwn:'Mit meinen Kindern Zeit haben'})],['Innere Ruhe','Mit meinen Kindern Zeit haben'])});
 t5('Zukunft: Synchronisationsform ohne Texte',()=>{const y=JSON.stringify(LC.futureForSync({vision:'Sehr persönlich',identity:'Jemand, der dranbleibt',rows:[{area:'mind',now:'privat',then:'privat'}]}));assert.ok(!/persönlich|dranbleibt|privat/.test(y));assert.ok(/"hasVision":true/.test(y))});
 console.log('PASS zukunft: '+ok5.join(' · '))}
+/* Persönliche Standards und Fundament */
+{const ok6=[];const t6=(n,f)=>{f();ok6.push(n)};const wk=(S,n)=>{for(let i=0;i<7*n;i++)LC.onAdvance(S)};
+t6('Standards: Vorschlag passt sich der Ausgangslage an',()=>{const a=LC.suggestStandard({area:'health',level:'new'}),b=LC.suggestStandard({area:'health',level:'exp'});
+ assert.equal(a.std.perWeek,2,'Einsteiger: 2x pro Woche');assert.equal(b.std.perWeek,4);assert.ok(a.min.text);
+ const g=LC.suggestStandard({area:'health',level:'new',action:{title:'Lauftraining',perWeek:5,minutes:30}});assert.equal(g.std.perWeek,3,'Einsteiger auf 3x gekappt');assert.equal(g.std.text,'Lauftraining');
+ assert.equal(LC.suggestStandard({area:'growth',level:'back',sat:8}).std.perWeek,5,'hohe Zufriedenheit: anspruchsvoller');assert.equal(LC.suggestStandard({area:'growth',level:'back',sat:null}).std.perWeek,4,'ohne Angabe: Vorlage unverändert')});
+t6('Standards: Zufriedenheit nur aus vorhandenen Angaben',()=>{assert.deepEqual({...LC.areaSatFrom(null,null,'wealth')},{sat:null,src:null});assert.equal(LC.areaSatFrom({areas:{money:{sat:4},career:{sat:6}}},null,'wealth').sat,5);assert.equal(LC.areaSatFrom(null,{health:{sat:2}},'health').sat,4)});
+t6('Standards: keine Einträge sind neutral, nicht verfehlt',()=>{const S=LC.ensureLife(base());LC.setStandard(S.life,'health',{std:{text:'Bewegung',perWeek:2,minutes:30},min:{text:'Spazieren',minutes:10},current:{sat:3}});
+ assert.equal(LC.standardWeek(S.life,'health',0).state,'nodata');assert.equal(LC.standardWeek(S.life,'health',-1),null,'vor Anlage: keine Bewertung');
+ LC.logStandard(S.life,'health','min');assert.equal(LC.standardWeek(S.life,'health',0).state,'min');LC.logStandard(S.life,'health','std');LC.logStandard(S.life,'health','std');assert.equal(LC.standardWeek(S.life,'health',0).state,'met')});
+t6('Standards: Überforderung → Anpassung, gehalten → anspruchsvoller anbieten',()=>{const S=LC.ensureLife(base());LC.setStandard(S.life,'growth',{std:{text:'Lernen',perWeek:4,minutes:30},min:{text:'5 Min.'}});
+ for(let i=0;i<3;i++){LC.logStandard(S.life,'growth','min');wk(S,1)}const f=LC.standardFeedback(S.life,'growth');assert.equal(f.adapt.kind,'lighter');assert.ok(!/Disziplin|versagt/i.test(f.adapt.text));
+ const o=LC.adaptOptions(S.life.standards.growth,'lighter');assert.equal(o[0].std.perWeek,3);assert.ok(o.some(x=>x.status==='paused'));
+ LC.setStandard(S.life,'growth',{std:o[0].std},'Zu viel im Alltag');assert.equal(S.life.standards.growth.hist.length,1);assert.equal(LC.standardWeek(S.life,'growth',0).per,4,'alte Wochen behalten ihr Soll');
+ const T=LC.ensureLife(base());LC.setStandard(T.life,'health',{std:{text:'Training',perWeek:1}});for(let i=0;i<3;i++){LC.logStandard(T.life,'health','std');wk(T,1)}assert.equal(LC.standardFeedback(T.life,'health').adapt.kind,'raise')});
+t6('Standards: Pausen führen zur Frage, Comeback wird erkannt',()=>{const S=LC.ensureLife(base());LC.setStandard(S.life,'health',{std:{text:'Training',perWeek:2}});wk(S,2);
+ assert.equal(LC.standardFeedback(S.life,'health').adapt.kind,'rest');LC.logStandard(S.life,'health','std');LC.logStandard(S.life,'health','std');wk(S,1);assert.equal(LC.standardFeedback(S.life,'health').comeback,true)});
+t6('Standards: Fortschritt relativ zur Ausgangslage, verknüpfte Handlung zählt mit',()=>{const S=LC.ensureLife(base());const g=LC.addGoal(S,{...tpl('run5k')});const a=LC.actionsOf(S.life,g.id)[0];
+ LC.setStandard(S.life,'health',{std:{text:'Laufen',perWeek:2},aid:a.id,current:{sat:3}});LC.onComplete(S,a.missionId);LC.onComplete(S,a.missionId);assert.equal(LC.standardWeek(S.life,'health',0).state,'met');wk(S,1);
+ LC.setStandard(S.life,'health',{current:{sat:6}});const p=LC.standardProgress(S.life,'health');assert.equal(p.kept,1);assert.equal(p.baseSat,3);assert.equal(p.nowSat,6);
+ assert.ok(!/Laufen/.test(JSON.stringify(LC.standardsForSync(S.life))),'Sync ohne Texte')});
+t6('Standards: leer wird nicht gespeichert, löschen entfernt Log',()=>{const S=LC.ensureLife(base());assert.equal(LC.setStandard(S.life,'wealth',{std:{text:'  '}}),null);assert.equal((S.life.standards||{}).wealth,undefined);
+ LC.setStandard(S.life,'wealth',{std:{text:'Sparen',perWeek:1}});LC.logStandard(S.life,'wealth','std');LC.removeStandard(S.life,'wealth');assert.equal(S.life.standards.wealth,undefined);assert.equal(S.life.stdLog.length,0)});
+t6('Fundament: Zustände aus Daten, übersprungen nur als eigene Entscheidung',()=>{const S=LC.ensureLife(base());const st=id=>LC.fundState(S,id);
+ assert.equal(st('audit'),'open');LC.setFundSkip(S.life,'audit',true);assert.equal(st('audit'),'skipped');S.life.audit=LC.setAudit(null,'body',{sat:5});assert.equal(st('audit'),'partial','Eintrag hebt Überspringen auf');
+ LC.markSeen(S.life,'loop');assert.equal(st('model'),'partial');LC.markSeen(S.life,'owner');assert.equal(st('model'),'done');
+ S.life.focus='health';LC.setStandard(S.life,'health',{std:{text:'x',perWeek:2}});assert.equal(st('standards'),'partial');LC.setStandard(S.life,'health',{min:{text:'y'}});assert.equal(st('standards'),'done')});
+t6('Einladungen: selten, ablehnbar, nie aufdringlich',()=>{const S=LC.ensureLife(base());S.life.focus='health';S.life.fund={v:1,ob:{d:0}};
+ assert.equal(LC.nextInvite(S),null,'nicht am Tag des Onboardings');LC.onAdvance(S);const i=LC.nextInvite(S);assert.equal(i.key,'std-health');assert.match(i.text,/Standards für Gesundheit/);
+ LC.showInvite(S.life,i.key);LC.answerInvite(S.life,i.key,'later');assert.equal(LC.nextInvite(S),null,'abgelehnt: heute nichts mehr');LC.onAdvance(S);assert.equal(LC.nextInvite(S),null,'Pause von 3 Tagen');
+ for(let k=0;k<2;k++)LC.onAdvance(S);const j=LC.nextInvite(S);assert.ok(!j||j.key!=='std-health','abgelehnte Einladung 14 Tage nicht');
+ LC.answerInvite(S.life,'std-health','later');assert.ok(S.life.fund.inv.never['std-health'],'nach zweimal Nicht jetzt nie wieder');
+ LC.setFundSkip(S.life,'audit',true);const all=[];for(let k=0;k<40;k++){const x=LC.nextInvite(S);if(x){all.push(x.key);LC.showInvite(S.life,x.key);LC.answerInvite(S.life,x.key,'never')}LC.onAdvance(S)}
+ assert.ok(!all.includes('audit'),'übersprungene Abschnitte werden nicht beworben');assert.equal(new Set(all).size,all.length,'keine Wiederholung nach Nie mehr')});
+t6('Fundament: alles löschen behält Ziele',()=>{const S=LC.ensureLife(base());LC.addGoal(S,{...tpl('skill')});S.life.audit=LC.setAudit(null,'body',{sat:5});LC.setStandard(S.life,'growth',{std:{text:'x',perWeek:1}});S.principles=[{n:'Mut',std:'Ich tue es.'}];
+ LC.clearFoundation(S);assert.equal(S.life.audit,undefined);assert.equal(S.life.standards,undefined);assert.equal(S.principles[0].std,undefined);assert.equal(S.life.goals.length,1)});
+console.log('PASS standards+fundament: '+ok6.join(' · '))}
