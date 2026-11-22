@@ -26,6 +26,7 @@ Code: `OB_SCREENS` (Reihenfolge, Station, Pause), `OB_BODY` (Komponenten), `Onbo
 | 10 | Verantwortung | Was liegt in deiner Hand? | Karten sortieren (Buttons oder Wischen), zwei Karten am Ziel | Ergebnis vs. Handlung trennen | `ctrl` |
 | 10b | Verantwortung | Success Loop in einer Situation | Siehe unten, ca. 60–90 Sek. | Das bestehende Modell intuitiv verstehen | `loopPick`, `loopDone` |
 | 11 | Verantwortung | Was dich aufgehalten hat | Bis zu zwei Hindernisse | Benennen ohne Scham, planbar machen | `obst` |
+| 11b | Verantwortung | Radical Ownership | Siehe unten, ca. 90 Sek. | Verantwortung als Quelle von Selbstwirksamkeit | `own`, `ownDone` → `life.onboard.own` |
 | 12 | Standards | Woran du dich misst | Drei Werte, „in Stein“ | Identität | `values` |
 | 13 | Standards | Vom Wert zum Verhalten | Satzvorschlag je Wert, editierbar (`OB_STD`) | Beobachtbares Verhalten | `stds` → `principles[].std` |
 | 14 | Standards | Bekenntnis | 2 Sekunden gedrückt halten (auch Tastatur) | Verbindlichkeit | `signed` |
@@ -43,6 +44,24 @@ Erklärt das bestehende Modell `LC.LOOP` (Ownership → Execution → Feedback �
 4. **Abschluss:** Selbstwirksamkeit und Compounding, dazu der Hinweis, wo das Beispiel wieder zu finden ist.
 
 Erneut aufrufbar über „Heute › Success Loop › Wie es wirkt › Beispiel ansehen“ (Sheet `loopdemo`). Das Modul ist nicht Teil der Kurzversion. Im Onboarding wird „Weiter“ erst nach dem Abschluss aktiv.
+
+## Modul: Radical Ownership (`OwnerStory`)
+
+Kernsatz: „Auch wenn du nicht alles kontrollieren kannst, kannst du Verantwortung übernehmen: für deine Entscheidungen, deine Handlungen und deinen nächsten Schritt.“ Darunter: „Nicht als Schuld. Als Handlungsspielraum.“
+
+1. **Drei Situationen** (`OWN_SIT`): Laufen im Regen nach einem langen Tag, eine Präsentation, bei der ein Kollege nicht geliefert hat, und eine Woche Krankheit. Der Nutzer wählt zuerst, was er sich „ehrlich, nicht ideal“ sagen würde. Danach werden alle drei Sätze eingeordnet:
+   - **Ausrede**: „Schließt das Thema, bevor du hinsiehst.“ Bei der Krankheit steht stattdessen **Selbstvorwurf**: „Verantwortung heißt nicht, dir die Schuld zu geben.“
+   - **Reales Hindernis**: „Stimmt. Das zu benennen ist ehrlich, keine Ausrede.“
+   - **Verantwortung**: „Erkennt das Hindernis an und sucht den Teil, der in deiner Hand liegt.“
+   
+   Wer die Ausrede wählt, liest dazu „Ein Gedanke, den jeder kennt.“ Jede Situation endet mit einem Satz, z. B. „Krankheit ist kein Versagen. Verantwortung beginnt beim Wiedereinstieg.“ Das entspricht der Regel `missed`: Neustart mit halbem Pensum.
+2. **Und bei dir?** Ziel und Hindernis aus dem Onboarding stehen als Kontext darüber. Drei Fragen folgen:
+   - „Was liegt in deiner Kontrolle?“ (Chips)
+   - „Was kannst du nicht verändern?“ (Chips, mit „Das anzuerkennen ist keine Schwäche.“)
+   - „Was wäre trotzdem dein nächster sinnvoller Schritt?“ (vorausgefüllt mit der ersten Handlung, Pflichtfeld)
+3. **Abschluss:** „Das ist Ownership. Nicht Schuld, sondern Handlungsspielraum.“ Der eigene nächste Schritt wird angezeigt. Ownership ist Schritt 1 im Success Loop (`LC.LOOP[0].q`: „Was kann ich kontrollieren?“). Daraus wächst Selbstwirksamkeit.
+
+Erneut aufrufbar über „Wie es wirkt“ › „Ownership in drei Situationen“ (Sheet `ownerdemo`). Das ist die Kurzfassung ohne persönliche Fragen. Das Modul ist nicht Teil der Kurzversion.
 
 Kurzversion (gewählt im Überblick auf Screen 4): Eröffnung, Name, Säulen, Ziel, erste Handlung, Tag 1.
 
