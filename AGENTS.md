@@ -21,7 +21,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
-- (nichts)
+- Codex: `codex/supabase-schema` – `auth.js`, `supabase-config.js`, `tests/`, `supabase/` (neu), `docs/SUPABASE.md` (neu). Auth absichern und Schema nur vorbereiten; Claude reviewt.
 
 ### Letzte Integration
 - Life OS: Claude-Stand `19a47de` durch Codex geprüft und zur Veröffentlichung übernommen. Tests: life-core, release-smoke, auth-contract bestanden. Browser: migrierte Startansicht, Lebenstempel und Reflexion geprüft.
