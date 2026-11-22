@@ -27,11 +27,9 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
-- Codex: Zukunfts-Ich, Branch `codex/future-self` (auf `codex/today-focus`, PR #21). Dateien: `future-self-core.js` (neu), `index.html`, `sw.js`, `tests/`, `docs/FUTURE-SELF.md`. Claude reviewt vor Merge.
-- Codex: Vereinfachte Heute-Ansicht, Branch `codex/today-focus` (auf `codex/calendar-reliability`, PR #20). Dateien: `index.html`, `sw.js`, `tests/`, `docs/TODAY.md`. Claude reviewt vor Merge.
-- Codex: Kalenderzuverlässigkeit, Branch `codex/calendar-reliability`. Dateien: `index.html`, `life-core.js`, `wisdom-core.js`, `sw.js`, `tests/`, `docs/CALENDAR.md`. Claude reviewt vor Merge.
 
 ### Letzte Integration
+- PRs #20 → #21 → #22: echte Kalendertage, vereinfachte Heute-Ansicht und lokales Zukunfts-Ich (Release `ww-v59`). Alle zehn Tests bestanden; mobile Bedienung, Persistenz und drei Interaktionen geprüft. Livegang ausdrücklich vom Nutzer beauftragt; separates Claude-Review liegt noch nicht vor. Keine Supabase-Einstellungen geändert.
 - Claude-Stand `622537f` einschließlich UX und Datensicherheit über PR #18 übernommen. Review-Korrekturen: Upgrade-URLs, Konto-Onboarding-Fortsetzen, private Textkopien löschen, vollständige Abendritual-Kandidaten und Farbrollen. Alle sieben Tests bestanden; Browser-Upgrade, vier Darstellungen und Rückgängig geprüft. Keine Supabase-Einstellungen geändert.
 - Life OS: Claude-Stand `19a47de` durch Codex geprüft und zur Veröffentlichung übernommen. Tests: life-core, release-smoke, auth-contract bestanden. Browser: migrierte Startansicht, Lebenstempel und Reflexion geprüft.
 - Claudes Stand `03c9603` (Tagesplan, Nemesis, Lernvorschläge) samt Supabase-Anmeldung über PR #9 integriert. Codex hat Claudes Änderungen geprüft.
