@@ -24,6 +24,7 @@ Code: `OB_SCREENS` (Reihenfolge, Station, Pause), `OB_BODY` (Komponenten), `Onbo
 | 8 | Potenzial | Ein Jahr weiter | Bereich wählen, ein Satz | Zukunftsbild als Anker | `focus`, `why` |
 | 9 | Potenzial | Messbar machen | `GoalForm` (Ziel) | Vision → Ergebnis | `goal` |
 | 10 | Verantwortung | Was liegt in deiner Hand? | Karten sortieren (Buttons oder Wischen), zwei Karten am Ziel | Ergebnis vs. Handlung trennen | `ctrl` |
+| 10b | Verantwortung | Success Loop in einer Situation | Siehe unten, ca. 60–90 Sek. | Das bestehende Modell intuitiv verstehen | `loopPick`, `loopDone` |
 | 11 | Verantwortung | Was dich aufgehalten hat | Bis zu zwei Hindernisse | Benennen ohne Scham, planbar machen | `obst` |
 | 12 | Standards | Woran du dich misst | Drei Werte, „in Stein“ | Identität | `values` |
 | 13 | Standards | Vom Wert zum Verhalten | Satzvorschlag je Wert, editierbar (`OB_STD`) | Beobachtbares Verhalten | `stds` → `principles[].std` |
@@ -31,6 +32,17 @@ Code: `OB_SCREENS` (Reihenfolge, Station, Pause), `OB_BODY` (Komponenten), `Onbo
 | 15 | Aufbruch | Erste Handlung | `GoalForm` (Plan), Zeitfenster, Wenn-dann-Plan aus Hindernis | Absicht → Handlung | `goal.actions`, `firstWhen` |
 | 16 | Aufbruch | Wann beginnst du? | Jetzt / Heute / Morgen früh | Zeitpunkt festlegen | `start` |
 | 17 | Aufbruch | Tag 1 | Tempel als Baustelle, erste Handlung, Fokusmodus | Übergang ins Produkt, keine Belohnung ohne Handlung | `focusMode` |
+
+## Modul: Success Loop in einer Situation (`LoopStory`)
+
+Erklärt das bestehende Modell `LC.LOOP` (Ownership → Execution → Feedback → Adaptation) und zwei der Größen aus „Wie es wirkt“ (Selbstwirksamkeit, Compounding). Es führt kein neues Modell ein. Überzeugungen und Standards sind nicht Teil des Loops und kommen hier deshalb nicht vor. Die Standards folgen später in der Station „Standards“.
+
+1. **Situation:** „Dienstag, 19 Uhr. Die wichtige Aufgabe liegt seit Tagen da. Du bist müde.“ Zwei Antworten: „Morgen. Heute bin ich zu müde.“ oder „Nur 10 Minuten. Anfangen reicht.“ Dazu: „Es gibt hier keine falsche Antwort.“
+2. **Wiederholung:** Zwei Raster mit 12 Wochen × 7 Tagen füllen sich automatisch, ein Regler erlaubt das Zurückspulen. Es ist ein Beispielmuster mit 33 statt 8 Anfängen, ausdrücklich „kein Versprechen“. „Klein anfangen“ ist immer in der Handlungsfarbe, egal was gewählt wurde.
+3. **Kreislauf:** Vier Schritte, je einer pro Tippen, jeweils mit der passenden App-Funktion: Heute zuerst, Daily Debrief und Wochenrückblick mit Experiment. Wer „Morgen“ gewählt hat, liest bei Feedback: „kein Versagen, sondern ein Signal“ (wie `RULES.missed`). Das Beispiel bei Adaptation entspricht `LC.suggest('energy')`.
+4. **Abschluss:** Selbstwirksamkeit und Compounding, dazu der Hinweis, wo das Beispiel wieder zu finden ist.
+
+Erneut aufrufbar über „Heute › Success Loop › Wie es wirkt › Beispiel ansehen“ (Sheet `loopdemo`). Das Modul ist nicht Teil der Kurzversion. Im Onboarding wird „Weiter“ erst nach dem Abschluss aktiv.
 
 Kurzversion (gewählt im Überblick auf Screen 4): Eröffnung, Name, Säulen, Ziel, erste Handlung, Tag 1.
 

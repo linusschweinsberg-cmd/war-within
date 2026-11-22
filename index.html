@@ -2380,6 +2380,7 @@ function SheetHost({c}){
   case'why':b=html`<${WhySheet} c=${c}/>`;break;
   case'nemesis':b=html`<${NemesisSheet} c=${c}/>`;break;
   case'loopinfo':b=html`<${LoopInfo} c=${c}/>`;break;
+  case'loopdemo':b=html`<${LoopDemo} c=${c}/>`;break;
   case'newleague':b=html`<${NewLeague} c=${c}/>`;break;
   case'newchal':b=html`<${NewChal} c=${c} pre=${sh.pre}/>`;break;
   case'chal':b=html`<${ChalSheet} c=${c} id=${sh.id}/>`;break;
@@ -2696,6 +2697,7 @@ function LoopInfo({c}){const I=LC.insights(c.S);
  const M=[['Resilienz','Wiedereinstieg nach Rückschlägen',I.comebacks+' Comebacks nach einer verpassten Woche'],['Kompetenz','Wissen, Übung, gezielte Korrektur',I.playbook.length+' bestätigte Anpassungen in deinem Playbook'],['Selbstwirksamkeit','Bewältigte Herausforderungen',I.won+' erfolgreiche Experimente · '+I.achieved+' erreichte Ziele'],['Compounding','Fortschritte verstärken sich über Zeit',I.sessions+' umgesetzte Einheiten insgesamt']];
  return html`<${Sheet} sub="Das Modell hinter der App" title="Success Loop" onClose=${c.closeSheet}>
  <${LoopWheel}/>
+ <button onClick=${()=>c.openSheet({t:'loopdemo'})} className="ghost w-full p-3.5 mb-3 flex items-center gap-3 text-left"><span className="acc"><${Icon} n="play" s=${17}/></span><span className="flex-1"><span className="block text-[14px] font-semibold">Beispiel ansehen</span><span className="block text-[11.5px] mute">Eine Alltagssituation, etwa 1 Minute</span></span><${Icon} n="chevR" s=${15} cls="mute"/></button>
  <div className="text-[13px] mute leading-relaxed -mt-1 mb-3">Ein Habit Tracker zählt, ob du etwas getan hast. Hier prüfst du zusätzlich, ob es wirkt, und verbesserst den Plan.</div>
  <div className="flex flex-col gap-2">${LC.LOOP.map((l,i)=>html`<div key=${l.id} className="card2 p-3 flex gap-3"><div className="disp text-[24px] acc w-5 text-center">${i+1}</div><div><div className="text-[14px] font-semibold">${l.n} <span className="mute font-normal text-[12px]">· ${l.de}</span></div><div className="text-[13px] mt-0.5">${l.q}</div><div className="text-[12px] mute mt-0.5">${LOOP_D[l.id]}</div></div></div>`)}</div>
  <div className="lbl mt-5 mb-2">Was dabei wächst · aus deinen echten Daten</div>
@@ -2912,7 +2914,7 @@ const OB_ACTS=['Bewusstsein','Konfrontation','Potenzial','Verantwortung','Standa
 const OB_SCREENS=[{id:'still',act:0,wait:3.6,tap:1},{id:'what',act:0,wait:6.8,tap:1},{id:'resp',act:0,wait:5.6,tap:1},{id:'ready',act:0,wait:2,choice:1},{id:'name',act:0,wait:.8},
  {id:'pillars',act:1,wait:1.4},{id:'mirror',act:1,wait:1.8},{id:'cost',act:1,wait:1.6},
  {id:'compound',act:2,wait:4.6},{id:'year',act:2,wait:1.6},{id:'goal',act:2,wait:1.2},
- {id:'ctrl',act:3,wait:1},{id:'obst',act:3,wait:1},
+ {id:'ctrl',act:3,wait:1},{id:'loop',act:3,wait:.4},{id:'obst',act:3,wait:1},
  {id:'values',act:4,wait:1.6},{id:'stds',act:4,wait:1.6},{id:'sign',act:4,wait:1},
  {id:'first',act:5,wait:1.6},{id:'start',act:5,wait:1},{id:'day1',act:5,wait:2.4}];
 const OB_SHORT=['still','what','resp','ready','name','pillars','goal','first','day1'];
@@ -3047,7 +3049,49 @@ function ObDay1({ob,u}){const g=ob.goal,a=obAction(ob);return html`<div classNam
  <${Lines} l=${['Dein Tempel ist noch eine Baustelle.','Der erste Stein kommt mit deiner ersten Handlung.']} d=${1.2} step=${.7}/>
  ${g&&a&&html`<div className="card p-3.5 mt-5 story-in" style=${obIn(2.4)}><div className="lbl acc">Heute zuerst</div><div className="text-[15px] font-semibold mt-1">${a.title.trim()}</div><div className="text-[12px] mute">${g.title.trim()}${ob.firstWhen?' · '+ob.firstWhen:''}</div></div>`}
  <button type="button" onClick=${()=>u(p=>({focusMode:!p.focusMode}))} className="ghost w-full p-3 mt-2.5 flex items-center gap-3 text-left story-in" style=${obIn(2.6)}><div className="flex-1"><div className="text-[13.5px] font-semibold">Fokusmodus</div><div className="text-[11.5px] mute">Ohne Liga, Nemesis und Punkte. Jederzeit änderbar.</div></div><${Toggle} on=${!!ob.focusMode}/></button></div>`}
-const OB_BODY={still:ObStill,what:ObWhat,resp:ObResp,ready:ObReady,name:ObName,pillars:ObPillarsS,mirror:ObMirror,cost:ObCost,compound:ObCompound,year:ObYear,goal:ObGoal,ctrl:ObCtrl,obst:ObObst,values:ObValues,stds:ObStds,sign:ObSign,first:ObFirst,start:ObStart,day1:ObDay1};
+/* ───── Success Loop als Alltagsszene (Onboarding und später über „Wie es wirkt“) ─────
+   Erklärt das bestehende Modell (LC.LOOP: Ownership → Execution → Feedback → Adaptation) an einer Situation.
+   Kein neues Modell: Wiederholung zeigt Compounding, Feedback ohne Urteil, Anpassung als Experiment. Ca. 60–90 Sek. */
+const LS_PICK={later:'Morgen. Heute bin ich zu müde.',small:'Nur 10 Minuten. Anfangen reicht.'};
+/* Beispielmuster über 12 Wochen: „später“ ≈ 1 Tag pro Woche, „klein anfangen“ ≈ 3 Tage pro Woche */
+const lsOn=(k,w,d)=>k==='small'?[0,2,4].includes(d)&&!(w%4===3&&d===4):d===(w*3)%7&&w%3!==2;
+const lsCount=(k,W)=>{let n=0;for(let w=0;w<W;w++)for(let d=0;d<7;d++)if(lsOn(k,w,d))n++;return n};
+const LS_STEPS=[
+ {id:'own',app:'Diese Frage zieht sich durch die App: Was liegt in deiner Hand?',t:p=>'Müdigkeit liegt nicht ganz in deiner Hand. Ob du 10 Minuten anfängst, schon.'},
+ {id:'exec',app:'In der App: „Heute zuerst“ zeigt dir genau eine Handlung.',t:p=>'Eine kleine, klare Handlung. Nicht die ganze Aufgabe, nur der Anfang.'},
+ {id:'feed',app:'In der App: der Daily Debrief am Abend, unter 30 Sekunden.',t:p=>p==='later'?'„Morgen“ ist kein Versagen, sondern ein Signal. Am Abend fragst du dich nur: Was stand im Weg?':'Am Abend kurz hinschauen: Hat es geklappt? Was stand im Weg?'},
+ {id:'adapt',app:'In der App: der Wochenrückblick mit einem Experiment.',t:p=>'Warst du mehrmals zu müde, änderst du nicht dich, sondern den Plan. Zum Beispiel: kürzere Einheiten morgens. Eine Woche testen, dann prüfen.'}];
+function LsGrid({k,W,hl}){return html`<div className="flex gap-[3px]" aria-hidden="true">${Array.from({length:12},(_,w)=>html`<div key=${w} className="flex flex-col gap-[3px]">${Array.from({length:7},(_,d)=>{const on=w<W&&lsOn(k,w,d);return html`<span key=${d} className="block rounded-[2px]" style=${{width:9,height:9,background:on?(hl?'var(--acc2)':'var(--mute)'):'var(--ghost)',opacity:w<W?1:.35,transition:'background .25s, opacity .25s'}}/>`})}</div>`)}</div>`}
+function LoopStory({pick,setPick,onDone,done}){const [ph,setPh]=useState(done?2:pick?1:0);const [W,setW]=useState(done?12:1);const [st,setSt]=useState(done?LS_STEPS.length:0);
+ useEffect(()=>{if(ph!==1||W>=12)return;const t=setTimeout(()=>setW(w=>Math.min(12,w+1)),obReduced()?0:260);return()=>clearTimeout(t)},[ph,W]);
+ const choose=k=>{setPick(k);setW(1);setPh(1)};
+ useEffect(()=>{if(ph<2)return;const el=document.getElementById('ls-'+Math.min(st,LS_STEPS.length));if(el&&el.scrollIntoView)el.scrollIntoView({block:'nearest',behavior:obReduced()?'auto':'smooth'})},[ph,st]);
+ const nextStep=()=>{const n=st+1;setSt(n);if(n>=LS_STEPS.length&&onDone)onDone()};
+ if(ph===0)return html`<div className="story-c">
+  <div className="lbl mb-3 story-in" style=${obIn(.1)}>Eine Situation</div>
+  <${Lines} l=${['Dienstag, 19 Uhr.','Die wichtige Aufgabe liegt seit Tagen da.','Du bist müde.']} step=${.75}/>
+  <div className="text-[14px] mute mt-4 story-in" style=${obIn(2.4)}>Was machst du?</div>
+  <div className="flex flex-col gap-2 mt-3 story-in" style=${obIn(2.6)}>${Object.entries(LS_PICK).map(([k,t])=>html`<button key=${k} type="button" onClick=${()=>choose(k)} className="card w-full p-4 text-left border-0 text-[15px] font-semibold flex items-center gap-3"><span className="flex-1">„${t}“</span><${Icon} n="chevR" s=${16} cls="mute"/></button>`)}</div>
+  <div className="text-[12px] mute mt-4 story-in" style=${obIn(2.9)}>Beides kennt jeder. Es gibt hier keine falsche Antwort.</div></div>`;
+ const other=pick==='small'?'later':'small',a=lsCount(pick,W),b=lsCount(other,W);
+ const Row=({k,me})=>html`<div className=${me?'':'opacity-80'}><div className="flex items-baseline justify-between mb-1.5"><span className=${'text-[12.5px] '+(me?'font-semibold':'mute')}>${me?'Deine Wahl, jedes Mal':'Die andere, jedes Mal'}: „${LS_PICK[k].split('.')[0]}“</span><span className="num text-[13px] font-bold">${lsCount(k,W)}</span></div><${LsGrid} k=${k} W=${W} hl=${k==='small'}/></div>`;
+ return html`<div>
+  <div className="lbl mb-2">Was Wiederholung daraus macht</div>
+  <div className="card p-3.5 flex flex-col gap-3.5"><${Row} k=${pick} me=${true}/><${Row} k=${other}/>
+   <label className="block"><span className="flex justify-between text-[12px] mute"><span>Woche ${W} von 12</span><span>Tage, an denen du angefangen hast</span></span>
+   <input type="range" min="1" max="12" value=${W} onChange=${e=>setW(+e.target.value)} className="w-full mt-1.5" aria-label="Wochen" style=${{accentColor:'var(--acc2)'}}/></label></div>
+  <div className="text-[13.5px] leading-snug mt-3" aria-live="polite">${W<12?'Eine einzelne Entscheidung ändert wenig.':`Nach 12 Wochen: ${lsCount('small',12)} Anfänge statt ${lsCount('later',12)}. Nicht durch einen großen Entschluss, sondern durch dieselbe kleine Wahl, wiederholt.`}</div>
+  <div className="text-[11.5px] mute mt-1">Beispielmuster, kein Versprechen.</div>
+  ${ph===1&&W>=12&&html`<button type="button" onClick=${()=>setPh(2)} className="btn w-full py-3.5 mt-4 text-[14px] story-in" style=${obIn(.2)}>Wie die App dabei hilft</button>`}
+  ${ph===2&&html`<div className="mt-5"><div className="flex items-center justify-between mb-2"><div className="lbl acc">Success Loop</div><div className="num text-[11.5px] mute">${Math.min(st+1,4)} / 4</div></div>
+   <div className="flex flex-col gap-2">${LS_STEPS.slice(0,st+1).filter((_,i)=>i<4).map((s,i)=>{const L=LC.LOOP.find(x=>x.id===s.id),cur=i===st;return html`<div key=${s.id} id=${'ls-'+i} className="card2 p-3 flex gap-3 story-in" style=${{...obIn(0),boxShadow:cur?'0 0 0 1.5px var(--acc2) inset':'none'}}><div className="disp text-[22px] acc w-5 text-center shrink-0">${i+1}</div><div className="flex-1"><div className="text-[13.5px] font-semibold">${L.n} <span className="mute font-normal text-[12px]">· ${L.de}</span></div><div className="text-[13px] leading-snug mt-0.5">${s.t(pick)}</div><div className="text-[11.5px] acc mt-1">${s.app}</div></div></div>`})}</div>
+   ${st<LS_STEPS.length-1?html`<button type="button" onClick=${nextStep} className="ghost w-full py-3 mt-2.5 text-[13.5px] font-semibold">Weiter im Kreislauf</button>`
+   :st===LS_STEPS.length-1?html`<button type="button" onClick=${nextStep} className="ghost w-full py-3 mt-2.5 text-[13.5px] font-semibold">Und dann?</button>`
+   :html`<div id=${'ls-'+LS_STEPS.length} className="card p-3.5 mt-2.5 story-in" style=${obIn(.1)}><div className="text-[13.5px] leading-snug">Dann beginnt der Kreis von vorn, ein bisschen besser. Mit der Zeit wächst <b>Selbstwirksamkeit</b>: Du erlebst, dass du anfangen kannst. Und <b>Compounding</b>: Kleine Einheiten summieren sich.</div>
+    <div className="text-[11.5px] mute mt-2">Dieses Beispiel findest du jederzeit wieder: Heute › Success Loop › Wie es wirkt.</div></div>`}</div>`}</div>`}
+function ObLoop({ob,u}){return html`<${LoopStory} pick=${ob.loopPick} setPick=${k=>u(()=>({loopPick:k}))} onDone=${()=>u(()=>({loopDone:true}))} done=${!!ob.loopDone}/>`}
+function LoopDemo({c}){const [pick,setPick]=useState(null);return html`<${Sheet} sub="Success Loop · Beispiel" title="Eine Situation" onClose=${c.closeSheet}><${LoopStory} pick=${pick} setPick=${setPick}/><button onClick=${()=>c.openSheet({t:'loopinfo'})} className="bg-transparent border-0 w-full py-3 mt-2 text-[12.5px] mute">Zurück zum Modell</button><//>`}
+const OB_BODY={loop:ObLoop,still:ObStill,what:ObWhat,resp:ObResp,ready:ObReady,name:ObName,pillars:ObPillarsS,mirror:ObMirror,cost:ObCost,compound:ObCompound,year:ObYear,goal:ObGoal,ctrl:ObCtrl,obst:ObObst,values:ObValues,stds:ObStds,sign:ObSign,first:ObFirst,start:ObStart,day1:ObDay1};
 
 /* ───── KONTO, ANMELDUNG & ONBOARDING ───── */
 const AUTH_KEY='war_within_auth_v1';
@@ -3127,13 +3171,13 @@ function devLineup(ob,missions){
  ob.pri.forEach(p=>{if(p==='intel'){push('read');if(uses('lang'))push('lang')}if(p==='career')push('biz');if(p==='time')push('deep');if(p==='fit'&&uses('run'))push('run')});
  missions.forEach(m=>{if(!CORE.includes(m.act))push(m.act)});
  ['deep','read','run'].forEach(push);return L}
-const newOb=name=>({obv:2,story:1,short:false,step:0,dir:1,name:name||'',age:'',units:'metric',tz:guessTz(),values:[],why:'',areas:{health:3,relationships:3,wealth:3,growth:3},focus:null,goal:null,goalFocus:null,firstWhen:'',focusMode:false,cost:[],ctrl:[],obst:[],stds:{},signed:null,start:null,pri:[],sat:{},goals:[],stats:{},missions:null,mKey:'',ui:'basic'});
+const newOb=name=>({obv:2,story:1,short:false,step:0,dir:1,name:name||'',age:'',units:'metric',tz:guessTz(),values:[],why:'',areas:{health:3,relationships:3,wealth:3,growth:3},focus:null,goal:null,goalFocus:null,firstWhen:'',focusMode:false,cost:[],ctrl:[],obst:[],stds:{},signed:null,start:null,loopPick:null,loopDone:false,pri:[],sat:{},goals:[],stats:{},missions:null,mKey:'',ui:'basic'});
 /* Neues Onboarding → bisheriges Spielstand-Format, danach Life-Modell befüllen */
 const AREA_PRI={health:'fit',relationships:'rel',wealth:'fin',growth:'intel'};
 function obCompat(ob){const A=ob.areas||{};const f=ob.focus||(ob.goal&&ob.goal.area)||'health';return{...ob,pri:[AREA_PRI[f]],sat:{fit:A.health,rec:A.health,rel:A.relationships,fin:A.wealth,career:A.wealth,intel:A.growth,char:A.growth,time:A.growth},goals:[],stats:{},missions:[{k:'ref',...MP.ref}],ui:'basic'}}
 function lifeFromOb(n,ob){LC.ensureLife(n);const L=n.life;L.values=[...(ob.values||[])];const SD=ob.stds||{};n.principles=L.values.map(v=>({id:'p'+uid(),n:v,acts:0,std:(SD[v]||'').trim()||undefined}));n.tradition='Keine';L.why={text:(ob.why||'').trim(),q:(ob.cost||[]).length?{cost:[...ob.cost]}:{}};L.areas=Object.fromEntries(LC.AREAS.map(a=>[a.id,{sat:(ob.areas||{})[a.id]||3}]));L.focus=ob.focus||(ob.goal&&ob.goal.area)||null;L.focusMode=!!ob.focusMode;
  if(ob.goal&&draftOk(ob.goal)&&planOk(ob.goal)){const x=draftOut(ob.goal);if(ob.firstWhen&&x.actions[0])x.actions[0].when=ob.firstWhen;const g=LC.addGoal(n,x);const a=LC.actionsOf(L,g.id)[0];if(a){const day=ob.start==='tomorrow'?1:0;n.nextPrio={k:n.season+'-'+(n.day+day),mid:a.missionId};
-  if(ob.story){const r=obRisk(ob);L.onboard={for:(L.d||0)+day,mid:a.missionId,when:x.actions[0].when||null,risk:r,plan:LC.ifThen(r,a.title,ob.firstWhen,a.minutes),start:ob.start||null,obst:[...(ob.obst||[])],ctrl:(ob.ctrl||[]).length,signed:ob.signed||null}}}}}
+  if(ob.story){const r=obRisk(ob);L.onboard={for:(L.d||0)+day,mid:a.missionId,when:x.actions[0].when||null,risk:r,plan:LC.ifThen(r,a.title,ob.firstWhen,a.minutes),start:ob.start||null,obst:[...(ob.obst||[])],ctrl:(ob.ctrl||[]).length,loop:ob.loopPick||null,signed:ob.signed||null}}}}}
 const satOf=(ob,id)=>ob.sat[id]||3;
 function goalObj(g,ob){
  const weeks=g.deadline?Math.max(1,Math.ceil((new Date(g.deadline)-Date.now())/6048e5)):26;
@@ -3269,7 +3313,7 @@ function Onboarding({A,set,theme,onDone}){
  const [ready,setReady]=useState(true);
  useEffect(()=>{setSkip(false);if(ob.dir<0||obReduced()){setReady(true);return}setReady(false);const t=setTimeout(()=>setReady(true),(SC.wait||1)*1000);return()=>clearTimeout(t)},[st,ob.short]);
  const nCtrl=useMemo(()=>obCtrlCards(ob).length,[ob.goal]);
- const ok={name:ob.name.trim().length>=1,goal:!!ob.goal&&draftOk(ob.goal),ctrl:(ob.ctrl||[]).length>=nCtrl,values:(ob.values||[]).length>=1,stds:(ob.values||[]).every(v=>((ob.stds||{})[v]||'').trim().length>=3),sign:!!ob.signed,first:!!ob.goal&&planOk(ob.goal),start:!!ob.start}[id]??true;
+ const ok={name:ob.name.trim().length>=1,goal:!!ob.goal&&draftOk(ob.goal),ctrl:(ob.ctrl||[]).length>=nCtrl,loop:!!ob.loopDone,values:(ob.values||[]).length>=1,stds:(ob.values||[]).every(v=>((ob.stds||{})[v]||'').trim().length>=3),sign:!!ob.signed,first:!!ob.goal&&planOk(ob.goal),start:!!ob.start}[id]??true;
  const Body=OB_BODY[id];const last=st===list.length-1;
  const scroller=useRef(null);useEffect(()=>{if(scroller.current)scroller.current.scrollTop=0},[st]);
  /* Navigation: Tippen während der Erzählung deckt alles auf; danach geht Tippen auf Erzähl-Screens weiter */
