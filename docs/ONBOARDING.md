@@ -6,9 +6,17 @@ Code: `OB_SCREENS` (Reihenfolge, Station, Pause), `OB_BODY` (Komponenten), `Onbo
 
 | # | Station | Screen | Interaktion | Absicht | Daten |
 |---|---|---|---|---|---|
-| 1 | Bewusstsein | Stille | Lichtpunkte ordnen sich zur Linie; Tippen | Tempo herausnehmen | – |
-| 2 | Bewusstsein | Umstände und Wiederholung | Begriffe links verblassen, rechts bleiben hell | Entlasten, dann Fokus auf das Wiederholbare | – |
-| 3 | Bewusstsein | Name | Eingabe, Antwort „Gut, … Das ist deine Geschichte.“ | Identifikation | `name` |
+| 1 | Bewusstsein | Ankommen | Lichtpunkte ordnen sich zur Linie. „Bevor du verändern kannst, wohin du gehst, musst du wissen, wo du stehst.“ | Tempo herausnehmen, Thema setzen | – |
+| 2 | Bewusstsein | Ein möglicher Weg | Zwei Linien aus einem Punkt zeichnen sich nacheinander („dein Weg bis heute“, „ein möglicher Weg“). Frage nach den letzten Jahren, dann „Wie anders könnte dein Leben heute aussehen?“, danach „Das ist kein Vorwurf …“ | Potenzial spüren, ohne Versagensgefühl | – |
+| 3 | Bewusstsein | Verantwortung | Links verblassen Herkunft, Zufälle, Verluste, andere Menschen; rechts werden Reaktion, Entscheidung, nächster Schritt hell | Entlasten, dann Fokus auf das Beeinflussbare | – |
+| 4 | Bewusstsein | Bereitschaft | „Bist du bereit, ehrlich hinzusehen?“ Zwei Antworten als Karten, kein Weiter-Button. „Erst sehen, wie es funktioniert“ zeigt einen Überblick (Hinsehen, Entscheiden, Handeln und prüfen) mit den Wegen „ca. 5 Min.“ oder „das Nötigste, ca. 2 Min.“ | Erste bewusste Entscheidung, beides ist in Ordnung | `readyChoice`, `short` |
+| 5 | Bewusstsein | Name | Eingabe, Antwort „Gut, … Dann fangen wir an.“ Gäste starten mit leerem Feld | Identifikation | `name` |
+
+**Navigationsregeln der Eröffnung**
+- Screens 1–3 sind Erzähl-Screens (`tap`): Ein Tippen während der Erzählung zeigt sofort den ganzen Text (`story-skip`), ein weiteres Tippen oder „Weiter“ geht zum nächsten Screen. Bis dahin steht unten „Tippen zeigt den ganzen Text“.
+- Screen 4 ist ein Auswahl-Screen (`choice`) ohne Weiter-Button. Die Wahl ist die Navigation, und aus dem Überblick führt „Zurück zur Frage“ zurück.
+- Auf Screen 1 gibt es keinen Zurück-Button. Wer zurückgeht, sieht den Text sofort, ohne Pause.
+- Der Fortschritt wird gespeichert. Nach einem Neuladen geht es auf demselben Screen weiter.
 | 4 | Konfrontation | Vier Säulen | Einschätzung 1–5, Säulen wachsen/reißen live | Ehrlich, ohne Urteil | `areas` |
 | 5 | Konfrontation | Spiegel | Niedrigster Bereich hervorgehoben; „Anpassen“ | Feststellung statt Urteil | – |
 | 6 | Konfrontation | Preis des Stillstands | Bis zu zwei Chips | Kosten spürbar, ohne Schuld | `cost` → `life.why.q.cost` |
@@ -24,7 +32,7 @@ Code: `OB_SCREENS` (Reihenfolge, Station, Pause), `OB_BODY` (Komponenten), `Onbo
 | 16 | Aufbruch | Wann beginnst du? | Jetzt / Heute / Morgen früh | Zeitpunkt festlegen | `start` |
 | 17 | Aufbruch | Tag 1 | Tempel als Baustelle, erste Handlung, Fokusmodus | Übergang ins Produkt, keine Belohnung ohne Handlung | `focusMode` |
 
-Kurzversion („Kurzversion (1 Min.)“ auf Screen 1): Name, Säulen, Ziel, erste Handlung, Tag 1.
+Kurzversion (gewählt im Überblick auf Screen 4): Eröffnung, Name, Säulen, Ziel, erste Handlung, Tag 1.
 
 Nach dem Onboarding: `life.onboard` hält Startplan, Hindernis und Startzeitpunkt. Auf „Heute“ steht die erste Handlung oben mit „Beim Start festgelegt“ und dem Wenn-dann-Plan (gleicher Mechanismus wie das Abendritual, `eveToday`). Bei „Morgen früh“ gilt das ab Tag 1.
 
