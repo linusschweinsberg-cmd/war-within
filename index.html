@@ -1591,7 +1591,7 @@ function Tasks({c}){
  const [grp,setGrp]=useState('today'),[view,setView]=useState('list'),[more,setMore]=useState(false),[showDone,setShowDone]=useState(false);
  const bIds=(briefToday(S)||{ids:[]}).ids,gIds=goalMs(S).map(x=>x.m.id),pr=id=>gIds.includes(id)?gIds.indexOf(id)-30:bIds.includes(id)?bIds.indexOf(id)-10:ESS.indexOf(id);
  const gOf=m=>{const g=GROUPS.find(x=>x.core.includes(m.act));return g?g.id:GROUPS[GROUPS.length-1].id};
- const fm=[...D.allM].filter(m=>grp==='all'||(grp==='today'?(S.comeback?cbList(S,D).some(x=>x.id===m.id):(gIds.includes(m.id)||ESS.includes(m.id)||bIds.includes(m.id))):(gOf(m)===grp||m.act===grp))).sort((a,b)=>(isDone(S,a)-isDone(S,b))||(grp==='today'?pr(a.id)-pr(b.id):0));
+ const fset=focusMs(S,D);const fm=[...D.allM].filter(m=>grp==='all'||(grp==='today'?fset.includes(m):(gOf(m)===grp||m.act===grp))).sort((a,b)=>(isDone(S,a)-isDone(S,b))||(grp==='today'?pr(a.id)-pr(b.id):0));
  const opts=[['today','Fokus'],['all','Alle'],...(S.ui==='adv'?GROUPS.map(g=>[g.id,g.name]):[]),...Object.keys(S.acts).filter(id=>D.allM.some(m=>m.act===id)).map(id=>[id,S.acts[id].name])];
  const nd=fm.filter(m=>isDone(S,m)).length;
  return html`<div className="screen px-4 pb-6">
@@ -1661,9 +1661,11 @@ function DayScene({c}){const {S}=c;const now=nowMinOf(c),sl=slotOf(now),[bg,sun,
   <g transform="translate(118,30) scale(1.05)"><${HopliteFig} cape=${fm?'#C4502B':'#7d2315'} plume=${!fm}/></g></svg>
  <span className="scene-lbl"><span className="scene-cap">${cap}</span><b>${txt}</b></span></button>`}
 /* Tagesfortschritt: tägliche und wöchentliche Missionen von heute */
-function dayProg(S,D){const dm=D.allM.filter(m=>m.freq==='daily'||m.freq==='multi');return{n:dm.filter(m=>isDone(S,m)).length,t:dm.length}}
-function DayProgress({c,tap=true}){const p=dayProg(c.S,c.D);const body=html`<span className="flex justify-between items-baseline"><span className="lbl">Tagesfortschritt</span><b className="num text-[15px]">${p.n} von ${p.t}</b></span><span className="block mt-2"><${Bar} pct=${p.t?p.n/p.t:0} h=${8}/></span>`;
- return tap?html`<button onClick=${()=>c.setTab('tasks')} className="card w-full p-4 mt-2 text-left block" aria-label=${'Tagesfortschritt: '+p.n+' von '+p.t+' erledigt. Zur Aufgabenliste'}>${body}</button>`:html`<div className="card p-4 mt-3">${body}</div>`}
+/* Fokus des Tages: Ziel-Handlungen, Kernaufgaben, Briefing (im Comeback die Comeback-Liste) */
+function focusMs(S,D){const b=(briefToday(S)||{ids:[]}).ids,g=goalMs(S).map(x=>x.m.id),cb=S.comeback?cbList(S,D).map(x=>x.id):null;return D.allM.filter(m=>cb?cb.includes(m.id):(g.includes(m.id)||ESS.includes(m.id)||b.includes(m.id)))}
+function dayProg(S,D){const f=focusMs(S,D),dm=D.allM.filter(m=>m.freq==='daily'||m.freq==='multi');return{n:f.filter(m=>isDone(S,m)).length,t:f.length,extra:dm.filter(m=>isDone(S,m)&&!f.includes(m)).length}}
+function DayProgress({c,tap=true}){const p=dayProg(c.S,c.D);const body=html`<span className="flex justify-between items-baseline"><span className="lbl">Fokus heute</span><b className="num text-[15px]">${p.n} von ${p.t}${p.extra?html`<span className="mute font-normal text-[12px]"> · +${p.extra} extra</span>`:null}</b></span><span className="block mt-2"><${Bar} pct=${p.t?p.n/p.t:0} h=${8}/></span>`;
+ return tap?html`<button onClick=${()=>c.setTab('tasks')} className="card w-full p-4 mt-2 text-left block" aria-label=${'Fokus heute: '+p.n+' von '+p.t+' erledigt'+(p.extra?', '+p.extra+' zusätzlich':'')+'. Zur Aufgabenliste'}>${body}</button>`:html`<div className="card p-4 mt-3">${body}</div>`}
 /* Du gegen Nemesis: erledigte Einheiten seines und deines Tagesplans */
 function duelNow(S,now){const plan=buildNemesisPlan(nemTasks(S)),cnt=plan.filter(p=>!p.virtual&&p.kind!=='sleep');return{plan,cnt,Y:cnt.length,X:cnt.filter(p=>p.done).length,Z:cnt.filter(p=>nemDoneAt(p,plan,now)).length}}
 function DuelPair({c,tap=true}){const d=duelNow(c.S,nowMinOf(c));const cells=[['Du',d.X,'var(--ink)'],['Nemesis',d.Z,'var(--gold)']].map(([l,v,col])=>html`<span key=${l} className="card p-3 block text-center"><span className="lbl block">${l}</span><span className="duel-n num block" style=${{color:col}}>${v}</span><span className="text-[12px] mute block">von ${d.Y}</span></span>`);
@@ -2526,7 +2528,8 @@ function TempleView({c}){const {S}=c;const st=LC.templeState(S);const T=S.life.t
  <div className="flex gap-2 mt-1"><button onClick=${()=>c.openSheet({t:'why'})} className="chip flex-1 justify-start gap-1.5"><${Icon} n="temple" s=${13}/>Dach: ${S.life.why&&S.life.why.text?'dein Warum':'Warum festlegen'}</button><button onClick=${()=>c.openSheet({t:'values'})} className="chip flex-1 justify-start gap-1.5"><${Icon} n="column" s=${13}/>Fundament: ${(S.principles||[]).length} Werte</button></div>
  <div className="text-[11.5px] mute mt-2 leading-snug">Der Tempel zeigt freigeschaltete Bausteine, kein Urteil über dich oder deine Gesundheit. Tippe eine Säule an.</div></div>
  <${AreaTiles} c=${c} st=${st} sel=${sel}/>
- <${ColumnDetails} c=${c} area=${sel} st=${st}/>`}
+ ${c.tSel?html`<div className="flex justify-end mt-2"><button type="button" onClick=${()=>c.setTSel(null)} className="bg-transparent border-0 p-0 text-[12px] mute">Details schließen</button></div><${ColumnDetails} c=${c} area=${sel} st=${st}/>`
+  :html`<button type="button" onClick=${()=>c.setTSel(sel)} className="ghost w-full py-3 mt-3 text-[13px] font-semibold flex items-center justify-center gap-1.5">Säule ${LC.AREA[sel].de} im Detail<${Icon} n="chevR" s=${14}/></button>`}`}
 
 function TempleRules({c}){const R=LC.TEMPLE_RULES;return html`<${Sheet} sub="Transparent und begrenzt" title="Bauregeln" onClose=${c.closeSheet}>
  <div className="text-[13px] mute leading-relaxed -mt-1 mb-3">Bausteine entstehen aus echten Daten deiner Ziele. Jede Regel hat eine Obergrenze pro Säule und Saison, damit beliebiges Abhaken keinen Fortschritt erzeugt. Freigeschaltete Bausteine bleiben dauerhaft.</div>
