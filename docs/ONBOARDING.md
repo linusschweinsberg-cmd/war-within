@@ -19,6 +19,7 @@ Code: `OB_SCREENS` (Reihenfolge, Station, Pause), `OB_BODY` (Komponenten), `Onbo
 - Der Fortschritt wird gespeichert. Nach einem Neuladen geht es auf demselben Screen weiter.
 | 4 | Konfrontation | Vier Säulen | Einschätzung 1–5, Säulen wachsen/reißen live | Ehrlich, ohne Urteil | `areas` |
 | 5 | Konfrontation | Spiegel | Niedrigster Bereich hervorgehoben; „Anpassen“ | Feststellung statt Urteil | – |
+| 5b | Konfrontation | Life Audit (freiwillig) | Angebot „Möchtest du genauer hinsehen?“ → Dialog je Bereich, siehe unten | Ehrliche Bestandsaufnahme ohne Pflicht | `audit`, `auditOpen`, `auditCur` → `life.audit` |
 | 6 | Konfrontation | Preis des Stillstands | Bis zu zwei Chips | Kosten spürbar, ohne Schuld | `cost` → `life.why.q.cost` |
 | 7 | Potenzial | Kleine Zahl, lange Zeit | Zähler 1 Tag → 1 Jahr (20 Min. täglich) | Compounding ohne Versprechen | – |
 | 8 | Potenzial | Ein Jahr weiter | Bereich wählen, ein Satz | Zukunftsbild als Anker | `focus`, `why` |
@@ -62,6 +63,37 @@ Kernsatz: „Auch wenn du nicht alles kontrollieren kannst, kannst du Verantwort
 3. **Abschluss:** „Das ist Ownership. Nicht Schuld, sondern Handlungsspielraum.“ Der eigene nächste Schritt wird angezeigt. Ownership ist Schritt 1 im Success Loop (`LC.LOOP[0].q`: „Was kann ich kontrollieren?“). Daraus wächst Selbstwirksamkeit.
 
 Erneut aufrufbar über „Wie es wirkt“ › „Ownership in drei Situationen“ (Sheet `ownerdemo`). Das ist die Kurzfassung ohne persönliche Fragen. Das Modul ist nicht Teil der Kurzversion.
+
+## Modul: Life Audit (`LifeAudit`, Logik in `life-core.js`)
+
+Eine freiwillige Bestandsaufnahme in acht Bereichen (`LC.AUDIT_AREAS`). Jeder Bereich ist einem der vier Lebensbereiche zugeordnet:
+
+| Bereich | Lebensbereich |
+|---|---|
+| Körper und Fitness, Mentale Verfassung und Energie | health |
+| Beruf und Karriere, Finanzen | wealth |
+| Familie, Freundschaften, Beziehungen | relationships |
+| Disziplin und Gewohnheiten, Entwicklung und Lernen, Sinn, Werte, Zufriedenheit | growth |
+
+- **Dialog statt Formular:** Pro Bereich stellt die App fünf Fragen nacheinander in Sprechblasen:
+  1. Zufriedenheit 1–10
+  2. „Wie sieht es gerade wirklich aus?“
+  3. „Worauf bist du hier schon stolz? Auch Kleines zählt.“
+  4. „Was würdest du gern verändern?“
+  5. „Was steht dem im Moment im Weg?“ (Hindernis-Codes aus `OBSTACLES`, höchstens 3)
+  
+  Jede Frage hat „Überspringen“. Wer eine frühere Antwort antippt, kann sie ändern. Am Ende folgt ein Vorschlag für den nächsten offenen Bereich.
+- **Zustände:** Offen, Später (bewusst übersprungen), Begonnen, Fertig (`LC.auditState`).
+- **Wiederaufnahme:** Jede Eingabe wird sofort gespeichert. Ansicht, Bereich und Frage liegen in `auditCur`, im Onboarding in `war_within_auth_v1`, in der App in `S.life.auditCur`.
+- **Ausgangslage:** Bewertete Bereiche erscheinen als Balken in der Farbe des Lebensbereichs. Offene Bereiche sind gestrichelt und als „offen“ beschriftet, nie als 0. Dazu kommen „Worauf du schon stolz bist“, „Was du verändern möchtest“ und „Was dich gerade bremst“ mit Häufigkeit.
+- **Im Onboarding:** nach dem Spiegel, als Angebot „Ja, Bereich für Bereich“ oder „Jetzt nicht“. Ein Klick auf „Weiter im Onboarding“ beendet den Audit jederzeit. Das Modul ist nicht Teil der Kurzversion.
+- **In der App:** Die Karte „Life Audit“ unter „Mein Leben“ zeigt eine Mini-Übersicht und öffnet das Sheet `audit` mit Ergänzen, Ausgangslage und „Alle Audit-Antworten löschen“ (zweimal tippen).
+
+**Datenschutz (verbindlich):**
+- Freitexte (`now`, `proud`, `change`) bleiben auf dem Gerät. Sie sind auf 280 Zeichen begrenzt, und leere Felder werden nicht gespeichert.
+- Personalisierung nutzt nur `LC.auditSummary`: Durchschnitt je Lebensbereich (fehlend = `null`), Hindernis-Häufigkeit und Bereiche mit Veränderungswunsch.
+- Eine Server-Synchronisation darf nur `LC.auditForSync` übertragen: Zahlen, Codes und `hasText`, keine Texte.
+- Der Audit erscheint nicht in Liga, Teilen oder Nemesis.
 
 Kurzversion (gewählt im Überblick auf Screen 4): Eröffnung, Name, Säulen, Ziel, erste Handlung, Tag 1.
 

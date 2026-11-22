@@ -103,3 +103,16 @@ t3('Abendritual: Umsetzungsquote zählt nur abgeschlossene Tage',()=>{const S=LC
  LC.onEvening(S,{mid:a.missionId,when:'morgens'});LC.onAdvance(S);const st=LC.eveningStats(S.life);assert.equal(st.planned,3);assert.equal(st.kept,2)});
 t3('Abendritual: alter Spielstand ohne evening',()=>{const S=LC.ensureLife(base());delete S.life.evening;assert.equal(LC.eveningFor(S.life,1),null);assert.equal(LC.eveningStats(S.life).planned,0)});
 console.log('PASS abendritual: '+ok3.join(' · '))}
+/* Life Audit */
+{const ok4=[];const t4=(n,f)=>{f();ok4.push(n)};
+t4('Audit: alles optional, leere Felder werden entfernt',()=>{let A=LC.setAudit(null,'body',{sat:7});assert.equal(A.areas.body.sat,7);assert.equal(LC.auditState(A,'body'),'partial');
+ A=LC.setAudit(A,'body',{sat:''});assert.equal(A.areas.body,undefined,'leerer Bereich verschwindet');assert.equal(LC.auditState(A,'body'),'open')});
+t4('Audit: ungültige Werte werden verworfen, Texte gekürzt',()=>{const A=LC.setAudit({},'money',{sat:14,now:'x'.repeat(400),obst:['time','gibtsnicht','time']});
+ assert.equal(A.areas.money.sat,undefined);assert.equal(A.areas.money.now.length,LC.AUDIT_MAX);assert.deepEqual([...A.areas.money.obst],['time']);assert.equal(LC.setAudit({},'nope',{sat:5}).areas.nope,undefined)});
+t4('Audit: vollständig, übersprungen, Wiederaufnahme',()=>{let A=LC.setAudit({},'mind',{sat:4,now:'müde',proud:'Pausen',change:'Schlaf',obst:['energy']});assert.equal(LC.auditState(A,'mind'),'done');
+ A=LC.setAudit(A,'career',{skip:true});assert.equal(LC.auditState(A,'career'),'skipped');const R=JSON.parse(JSON.stringify(A));assert.equal(LC.auditState(R,'mind'),'done')});
+t4('Audit: Übersicht wertet Fehlendes nicht als schlecht',()=>{let A=LC.setAudit({},'body',{sat:8});A=LC.setAudit(A,'mind',{sat:4,obst:['energy']});A=LC.setAudit(A,'habits',{obst:['energy','time']});
+ const s=LC.auditSummary(A);assert.equal(s.areas.health,6);assert.equal(s.areas.wealth,null,'nicht bewertet = null, nicht 0');assert.equal(s.areas.growth,null);assert.equal(s.rated,2);assert.equal(s.obst[0].id,'energy');assert.equal(s.obst[0].n,2)});
+t4('Audit: Synchronisationsform enthält keine Freitexte',()=>{const A=LC.setAudit({},'people',{sat:6,now:'Sehr privat',proud:'auch privat',change:'privat'});const y=JSON.stringify(LC.auditForSync(A));
+ assert.ok(!/privat/.test(y));assert.ok(/"hasText":true/.test(y));assert.ok(/"sat":6/.test(y))});
+console.log('PASS life-audit: '+ok4.join(' · '))}

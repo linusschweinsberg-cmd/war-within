@@ -2382,6 +2382,7 @@ function SheetHost({c}){
   case'loopinfo':b=html`<${LoopInfo} c=${c}/>`;break;
   case'loopdemo':b=html`<${LoopDemo} c=${c}/>`;break;
   case'ownerdemo':b=html`<${OwnerDemo} c=${c}/>`;break;
+  case'audit':b=html`<${AuditSheet} c=${c}/>`;break;
   case'newleague':b=html`<${NewLeague} c=${c}/>`;break;
   case'newchal':b=html`<${NewChal} c=${c} pre=${sh.pre}/>`;break;
   case'chal':b=html`<${ChalSheet} c=${c} id=${sh.id}/>`;break;
@@ -2796,6 +2797,7 @@ function MyLife({c}){const {S}=c;const L=S.life;const P=S.principles||[];const g
  return html`<div className="screen px-4 pb-6"><div className="pt-5 relative"><span className="page-emblem"><${Icon} n="compass" s=${76} sw=${1}/></span><div className="lbl">Dein Kompass · Mein Leben</div><h1 className="disp text-[40px] mt-1">Bereiche</h1><div className="text-[13px] mute mt-1 leading-snug">Werte geben die Richtung. Ziele machen sie messbar. Handlungen bringen dich hin.</div><div className="meander mt-3" aria-hidden="true"/></div>
  <${TempleView} c=${c}/>
  <${WisdomSlot} c=${c} place="season"/>
+ <${AuditCard} c=${c}/>
  ${WC.enabled(S)&&(()=>{const n=((S.wisdom&&S.wisdom.fav)||[]).length;return html`<button onClick=${()=>c.openSheet({t:'codex',f:n?'fav':'all'})} className="ghost w-full p-3 mt-3 flex items-center gap-3 text-left text-[14px] font-medium"><span className="wis-ic" aria-hidden="true"><${Icon} n="scroll" s=${15} sw=${1.6}/></span><div className="flex-1">Wisdom Codex<div className="text-[11.5px] mute font-normal">${n?n+(n===1?' Inschrift':' Inschriften')+' gespeichert':'Deine Sammlung kurzer Lebensweisheiten'}</div></div><${Icon} n="chevR" s=${15} cls="mute"/></button>`})()}
  <${Title} right=${html`<button onClick=${()=>c.openSheet({t:'values'})} className="chip">${P.length?'Bearbeiten':'Wählen'}</button>`}>Fundament · Werte<//>
  ${P.length?html`<div className="card p-3.5"><div className="flex flex-wrap gap-1.5">${P.map(p=>html`<button key=${p.id} onClick=${()=>c.actPrinciple(p.id)} className="chip" aria-label=${p.n+': heute danach gehandelt'}>${p.n}${p.acts?html`<span className="num mute ml-1.5">${p.acts}</span>`:null}</button>`)}</div><div className="text-[11.5px] mute mt-2">Tippe einen Wert, wenn du heute bewusst danach gehandelt hast.${S.tradition&&S.tradition!=='Keine'?' Inspiration: '+S.tradition+'.':''}</div></div>`
@@ -2914,7 +2916,7 @@ function ExpView({c}){const {S}=c;const L=S.life,I=LC.insights(S),ex=(L.exps||[]
    Sammelt dieselben Daten wie zuvor (obv 2) und ergänzt Kosten, Kontrolle, Hindernis, Standards, Startzeitpunkt. */
 const OB_ACTS=['Bewusstsein','Konfrontation','Potenzial','Verantwortung','Standards','Aufbruch'];
 const OB_SCREENS=[{id:'still',act:0,wait:3.6,tap:1},{id:'what',act:0,wait:6.8,tap:1},{id:'resp',act:0,wait:5.6,tap:1},{id:'ready',act:0,wait:2,choice:1},{id:'name',act:0,wait:.8},
- {id:'pillars',act:1,wait:1.4},{id:'mirror',act:1,wait:1.8},{id:'cost',act:1,wait:1.6},
+ {id:'pillars',act:1,wait:1.4},{id:'mirror',act:1,wait:1.8},{id:'audit',act:1,wait:.6},{id:'cost',act:1,wait:1.6},
  {id:'compound',act:2,wait:4.6},{id:'year',act:2,wait:1.6},{id:'goal',act:2,wait:1.2},
  {id:'ctrl',act:3,wait:1},{id:'loop',act:3,wait:.4},{id:'obst',act:3,wait:1},{id:'owner',act:3,wait:.4},
  {id:'values',act:4,wait:1.6},{id:'stds',act:4,wait:1.6},{id:'sign',act:4,wait:1},
@@ -3133,7 +3135,69 @@ function OwnerStory({ob,u,demo,onDone,done}){const [ph,setPh]=useState(done?5:0)
   <p className="story-in text-[14px] leading-relaxed mt-4" style=${obIn(2.2)}>Jedes Mal, wenn du den nächsten Schritt gehst, obwohl nicht alles passt, wächst <b>Selbstwirksamkeit</b>: das Vertrauen, dass dein Handeln etwas bewirkt.</p></div>`}
 function ObOwner({ob,u}){return html`<${OwnerStory} ob=${ob} u=${u} onDone=${()=>u(()=>({ownDone:true}))} done=${!!ob.ownDone}/>`}
 function OwnerDemo({c}){return html`<${Sheet} sub="Ownership · drei Situationen" title="Verantwortung" onClose=${c.closeSheet}><${OwnerStory} demo=${true}/><button onClick=${()=>c.openSheet({t:'loopinfo'})} className="bg-transparent border-0 w-full py-3 mt-2 text-[12.5px] mute">Zurück zum Modell</button><//>`}
-const OB_BODY={owner:ObOwner,loop:ObLoop,still:ObStill,what:ObWhat,resp:ObResp,ready:ObReady,name:ObName,pillars:ObPillarsS,mirror:ObMirror,cost:ObCost,compound:ObCompound,year:ObYear,goal:ObGoal,ctrl:ObCtrl,obst:ObObst,values:ObValues,stds:ObStds,sign:ObSign,first:ObFirst,start:ObStart,day1:ObDay1};
+/* ───── LIFE AUDIT: freiwillige Bestandsaufnahme als Dialog (Onboarding und „Mein Leben“) ─────
+   Daten in LC.setAudit-Form; Freitexte bleiben lokal. cur = {view,id,step} für die Wiederaufnahme. */
+const AUD_Q=[['sat',a=>a.q],['now',()=>'Wie sieht es gerade wirklich aus? Ein, zwei Sätze reichen.'],['proud',()=>'Und worauf bist du hier schon stolz? Auch Kleines zählt.'],['change',()=>'Was würdest du gern verändern?'],['obst',()=>'Was steht dem im Moment im Weg?']];
+const AUD_ST={open:['Offen','var(--mute)'],skipped:['Später','var(--mute)'],partial:['Begonnen','var(--acc2)'],done:['Fertig','var(--good)']};
+const audAns=(x,k)=>!x?null:k==='sat'?(x.sat!=null?x.sat+' von 10':null):k==='obst'?((x.obst||[]).length?x.obst.map(o=>(LC.OBST[o]||{}).l).join(', '):null):(x[k]||null);
+function AudBubble({me,children,onClick,muted}){return html`<div className=${'flex '+(me?'justify-end':'justify-start')}><div onClick=${onClick} role=${onClick?'button':undefined} tabIndex=${onClick?0:undefined} className=${'max-w-[85%] px-3.5 py-2.5 text-[13.5px] leading-snug '+(onClick?'cursor-pointer ':'')+(muted?'mute italic':'')} style=${{borderRadius:me?'16px 16px 4px 16px':'16px 16px 16px 4px',background:me?'color-mix(in srgb,var(--acc2) 16%,var(--card))':'var(--card2)',border:'1px solid var(--line)'}}>${children}</div></div>`}
+function AudScale({v,on}){return html`<div className="grid grid-cols-5 gap-1.5" role="radiogroup" aria-label="Zufriedenheit von 1 bis 10">${Array.from({length:10},(_,i)=>i+1).map(n=>html`<button key=${n} type="button" role="radio" aria-checked=${v===n} onClick=${()=>on(v===n?null:n)} className="h-10 rounded-xl text-[14px] font-bold border-0" style=${{background:v===n?'var(--acc2)':'var(--ghost)',color:v===n?'var(--bg)':'var(--ink)'}}>${n}</button>`)}</div><div className="flex justify-between text-[11px] mute mt-1"><span>gar nicht</span><span>voll und ganz</span></div>`}
+function AudArea({audit,save,id,step,setStep,onList,onNext}){const a=LC.AUDIT[id],x=((audit||{}).areas||{})[id]||{};const end=step>=AUD_Q.length;const box=useRef(null);
+ useEffect(()=>{const el=box.current&&box.current.querySelector('[data-cur]');if(el&&el.scrollIntoView)el.scrollIntoView({block:'nearest',behavior:obReduced()?'auto':'smooth'})},[step]);
+ const [k,q]=AUD_Q[Math.min(step,AUD_Q.length-1)];const go=s=>setStep(s);
+ const input=!end&&(k==='sat'?html`<${AudScale} v=${x.sat??null} on=${v=>save(id,{sat:v})}/>`:k==='obst'?html`<${ObChips} opts=${LC.OBSTACLES.map(o=>[o.id,o.l])} val=${x.obst||[]} max=${3} on=${v=>save(id,{obst:v})}/>`
+  :html`<textarea className="inp" rows="3" maxLength=${LC.AUDIT_MAX} aria-label=${q(a)} value=${x[k]||''} onChange=${e=>save(id,{[k]:e.target.value})} placeholder=${a.ph[k]}/><div className="text-[11px] mute text-right mt-1 num">${(x[k]||'').length}/${LC.AUDIT_MAX}</div>`);
+ const has=k==='sat'?x.sat!=null:k==='obst'?(x.obst||[]).length>0:!!(x[k]||'').trim();
+ return html`<div ref=${box}>
+  <div className="flex items-center gap-2.5 mb-4"><span className="acc"><${Icon} n=${a.icon} s=${20}/></span><div className="flex-1 min-w-0"><div className="text-[16px] font-bold leading-tight">${a.name}</div><div className="text-[11.5px] mute">Jede Frage ist freiwillig.</div></div><button type="button" onClick=${onList} className="chip shrink-0">Alle Bereiche</button></div>
+  <div className="flex flex-col gap-2">${AUD_Q.slice(0,Math.min(step,AUD_Q.length)).map(([kk,qq],i)=>{const ans=audAns(x,kk);return html`<${React.Fragment} key=${kk}><${AudBubble}>${qq(a)}<//><${AudBubble} me=${true} muted=${!ans} onClick=${()=>go(i)}>${ans||'übersprungen'}<//><//>`})}
+  ${!end&&html`<div data-cur="1" className="flex flex-col gap-2 story-in" key=${'q'+step} style=${obIn(0)}><${AudBubble}>${q(a)}<//><div className="mt-1">${input}</div>
+   <div className="flex gap-2 mt-1"><button type="button" onClick=${()=>{if(!has&&step===0&&!Object.keys(x).length)save(id,{skip:true});go(step+1)}} className="ghost flex-1 py-3 text-[13px] font-semibold">${has?'Weiter':'Überspringen'}</button></div></div>`}
+  ${end&&html`<div data-cur="1" className="flex flex-col gap-2 story-in" style=${obIn(0)}><${AudBubble}>${LC.auditState(audit,id)==='open'||LC.auditState(audit,id)==='skipped'?'Kein Problem. Du kannst diesen Bereich jederzeit später ergänzen.':'Danke. Das ist notiert. Du kannst jede Antwort antippen und ändern.'}<//>
+   <div className="flex flex-col gap-2 mt-2">${onNext&&html`<button type="button" onClick=${onNext.go} className="btn w-full py-3 text-[13.5px]">Nächster Bereich: ${onNext.name}</button>`}<button type="button" onClick=${onList} className="ghost w-full py-3 text-[13px] font-semibold">Zur Übersicht der Bereiche</button></div></div>`}</div></div>`}
+/* Ausgangslage: bewertete Bereiche als Balken, offene neutral gestrichelt, nie als 0 */
+function AudOverview({audit,onList}){const A=(audit||{}).areas||{},sm=LC.auditSummary(audit);
+ const items=(k)=>LC.AUDIT_AREAS.filter(a=>A[a.id]&&A[a.id][k]);
+ return html`<div><div className="text-[18px] font-bold">Deine Ausgangslage</div><div className="text-[12.5px] mute mt-1 leading-snug">Keine Wertung, sondern ein Ausgangspunkt. Offene Bereiche sind einfach offen.</div>
+  <div className="card p-3.5 mt-4 flex flex-col gap-2.5">${LC.AUDIT_AREAS.map((a,i)=>{const x=A[a.id],s=x&&x.sat;return html`<div key=${a.id} className="story-in" style=${obIn(i*.06)}><div className="flex items-center justify-between text-[12.5px]"><span className=${s!=null?'':'mute'}>${a.name}</span><span className="num mute">${s!=null?s+'/10':'offen'}</span></div>
+   <div className="h-2 mt-1 rounded-full overflow-hidden" style=${s!=null?{background:'var(--ghost)'}:{border:'1px dashed var(--line)'}}>${s!=null&&html`<div className="h-full rounded-full" style=${{width:s*10+'%',background:aCol(a.area),transition:'width .6s ease'}}/>`}</div></div>`})}</div>
+  ${items('proud').length>0&&html`<div className="lbl mt-5 mb-2" style=${{color:'var(--gold)'}}>Worauf du schon stolz bist</div><div className="flex flex-col gap-1.5">${items('proud').map(a=>html`<div key=${a.id} className="card2 p-3 text-[13px] leading-snug"><span className="mute text-[11px] block">${a.name}</span>${A[a.id].proud}</div>`)}</div>`}
+  ${items('change').length>0&&html`<div className="lbl acc mt-5 mb-2">Was du verändern möchtest</div><div className="flex flex-col gap-1.5">${items('change').map(a=>html`<div key=${a.id} className="card2 p-3 text-[13px] leading-snug"><span className="mute text-[11px] block">${a.name}</span>${A[a.id].change}</div>`)}</div>`}
+  ${sm.obst.length>0&&html`<div className="lbl mt-5 mb-2">Was dich gerade bremst</div><div className="flex flex-wrap gap-1.5">${sm.obst.map(o=>html`<span key=${o.id} className="chip">${(LC.OBST[o.id]||{}).l}${o.n>1?html`<span className="num mute ml-1.5">${o.n}×</span>`:null}</span>`)}</div>`}
+  ${!sm.touched&&html`<div className="card2 p-3.5 mt-4 text-[13px] mute">Noch nichts eingetragen. Fang mit dem Bereich an, der dir gerade am wichtigsten ist.</div>`}
+  <button type="button" onClick=${onList} className="ghost w-full py-3 mt-5 text-[13px] font-semibold">Bereiche ergänzen</button></div>`}
+function LifeAudit({audit,save,cur,setCur,exit,onDelete}){const c0=cur||{view:'list'};const [del,setDel]=useState(false);
+ const set=p=>setCur({...c0,...p});const sm=LC.auditSummary(audit);
+ if(c0.view==='area'&&LC.AUDIT[c0.id]){const i=LC.AUDIT_AREAS.findIndex(a=>a.id===c0.id);const nx=LC.AUDIT_AREAS.slice(i+1).concat(LC.AUDIT_AREAS.slice(0,i)).find(a=>{const s=LC.auditState(audit,a.id);return s==='open'||s==='partial'});
+  return html`<${AudArea} audit=${audit} save=${save} id=${c0.id} step=${c0.step||0} setStep=${s=>set({step:s})} onList=${()=>set({view:'list'})} onNext=${nx?{name:nx.name,go:()=>set({view:'area',id:nx.id,step:0})}:null}/>`}
+ if(c0.view==='over')return html`<${AudOverview} audit=${audit} onList=${()=>set({view:'list'})}/>`;
+ return html`<div><div className="flex items-center gap-2"><span className="lbl acc">Life Audit</span><span className="text-[10.5px] mute flex items-center gap-1 ml-auto"><${Icon} n="lock" s=${11}/>Nur auf diesem Gerät</span></div>
+  <div className="text-[13px] mute mt-1.5 leading-snug">Eine ehrliche Bestandsaufnahme, Bereich für Bereich. Alles ist freiwillig. Du kannst jederzeit aufhören und später weitermachen.</div>
+  <div className="flex flex-col gap-1.5 mt-4">${LC.AUDIT_AREAS.map(a=>{const s=LC.auditState(audit,a.id),x=((audit||{}).areas||{})[a.id],S2=AUD_ST[s];return html`<button key=${a.id} type="button" onClick=${()=>set({view:'area',id:a.id,step:s==='partial'?AUD_Q.findIndex(([k])=>!audAns(x,k)):s==='done'?AUD_Q.length:0})} className="card w-full p-3 flex items-center gap-3 text-left border-0">
+   <span style=${{color:aCol(a.area)}}><${Icon} n=${a.icon} s=${18}/></span><span className="flex-1 min-w-0 text-[13.5px] font-medium truncate">${a.name}</span>${x&&x.sat!=null&&html`<span className="num text-[12px] mute">${x.sat}/10</span>`}<span className="text-[11px] font-semibold shrink-0" style=${{color:S2[1]}}>${S2[0]}</span></button>`})}</div>
+  <div className="text-[11.5px] mute mt-3 leading-snug">Deine Texte bleiben auf diesem Gerät. Für Vorschläge nutzt die App später nur deine Zahlen und genannten Hindernisse, nie deine Texte.</div>
+  <div className="flex flex-col gap-2 mt-4">${sm.touched>0&&html`<button type="button" onClick=${()=>set({view:'over'})} className="ghost w-full py-3 text-[13.5px] font-semibold">Ausgangslage ansehen · ${sm.touched} von ${sm.total}</button>`}${exit}
+  ${onDelete&&sm.touched>0&&html`<button type="button" onClick=${()=>{if(del){onDelete();setDel(false)}else setDel(true)}} className="bg-transparent border-0 py-2 text-[12px] bad">${del?'Wirklich alle Audit-Antworten löschen? Tippe erneut':'Alle Audit-Antworten löschen'}</button>`}</div></div>`}
+/* Onboarding-Screen: freiwilliges Angebot, dann der Audit im selben Screen */
+function ObAudit({ob,u,next}){const save=(id,p)=>u(q=>({audit:LC.setAudit(q.audit,id,p)}));
+ if(!ob.auditOpen)return html`<div className="story-c"><${Lines} l=${['Möchtest du genauer hinsehen?']}/>
+  <p className="story-in text-[14px] leading-relaxed mt-4" style=${obIn(.8)}>Der Life Audit geht durch acht Bereiche deines Lebens, von Gesundheit bis Sinn. Pro Bereich etwa eine Minute. Du entscheidest, wie viel du teilst.</p>
+  <div className="flex flex-col gap-2 mt-6 story-in" style=${obIn(1.2)}><button type="button" onClick=${()=>u(()=>({auditOpen:true}))} className="card w-full p-4 text-left border-0 flex items-center gap-3"><span className="flex-1"><span className="block text-[15px] font-semibold">Ja, Bereich für Bereich</span><span className="block text-[12.5px] mute mt-0.5">Jederzeit unterbrechbar, nichts ist Pflicht.</span></span><${Icon} n="chevR" s=${16} cls="mute"/></button>
+  <button type="button" onClick=${next} className="card w-full p-4 text-left border-0 flex items-center gap-3"><span className="flex-1"><span className="block text-[15px] font-semibold">Jetzt nicht</span><span className="block text-[12.5px] mute mt-0.5">Du findest ihn später unter „Mein Leben“.</span></span><${Icon} n="chevR" s=${16} cls="mute"/></button></div>
+  <div className="text-[11.5px] mute mt-4 flex items-center gap-1.5 story-in" style=${obIn(1.5)}><${Icon} n="lock" s=${11}/>Deine Antworten bleiben auf diesem Gerät.</div></div>`;
+ return html`<${LifeAudit} audit=${ob.audit} save=${save} cur=${ob.auditCur} setCur=${c=>u(()=>({auditCur:c}))}/>`}
+/* App: Sheet und Karte in „Mein Leben“ */
+function AuditSheet({c}){const {S}=c;const A=S.life&&S.life.audit;
+ const save=(id,p)=>c.upd(n=>{LC.ensureLife(n);n.life.audit=LC.setAudit(n.life.audit,id,p)});
+ const setCur=cu=>c.upd(n=>{LC.ensureLife(n);n.life.auditCur=cu});
+ return html`<${Sheet} sub="Mein Leben" title="Life Audit" onClose=${c.closeSheet}><${LifeAudit} audit=${A} save=${save} cur=${S.life.auditCur} setCur=${setCur} onDelete=${()=>{c.upd(n=>{delete n.life.audit;delete n.life.auditCur});c.toast('Audit-Antworten gelöscht.')}}/><//>`}
+function AuditCard({c}){const {S}=c;const A=S.life&&S.life.audit,sm=LC.auditSummary(A);
+ const open=v=>{c.upd(n=>{LC.ensureLife(n);n.life.auditCur={view:v}});c.openSheet({t:'audit'})};
+ if(!sm.touched)return html`<button onClick=${()=>open('list')} className="card w-full p-4 mt-3 text-left" style=${{borderStyle:'dashed'}}><div className="flex items-center gap-2"><span className="lbl acc">Life Audit</span><span className="text-[10.5px] mute flex items-center gap-1 ml-auto"><${Icon} n="lock" s=${11}/>Privat</span></div><div className="text-[15px] font-semibold mt-1">Ehrliche Bestandsaufnahme in acht Bereichen</div><div className="text-[12.5px] mute mt-0.5">Freiwillig, etwa eine Minute pro Bereich.</div></button>`;
+ return html`<div className="card p-4 mt-3"><div className="flex items-center gap-2"><span className="lbl acc">Life Audit</span><span className="text-[11.5px] mute ml-auto">${sm.touched} von ${sm.total} Bereichen</span></div>
+  <div className="flex items-end gap-1 mt-3" style=${{height:40}} role="img" aria-label="Zufriedenheit je Bereich, offene Bereiche gestrichelt">${LC.AUDIT_AREAS.map(a=>{const x=(A.areas||{})[a.id],s=x&&x.sat;return html`<div key=${a.id} title=${a.name} className="flex-1 rounded-sm" style=${s!=null?{height:s*4,background:aCol(a.area)}:{height:40,border:'1px dashed var(--line)'}}/>`})}</div>
+  <div className="flex gap-2 mt-3"><button onClick=${()=>open('over')} className="chip flex-1 justify-center">Ausgangslage</button><button onClick=${()=>open('list')} className="chip flex-1 justify-center">Ergänzen</button></div></div>`}
+const OB_BODY={audit:ObAudit,owner:ObOwner,loop:ObLoop,still:ObStill,what:ObWhat,resp:ObResp,ready:ObReady,name:ObName,pillars:ObPillarsS,mirror:ObMirror,cost:ObCost,compound:ObCompound,year:ObYear,goal:ObGoal,ctrl:ObCtrl,obst:ObObst,values:ObValues,stds:ObStds,sign:ObSign,first:ObFirst,start:ObStart,day1:ObDay1};
 
 /* ───── KONTO, ANMELDUNG & ONBOARDING ───── */
 const AUTH_KEY='war_within_auth_v1';
@@ -3213,11 +3277,11 @@ function devLineup(ob,missions){
  ob.pri.forEach(p=>{if(p==='intel'){push('read');if(uses('lang'))push('lang')}if(p==='career')push('biz');if(p==='time')push('deep');if(p==='fit'&&uses('run'))push('run')});
  missions.forEach(m=>{if(!CORE.includes(m.act))push(m.act)});
  ['deep','read','run'].forEach(push);return L}
-const newOb=name=>({obv:2,story:1,short:false,step:0,dir:1,name:name||'',age:'',units:'metric',tz:guessTz(),values:[],why:'',areas:{health:3,relationships:3,wealth:3,growth:3},focus:null,goal:null,goalFocus:null,firstWhen:'',focusMode:false,cost:[],ctrl:[],obst:[],stds:{},signed:null,start:null,loopPick:null,loopDone:false,own:{can:[],cant:[],next:''},ownDone:false,pri:[],sat:{},goals:[],stats:{},missions:null,mKey:'',ui:'basic'});
+const newOb=name=>({obv:2,story:1,short:false,step:0,dir:1,name:name||'',age:'',units:'metric',tz:guessTz(),values:[],why:'',areas:{health:3,relationships:3,wealth:3,growth:3},focus:null,goal:null,goalFocus:null,firstWhen:'',focusMode:false,cost:[],ctrl:[],obst:[],stds:{},signed:null,start:null,loopPick:null,loopDone:false,own:{can:[],cant:[],next:''},ownDone:false,audit:null,auditOpen:false,auditCur:null,pri:[],sat:{},goals:[],stats:{},missions:null,mKey:'',ui:'basic'});
 /* Neues Onboarding → bisheriges Spielstand-Format, danach Life-Modell befüllen */
 const AREA_PRI={health:'fit',relationships:'rel',wealth:'fin',growth:'intel'};
 function obCompat(ob){const A=ob.areas||{};const f=ob.focus||(ob.goal&&ob.goal.area)||'health';return{...ob,pri:[AREA_PRI[f]],sat:{fit:A.health,rec:A.health,rel:A.relationships,fin:A.wealth,career:A.wealth,intel:A.growth,char:A.growth,time:A.growth},goals:[],stats:{},missions:[{k:'ref',...MP.ref}],ui:'basic'}}
-function lifeFromOb(n,ob){LC.ensureLife(n);const L=n.life;L.values=[...(ob.values||[])];const SD=ob.stds||{};n.principles=L.values.map(v=>({id:'p'+uid(),n:v,acts:0,std:(SD[v]||'').trim()||undefined}));n.tradition='Keine';L.why={text:(ob.why||'').trim(),q:(ob.cost||[]).length?{cost:[...ob.cost]}:{}};L.areas=Object.fromEntries(LC.AREAS.map(a=>[a.id,{sat:(ob.areas||{})[a.id]||3}]));L.focus=ob.focus||(ob.goal&&ob.goal.area)||null;L.focusMode=!!ob.focusMode;
+function lifeFromOb(n,ob){LC.ensureLife(n);const L=n.life;L.values=[...(ob.values||[])];const SD=ob.stds||{};n.principles=L.values.map(v=>({id:'p'+uid(),n:v,acts:0,std:(SD[v]||'').trim()||undefined}));n.tradition='Keine';L.why={text:(ob.why||'').trim(),q:(ob.cost||[]).length?{cost:[...ob.cost]}:{}};L.areas=Object.fromEntries(LC.AREAS.map(a=>[a.id,{sat:(ob.areas||{})[a.id]||3}]));L.focus=ob.focus||(ob.goal&&ob.goal.area)||null;if(ob.audit&&Object.keys(ob.audit.areas||{}).length)L.audit=JSON.parse(JSON.stringify(ob.audit));L.focusMode=!!ob.focusMode;
  if(ob.goal&&draftOk(ob.goal)&&planOk(ob.goal)){const x=draftOut(ob.goal);if(ob.firstWhen&&x.actions[0])x.actions[0].when=ob.firstWhen;const g=LC.addGoal(n,x);const a=LC.actionsOf(L,g.id)[0];if(a){const day=ob.start==='tomorrow'?1:0;n.nextPrio={k:n.season+'-'+(n.day+day),mid:a.missionId};
   if(ob.story){const r=obRisk(ob);L.onboard={for:(L.d||0)+day,mid:a.missionId,when:x.actions[0].when||null,risk:r,plan:LC.ifThen(r,a.title,ob.firstWhen,a.minutes),start:ob.start||null,obst:[...(ob.obst||[])],ctrl:(ob.ctrl||[]).length,loop:ob.loopPick||null,own:ob.own&&(ob.own.next||'').trim()?{can:[...(ob.own.can||[])],cant:[...(ob.own.cant||[])],next:ob.own.next.trim()}:null,signed:ob.signed||null}}}}}
 const satOf=(ob,id)=>ob.sat[id]||3;
@@ -3372,7 +3436,7 @@ function Onboarding({A,set,theme,onDone}){
  <div className="relative px-5 pt-3 flex flex-col gap-2" style=${{paddingBottom:'max(18px,env(safe-area-inset-bottom))',background:'linear-gradient(180deg,transparent,var(--bg) 35%)'}}>
   ${SC.choice?html`<div style=${{height:8}}/>`:SC.tap?html`<button onClick=${next} disabled=${!ready} className="btn w-full py-4 text-[15px]" style=${{opacity:ready?1:0,transition:'opacity .6s'}}>Weiter</button>
    <div className="text-[11.5px] mute text-center h-4" aria-hidden="true">${ready?'':'Tippen zeigt den ganzen Text'}</div>`
-  :html`<button onClick=${last?()=>onDone(ob):next} disabled=${!ok||!ready} className="btn w-full py-4 text-[15px]" style=${{opacity:!ready?0:ok?1:.4,transition:'opacity .6s'}}>${last?'Beginnen':id==='sign'&&!ob.signed?'Erst bestätigen':'Weiter'}</button>`}</div><//>`}
+  :html`<button onClick=${last?()=>onDone(ob):next} disabled=${!ok||!ready} className="btn w-full py-4 text-[15px]" style=${{opacity:!ready?0:ok?1:.4,transition:'opacity .6s'}}>${last?'Beginnen':id==='sign'&&!ob.signed?'Erst bestätigen':id==='audit'&&ob.auditOpen?'Weiter im Onboarding':'Weiter'}</button>`}</div><//>`}
 
 /* ───── Konto & Profil (Sheet) ───── */
 const NOTIF=[['daily','Tägliche Erinnerung','Ein kurzer Hinweis auf deine wichtigsten Missionen'],['weekly','Wochenrückblick','Sonntags: Abendrückblick und Evaluation'],['nemesis','Nachrichten vom Nemesis','Sticheleien und Anerkennung deines Rivalen']];

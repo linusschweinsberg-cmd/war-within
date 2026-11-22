@@ -1,7 +1,7 @@
 /* THE WAR WITHIN – Service Worker
    Bei Änderungen an index.html o. ä. die Versionsnummer erhöhen,
    damit installierte Apps das Update laden. */
-const VERSION = 'ww-v47';
+const VERSION = 'ww-v48';
 const APP_SHELL = [
   './',
   './index.html',
@@ -59,7 +59,17 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Alles andere (Skripte, Fonts, Icons): Cache zuerst, sonst Netz + merken
+  // Eigene Skripte: wie die Seite erst Netz, damit index.html und life-core.js usw. nie
+  // aus verschiedenen Versionen stammen (sonst fehlen neue Funktionen bis zum nächsten Start)
+  if (url.origin === self.location.origin && url.pathname.endsWith('.js')) {
+    e.respondWith(fetch(req).then(r => {
+      if (r.ok) { const copy = r.clone(); caches.open(VERSION).then(c => c.put(req, copy)); }
+      return r;
+    }).catch(() => caches.match(req)));
+    return;
+  }
+
+  // Alles andere (CDN-Skripte, Fonts, Icons): Cache zuerst, sonst Netz + merken
   e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(r => {
     if (r.ok || r.type === 'opaque') {
       const copy = r.clone(); caches.open(VERSION).then(c => c.put(req, copy));

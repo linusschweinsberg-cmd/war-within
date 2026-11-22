@@ -214,6 +214,40 @@ function addMeasurement(S,gid,v,note){const L=S.life,g=goalById(L,gid);if(!g||v=
  if(g.status==='active'&&reached(g,v)){g.status='achieved';g.achievedWk=curWk(L);L.flags={...(L.flags||{}),goal:true};return'achieved'}
  L.flags={...(L.flags||{}),measure:true};return'ok'}
 
+/* ───── Life Audit: freiwillige Bestandsaufnahme in acht Bereichen ─────
+   Pro Bereich alles optional: sat 1–10, now/proud/change (Freitext, max. 280), obst (Hindernis-Codes).
+   Datensparsam: Freitexte bleiben auf dem Gerät. Für Personalisierung und eine spätere Synchronisation
+   nur auditForSync/auditSummary verwenden (Zahlen und Codes, keine Texte). area = Zuordnung zu AREAS. */
+const AUDIT_AREAS=[
+ {id:'body',area:'health',name:'Körper und Fitness',icon:'heartpulse',q:'Wie zufrieden bist du gerade mit deinem Körper und deiner Fitness?',ph:{now:'z. B. Ich sitze viel und bewege mich kaum, schlafe aber gut.',proud:'z. B. Ich gehe jeden Tag zu Fuß zur Arbeit.',change:'z. B. Wieder regelmäßig Sport machen.'}},
+ {id:'mind',area:'health',name:'Mentale Verfassung und Energie',icon:'sun',q:'Wie geht es dir innerlich, und wie viel Energie hast du?',ph:{now:'z. B. Abends bin ich oft leer und gereizt.',proud:'z. B. Ich merke früher, wenn es mir zu viel wird.',change:'z. B. Mehr Pausen, die wirklich erholen.'}},
+ {id:'career',area:'wealth',name:'Beruf und Karriere',icon:'briefcase',q:'Wie zufrieden bist du mit deiner Arbeit und deiner beruflichen Richtung?',ph:{now:'z. B. Sicherer Job, aber ich lerne kaum noch etwas.',proud:'z. B. Ich habe ein schwieriges Projekt abgeschlossen.',change:'z. B. Eine Aufgabe mit mehr Verantwortung.'}},
+ {id:'money',area:'wealth',name:'Finanzen',icon:'coins',q:'Wie sicher und handlungsfähig fühlst du dich finanziell?',ph:{now:'z. B. Am Monatsende bleibt kaum etwas übrig.',proud:'z. B. Ich habe keine Schulden.',change:'z. B. Eine kleine Rücklage aufbauen.'}},
+ {id:'people',area:'relationships',name:'Familie, Freundschaften, Beziehungen',icon:'users',q:'Wie verbunden fühlst du dich mit den Menschen, die dir wichtig sind?',ph:{now:'z. B. Freunde sehe ich nur noch selten.',proud:'z. B. Zu meiner Familie habe ich ein gutes Verhältnis.',change:'z. B. Mich öfter von selbst melden.'}},
+ {id:'habits',area:'growth',name:'Disziplin und Gewohnheiten',icon:'check',q:'Wie zufrieden bist du mit deinen Gewohnheiten und deiner Selbstdisziplin?',ph:{now:'z. B. Ich fange viel an und höre nach zwei Wochen auf.',proud:'z. B. Ich stehe jeden Tag zur selben Zeit auf.',change:'z. B. Weniger Handy am Abend.'}},
+ {id:'learn',area:'growth',name:'Entwicklung und Lernen',icon:'book',q:'Wie zufrieden bist du damit, wie du dich weiterentwickelst?',ph:{now:'z. B. Ich lese kaum noch.',proud:'z. B. Ich habe mir selbst Programmieren beigebracht.',change:'z. B. Eine Sprache lernen.'}},
+ {id:'meaning',area:'growth',name:'Sinn, Werte, Zufriedenheit',icon:'compass',q:'Wie stimmig fühlt sich dein Leben insgesamt für dich an?',ph:{now:'z. B. Es läuft, aber ich weiß nicht genau, wofür.',proud:'z. B. Ich bin für andere da, wenn es darauf ankommt.',change:'z. B. Mehr Zeit für das, was mir wichtig ist.'}}];
+const AUDIT=Object.fromEntries(AUDIT_AREAS.map(a=>[a.id,a]));
+const AUDIT_FIELDS=['sat','now','proud','change','obst'];
+const AUDIT_MAX=280;
+function cleanAuditEntry(x){const o={};if(!x)return o;const s=Math.round(+x.sat);if(x.sat!=null&&x.sat!==''&&s>=1&&s<=10)o.sat=s;
+ ['now','proud','change'].forEach(k=>{const v=typeof x[k]==='string'?x[k].slice(0,AUDIT_MAX):'';if(v.trim())o[k]=v});
+ const ob=(x.obst||[]).filter(c=>OBST[c]);if(ob.length)o.obst=[...new Set(ob)].slice(0,3);if(x.skip)o.skip=true;return o}
+/* Patch für einen Bereich anwenden; leere Felder werden entfernt, nichts wird erfunden */
+function setAudit(audit,id,patch){const A={v:1,areas:{},...(audit||{})};if(!AUDIT[id])return A;const cur=(A.areas||{})[id]||{};
+ const next=cleanAuditEntry({...cur,...patch});A.areas={...(A.areas||{}),[id]:next};if(!Object.keys(next).length){const n={...A.areas};delete n[id];A.areas=n}
+ A.updated=Date.now();if(!A.started)A.started=A.updated;return A}
+/* Zustand je Bereich: open (nichts), skipped (bewusst später), partial, done (alle fünf beantwortet) */
+function auditState(audit,id){const x=((audit||{}).areas||{})[id];if(!x)return'open';const n=AUDIT_FIELDS.filter(k=>k==='sat'?x.sat!=null:k==='obst'?(x.obst||[]).length:x[k]).length;
+ if(!n)return x.skip?'skipped':'open';return n>=AUDIT_FIELDS.length?'done':'partial'}
+/* Nur Zahlen und Codes: Grundlage für Personalisierung. Fehlende Werte bleiben null, nie 0. */
+function auditSummary(audit){const A=(audit||{}).areas||{};const by={};AREAS.forEach(a=>{by[a.id]={sum:0,n:0}});const obst={};let rated=0,touched=0;
+ AUDIT_AREAS.forEach(a=>{const x=A[a.id];if(!x)return;if(auditState(audit,a.id)!=='open'&&auditState(audit,a.id)!=='skipped')touched++;if(x.sat!=null){rated++;by[a.area].sum+=x.sat;by[a.area].n++}(x.obst||[]).forEach(o=>{obst[o]=(obst[o]||0)+1})});
+ const areas=Object.fromEntries(Object.entries(by).map(([k,v])=>[k,v.n?Math.round(v.sum/v.n*10)/10:null]));
+ const wish=AUDIT_AREAS.filter(a=>A[a.id]&&A[a.id].change).map(a=>a.id);
+ return{rated,touched,areas,obst:Object.entries(obst).sort((p,q)=>q[1]-p[1]).map(([id,n])=>({id,n})),wish,total:AUDIT_AREAS.length}}
+function auditForSync(audit){const A=(audit||{}).areas||{};return{v:1,areas:Object.fromEntries(Object.entries(A).map(([id,x])=>[id,{sat:x.sat??null,obst:[...(x.obst||[])],hasText:!!(x.now||x.proud||x.change),skip:!!x.skip}]))}}
+
 /* ───── Ziele und Handlungen anlegen / ändern ───── */
 function addAction(S,goal,x){const L=S.life,area=goal.area,act=areaAct(S,area);const a={id:'a'+uid(),goalId:goal.id,title:x.title,perWeek:clamp(+x.perWeek||1,1,7),minutes:x.minutes||null,when:x.when||'',since:curWk(L)};
  const mid=x.missionId&&(S.missions||[]).some(m=>m.id===x.missionId)?x.missionId:null;
@@ -334,5 +368,5 @@ function parseV(metric,s){if(s==null)return null;s=String(s).trim();if(!s)return
 
 G.LC={LIFE_V,AREAS,AREA,LINKS,ACT_AREA,areaAct,VALUES,WHY_Q,GOAL_TPL,OBSTACLES,OBST,BLOCK_MAP,RULES,LOOP,
  wkOf,curWk,actById,goalById,actionsOf,actLabel,missionTitle,plannedAt,doneIn,goalWeek,weekRate,measOf,goalNow,goalStart,better,reached,goalProgress,trend,diagnose,suggest,
- startExperiment,evalExperiment,decideExperiment,reviewWeek,weekSummary,obstacleCounts,saveWeeklyReview,onComplete,onAdvance,onDailyReview,addMeasurement,addAction,addGoal,updateGoal,setGoalStatus,insights,loopStage,newLife,ensureLife,MOODS,DEBRIEF_OBST,CHANGES,onDebrief,debriefPatterns,monthlyDue,saveMonthly,EVE_WHEN,EVE_RISK,ifThen,onEvening,eveningFor,eveningStats,TEMPLE_LEN,STAGES,PHASES,TEMPLE_RULES,newTemple,syncTemple,columnState,foundationLevel,templeState,closeTempleSeason,areaWeek,fmtV,parseV,syncMission};
+ startExperiment,evalExperiment,decideExperiment,reviewWeek,weekSummary,obstacleCounts,saveWeeklyReview,onComplete,onAdvance,onDailyReview,addMeasurement,addAction,addGoal,updateGoal,setGoalStatus,insights,loopStage,newLife,ensureLife,MOODS,DEBRIEF_OBST,CHANGES,onDebrief,debriefPatterns,monthlyDue,saveMonthly,AUDIT_AREAS,AUDIT,AUDIT_MAX,setAudit,auditState,auditSummary,auditForSync,EVE_WHEN,EVE_RISK,ifThen,onEvening,eveningFor,eveningStats,TEMPLE_LEN,STAGES,PHASES,TEMPLE_RULES,newTemple,syncTemple,columnState,foundationLevel,templeState,closeTempleSeason,areaWeek,fmtV,parseV,syncMission};
 })(typeof window!=='undefined'?window:globalThis);
