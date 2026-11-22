@@ -39,7 +39,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v58` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v59` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`, `node tests/ftue-flows.cjs` (Abläufe: neu, vollständig, übersprungen, zurückkehrend). Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Produktprinzip (verbindlich)
@@ -49,6 +49,7 @@ Erst Selbsterkenntnis. Dann Eigenverantwortung. Dann persönliche Standards. Und
 - Abkürzungen wie die Kurzform sind erlaubt. Übersprungene Stufen werden aber im Fundament in dieser Reihenfolge nachgeholt.
 
 ## Konzepte
+- Zukunfts-Ich: `future-self-core.js` (`window.FS`) enthält nachvollziehbare lokale Regeln. Gleiche Figur wie das alte Nemesis-Planmodell, keine zweite Fortschrittsberechnung. Zugang über der Navigation, minimier-/abschaltbar; Hinweise nur nach Opt-in und höchstens einmal pro Tag. Einstellungen unter `S.life.futureSelf`; Verlauf enthält nur Codes, keine privaten Textkopien. Details: `docs/FUTURE-SELF.md`.
 - Navigation (Tab-Leiste, fünf Einträge, Beschriftung deutsch): Heute (`home`: eine Hauptaufgabe und höchstens zwei weitere Vorschläge, nächster fest eingeplanter Zeitblock mit direktem Tagesplan-Zugang, Alle Aufgaben und Reflexion; Standards, Impulse, Wirkungsmodell und optionaler Wettbewerb eingeklappt; Details in `docs/TODAY.md`), Aufgaben (`tasks`: Datum, Tagesfortschritt, Bereichs-Chips; im Fokus zuerst Ziel-Handlungen, drei offene sichtbar, Rest und Erledigtes eingeklappt; Tagesplan über das Kalender-Symbol), Mein Leben (`life`: Tempel mit Säulen-Details erst nach Antippen, Fundament (enthält Audit, Zukunft, Standards), vier Lebensbereiche als Kacheln Gesundheit/Beziehungen/Finanzen/Persönliche Weiterentwicklung, Werte, Warum, Ziele), Fortschritt (`stats`: Saison-Fresko, Kompass des größten Bedarfs, darunter Details Ergebnisse/Umsetzung/Tempel/Experimente/Wirkung), Duell (`solo`: „Nemesis · heute“ mit Arena, Tauziehen, Runden nach Tageszeit, Tagesverlauf; „Schatten · Saison“ mit Saisonvergleich; im Fokusmodus ausgeblendet). Reflexion (`reflect`: Check-in, Wochenrückblick, Experimente) ist Unterseite von Heute (Reflexions-Zeile, Optionen); Liga ist Unterseite von Fortschritt. Bereichsnamen in der Oberfläche immer deutsch (`LC.AREA[id].de`).
 - Ergebnis (Messgröße eines Ziels) und Prozess (Handlungen/Missionen) sind getrennt; Punkte gibt es nur für Handlungen.
 - Life Temple (Mein Leben): vier Säulen mit 5 Stufen aus gedeckelten Bauregeln (`TEMPLE_RULES` in `life-core.js`), eigene 12-Wochen-Saison, Galerie früherer Saisons; Details in `docs/LIFE-OS.md`.
