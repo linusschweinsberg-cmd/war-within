@@ -99,3 +99,9 @@ Stufe Handeln: Die Arena zeigt, was heute zählt.
 - **Kampfbericht:** nach Tagen gruppiert (Heute, Gestern, Datum), Herkunft sichtbar („selbst gemeldet“ bzw. „aus Aufgaben übernommen“), zunächst sechs Einträge, ältere auf Wunsch. Eigene Meldungen zeigen erhaltene Reaktionen statt Reaktionsknöpfen; der SQL-Entwurf lehnt Reaktionen auf eigene Meldungen ab.
 - **Neu gewertet:** Ist eine Woche abgeschlossen, erscheint ihre Zeremonie einmal oben, bis „Gesehen“ getippt wird. Gemerkt wird nur die Wochennummer je Arena (`S.arenaSeen`), lokal im Spielstand.
 - Texte zur automatischen Übernahme (Opt-in) und zur Sichtbarkeit beim Beitritt an den aktuellen Stand angepasst.
+
+## Wochenverlauf und Sonntagsfinale (ww-v70)
+
+- **Wochenverlauf:** Raster mit einer Zeile je Mitglied (nach Wochenrang) und sieben Tagen Mo–So. Die Füllung zeigt, wie viele der vier Bereiche an dem Tag gemeldet wurden; heute ist umrandet, künftige Tage sind blass. Quelle: `ArenaCore.activity(snapshot, week)`, nur bestehende öffentliche Meldungen. Ruhetage sind ausdrücklich erlaubt.
+- **Sonntagsfinale:** Am letzten Tag einer Spielwoche erscheint oben „Finale · heute bis 24 Uhr“ mit eigenem Platz, Abstand zum nächsten Platz darüber und dem, was alle heute noch offenen Bereiche zusammen bringen (`ArenaCore.finale`, dieselbe Wertungsfunktion). Keine Benachrichtigung, keine Zusatzpunkte.
+- Keine neuen Serverdaten, keine Migration.
