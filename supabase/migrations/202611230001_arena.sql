@@ -32,6 +32,7 @@ create index arena_members_user on public.arena_members(user_id,league_id);
 create table public.arena_completions(
  id uuid not null unique default gen_random_uuid(),
  league_id uuid not null, user_id uuid not null, week integer not null check(week between 1 and 4), slot text not null check(slot in ('mind','body','growth','bonds')),
+ origin text not null default 'manual' check(origin in ('manual','automatic')), source_id uuid,
  day date not null, created_at timestamptz not null default now(),
  primary key(league_id,user_id,week,slot,day),
  foreign key(league_id,user_id) references public.arena_members(league_id,user_id) on delete cascade
@@ -72,7 +73,7 @@ begin
  return jsonb_build_object('league',jsonb_build_object('id',g.id,'owner_id',g.owner_id,'name',g.name,'capacity',g.capacity,'targets',g.targets,'start_date',g.start_date,'invite_code',g.invite_code),
  'today',(now() at time zone 'Europe/Berlin')::date,'server_now',now(),'user_id',auth.uid(),
  'members',coalesce((select jsonb_agg(jsonb_build_object('user_id',user_id,'display_name',display_name) order by joined_at,user_id) from public.arena_members where league_id=p_league),'[]'::jsonb),
- 'completions',coalesce((select jsonb_agg(jsonb_build_object('id',id,'user_id',user_id,'week',week,'slot',slot,'day',day,'created_at',created_at) order by created_at desc,id) from public.arena_completions where league_id=p_league),'[]'::jsonb),
+ 'completions',coalesce((select jsonb_agg(jsonb_build_object('id',id,'user_id',user_id,'week',week,'slot',slot,'day',day,'origin',origin,'created_at',created_at) order by created_at desc,id) from public.arena_completions where league_id=p_league),'[]'::jsonb),
  'reactions',coalesce((select jsonb_agg(jsonb_build_object('event_id',r.event_id,'user_id',r.user_id,'kind',r.kind)) from public.arena_reactions r join public.arena_completions e on e.id=r.event_id where e.league_id=p_league),'[]'::jsonb));
 end; $$;
 
@@ -80,6 +81,7 @@ create function public.arena_command(p_action text,p_league uuid default null,p_
 declare u uuid:=auth.uid(); g public.arena_leagues; d date:=(now() at time zone 'Europe/Berlin')::date; w integer; t jsonb; k text; n integer; ev uuid;
 begin
  if u is null then raise exception 'Bitte mit deinem E-Mail-Konto anmelden.'; end if;
+ if p_data ? 'expected_user' and (p_data->>'expected_user')::uuid is distinct from u then raise exception 'Das angemeldete Konto hat gewechselt. Bitte erneut versuchen.'; end if;
  if p_action='create' then
   if (select count(*) from public.arena_members where user_id=u)>=10 then raise exception 'Du kannst höchstens zehn Arenen beitreten.'; end if;
   t:=coalesce(p_data->'targets','{"mind":3,"body":3,"growth":3,"bonds":3}'::jsonb);
@@ -116,9 +118,16 @@ begin
   t:=g.targets;
   if p_data->'done'='true'::jsonb then
    n:=(select count(*) from public.arena_completions where league_id=g.id and user_id=u and week=w and slot=k);
-   if n<(t->>k)::integer then insert into public.arena_completions(league_id,user_id,week,slot,day) values(g.id,u,w,k,d) on conflict do nothing; end if;
+   if p_data->>'origin'='automatic' then
+    if p_data->>'source' is null then raise exception 'Übernahme-Code fehlt.'; end if;
+    if n<(t->>k)::integer then insert into public.arena_completions(league_id,user_id,week,slot,day,origin,source_id) values(g.id,u,w,k,d,'automatic',(p_data->>'source')::uuid) on conflict do nothing; end if;
+   else
+    -- A manual confirmation takes ownership even when the weekly target is full.
+    update public.arena_completions set origin='manual',source_id=null where league_id=g.id and user_id=u and week=w and slot=k and day=d;
+    if n<(t->>k)::integer then insert into public.arena_completions(league_id,user_id,week,slot,day) values(g.id,u,w,k,d) on conflict(league_id,user_id,week,slot,day) do update set origin='manual',source_id=null; end if;
+   end if;
   elsif p_data->'done'='false'::jsonb then
-   delete from public.arena_completions where league_id=g.id and user_id=u and week=w and slot=k and day=d;
+   delete from public.arena_completions where league_id=g.id and user_id=u and week=w and slot=k and day=d and (coalesce(p_data->>'origin','manual')<>'automatic' or (origin='automatic' and source_id=(p_data->>'source')::uuid));
   else raise exception 'Bitte Erledigung oder Rücknahme wählen.'; end if;
  elsif p_action='react' then
   ev:=(p_data->>'event')::uuid;k:=p_data->>'kind';

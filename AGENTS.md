@@ -27,6 +27,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
+- Codex · `codex/claude-release` · Übernahme von Claude bis `8159ca8` (#26–#30), Review-Korrekturen für automatische Arena-Meldungen; `arena-api.js`, `arena-core.js`, `arena-ui.js`, `index.html`, SQL-Entwurf, `tests/`, Dokumentation und Cache-Version. Keine Migration in Supabase.
 - Codex · `codex/arena-three` · Arena-Module (neu), `auth.js`, `index.html`, `sw.js`, `supabase/` (neu), `tests/`, `docs/ARENA.md` (neu), Test-Abhängigkeiten. Enthält die Animation aus PR #23; keine parallele Arbeit eines anderen Agenten an diesen Dateien bekannt.
 - Codex · `codex/future-self-animation` · `index.html`, `sw.js`, `tests/future-self.cjs`, `tests/wisdom-core.cjs`, `tests/service-worker.cjs`, `docs/FUTURE-SELF.md`, `AGENTS.md`.
 - Claude · `claude/integrate-arena` · Integration von #24 (Kalender-Korrekturen) und #25 (Arena, inkl. #23) mit Claude-Review; Release `ww-v62`. Ersetzt beim Merge #24 und #25.
@@ -44,7 +45,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v66` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v67` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`, `node tests/ftue-flows.cjs` (Abläufe: neu, vollständig, übersprungen, zurückkehrend). Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Produktprinzip (verbindlich)

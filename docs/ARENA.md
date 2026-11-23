@@ -41,7 +41,7 @@ Browser-Review ohne echte Konten: `node tests/arena-preview-server.cjs`, dann `h
 
 1. Claude prüft Regeln, Datenbankrechte und die gesamte neue Arena. Nutzer entscheidet danach über die Migration; keine automatische Anwendung.
 2. Danach manuell mit drei tatsächlichen Supabase-Konten auf verschiedenen Geräten: erstellen/einladen/beitreten, vierte Person ablehnen, gemeinsames Soll festlegen, Start, Wochenwechsel, Reload und Verbindungsausfall prüfen.
-3. Fairness: Unterschiedliche Zielhäufigkeiten bedeuten unterschiedlichen Aufwand bei gleichem Höchstscore. Es ist bewusst ein Vergleich vorheriger Zusagen. Nach erster Freundes-Saison Zielkorridore bzw. einheitliche Liga-Sollzahlen gemeinsam entscheiden. Keine Aussage über objektiv bessere Lebensführung.
+3. Fairness: Das gemeinsame Soll gilt für alle. Die Basiswertung ist bei gleicher Erfüllung gleich; vorher angekündigte Orakel-Boni und Wochenprämien kommen hinzu. Es ist keine Bewertung des Menschen.
 4. Selbstauskunft bleibt manipulierbar; keine Geräteverifikation und kein Zugriff auf Gesundheitsdaten. Serverseitige Grenzen verhindern nachträgliche Soll-Änderungen, Datum-/Personen-Spoofing und Punktespam, beweisen aber keine reale Handlung.
 5. Noch nicht enthalten: Transfermarkt, handelbare Kosmetik, freie Chats, automatische Saisonwiederholung, individuelle Zeitzonen, Verlassen/Gründerwechsel/Moderation über die Oberfläche. Beim Löschen des Gründerkontos wird dessen Arena aufgrund der Fremdschlüssel entfernt; vor echtem Kontolöschen Eigentumsübertragung gesondert klären.
 
@@ -61,7 +61,7 @@ Angelehnt an das Prinzip täglich wechselnder Chancen aus Fantasy-Sport-Apps, ab
 
 ## Automatische Übernahme aus den Aufgaben (seit ww-v66)
 
-Erledigst du in der App eine passende Aufgabe, meldet sie `ArenaApi.autoReport` in allen laufenden Arenen: Körper (`body`, `run`, `rec`), Entwicklung (`lang`, `read`, `deep`, `code`), Beziehungen (`rel`), MIND (Daily Debrief). Finanzen haben keinen Arenaplatz. Nur angemeldet, höchstens einmal pro Bereich und Tag, nie über das Soll. „Rückgängig“ nimmt den heutigen Eintrag zurück, solange keine andere erledigte Aufgabe denselben Bereich trägt. Abschaltbar in der Arena („Automatisch aus Aufgaben“, `S.arenaAuto`).
+Nach ausdrücklichem Einschalten meldet eine abgeschlossene passende Aufgabe mit bekannter ausreichender Dauer den Bereich in laufenden Arenen. Unbekannte oder zu kurze Dauer, simulierte Werte und der kurze Daily Debrief zählen nicht automatisch. MIND wird für die tatsächliche zehnminütige Reflexion manuell gemeldet. Finanzen haben keinen Arenaplatz. Rückgängig nimmt nur eigene automatische Meldungen zurück; Details unten bei den Integrationskorrekturen.
 
 ## Gestaltung (seit ww-v66)
 
@@ -75,3 +75,12 @@ Amphitheater-Kopf (Bogenreihen, Sandstreifen), Siegerpodest der Woche (2 · 1 ·
 - **„Morgenlauf-Trio“**: wartet in der Lobby, Jonas ist Gründer; Linus sieht die Sicht eines Mitglieds (Soll nur lesend, kein Start-Knopf).
 
 `ARENA_SEED=0` startet ohne Testdaten. `tests/arena-seed-data.cjs` prüft die Testdaten gegen das echte SQL und die Spielregeln. Nie gegen Supabase verwenden.
+
+
+## Integrationskorrekturen ww-v67
+
+Die automatische Übernahme ist ab Werk aus und erfordert ausdrückliches Einschalten. Sie zählt nur abgeschlossene Handlungen mit bekannter ausreichender Dauer (Körper/Lernen 20 Minuten, Kontakt 10 Minuten). Bei einer Zeiterfassung gilt die tatsächlich eingetragene Dauer. Simulierte Health-Einträge, bloße Erholung und der kurze Daily Debrief lösen keine Arena-Meldung aus. MIND bleibt manuell für die echte zehnminütige Reflexion.
+
+Automatische Meldungen haben einen zufälligen Herkunftscode ohne Aufgabenname oder privaten Text. Rückgängig arbeitet die Netzaufrufe in Reihenfolge ab, berücksichtigt alle beitragenden Aufgaben und nimmt nur selbst erzeugte automatische Meldungen zurück. Manuell bestätigte Meldungen sind geschützt. Ein Kontowechsel wird zusätzlich auf dem Server abgefangen. Fehler werden angezeigt; bei unklarer Verbindung muss der Arenastand geprüft werden. Die neue Spalte gehört zum weiterhin nicht angewendeten SQL-Entwurf.
+
+Lokaler Integrations-Review: Heute, Mein Leben und Arena bei 375 × 812 geprüft; Antik hell/dunkel sowie Fokusmodus (kein Er/Du-Vergleich und keine Arena-Navigation) bestätigt. Automatische Übernahme startet ausgeschaltet. Ein alter Lernauftrag ohne bekannte Dauer wurde nicht automatisch gemeldet. Race-/Ownership-Fälle sind zusätzlich mit verzögerten Promises und dem echten SQL geprüft. Keine Browserfehler. Keine Prüfung mit echten Supabase-Konten.

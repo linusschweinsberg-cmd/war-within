@@ -31,6 +31,15 @@ const ids=['10000000-0000-0000-0000-000000000001','10000000-0000-0000-0000-00000
  await db.exec("reset role; update public.arena_completions set day=day-2 where user_id='"+ids[1]+"' and day=(now() at time zone 'Europe/Berlin')::date;");await as(1);const before=(await load(id)).completions.length;assert.equal((await cmd('report',id,{slot:'body',done:true})).completions.length,before,'weekly shared target remains capped on a new day');
  // DST boundaries use a calendar date in Berlin, never a client-supplied clock.
  await db.exec("reset role; update public.arena_leagues set start_date=date_trunc('week',now() at time zone 'Europe/Berlin')::date-28;");await as(0);await assert.rejects(cmd('report',id,{slot:'mind',done:true}),/läuft gerade nicht/);
+ // A separate fresh week in this disposable DB exercises source ownership.
+ await db.exec("reset role; update public.arena_leagues set start_date=date_trunc('week',now() at time zone 'Europe/Berlin')::date;");await as(0);
+ const token='20000000-0000-4000-8000-000000000001',otherToken='20000000-0000-4000-8000-000000000002';
+ s=await cmd('report',id,{slot:'growth',done:true,origin:'automatic',source:token,expected_user:ids[0]});assert.equal(s.completions.find(e=>e.user_id===ids[0]&&e.slot==='growth').origin,'automatic');
+ s=await cmd('report',id,{slot:'growth',done:false,origin:'automatic',source:otherToken});assert.ok(s.completions.some(e=>e.user_id===ids[0]&&e.slot==='growth'),'foreign source cannot retract');
+ s=await cmd('report',id,{slot:'growth',done:true});assert.equal(s.completions.find(e=>e.user_id===ids[0]&&e.slot==='growth').origin,'manual');
+ s=await cmd('report',id,{slot:'growth',done:false,origin:'automatic',source:token});assert.ok(s.completions.some(e=>e.user_id===ids[0]&&e.slot==='growth'),'manual confirmation survives automatic undo');
+ await assert.rejects(cmd('report',id,{slot:'growth',done:true,origin:'automatic',source:token,expected_user:ids[1]}),/Konto hat gewechselt/);
+ s=await cmd('report',id,{slot:'bonds',done:true,origin:'automatic',source:token});s=await cmd('report',id,{slot:'bonds',done:false,origin:'automatic',source:token});assert.equal(s.completions.some(e=>e.user_id===ids[0]&&e.slot==='bonds'),false,'own source can retract');
  const leaks=JSON.stringify(await load(id));assert.equal(/email|password|audit|identity|vision|access_token/.test(leaks),false);
  console.log('PASS arena database: actual SQL, shared targets set only by the founder before start, three-player create/join/start, capacity, RLS, outsider denial, server dates/identity, retry, undo, reactions, weekly cap, season end, private-field exclusion');
  }finally{await db.close()}})().catch(e=>{console.error(e);process.exitCode=1});
