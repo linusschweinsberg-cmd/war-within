@@ -28,7 +28,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 
 ### In Arbeit
 - Claude · `claude/arena-polish` · Arena: Nächster Zug (`ArenaCore.gains`), Punktwert je Kachel, Kampfbericht nach Tagen mit Herkunft und ohne Selbst-Reaktionen, neue Wochenzeremonie oben bis gesehen. Dateien: `arena-core.js`, `arena-ui.js`, SQL-Entwurf (Selbst-Reaktion), `tests/arena-core.cjs`, `tests/arena-db.cjs`, `docs/ARENA.md`, Versions-Checks, `sw.js`. Release `ww-v69`. Keine Migration.
-- Claude · `claude/arena-week` (auf `claude/arena-polish`) · Arena: Wochenverlauf je Mitglied (`ArenaCore.activity`) und Sonntagsfinale (`ArenaCore.finale`). Dateien: `arena-core.js`, `arena-ui.js`, `tests/arena-core.cjs`, `docs/ARENA.md`, Versions-Checks, `sw.js`. Release `ww-v70`. Keine Datenbankänderung.
+- Claude · `claude/arena-week` (auf `claude/arena-polish`) · Arena: Wochenverlauf je Mitglied (`ArenaCore.activity`) und Sonntagsfinale (`ArenaCore.finale`). Laufende Arena in drei Reitern (Heute/Tabelle/Bericht). Dateien: `arena-core.js`, `arena-ui.js`, `tests/arena-core.cjs`, `docs/ARENA.md`, Versions-Checks, `sw.js`. Release `ww-v70`. Keine Datenbankänderung.
 
 ### Letzte Integration
 - PR #30 (Merge `4c6ab0a`, Release `ww-v68`): enthält #23–#29, #31 und `codex/arena-ceremony` – Kalender-Korrekturen, Arena mit Freunden (faire Wertung, Amphitheater, Orakel, Wochenprämie, Wochenzeremonie, Comeback), Heute Variante B, Mein Leben als Tempel. Automatische Arena-Übernahme nur nach Opt-in mit Herkunftscode; Claude hat die Codex-Commits `6476df5`/`78be182` reviewt. Alle 16 Tests bestanden; Wochenzeremonie im lokalen Arena-Testserver geprüft. Supabase-Migration weiterhin nur Entwurf, nicht angewendet; Prüfung mit echten Konten offen.
