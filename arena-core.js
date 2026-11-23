@@ -26,9 +26,18 @@
    for(const x of SLOTS){const days=[...new Set(mine.filter(e=>e.slot===x.id).map(e=>e.day))].sort().slice(0,t[x.id]);counts[x.id]=days.length;
     base[x.id]=Math.round(250*days.length/t[x.id]);const hits=days.filter(d=>oracle(s,d)===x.id).length;oracleHits+=hits;boost[x.id]=Math.round(250*(ORACLE_FACTOR-1)*hits/t[x.id]);}
    const baseScore=SLOTS.reduce((n,x)=>n+base[x.id],0),oracleBonus=SLOTS.reduce((n,x)=>n+boost[x.id],0),bountyBonus=b.winner===m.user_id?b.points:0;
-   return{...m,counts,targets:t,base:baseScore,oracle:oracleBonus,oracleHits,bounty:bountyBonus,score:baseScore+oracleBonus+bountyBonus,rank:null,points:0};});
+   return{...m,counts,targets:t,breakdown:SLOTS.map(x=>({slot:x.id,count:counts[x.id],target:t[x.id],base:base[x.id],oracle:boost[x.id]})),base:baseScore,oracle:oracleBonus,oracleHits,bounty:bountyBonus,score:baseScore+oracleBonus+bountyBonus,rank:null,points:0};});
   for(const r of rows){r.rank=1+rows.filter(x=>x.score>r.score).length;if(r.score>0)r.points=Math.max(0,4-r.rank);}
   return rows.sort((a,b)=>b.score-a.score||a.display_name.localeCompare(b.display_name,'de'));
+ }
+ function awards(s,week){
+  const start=s.league.start_date;if(!start)return{comebacks:[],consistent:[],days:0};
+  const end=addDays(start,week*7-1),begin=addDays(start,(week-1)*7),comebacks=[];
+  const activity=s.members.map(m=>{const days=[...new Set(s.completions.filter(e=>e.user_id===m.user_id&&e.day>=start&&e.day<=end&&e.day<=s.today).map(e=>e.day))].sort();
+   for(let i=1;i<days.length-2;i++){const first=days[i],earned=days[i+2];if(date(first)-date(days[i-1])>=3*DAY&&days[i+1]===addDays(first,1)&&earned===addDays(first,2)&&earned>=begin){comebacks.push({...m,day:earned});break;}}
+   return{...m,activeDays:days.filter(d=>d>=begin).length};});
+  const max=Math.max(0,...activity.map(m=>m.activeDays));
+  return{comebacks,consistent:max?activity.filter(m=>m.activeDays===max):[],days:max};
  }
  function season(s){const p=phase(s);return s.members.map(m=>({...m,points:Array.from({length:p.closed},(_,i)=>weekly(s,i+1).find(x=>x.user_id===m.user_id)?.points||0).reduce((a,b)=>a+b,0)})).map((m,i,a)=>({...m,rank:1+a.filter(x=>x.points>m.points).length})).sort((a,b)=>a.rank-b.rank||a.display_name.localeCompare(b.display_name,'de'));}
  function invitation(code,base){const url=new URL(base);url.search='';url.hash='';url.searchParams.set('arena',String(code));return url.href;}
@@ -36,5 +45,5 @@
  const ACT_SLOT={body:'body',run:'body',lang:'growth',read:'growth',deep:'growth',code:'growth',rel:'bonds'};
  function contribution(S,m,extra={}){if(extra.auto)return null;const slot=ACT_SLOT[m.act],action=(S.life?.actions||[]).find(a=>a.missionId===m.id&&!a.off),minutes=extra.arenaMinutes??action?.minutes;
   return slot&&Number.isFinite(minutes)&&minutes>=({body:20,growth:20,bonds:10,mind:10}[slot])?slot:null;}
- G.ArenaCore={SLOTS,DEFAULT_TARGETS,ORACLE_FACTOR,BOUNTY,ACT_SLOT,contribution,phase,validTargets,targetsOf,oracle,bounty,weekly,season,invitation,addDays};
+ G.ArenaCore={SLOTS,DEFAULT_TARGETS,ORACLE_FACTOR,BOUNTY,ACT_SLOT,contribution,phase,validTargets,targetsOf,oracle,bounty,weekly,awards,season,invitation,addDays};
 })(typeof window==='undefined'?globalThis:window);

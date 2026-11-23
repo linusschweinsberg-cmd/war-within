@@ -32,3 +32,19 @@ s=fixture();delete s.league.targets;assert.deepEqual({...A.targetsOf(s)},targets
 const u=new URL(A.invitation('ABC123','https://example.com/war-within/?token=private#secret'));assert.equal(u.search,'?arena=ABC123');assert.equal(u.hash,'');assert.equal(u.pathname,'/war-within/');
 s=fixture();report(s,'a','mind','2026-11-30');const original=JSON.stringify(s);A.phase(s);A.weekly(s,1);A.season(s);A.bounty(s,1);A.oracle(s,'2026-11-30');assert.equal(JSON.stringify(s),original,'rules do not mutate any state');
 console.log('PASS arena rules: shared targets, fair ranking, oracle (same for all, deterministic), weekly bounty (first to target), task mapping, ties, boundaries, caps, read-only rules, safe invitation URLs');
+
+// Awards count distinct days, require prior activity, and cross week boundaries.
+s=fixture();s.today='2026-12-14';
+assert.equal(A.awards(s,1).days,0);assert.equal(A.awards(s,1).comebacks.length,0);
+for(const d of ['2026-11-30','2026-12-04','2026-12-05','2026-12-06'])report(s,'a','mind',d);
+assert.equal(A.awards(s,1).comebacks[0].user_id,'a');assert.equal(A.awards(s,1).days,4);
+report(s,'a','body','2026-12-06');assert.equal(A.awards(s,1).days,4,'multiple slots are one active day');
+s.completions=s.completions.filter(e=>e.day!=='2026-12-05');assert.equal(A.awards(s,1).comebacks.length,0,'undo removes award');
+s=fixture();s.today='2026-12-14';for(const d of ['2026-11-30','2026-12-06','2026-12-07','2026-12-08'])report(s,'a','mind',d,d>'2026-12-06'?2:1);
+assert.equal(A.awards(s,1).comebacks.length,0);assert.equal(A.awards(s,2).comebacks[0].day,'2026-12-08','award belongs to third day week');
+s.today='2026-12-07';assert.equal(A.awards(s,2).comebacks.length,0,'future entries do not award');
+s=fixture();s.today='2026-12-06';for(const u of ['a','b'])for(const d of week1.slice(0,3))report(s,u,'mind',d);
+assert.equal(A.awards(s,1).comebacks.length,0,'new arrival is not comeback');assert.equal(A.awards(s,1).consistent.length,2,'shared consistency award');
+for(const r of A.weekly(s,1)){assert.equal(r.breakdown.reduce((n,b)=>n+b.base,0),r.base);assert.equal(r.breakdown.reduce((n,b)=>n+b.oracle,0),r.oracle);assert.equal(r.base+r.oracle+r.bounty,r.score);}
+const unchanged=JSON.stringify(s);A.awards(s,1);assert.equal(JSON.stringify(s),unchanged);
+console.log('PASS comeback, distinct days, cross-week awards, undo, ties and scoring breakdown');
