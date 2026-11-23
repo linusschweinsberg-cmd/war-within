@@ -18,11 +18,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v59"></script>
-<script src="auth.js?v=ww-v59"></script>
-<script src="life-core.js?v=ww-v59"></script>
-<script src="wisdom-core.js?v=ww-v59"></script>
-<script src="future-self-core.js?v=ww-v59"></script>
+<script src="supabase-config.js?v=ww-v60"></script>
+<script src="auth.js?v=ww-v60"></script>
+<script src="life-core.js?v=ww-v60"></script>
+<script src="wisdom-core.js?v=ww-v60"></script>
+<script src="future-self-core.js?v=ww-v60"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -547,16 +547,22 @@ const weekdayOf=d=>(new Date(d+'T12:00:00Z').getUTCDay()+6)%7;
 const calendarWeekday=S=>S.calendar?weekdayOf(S.calendar.date):S.day%7;
 const seasonWeek=S=>Math.floor((S.day+(S.calendar?.seasonOffset||0))/7);
 function calendarMinutes(t,S){const p=new Intl.DateTimeFormat('en-GB',{timeZone:calendarZone(S),hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(t));return +p.find(x=>x.type==='hour').value*60 + +p.find(x=>x.type==='minute').value}
+/* Demo-Spielstand (initState) hat kein Profil; nur dort sind Vorspulen, Saisonsprung und Zurücksetzen erlaubt. */
+const isDemoState=S=>!S.profile;
+function closeCalendarDays(S,days){const C=S.calendar;for(let i=0;i<days;i++){closeCalendarDay(S,true);C.date=datePlus(C.date,1);LC.syncTemple(S)}}
 function syncCalendar(S,t=Date.now()){
  const tz=calendarZone(S),today=calendarDate(t,tz),C=S.calendar;LC.ensureLife(S);
- if(!C||C.v!==1||!/^\d{4}-\d{2}-\d{2}$/.test(C.date)||!Number.isFinite(dateNumber(C.date))||C.tz!==tz||!Number.isInteger(C.seasonOffset)||Math.abs(dateNumber(today)-dateNumber(C.date))>3660){
+ const valid=C&&C.v===1&&/^\d{4}-\d{2}-\d{2}$/.test(C.date)&&Number.isFinite(dateNumber(C.date))&&Number.isInteger(C.seasonOffset);
+ // Zonenwechsel: erst die vergangenen Tage in der bisherigen Zone abschließen, dann neu verankern.
+ if(valid&&C.tz!==tz){let past=null;try{past=dateNumber(calendarDate(t,C.tz))-dateNumber(C.date)}catch(e){}if(past>0&&past<=3660)closeCalendarDays(S,past)}
+ if(!valid||C.tz!==tz||Math.abs(dateNumber(today)-dateNumber(C.date))>3660){
   const wd=weekdayOf(today),d=S.life.d||0,lifeWeek=LC.curWk(S.life),sw=seasonWeek(S),old=S.life.calendar;
   const anchor={from:d,offset:lifeWeek*7+wd-d};const segments=old?[...(old.segments||[{from:old.from,offset:old.offset}]).filter(x=>x.from<d),anchor]:[anchor];
   S.calendar={v:1,date:today,tz,seasonOffset:sw*7+wd-S.day};S.life.calendar={...anchor,segments};return S;
  }
  // A clock set backwards never reopens a previously closed day.
  const days=dateNumber(today)-dateNumber(C.date);if(days<=0)return S;
- for(let i=0;i<days;i++){closeCalendarDay(S,true);C.date=datePlus(C.date,1);LC.syncTemple(S)}
+ closeCalendarDays(S,days);
  return S;
 }
 function closeCalendarDay(n,automatic=false){
@@ -2406,13 +2412,13 @@ function Settings({c}){const {S}=c;
  <button onClick=${c.toggleTheme} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n=${S.theme==='dark'?'sun':'moon'} s=${18} cls="acc"/>${S.theme==='dark'?'Helles Design aktivieren':'Dunkles Design aktivieren'}</button>
  <button onClick=${()=>c.openSheet({t:'achs'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="award" s=${18} cls="acc"/>Erfolge ansehen</button>
  <button onClick=${()=>c.openSheet({t:'integ'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="plug" s=${18} cls="acc"/>Integrationen</button>
- <div className="lbl mt-3">Demo-Steuerung</div>
+ <div className="lbl mt-3">${isDemoState(S)?'Demo-Steuerung':'Saison und Auswertung'}</div>
  <button onClick=${()=>c.openSheet({t:'tseason'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="temple" s=${18} cls="acc"/><div>Tempel-Saison abschließen<div className="text-[11px] mute font-normal">Bilanz ansehen und neue Saison beginnen</div></div></button>
- <${TimeDebug} c=${c}/>
- <button onClick=${()=>{c.closeSheet();c.advance()}} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="ff" s=${18} cls="acc"/><div>Zum nächsten Tag vorspulen<div className="text-[11px] mute font-normal">Sonntag löst den Wochenrückblick aus, Woche 4 den Saisonbericht</div></div></button>
+ ${isDemoState(S)&&html`<${TimeDebug} c=${c}/>
+ <button onClick=${()=>{c.closeSheet();c.advance()}} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="ff" s=${18} cls="acc"/><div>Zum nächsten Tag vorspulen<div className="text-[11px] mute font-normal">Sonntag löst den Wochenrückblick aus, Woche 4 den Saisonbericht</div></div></button>`}
  <button onClick=${()=>c.openSheet({t:'eval'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="check" s=${18} cls="acc"/><div>Wochen-Evaluation öffnen<div className="text-[11px] mute font-normal">Der Code: Standards prüfen, Zeugnis, Protokolle</div></div></button>
- <button onClick=${c.skipSeason} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="ff" s=${18} cls="acc"/><div>Zum Saisonende springen<div className="text-[11px] mute font-normal">Setzt den letzten Spieltag mit simulierten Punkten</div></div></button>
- <button onClick=${c.resetDemo} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="rotate" s=${18} cls="bad"/>Demo zurücksetzen</button></div></${Sheet}>`}
+ ${isDemoState(S)&&html`<button onClick=${c.skipSeason} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="ff" s=${18} cls="acc"/><div>Zum Saisonende springen<div className="text-[11px] mute font-normal">Setzt den letzten Spieltag mit simulierten Punkten</div></div></button>
+ <button onClick=${c.resetDemo} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="rotate" s=${18} cls="bad"/>Demo zurücksetzen</button>`}</div></${Sheet}>`}
 function Swap({c,sh}){const {S}=c;const o=S.acts[sh.out],i=S.acts[sh.inn];const remO=o.cap-(S.weekPts[o.id]||0),remI=i.cap-(S.weekPts[i.id]||0);
  return html`<${Sheet} sub="Wechsel" title="Aufstellung ändern?" onClose=${c.closeSheet}>
  <div className="flex items-center gap-3"><div className="flex-1 card2 p-3 text-center"><div className="text-[10px] mute tracking-wider">RAUS</div><div className="flex justify-center my-1"><${Tile} a=${o} s=${36}/></div><div className="text-[13px] font-semibold">${o.short}</div><div className="num mute text-xs">${Math.floor(o.rating)}</div></div><${Icon} n="swap" s=${20} cls="acc"/><div className="flex-1 card2 p-3 text-center" style=${{border:'1px solid var(--acc)'}}><div className="text-[10px] acc tracking-wider">REIN</div><div className="flex justify-center my-1"><${Tile} a=${i} s=${36}/></div><div className="text-[13px] font-semibold">${i.short}</div><div className="num mute text-xs">${Math.floor(i.rating)}</div></div></div>
@@ -4111,7 +4117,7 @@ function App({init,auth,skey='war_within_v5'}){
  const setSave=p=>upd(n=>{Object.assign(n.save,p);if(p.saved!=null)n.save.hist[n.save.hist.length-1]=p.saved});
  const setStudy=p=>upd(n=>{Object.assign(n.study,p)});
  const setQuote=()=>upd(n=>{n.quoteIdx++});
- const resetDemo=()=>{try{localStorage.removeItem(skey)}catch(e){}setS(LC.ensureLife(initState()));setSheet(null);setSel(null);setTab('home');toast('Demo zurückgesetzt')};
+ const resetDemo=()=>{if(!isDemoState(S))return;try{localStorage.removeItem(skey)}catch(e){}setS(LC.ensureLife(initState()));setSheet(null);setSel(null);setTab('home');toast('Demo zurückgesetzt')};
  /* Life OS */
  const lifeUpd=fn=>upd(n=>{LC.ensureLife(n);fn(n);checkAch(n)});
  const msN=((S.life&&S.life.temple&&S.life.temple.cur.ms)||[]).length,msRef=useRef(msN);
@@ -4157,7 +4163,7 @@ function App({init,auth,skey='war_within_v5'}){
   upd(n=>{const c=n.challenges.find(k=>k.id===id);c.status='done';c.res=r;const s=c.stake;if(r.win==='me'){n.adj+=s;n.seasonPts+=s;n.others[c.who]=Math.max(0,n.others[c.who]-s);n.flags.won=true}else if(r.win==='other'){n.adj-=s;n.seasonPts=Math.max(0,n.seasonPts-s);n.others[c.who]+=s}checkAch(n)});
   toast(r.win==='me'?`Duell gewonnen! +${x.stake} Pkt.`:r.win==='draw'?'Unentschieden.':`Duell verloren: −${x.stake} Pkt. Dein Fortschritt bleibt.`,r.win==='me'?'good':undefined)};
  /* Tageswechsel */
- const advance=()=>{const idle=S.streak>0&&todayTotal(S)===0&&!S.rest.includes(S.day);upd(n=>{closeCalendarDay(n);if(n.calendar)n.calendar.date=datePlus(n.calendar.date,1)});
+ const advance=()=>{if(!isDemoState(S))return;const idle=S.streak>0&&todayTotal(S)===0&&!S.rest.includes(S.day);upd(n=>{closeCalendarDay(n);if(n.calendar)n.calendar.date=datePlus(n.calendar.date,1)});
   if(sheet&&sheet.t!=='aar')setSheet(null);toast(idle?(S.freezes>0?'Streak-Schonung eingesetzt. Deine Serie bleibt bestehen.':'Serie unterbrochen. Ein neuer Start zählt sofort.'):'Neuer Tag. Dein Tagesplan ist bereit.');if(S.health&&S.health.on)setTimeout(()=>sref.current(),1200)};
  const saveEval=g=>{upd(n=>{n.evalHist=[{week:n.aar?n.aar.week:seasonWeek(n)+1,season:n.season,grades:g},...(n.evalHist||[])].slice(0,12);n.evalDone=true;n.codeCk={};CORE.forEach(id=>{const ct=n.acts[id].cat;n.catScore[ct]=Math.round(clamp((n.catScore[ct]??40)*.7+g[id]*100*.3,0,100))})});toast('Evaluation gespeichert.','good')};
  const toggleCode=k=>upd(n=>{n.codeCk=n.codeCk||{};n.codeCk[k]=!n.codeCk[k]});
@@ -4165,7 +4171,7 @@ function App({init,auth,skey='war_within_v5'}){
  const dismissAar=()=>{upd(n=>{n.aar=null});setSheet(null)};
  const dismissSeason=()=>{upd(n=>{n.sreport=null});setSheet(null)};
  const startSeason=(theme,len,goal,focus,ag)=>{upd(n=>{n.sAreaGoals=ag;n.sAreaPts={};n.sLocked=true;n.mArea=theme;n.mDays=0;n.mTarget=Math.round(.7*len*7);n.sSigned={season:n.season,t:focus};n.sTheme=theme;n.sLen=len;n.sGoal=goal;n.sFocus=focus;n.setup=false});setSheet(null);toast('Neue Saison gestartet. Dein Fortschritt bleibt.','good')};
- const skipSeason=()=>{upd(n=>{const t=SDAYS(n)-1;n.seasonPts=Math.max(n.seasonPts,Math.round(planWeek(n)*SL(n)*(.78+Math.random()*.3)));for(let i=0;i<t;i++)if(n.seasonCum[i]==null)n.seasonCum[i]=Math.round(n.seasonPts*i/t);n.sAreaPts=n.sAreaPts||{};CORE.forEach(id=>{n.sAreaPts[id]=Math.round(n.acts[id].cap*SL(n)*(.55+Math.random()*.5))});n.sThemePts=n.sAreaPts[n.sTheme]||0;n.mDays=Math.round(.7*SDAYS(n)*(.7+Math.random()*.5));n.day=t;n.seasonCum[t]=n.seasonPts});setSheet(null);toast('Letzter Spieltag der Saison (Demo). Jetzt vorspulen, um den Saisonbericht zu sehen.')};
+ const skipSeason=()=>{if(!isDemoState(S))return;upd(n=>{const t=SDAYS(n)-1;n.seasonPts=Math.max(n.seasonPts,Math.round(planWeek(n)*SL(n)*(.78+Math.random()*.3)));for(let i=0;i<t;i++)if(n.seasonCum[i]==null)n.seasonCum[i]=Math.round(n.seasonPts*i/t);n.sAreaPts=n.sAreaPts||{};CORE.forEach(id=>{n.sAreaPts[id]=Math.round(n.acts[id].cap*SL(n)*(.55+Math.random()*.5))});n.sThemePts=n.sAreaPts[n.sTheme]||0;n.mDays=Math.round(.7*SDAYS(n)*(.7+Math.random()*.5));n.day=t;n.seasonCum[t]=n.seasonPts});setSheet(null);toast('Letzter Spieltag der Saison (Demo). Jetzt vorspulen, um den Saisonbericht zu sehen.')};
  /* Erfolge */
  const newA=S.newAch[0];
  useEffect(()=>{if(!newA)return;const t=setTimeout(()=>upd(n=>{n.newAch=n.newAch.slice(1)}),2600);return()=>clearTimeout(t)},[newA]);

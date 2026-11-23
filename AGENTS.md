@@ -27,9 +27,10 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
+- Claude: `claude/calendar-fixes` – Review-Korrekturen zu #20 (Zonenwechsel schließt vergangene Tage ab, Demo-Steuerung nur im Demo-Spielstand). Dateien: `index.html`, `sw.js`, `tests/calendar.cjs`, Versions-Checks in `tests/`. Release `ww-v60`.
 
 ### Letzte Integration
-- PRs #20 → #21 → #22: echte Kalendertage, vereinfachte Heute-Ansicht und lokales Zukunfts-Ich (Release `ww-v59`). Alle zehn Tests bestanden; mobile Bedienung, Persistenz und drei Interaktionen geprüft. Livegang ausdrücklich vom Nutzer beauftragt; separates Claude-Review liegt noch nicht vor. Keine Supabase-Einstellungen geändert.
+- PRs #20 → #21 → #22: echte Kalendertage, vereinfachte Heute-Ansicht und lokales Zukunfts-Ich (Release `ww-v59`). Alle zehn Tests bestanden; mobile Bedienung, Persistenz und drei Interaktionen geprüft. Livegang ausdrücklich vom Nutzer beauftragt; Claude-Review erledigt: zwei Kalender-Fehler (Zonenwechsel nach Pause verlor Tage; Vorspulen/Saisonsprung/Demo-Reset in echten Spielständen) – Korrektur in `claude/calendar-fixes`. Offen als Kleinigkeiten: Hindernis `distract` im Tagesurteil existiert nicht in `DEBRIEF_OBST`; Beispiel-Kennzeichnung (`profile.mode===demo`) greift nie; Konzepte-Zeile zu „Heute“ nennt noch Hauptziel-Fortschritt. Keine Supabase-Einstellungen geändert.
 - Claude-Stand `622537f` einschließlich UX und Datensicherheit über PR #18 übernommen. Review-Korrekturen: Upgrade-URLs, Konto-Onboarding-Fortsetzen, private Textkopien löschen, vollständige Abendritual-Kandidaten und Farbrollen. Alle sieben Tests bestanden; Browser-Upgrade, vier Darstellungen und Rückgängig geprüft. Keine Supabase-Einstellungen geändert.
 - Life OS: Claude-Stand `19a47de` durch Codex geprüft und zur Veröffentlichung übernommen. Tests: life-core, release-smoke, auth-contract bestanden. Browser: migrierte Startansicht, Lebenstempel und Reflexion geprüft.
 - Claudes Stand `03c9603` (Tagesplan, Nemesis, Lernvorschläge) samt Supabase-Anmeldung über PR #9 integriert. Codex hat Claudes Änderungen geprüft.
@@ -37,7 +38,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v59` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v60` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`, `node tests/ftue-flows.cjs` (Abläufe: neu, vollständig, übersprungen, zurückkehrend). Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Produktprinzip (verbindlich)
