@@ -51,6 +51,22 @@ Drei getrennte Datenbankidentitäten: Erstellen, Beitritt per Link, drei gespeic
 
 375 × 812: Antik und Violett jeweils dunkel/hell visuell geprüft. Gast sieht eine Vorschau und gelangt zur Registrierung/Anmeldung. Fokusmodus entfernt Arena aus der Navigation. Keine Fehler in der Browserkonsole. Privatsphäre- und Sicherungstexte unterscheiden jetzt persönlichen lokalen Spielstand und gemeinsame Arena-Einträge. Ein echtes gemeinsames Spiel auf dem gehosteten Supabase-Projekt wurde nicht ausgeführt, weil die Migration noch zur Freigabe aussteht.
 
+## Spannung: Orakel und Wochenprämie (seit ww-v66)
+
+Angelehnt an das Prinzip täglich wechselnder Chancen aus Fantasy-Sport-Apps, aber fair: beides ist für alle gleich, wird vorher angezeigt und aus Arena-ID und Datum berechnet (`ArenaCore.oracle`, `ArenaCore.bounty`). Keine Datenbankänderung, nicht manipulierbar.
+
+- **Orakel des Tages:** Ein Bereich zählt an diesem Tag ×1,5 (Zusatz von einem halben Tag auf den Bereichswert). Ab Mitternacht (Berlin) sichtbar.
+- **Wochenprämie:** Ein ausgeloster Bereich je Woche; wer dort als Erste:r das gemeinsame Soll erfüllt (Server-Zeitstempel), erhält +5 Arenapunkte.
+- Score = Basis (max. 100) + Orakel-Bonus + Prämie. Tabellenpunkte unverändert 3/2/1.
+
+## Automatische Übernahme aus den Aufgaben (seit ww-v66)
+
+Erledigst du in der App eine passende Aufgabe, meldet sie `ArenaApi.autoReport` in allen laufenden Arenen: Körper (`body`, `run`, `rec`), Entwicklung (`lang`, `read`, `deep`, `code`), Beziehungen (`rel`), MIND (Daily Debrief). Finanzen haben keinen Arenaplatz. Nur angemeldet, höchstens einmal pro Bereich und Tag, nie über das Soll. „Rückgängig“ nimmt den heutigen Eintrag zurück, solange keine andere erledigte Aufgabe denselben Bereich trägt. Abschaltbar in der Arena („Automatisch aus Aufgaben“, `S.arenaAuto`).
+
+## Gestaltung (seit ww-v66)
+
+Amphitheater-Kopf (Bogenreihen, Sandstreifen), Siegerpodest der Woche (2 · 1 · 3, Lorbeer), „Schicksal der Woche“ mit Orakel und Prämie, Meldungen als Kacheln mit Wochenfortschritt und Orakel-Markierung, Kampfbericht statt Ereignisliste.
+
 ## Testdaten (lokaler Prüfserver)
 
 `node tests/arena-preview-server.cjs` startet eine Wegwerf-Datenbank (PGlite) mit drei Testkonten (`?player=0` Linus, `1` Jonas, `2` Mira) und legt über `tests/arena-seed.cjs` automatisch an:

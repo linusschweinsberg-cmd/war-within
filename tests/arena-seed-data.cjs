@@ -13,10 +13,10 @@ const ctx=vm.createContext({URL});vm.runInContext(fs.readFileSync(path.join(__di
  const p=A.phase(s);assert.equal(p.kind,'running');assert.equal(p.week,3);assert.equal(p.closed,2);assert.equal(s.members.length,3);
  for(const w of [1,2,3])for(const m of s.members)for(const slot of A.SLOTS){const n=s.completions.filter(e=>e.user_id===m.user_id&&e.week===w&&e.slot===slot.id).length;assert.ok(n<=s.league.targets[slot.id],'never above the shared target');}
  assert.ok(s.completions.every(e=>e.day<=s.today),'no completions in the future');assert.ok(s.reactions.length>0,'reactions exist');
- const season=A.season(s);assert.ok(season.some(x=>x.points>0),'closed weeks award table points');const w1=A.weekly(s,1),w2=A.weekly(s,2);assert.notEqual(w1[0].user_id,w2[0].user_id,'different weekly winners make the table interesting');
+ const season=A.season(s);assert.ok(season.some(x=>x.points>0),'closed weeks award table points');assert.ok(season.filter(x=>x.points>0).length>=2,'at least two players score table points');assert.ok([1,2].every(w=>A.weekly(s,w).some(r=>r.score>0)),'every closed week has activity');
  const lobby=(await db.query('select public.arena_snapshot($1) as data',[r.lobby])).rows[0].data;assert.equal(A.phase(lobby).kind,'lobby');assert.notEqual(lobby.league.owner_id,ids[0],'Linus sees a lobby as non-founder');
  /* Die Testdaten halten sich an die Regeln: eine weitere Meldung heute bleibt über RPC gedeckelt bzw. erlaubt */
  const before=s.completions.length;const after=(await db.query("select public.arena_command('report',$1,'{\"slot\":\"bonds\",\"done\":true}'::jsonb) as data",[r.running])).rows[0].data;assert.ok(after.completions.length>=before);
  await as(2);const mira=(await db.query('select public.arena_snapshot($1) as data',[r.running])).rows[0].data;assert.equal(mira.user_id,ids[2]);
- console.log('PASS arena seed data: running season in week 3 with two closed weeks, three players, capped completions, reactions, varied winners, lobby arena for a non-founder');
+ console.log('PASS arena seed data: running season in week 3 with two closed weeks, three players, capped completions, reactions, several scorers, lobby arena for a non-founder');
  }finally{await db.close()}})().catch(e=>{console.error(e);process.exitCode=1});

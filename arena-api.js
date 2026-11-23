@@ -12,7 +12,15 @@
    start:id=>command('start',id),
    setTargets:(id,targets)=>{if(!G.ArenaCore.validTargets(targets))return Promise.reject(Error('Wähle für jeden Bereich ein bis sieben Tage.'));return command('targets',id,{targets:pick(targets)});},
    report:(id,slot,done)=>command('report',id,{slot:String(slot),done:done===true}),
-   react:(id,event,kind)=>command('react',id,{event,kind})
+   react:(id,event,kind)=>command('react',id,{event,kind}),
+   /* Automatische Übernahme aus den Aufgaben: meldet (oder nimmt zurück) in allen laufenden Arenen, in denen du spielst.
+      Nur der Bereich wird gesendet; Datum und Person bestimmt der Server. Liefert die Namen der betroffenen Arenen. */
+   autoReport:async(slot,done=true)=>{if(!G.ArenaCore.SLOTS.some(s=>s.id===slot))return[];const hits=[];
+    for(const l of (await call('arena_list',{}))||[]){if(!l.start_date)continue;const s=await call('arena_snapshot',{p_league:l.id}),p=G.ArenaCore.phase(s);if(p.kind!=='running')continue;
+     const mine=s.completions.filter(e=>e.user_id===s.user_id&&e.slot===slot&&e.week===p.week),today=mine.some(e=>e.day===s.today);
+     if(done&&(today||mine.length>=G.ArenaCore.targetsOf(s)[slot]))continue;if(!done&&!today)continue;
+     await command('report',l.id,{slot,done:done===true});hits.push(l.name)}
+    return hits}
   };
  }
  G.ArenaApi={create};G.arenaApi=create((name,args)=>G.authApi.arenaRpc(name,args));

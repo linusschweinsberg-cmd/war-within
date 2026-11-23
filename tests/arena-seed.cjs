@@ -15,7 +15,7 @@ async function seedArena(db,ids,names){
  const day=(base,n)=>{const d=new Date(base);d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
  const today=t.today instanceof Date?t.today.toISOString().slice(0,10):String(t.today),monday=t.monday instanceof Date?t.monday.toISOString().slice(0,10):String(t.monday),start=day(monday,-14);
  const targets={mind:3,body:4,growth:3,bonds:2};
- const {rows:[a]}=await db.query("insert into public.arena_leagues(owner_id,name,capacity,targets,start_date,invite_code,created_at) values($1,'Die Dreihundert',3,$2::jsonb,$3::date,'SPARTA300DEMO',$4::date) returning id",[ids[0],JSON.stringify(targets),start,day(start,-4)]);
+ const {rows:[a]}=await db.query("insert into public.arena_leagues(id,owner_id,name,capacity,targets,start_date,invite_code,created_at) values('30000000-0000-4000-8000-000000000300',$1,'Die Dreihundert',3,$2::jsonb,$3::date,'SPARTA300DEMO',$4::date) returning id",[ids[0],JSON.stringify(targets),start,day(start,-4)]);
  for(let p=0;p<3;p++)await db.query("insert into public.arena_members(league_id,user_id,display_name,joined_at) values($1,$2,$3,$4::date + interval '1 hour'*$5)",[a.id,ids[p],names[p],day(start,-4+p),9+p]);
  const events=[];
  for(let p=0;p<3;p++)for(const w of [1,2,3])for(const [si,slot] of SLOTS.entries()){

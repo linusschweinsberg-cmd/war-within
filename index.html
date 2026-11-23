@@ -18,14 +18,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v65"></script>
-<script src="auth.js?v=ww-v65"></script>
-<script src="life-core.js?v=ww-v65"></script>
-<script src="wisdom-core.js?v=ww-v65"></script>
-<script src="future-self-core.js?v=ww-v65"></script>
-<script src="arena-core.js?v=ww-v65"></script>
-<script src="arena-api.js?v=ww-v65"></script>
-<script src="arena-ui.js?v=ww-v65"></script>
+<script src="supabase-config.js?v=ww-v66"></script>
+<script src="auth.js?v=ww-v66"></script>
+<script src="life-core.js?v=ww-v66"></script>
+<script src="wisdom-core.js?v=ww-v66"></script>
+<script src="future-self-core.js?v=ww-v66"></script>
+<script src="arena-core.js?v=ww-v66"></script>
+<script src="arena-api.js?v=ww-v66"></script>
+<script src="arena-ui.js?v=ww-v66"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -4102,6 +4102,13 @@ function App({init,auth,skey='war_within_v5'}){
  const PUNCT=20,GRACE=30;
  const punctOf=mid=>{const p=nemPlanNow.find(x=>x.id===mid&&!x.virtual&&x.kind!=='sleep');return !!p&&nowM>=nemPlanNow[0].start-180&&nowM<=(p.fixed?p.start:p.end)+GRACE};
  const curIds=new Set(nemPlanNow.filter(p=>!p.virtual&&p.kind!=='sleep'&&nowM>=p.start&&nowM<=(p.fixed?p.start:p.end)+GRACE).map(p=>p.id));
+ /* Arena: erledigte Aufgaben zählen automatisch in laufenden Arenen (nur angemeldet, abschaltbar in der Arena). */
+ const arenaRef=useRef({});
+ const arenaOn=()=>!!(auth&&auth.session&&auth.session.mode==='supabase'&&S.arenaAuto!==false&&window.arenaApi&&window.ArenaCore);
+ const arenaAuto=(slot,key)=>{if(!slot||!arenaOn())return;const day=dayKey(S);window.arenaApi.autoReport(slot,true).then(names=>{if(!names.length)return;arenaRef.current[key]={slot,day};const n=(ArenaCore.SLOTS.find(x=>x.id===slot)||{}).name;toast('Auch in der Arena gezählt: '+n+(names.length>1?' · '+names.length+' Arenen':''),'good')}).catch(()=>{})};
+ /* Rückgängig: wird eine so gemeldete Aufgabe wieder offen, nimmt die Arena den heutigen Eintrag zurück – außer eine andere erledigte Aufgabe trägt denselben Bereich. */
+ useEffect(()=>{if(!arenaOn())return;const day=dayKey(S);Object.entries(arenaRef.current).forEach(([mid,x])=>{if(x.day!==day){delete arenaRef.current[mid];return}const m=S.missions.find(y=>y.id===mid);if(!m||isDone(S,m))return;delete arenaRef.current[mid];
+  const still=Object.entries(arenaRef.current).some(([k,y])=>y.slot===x.slot&&y.day===day);if(!still)window.arenaApi.autoReport(x.slot,false).catch(()=>{})})},[S.done,S.counts]);
  const complete=(mid,pos,extra={})=>{
   if(lock.current[mid])return;lock.current[mid]=1;setTimeout(()=>{delete lock.current[mid]},700);
   const m=S.missions.find(x=>x.id===mid);if(!m||isDone(S,m)){toast(m&&m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
@@ -4121,6 +4128,7 @@ function App({init,auth,skey='war_within_v5'}){
    n.events.unshift({id:uid(),text:m.title+(extra.msg?' · '+extra.msg:''),pts:award,t:Date.now()});n.events=n.events.slice(0,12);
    n.feed.unshift({id:uid(),who:'me',pts:award,text:`${n.acts[m.act].short} erledigt`,t:Date.now()});n.feed=n.feed.slice(0,12);
    LC.onComplete(n,mid);if(extra.apply)extra.apply(n);checkAch(n)});
+  arenaAuto(window.ArenaCore&&ArenaCore.ACT_SLOT[m.act],mid);
   const fm=focusMode(S),la=(S.life.actions||[]).find(x=>x.missionId===mid&&!x.off),lwk=LC.curWk(S.life),limp=la?`Umsetzung ${LC.doneIn(S.life,la.id,lwk)+1}/${LC.plannedAt(la,lwk)} diese Woche`:null;
   if(!fm){fx(pos,award>0?`+${award}`:'Limit');if(award>0)burst(pos,ACOL[m.act]||'var(--acc2)')}try{navigator.vibrate&&navigator.vibrate(award>0?[12,40,18]:8)}catch(e){}
   {const b=briefToday(S);if(b&&b.ids.includes(mid)&&b.ids.filter(id=>{const x=S.missions.find(y=>y.id===id);return x&&!isDone(S,x)}).length===1)setTimeout(()=>toast('Alle Prioritäten erledigt. Tag gewonnen.','good'),900)}
@@ -4226,7 +4234,7 @@ function App({init,auth,skey='war_within_v5'}){
  const msN=((S.life&&S.life.temple&&S.life.temple.cur.ms)||[]).length,msRef=useRef(msN);
  useEffect(()=>{const p=msRef.current;msRef.current=msN;if(msN>p){const m=S.life.temple.cur.ms[msN-1];toast('Neuer Baustein · '+LC.AREA[m.area].de+'-Säule: '+m.label,'good');setTFlash(m.area);const t=setTimeout(()=>setTFlash(null),1800);return()=>clearTimeout(t)}},[msN]);
  const saveEvening=x=>{upd(n=>{LC.ensureLife(n);const sx=String(x.mid||'').startsWith('std:')?{std:x.mid.slice(4),when:x.when,risk:x.risk}:x;const e=LC.onEvening(n,sx);if(e&&e.mid)n.nextPrio={k:n.season+'-'+(n.day+1),mid:e.mid}});setSheet(null);toast('Morgen steht. Der Tag ist abgeschlossen.','good')};
- const saveDebrief=(x,o)=>{const doneN=x.done.length;upd(n=>{LC.ensureLife(n);LC.onDebrief(n,x);const k=dayKey(n);n.reviews=[{k,done:doneN,block:x.obst,mood:x.mood,next:x.next,t:Date.now()},...(n.reviews||[]).filter(r=>r.k!==k)].slice(0,30);n.wlog=n.wlog||{};n.wlog[k]={...(n.wlog[k]||{}),r:1};if(x.next)n.nextPrio={k:n.season+'-'+(n.day+1),mid:x.next}});if(!(o&&o.stay))setSheet(null);
+ const saveDebrief=(x,o)=>{const doneN=x.done.length;upd(n=>{LC.ensureLife(n);LC.onDebrief(n,x);const k=dayKey(n);n.reviews=[{k,done:doneN,block:x.obst,mood:x.mood,next:x.next,t:Date.now()},...(n.reviews||[]).filter(r=>r.k!==k)].slice(0,30);n.wlog=n.wlog||{};n.wlog[k]={...(n.wlog[k]||{}),r:1};if(x.next)n.nextPrio={k:n.season+'-'+(n.day+1),mid:x.next}});arenaAuto('mind','debrief');if(!(o&&o.stay))setSheet(null);
   const rm=S.missions.find(m=>m.id==='m_ref');if(rm&&!isDone(S,rm))setTimeout(()=>cref.current('m_ref',null,{keep:true,msg:'über den Debrief'}),400);
   if(o&&o.stay)return;toast(!x.skipped.length?'Debrief gespeichert. Der Plan funktioniert.':x.next?'Debrief gespeichert. Morgen zuerst: das Ausgelassene.':'Debrief gespeichert. Muster wertet der Wochenrückblick aus.','good')};
  const saveMonthly=(m,dec)=>{lifeUpd(n=>LC.saveMonthly(n,m,dec));setSheet(null);const adj=Object.entries(dec).find(([,d])=>d==='adjust');if(adj)setTimeout(()=>setSheet({t:'goal',gid:adj[0]}),250);toast('Monats-Check gespeichert.','good')};

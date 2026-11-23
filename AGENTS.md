@@ -33,6 +33,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Claude · `claude/home-clarity` (auf `claude/integrate-arena`) · Heute-Ansicht als Variante B: Bereichs-Ringe, Jetzt-Karte, Zukunfts-Ich-Kachel, wenig Text. Dateien: `index.html`, `life-core.js` (doppelte Minutenangabe), `sw.js`, Versions-Checks in `tests/`. Release `ww-v63`.
 - Claude · `claude/life-clarity` (auf `claude/home-clarity`) · Mein Leben vereinfacht: Tempel mit Warum/Werten, Säulen-Zeilen statt Kacheln + Zielliste. Dateien: `index.html`, `sw.js`, Versions-Checks in `tests/`. Release `ww-v64`.
 - Claude · `claude/arena-fair` (auf `claude/life-clarity`) · Arena faire Wertung: gemeinsames Soll je Bereich vom Gründer vor dem Start, keine persönliche Aufstellung mehr. Dateien: `supabase/migrations/202611230001_arena.sql` (Entwurf, nicht angewendet), `arena-core.js`, `arena-api.js`, `arena-ui.js`, `tests/arena-*.cjs`, `docs/ARENA.md`, `sw.js`. Release `ww-v65`.
+- Claude · `claude/arena-plus` (auf `claude/arena-fair`) · Arena: Amphitheater-Design, Podest, Orakel des Tages (×1,5) und Wochenprämie (+5), automatische Übernahme aus Aufgaben und Debrief. Dateien: `arena-core.js`, `arena-api.js`, `arena-ui.js`, `index.html` (complete/saveDebrief), `tests/arena-*.cjs`, `docs/ARENA.md`, `sw.js`. Release `ww-v66`.
 
 ### Letzte Integration
 - PRs #20 → #21 → #22: echte Kalendertage, vereinfachte Heute-Ansicht und lokales Zukunfts-Ich (Release `ww-v59`). Alle zehn Tests bestanden; mobile Bedienung, Persistenz und drei Interaktionen geprüft. Livegang ausdrücklich vom Nutzer beauftragt; Claude-Review erledigt: zwei Kalender-Fehler (Zonenwechsel nach Pause verlor Tage; Vorspulen/Saisonsprung/Demo-Reset in echten Spielständen) – Korrektur in `claude/calendar-fixes`. Offen als Kleinigkeiten: Hindernis `distract` im Tagesurteil existiert nicht in `DEBRIEF_OBST`; Beispiel-Kennzeichnung (`profile.mode===demo`) greift nie; Konzepte-Zeile zu „Heute“ nennt noch Hauptziel-Fortschritt. Keine Supabase-Einstellungen geändert.
@@ -43,7 +44,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v65` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v66` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`, `node tests/ftue-flows.cjs` (Abläufe: neu, vollständig, übersprungen, zurückkehrend). Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Produktprinzip (verbindlich)
