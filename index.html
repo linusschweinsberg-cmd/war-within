@@ -1549,7 +1549,7 @@ function NowCard({c,item,ring}){const area=priorityArea(item),logs=item.kind==='
  <div className="flex items-start justify-between gap-2"><div className="lbl acc pt-1">${area&&open?area.de+' fehlt noch':'Jetzt'}${item.when?' · '+item.when:''}</div>
  <button type="button" onClick=${()=>priorityDetail(c,item)} aria-label=${'Details: '+t} className="flex items-center justify-center border-0 bg-transparent -mt-2 -mr-2" style=${{width:44,height:44,color:'var(--mute)'}}><${Icon} n="info" s=${18}/></button></div>
  <div className="flex items-center gap-3">${area&&html`<${AreaBadge} area=${area} size=${44}/>`}
- <div className="brand text-[20px] leading-snug break-words min-w-0" style=${{fontWeight:600,letterSpacing:'.02em'}}>${t}</div></div>
+ <div className="text-[21px] font-bold leading-snug break-words min-w-0">${t}</div></div>
  <div className="flex items-center gap-2 mt-4">
  <button type="button" onClick=${e=>completePriority(c,item,e)} aria-label=${'Erledigen: '+t} className="btn flex-1 inline-flex items-center justify-center gap-2 text-[15px]" style=${{minHeight:52}}><${Icon} n=${closes&&!logs?'aspis':'check'} s=${18} sw=${2.2}/>${logs?'Erfassen':closes?'Schild schließen':'Erledigt'}</button>
  ${item.kind==='standard'&&item.std.min&&html`<button type="button" onClick=${e=>completePriority(c,item,e,'min')} title=${item.std.min.text} className="chip" style=${{minHeight:52}}>Minimum</button>`}
