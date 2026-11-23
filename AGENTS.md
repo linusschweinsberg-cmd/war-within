@@ -29,6 +29,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 ### In Arbeit
 - Claude · `claude/arena-polish` · Arena: Nächster Zug (`ArenaCore.gains`), Punktwert je Kachel, Kampfbericht nach Tagen mit Herkunft und ohne Selbst-Reaktionen, neue Wochenzeremonie oben bis gesehen. Dateien: `arena-core.js`, `arena-ui.js`, SQL-Entwurf (Selbst-Reaktion), `tests/arena-core.cjs`, `tests/arena-db.cjs`, `docs/ARENA.md`, Versions-Checks, `sw.js`. Release `ww-v69`. Keine Migration.
 - Claude · `claude/arena-week` (auf `claude/arena-polish`) · Arena: Wochenverlauf je Mitglied (`ArenaCore.activity`) und Sonntagsfinale (`ArenaCore.finale`). Laufende Arena in drei Reitern (Heute/Tabelle/Bericht). Dateien: `arena-core.js`, `arena-ui.js`, `tests/arena-core.cjs`, `docs/ARENA.md`, Versions-Checks, `sw.js`. Release `ww-v70`. Keine Datenbankänderung.
+- Claude · `claude/arena-look` (auf `claude/arena-week`) · Arena-Reiter Heute mit Bühne, Kopf-an-Kopf, sieben Wochenrunden und Stimme nach dem Vorbild des Duells. Dateien: `arena-ui.js`, `docs/ARENA.md`, Versions-Checks, `sw.js`. Release `ww-v71`. Keine Datenbankänderung.
 
 ### Letzte Integration
 - PR #30 (Merge `4c6ab0a`, Release `ww-v68`): enthält #23–#29, #31 und `codex/arena-ceremony` – Kalender-Korrekturen, Arena mit Freunden (faire Wertung, Amphitheater, Orakel, Wochenprämie, Wochenzeremonie, Comeback), Heute Variante B, Mein Leben als Tempel. Automatische Arena-Übernahme nur nach Opt-in mit Herkunftscode; Claude hat die Codex-Commits `6476df5`/`78be182` reviewt. Alle 16 Tests bestanden; Wochenzeremonie im lokalen Arena-Testserver geprüft. Supabase-Migration weiterhin nur Entwurf, nicht angewendet; Prüfung mit echten Konten offen.
@@ -40,7 +41,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v70` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v71` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`, `node tests/ftue-flows.cjs` (Abläufe: neu, vollständig, übersprungen, zurückkehrend). Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Produktprinzip (verbindlich)

@@ -119,6 +119,52 @@
    ${editable&&html`<button type="submit" className="btn w-full py-3 mt-4 text-[13px]" disabled=${busy||!dirty}>${dirty?'Soll speichern':'Soll gespeichert'}</button>`}
   </form>`;
  }
+ /* ── Arena-Bühne nach dem Vorbild des Duells: Szene, Kopf-an-Kopf, Wochenrunden, Stimme. Nur bestätigte Daten. ── */
+ const Hoplite=({cape})=>html`<g><path d="M52 50 C70 52 92 60 108 88 C100 84 96 90 100 104 C92 100 86 108 90 122 C70 112 58 104 46 92Z" fill=${cape}/>
+  <path d="M38 112 L33 160 L30 178 L42 180 L46 160 L50 120Z M52 112 L58 160 L60 178 L72 178 L66 158 L62 112Z" fill="var(--scene-silhouette)"/><path d="M36 98 L68 98 L74 124 L30 124Z" fill="var(--scene-armour)"/>
+  <path d="M34 52 Q52 46 70 52 L66 100 L38 100Z M34 54 L24 68 L22 86 L28 88 L36 72Z" fill="var(--scene-silhouette)"/><rect x="20.5" y="-6" width="3" height="200" fill="var(--mute)"/><path d="M22 -26 L16 -4 L28 -4Z" fill="var(--stone)"/>
+  <path d="M36 32 C36 14 44 8 52 8 C60 8 68 14 68 32 L68 44 L62 44 L62 36 L42 36 L42 44 L36 44Z" fill="var(--scene-silhouette)" stroke="var(--mute)" strokeWidth="1.2"/><path d="M52 8 C50 -6 66 -10 78 0 C70 -2 62 2 58 10Z" fill=${cape}/>
+  <circle cx="66" cy="92" r="26" fill="var(--scene-armour)" stroke="var(--mute)" strokeWidth="2"/><path d="M66 78 L78 106 H72 L66 92 L60 106 H54Z" fill=${cape}/></g>`;
+ /* Szene: jedes Mitglied als Hoplit (höchstens sechs, du immer dabei). Die Stufe wächst mit den Wochenpunkten; Spitze in der Mitte. */
+ function Stage({rows,me}){let pick=rows.slice(0,6);if(!pick.some(r=>r.user_id===me))pick=[...pick.slice(0,5),rows.find(r=>r.user_id===me)].filter(Boolean);
+  const ord=[];pick.forEach((r,i)=>i%2?ord.unshift(r):ord.push(r));
+  const n=ord.length,slot=360/n,s=n<=3?.5:n<=4?.44:.36,max=Math.max(1,...ord.map(r=>r.score)),floor=200,top=pick[0];
+  const name=r=>r.user_id===me?'DU':(r.display_name.length>9?r.display_name.slice(0,8)+'…':r.display_name).toUpperCase();
+  return html`<div className="mt-3 overflow-hidden" style=${{height:230,borderRadius:16,border:'1px solid var(--line)',background:'var(--bg2)'}} role="img" aria-label=${'Arena-Bühne: '+pick.map(r=>(r.user_id===me?'du':r.display_name)+' Platz '+r.rank+', '+fmt(r.score)+' Punkte').join('; ')}>
+   <svg viewBox="0 0 360 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style=${{display:'block',width:'100%',height:'100%'}}>
+    <rect width="360" height="230" fill="var(--bg2)"/><circle cx="180" cy="66" r="54" fill="var(--gold)" opacity=".12"/>
+    <path d="M6 38 Q180 12 354 38" fill="none" stroke="var(--bronze)" strokeWidth="1.2" opacity=".5"/>
+    ${[0,1,2].map(i=>html`<rect key=${i} x="0" y=${42+i*16} width="360" height="16" fill=${i%2?'var(--card2)':'var(--card)'}/>`)}
+    <path d="M0 42 H360 M0 58 H360 M0 74 H360 M0 90 H360" stroke="var(--line)" strokeWidth="1"/>
+    <rect x="0" y="90" width="360" height="140" fill="color-mix(in srgb,var(--gold) 8%,var(--card))"/>
+    <ellipse cx="180" cy="200" rx="200" ry="30" fill="color-mix(in srgb,var(--gold) 14%,var(--card))"/>
+    ${ord.map((r,i)=>{const cx=slot*i+slot/2,h=6+46*r.score/max,mine=r.user_id===me,lead=r.rank===1&&r.score>0,y=floor-h-180*s,w=Math.min(78,slot-10);
+     return html`<g key=${r.user_id}><rect x=${cx-w/2} y=${floor-h} width=${w} height=${h} fill="color-mix(in srgb,var(--bronze) 16%,var(--card2))" stroke="var(--line2)" strokeWidth="1"/>
+      <g transform=${`translate(${cx-60*s},${y}) scale(${s})`}><${Hoplite} cape=${mine?'var(--acc)':'var(--line2)'}/></g>
+      ${lead&&html`<path d=${`M${cx-10} ${y-20*s} Q${cx} ${y-32*s} ${cx+10} ${y-20*s}`} fill="none" stroke="var(--gold)" strokeWidth="2"/>`}
+      <text x=${cx} y="222" textAnchor="middle" fontSize="10" fontFamily="Inter" fontWeight=${mine?700:600} letterSpacing="1.2" fill=${mine?'var(--acc2)':'var(--stone)'}>${name(r)} · ${r.rank}.</text></g>`})}
+   </svg></div>`}
+ /* Kopf-an-Kopf: du gegen den Platz direkt über dir (bzw. deinen Verfolger, wenn du führst), darunter der Abstand als Balken. */
+ function HeadToHead({rows,me}){const mine=rows.find(r=>r.user_id===me),others=rows.filter(r=>r.user_id!==me);if(!mine||!others.length)return null;
+  const above=others.filter(r=>r.score>mine.score).sort((a,b)=>a.score-b.score)[0],opp=above||others.filter(r=>r.score<=mine.score).sort((a,b)=>b.score-a.score)[0];
+  const gap=Math.abs(opp.score-mine.score),share=mine.score+opp.score?Math.min(92,Math.max(8,mine.score/(mine.score+opp.score)*100)):50;
+  const label=!gap?'Gleichauf mit '+opp.display_name:above?'Abstand zu Platz '+opp.rank:'Vorsprung auf '+opp.display_name;
+  const cell=(k,r,col,border)=>html`<div className="card p-3 text-center" style=${{borderColor:border}}><span className="lbl block truncate" style=${{color:col}}>${k} · Platz ${r.rank}</span><span className="duel-n num block">${fmt(r.score)}</span><span className="text-[11.5px] mute block">Arenapunkte</span></div>`;
+  return html`<div className="grid grid-cols-2 gap-2 mt-2">${cell('Du',mine,'var(--acc2)','var(--acc2)')}${cell(opp.display_name,opp,'var(--mute)','var(--line)')}</div>
+   <div className="card p-4 mt-2"><div className="flex justify-between items-baseline gap-2"><span className="lbl truncate">${label}</span><b className="num text-[14px] shrink-0" style=${{color:'var(--acc2)'}}>${gap?fmt(gap)+' Punkte':'±0'}</b></div>
+    <div className="relative mt-3 mb-1.5" style=${{height:12,borderRadius:6,background:'var(--line)'}} role="img" aria-label=${'Du '+Math.round(share)+' Prozent, '+opp.display_name+' '+(100-Math.round(share))+' Prozent'}><div className="absolute inset-y-0 left-0" style=${{width:share+'%',borderRadius:'6px 0 0 6px',background:'var(--acc)',transition:'width .6s cubic-bezier(.16,1,.3,1)'}}/><div className="absolute rounded-full" style=${{left:share+'%',top:'50%',width:24,height:24,background:'var(--ink)',border:'2px solid var(--bg)',transform:'translate(-50%,-50%)',transition:'left .6s cubic-bezier(.16,1,.3,1)'}}/></div>
+    <div className="flex justify-between text-[11px] mute"><span>Du</span><span className="truncate">${opp.display_name}</span></div></div>`}
+ /* Deine Woche als sieben Runden: Zahl = gemeldete Bereiche an diesem Tag; 4 von 4 in Gold. */
+ function MyRounds({snapshot,week}){const r=A.activity(snapshot,week).find(x=>x.user_id===snapshot.user_id);if(!r)return null;
+  return html`<section className="mt-3" aria-label="Deine Woche in sieben Runden"><div className="flex justify-between items-baseline mb-2"><span className="lbl">Deine Woche · 7 Runden</span><span className="text-[11px] mute">Bereiche je Tag</span></div>
+   <div className="grid grid-cols-7 gap-1" role="list">${r.days.map((d,i)=>{const col=d.future?'var(--line2)':d.slots===4?'var(--gold)':d.slots?'var(--acc2)':'var(--mute)';
+    return html`<div key=${d.day} role="listitem" aria-label=${WD[i]+': '+(d.future?'noch offen':d.slots+' von 4 Bereichen')+(d.today?', heute':'')} className="text-center py-2" style=${{borderRadius:10,background:d.today?'color-mix(in srgb,var(--acc) 14%,var(--card))':'var(--card)',border:'1px solid '+(d.today?'var(--acc2)':'var(--line)')}}><div className="text-[11px] font-semibold" style=${{color:d.today?'var(--ink)':'var(--mute)'}}>${WD[i]}</div><b className="disp block text-[16px]" style=${{color:col}}>${d.future?'–':d.slots}</b></div>`})}</div></section>`}
+ /* Stimme der Arena: eine Zeile aus den bestätigten Zahlen – ermutigend, nie spöttisch. */
+ function Voice({rows,me,gains}){const mine=rows.find(r=>r.user_id===me);if(!mine)return null;const g=gains[0],above=rows.filter(r=>r.user_id!==me&&r.score>mine.score).sort((a,b)=>a.score-b.score)[0];
+  /* Spricht über denselben Gegner wie das Kopf-an-Kopf (Platz direkt darüber); den Zug selbst nennt „Dein nächster Zug“. */
+  const open=g&&g.points>0,gap=above?above.score-mine.score:0;
+  const line=rows.every(r=>r.score===0)?'Die Arena ist offen. Wer zuerst meldet, setzt den Ton.':!above?(rows.some(r=>r.user_id!==me&&r.score===mine.score)?'Gleichauf an der Spitze. Der nächste Tag entscheidet.':'Du führst. Wer das Soll hält, bleibt vorn.'):!open?'Heute ist alles gemeldet. Morgen geht der Kampf weiter.':g.points>=gap?above.display_name+' ist heute in Reichweite.':fmt(gap)+' Punkte bis '+above.display_name+'. Jeder gemeldete Tag zählt.';
+  return html`<div className="card p-4 mt-3 reaction" role="status">„${line}“</div>`}
  function ArenaView({c}){
   const session=c.auth?.session,signed=session?.mode==='supabase',api=G.arenaApi;
   const [list,setList]=useState([]),[snapshot,setSnapshot]=useState(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[loaded,setLoaded]=useState(false),[notice,setNotice]=useState('');
@@ -137,7 +183,6 @@
   useEffect(()=>{if(!signed||!snapshot)return;const id=snapshot.league.id;const refresh=()=>{if(document.visibilityState==='hidden'||navigator.onLine===false||gate.current)return;run(()=>api.load(id),s=>{if(selected.current===id)setSnapshot(s)})};const interval=setInterval(refresh,15000);addEventListener('focus',refresh);document.addEventListener('visibilitychange',refresh);return()=>{clearInterval(interval);removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh)}},[signed,snapshot?.league.id]);
   const change=fn=>run(fn,s=>{setSnapshot(s);setConfirm(false);setNotice('Gespeichert.')});
   const p=snapshot&&A.phase(snapshot),week=p?.week||1,rows=snapshot&&A.weekly(snapshot,week),me=rows?.find(r=>r.user_id===snapshot.user_id),own=snapshot?.league.owner_id===snapshot?.user_id;
-  const rival=rows&&me&&[...rows].reverse().find(r=>r.user_id!==snapshot.user_id&&r.targets&&r.score>=me.score);
   const allReady=snapshot&&snapshot.members.length>=2;
   const share=snapshot?A.invitation(snapshot.league.invite_code,G.location.origin+G.location.pathname):'';
   const tab=p?.kind==='finished'&&view==='today'?'table':view;
@@ -170,9 +215,11 @@
     ${tab==='today'&&p.kind==='running'&&html`
      ${fresh>0&&html`<${FreshBanner} snapshot=${snapshot} week=${fresh} onOpen=${()=>{setOpened(fresh);setView('table');markSeen()}} onDismiss=${markSeen}/>`}
      <${Finale} snapshot=${snapshot}/>
-     <div className="card p-4 mt-3"><div className="flex items-baseline justify-between gap-2"><h2 className="disp text-[22px]">Platz ${me.rank} von ${rows.length}</h2><span className="num text-[15px] font-bold" style=${{color:'var(--acc2)'}}>${fmt(me.score)} <span className="text-[11px] mute font-normal">Arenapunkte</span></span></div>
-      <p className="text-[12.5px] mt-1" style=${{color:'var(--nem)'}}>${me.score===0&&rows.every(r=>r.score===0)?'Die Arena ist offen. Die erste Erfüllung bringt Bewegung hinein.':rival?rival.score===me.score?'Gleichauf mit '+rival.display_name+'.':fmt(rival.score-me.score)+' Arenapunkte bis '+rival.display_name+'.':'Du führst die Arena. Halte das Soll.'}</p>
-      <${NextMove} gains=${gains} busy=${busy} onReport=${report}/></div>
+     <${Stage} rows=${rows} me=${snapshot.user_id}/>
+     <${HeadToHead} rows=${rows} me=${snapshot.user_id}/>
+     <${MyRounds} snapshot=${snapshot} week=${week}/>
+     <${Voice} rows=${rows} me=${snapshot.user_id} gains=${gains}/>
+     <${NextMove} gains=${gains} busy=${busy} onReport=${report}/>
      <${FateRow} snapshot=${snapshot} week=${week} me=${snapshot.user_id}/>
      <section className="mt-4" aria-label="Deine Erfüllungen heute"><div className="flex items-baseline justify-between gap-2"><h2 className="disp text-[22px]">Heute melden</h2><span className="lbl">1× pro Tag</span></div><${SlotTiles} snapshot=${snapshot} week=${week} me=${me} busy=${busy} gains=${gains} onReport=${report}/>${(()=>{const on=c.S.arenaAuto===true;return html`<button type="button" role="switch" aria-checked=${on} onClick=${()=>c.upd(n=>{n.arenaAuto=!on})} className="w-full flex items-center gap-3 mt-2 px-3 py-2.5 text-left border-0" style=${{borderRadius:14,background:'transparent',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}><span className="flex-1 min-w-0"><b className="block text-[13px]">Automatisch aus Aufgaben</b><span className="block text-[11.5px] mute">Erledigte Aufgaben mit bekannter Dauer zählen mit.</span></span><span className="shrink-0 rounded-full relative" style=${{width:40,height:24,background:on?'var(--acc)':'var(--ghost)',boxShadow:'0 0 0 1px var(--line) inset',transition:'background .2s'}}><span className="absolute rounded-full" style=${{top:3,left:on?19:3,width:18,height:18,background:'var(--ink)',transition:'left .2s'}}/></span></button>`})()}</section>
     `}
