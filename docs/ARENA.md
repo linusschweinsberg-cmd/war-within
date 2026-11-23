@@ -115,3 +115,13 @@ Eine laufende Arena ist in **Heute**, **Tabelle** und **Bericht** gegliedert (fl
 - **Bericht:** Comeback-Hinweise und Kampfbericht.
 
 Eine beendete Saison öffnet direkt die Tabelle. Lobby und vorgemerkte Saison bleiben unverändert.
+
+## Arena-Bühne nach dem Vorbild des Duells (ww-v71)
+
+Der Reiter **Heute** übernimmt die Bildsprache des persönlichen Duells, ersetzt die frühere Karte „Platz X von N“ und zeigt nur bestätigte Wochenpunkte:
+
+- **Szene:** Jedes Mitglied steht als Hoplit auf einer Stufe, deren Höhe den Wochenpunkten folgt (höchstens sechs Figuren, du immer dabei; Spitze in der Mitte). Eigene Figur mit Terrakotta-Umhang, Lorbeer in Gold über Platz 1, alle anderen neutral – keine Nemesis-Farbe für Freunde.
+- **Kopf-an-Kopf:** du gegen den Platz direkt über dir (wenn du führst: gegen deinen Verfolger) in großen Ziffern, darunter der Abstand als Balken.
+- **Sieben Runden:** deine Woche Mo–So; Zahl = gemeldete Bereiche an diesem Tag, 4 von 4 in Gold, heute umrandet.
+- **Stimme:** eine Zeile in Cinzel aus den bestätigten Zahlen (Reichweite, Abstand, Führung) – ermutigend, nie spöttisch. Danach folgen „Dein nächster Zug“, Orakel/Wochenprämie und „Heute melden“.
+- Keine neuen Serverdaten, keine Migration.
