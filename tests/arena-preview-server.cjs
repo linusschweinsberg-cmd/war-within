@@ -2,6 +2,8 @@
 const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),{PGlite}=require('@electric-sql/pglite');
 const root=path.resolve(__dirname,'..'),port=Number(process.env.PORT||5215),people=['Linus','Jonas','Mira'],ids=people.map((_,i)=>'10000000-0000-0000-0000-00000000000'+(i+1));
 (async()=>{const db=new PGlite();await db.exec(`create role anon;create role authenticated;create schema auth;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth to authenticated;grant execute on function auth.uid() to authenticated;insert into auth.users values ${ids.map(id=>"('"+id+"')").join(',')};`);await db.exec(fs.readFileSync(path.join(root,'supabase/migrations/202611230001_arena.sql'),'utf8'));
+/* Testdaten: laufende Saison und eine Lobby-Arena. Mit ARENA_SEED=0 startet der Server leer. */
+if(process.env.ARENA_SEED!=='0'){const r=await require('./arena-seed.cjs').seedArena(db,ids,people);console.log('Testdaten: „Die Dreihundert“ (Woche 3, '+r.completions+' Meldungen) und „Morgenlauf-Trio“ (Lobby).')}
 const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost:'+port);res.setHeader('Cache-Control','no-store');
  if(url.pathname==='/__arena_rpc'&&req.method==='POST'){
   if(req.headers.origin!=='http://localhost:'+port)throw Error('Nur lokale Testaufrufe.');

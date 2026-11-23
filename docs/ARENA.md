@@ -50,3 +50,12 @@ Browser-Review ohne echte Konten: `node tests/arena-preview-server.cjs`, dann `h
 Drei getrennte Datenbankidentitäten: Erstellen, Beitritt per Link, drei gespeicherte Aufstellungen, gesperrter Start bei fehlender Aufstellung und Startbestätigung geprüft. Die Testumgebung zog danach ausschließlich ihre wegwerfbare Saison auf die aktuelle Woche vor. Meldungen zweier Personen erschienen in beiden Ansichten; Gleichstand, Führungswechsel, Reaktion eines anderen Mitglieds und Rücknahme einschließlich entfernter Reaktion geprüft. Eine auf vier MIND-Tage angepasste Folgewochenaufstellung blieb nach Neuladen und erneutem Öffnen erhalten.
 
 375 × 812: Antik und Violett jeweils dunkel/hell visuell geprüft. Gast sieht eine Vorschau und gelangt zur Registrierung/Anmeldung. Fokusmodus entfernt Arena aus der Navigation. Keine Fehler in der Browserkonsole. Privatsphäre- und Sicherungstexte unterscheiden jetzt persönlichen lokalen Spielstand und gemeinsame Arena-Einträge. Ein echtes gemeinsames Spiel auf dem gehosteten Supabase-Projekt wurde nicht ausgeführt, weil die Migration noch zur Freigabe aussteht.
+
+## Testdaten (lokaler Prüfserver)
+
+`node tests/arena-preview-server.cjs` startet eine Wegwerf-Datenbank (PGlite) mit drei Testkonten (`?player=0` Linus, `1` Jonas, `2` Mira) und legt über `tests/arena-seed.cjs` automatisch an:
+
+- **„Die Dreihundert“**: laufende Saison in Woche 3, Wochen 1–2 abgeschlossen, gemeinsames Soll MIND 3 · Körper 4 · Entwicklung 3 · Beziehungen 2, gut 60 Meldungen und Reaktionen. Verläufe: Linus konstant, Jonas stark gestartet und eingebrochen, Mira mit Comeback – dadurch unterschiedliche Wochensieger und ein knapper Saisonstand.
+- **„Morgenlauf-Trio“**: wartet in der Lobby, Jonas ist Gründer; Linus sieht die Sicht eines Mitglieds (Soll nur lesend, kein Start-Knopf).
+
+`ARENA_SEED=0` startet ohne Testdaten. `tests/arena-seed-data.cjs` prüft die Testdaten gegen das echte SQL und die Spielregeln. Nie gegen Supabase verwenden.
