@@ -18,11 +18,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v60"></script>
-<script src="auth.js?v=ww-v60"></script>
-<script src="life-core.js?v=ww-v60"></script>
-<script src="wisdom-core.js?v=ww-v60"></script>
-<script src="future-self-core.js?v=ww-v60"></script>
+<script src="supabase-config.js?v=ww-v62"></script>
+<script src="auth.js?v=ww-v62"></script>
+<script src="life-core.js?v=ww-v62"></script>
+<script src="wisdom-core.js?v=ww-v62"></script>
+<script src="future-self-core.js?v=ww-v62"></script>
+<script src="arena-core.js?v=ww-v62"></script>
+<script src="arena-api.js?v=ww-v62"></script>
+<script src="arena-ui.js?v=ww-v62"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -295,6 +298,19 @@ html:has([data-skin=antik]),body:has([data-skin=antik]){background:#050404}
 @media (max-width:359px){.wis-k{letter-spacing:.12em}}
 :root{--scene-silhouette:color-mix(in srgb,var(--bg) 70%,black);--scene-armour:color-mix(in srgb,var(--bg) 85%,var(--mute));--scene-ridge:color-mix(in srgb,var(--bg) 80%,var(--mute))}
 .future-self :is(button,summary):focus-visible,[data-future-self=true] :is(button,summary):focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
+.future-mark{display:block;overflow:visible}
+.future-breathe{transform-origin:52px 180px;animation:future-breathe 4.8s ease-in-out infinite}
+.future-cape{transform-origin:52px 50px;animation:future-cape 6.4s ease-in-out infinite}
+.future-glint{opacity:0;animation:future-glint 9s ease-in-out infinite}
+@keyframes future-breathe{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(-1px) scaleY(1.012)}}
+@keyframes future-cape{0%,100%{transform:skewY(0deg) scaleX(1)}50%{transform:skewY(-2deg) scaleX(1.035)}}
+@keyframes future-glint{0%,68%{transform:translateY(0);opacity:0}73%{opacity:.2}88%{transform:translateY(110px);opacity:0}100%{transform:translateY(110px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.future-breathe,.future-cape,.future-glint{animation:none!important}.future-glint{display:none}}
+.arena-avatar{width:36px;height:36px;flex-shrink:0;border-radius:50%;background:var(--ghost);display:flex;align-items:center;justify-content:center;font-weight:700}
+.arena-input{background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px;min-height:44px;max-width:100%;font:inherit}
+.arena button{min-height:44px}.arena button:disabled{opacity:.5;cursor:default}
+.arena :is(button,input,select,summary):focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
+.arena-track{height:5px;background:var(--ghost);border-radius:4px;overflow:hidden}.arena-track span{display:block;height:100%;transition:width .4s ease}
 </style>
 </head>
 <body>
@@ -1744,8 +1760,8 @@ const slotOf=now=>now<300||now>=1200?'Nacht':now<660?'Morgen':now<900?'Mittag':'
 const SLOT_PAL={Morgen:['var(--mt1)','var(--acc)',1,'var(--stone)',135],Mittag:['var(--mt2)','var(--stone)',.35,'var(--stone)',75],Abend:['var(--mt1)','var(--acc-d)',1,'var(--stone)',130],Nacht:['var(--bg)','var(--mute)',.3,'var(--mute)',65]};
 const deDate=(t,tz)=>new Date(t).toLocaleDateString('de-DE',{timeZone:tz,weekday:'long',day:'numeric',month:'long'});
 /* Hoplit als Silhouette (Linolschnitt-Anmutung): Helm, Umhang, Speer und Schild bestimmen die Kontur */
-function HopliteFig({cape='var(--nem)',plume=true,ghost}){const dk=ghost?'var(--mute)':'var(--scene-silhouette)',dk2=ghost?'var(--mute)':'var(--scene-silhouette)',dk3=ghost?'var(--mute)':'var(--scene-armour)',ac=ghost?'var(--mute)':cape;
- return html`<g><path d="M52 50 C70 52 92 60 108 88 C100 84 96 90 100 104 C92 100 86 108 90 122 C70 112 58 104 46 92Z" fill=${cape}/><path d="M52 50 C66 56 82 66 92 84" fill="none" stroke="var(--acc2)" strokeWidth="1.2" opacity=".6"/>
+function HopliteFig({cape='var(--nem)',plume=true,ghost,animated=false}){const dk=ghost?'var(--mute)':'var(--scene-silhouette)',dk2=ghost?'var(--mute)':'var(--scene-silhouette)',dk3=ghost?'var(--mute)':'var(--scene-armour)',ac=ghost?'var(--mute)':cape;
+ return html`<g className=${animated?'future-breathe':undefined}><g className=${animated?'future-cape':undefined}><path d="M52 50 C70 52 92 60 108 88 C100 84 96 90 100 104 C92 100 86 108 90 122 C70 112 58 104 46 92Z" fill=${cape}/><path d="M52 50 C66 56 82 66 92 84" fill="none" stroke="var(--acc2)" strokeWidth="1.2" opacity=".6"/></g>
  <path d="M38 112 L33 160 L30 178 L42 180 L46 160 L50 120Z" fill=${dk2}/><path d="M52 112 L58 160 L60 178 L72 178 L66 158 L62 112Z" fill=${dk2}/><path d="M32 150 L46 150 L44 170 L31 170Z M57 150 L68 150 L69 170 L58 170Z" fill=${ghost?'var(--mute)':'var(--scene-armour)'}/>
  <path d="M36 98 L68 98 L74 124 L30 124Z" fill=${dk3}/><path d="M36 98 L68 98" stroke=${ac} strokeWidth="2"/><path d="M34 52 Q52 46 70 52 L66 100 L38 100Z" fill=${dk}/>
  <path d="M40 58 Q52 54 64 58" stroke="var(--mute)" strokeWidth="1.2" fill="none"/><path d="M42 70 Q52 66 62 70 M43 80 Q52 76 61 80" stroke="var(--line2)" strokeWidth="1.2" fill="none"/><path d="M34 54 L24 68 L22 86 L28 88 L36 72Z" fill=${dk}/>
@@ -1880,7 +1896,8 @@ function Finale({c,big}){const {S,D}=c;const n=new Date(c.now),mid=new Date(n);m
  ${!big&&html`<button onClick=${()=>c.setTab('league')} className="btn w-full py-3 mt-3 text-sm" style=${{background:'linear-gradient(135deg,#FBBF24,#EA580C)'}}>Zum Live-Finale</button>`}
  </div></div>`}
 function StoryCard({s,sub}){return html`<div className="card p-4 mt-3" style=${{borderRadius:22}}><div className="flex items-center gap-2"><span className="acc"><${Icon} n="flag" s=${15}/></span><div className="lbl acc">${sub}</div></div><div className="disp text-[24px] mt-1.5 leading-none">${s.title}</div><div className="flex flex-col gap-1 mt-2">${s.lines.map((l,i)=>html`<div key=${i} className="text-[13px] leading-snug" style=${{color:i===0?'var(--ink)':'color-mix(in srgb,var(--mute) 85%,var(--ink))'}}>${l}</div>`)}</div></div>`}
-function League({c}){
+function League({c}){return html`<${window.ArenaView} c=${c}/>`}
+function LegacyLeague({c}){
  const {S,D,flash}=c;const [mode,setMode]=useState('pts');const st=D.standings;const ROW=68;const max=Math.max(...st.map(r=>r.pts),1);
  const above=st[D.me.rank-2];
  const ago=t=>{const x=Math.round((c.now-t)/1000);return x<10?'gerade eben':x<60?`vor ${x} Sek.`:`vor ${Math.round(x/60)} Min.`};
@@ -2193,7 +2210,7 @@ function Stats({c}){
  ${t==='out'&&html`<${OutcomeView} c=${c}/>`}${t==='temple'&&html`<${TempleProgress} c=${c}/>`}${t==='proc'&&html`<${ProcessView} c=${c}/>`}${t==='exp'&&html`<${ExpView} c=${c}/>`}
  ${t==='compound'&&html`<div className="text-[11.5px] mute mb-3 px-1">Spielwelt: Punkte und Mengen. Echte Ergebnisse findest du unter „Ergebnisse“.</div>`}
  ${t==='compound'&&html`<${Compound} c=${c}/>`}${t==='matrix'&&html`<${LifeMatrix} c=${c}/>`}${t==='gen'&&html`<${Gen} c=${c}/>`}${t==='over'&&html`<${Over} c=${c}/>`}${t==='rec'&&html`<${Recs} c=${c}/>`}${t==='calc'&&html`<${Calc} c=${c}/>`}${t==='proj'&&html`<${Proj} c=${c}/>`}
- ${!focusMode(c.S)&&html`<button onClick=${()=>c.setTab('league')} className="card w-full p-4 mt-5 flex items-center gap-3 text-left"><span className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style=${{background:'rgba(var(--gold-rgb),.14)',color:'var(--gold)'}}><${Icon} n="trophy" s=${19}/></span><div className="flex-1"><div className="text-[14.5px] font-semibold">Arena: Liga${c.S.ui==='adv'?' und Duell':''}</div><div className="text-[12px] mute">Optionaler Wettbewerb mit simulierten Mitspielern</div></div><${Icon} n="chevR" s=${16} cls="mute"/></button>`}</div>`}
+ ${!focusMode(c.S)&&html`<button onClick=${()=>c.setTab('league')} className="card w-full p-4 mt-5 flex items-center gap-3 text-left"><span className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style=${{background:'rgba(var(--gold-rgb),.14)',color:'var(--gold)'}}><${Icon} n="trophy" s=${19}/></span><div className="flex-1"><div className="text-[14.5px] font-semibold">Arena · Mit Freunden</div><div className="text-[12px] mute">Zu zweit, zu dritt oder in einer Gruppe</div></div><${Icon} n="chevR" s=${16} cls="mute"/></button>`}</div>`}
 /* ───── Log-Berechnung ───── */
 function calcBonus(k,v,S){
  if(k==='lift'){const e=epley(v.w,v.r),ver=S.stats.bench.ver,rel=(e-ver)/ver*100;return{bonus:clamp(Math.round(rel),0,20),label:`Qualität ${rel>=0?'+':''}${n1(rel)} % zur Baseline`}}
@@ -2396,7 +2413,7 @@ function Settings({c}){const {S}=c;
  <div className="flex flex-col gap-2">
  <button type="button" onClick=${()=>c.openSheet({t:'futureSelf'})} className="ghost p-3.5 flex items-center gap-3 text-left"><${FutureSelfMark}/><span className="flex-1 text-[14px]">Dein Zukunfts-Ich<span className="block text-[11.5px] mute">${FS.settings(S).enabled?'Fragen und Präsenz einstellen':'Deaktiviert · hier wieder aktivieren'}</span></span></button>
  <div className="ghost p-3.5 flex items-center gap-3 text-[14px] font-medium"><${Icon} n="eye" s=${18} cls="acc"/><div className="flex-1">Erlebnismodus<div className="text-[11px] mute font-normal">Beide nutzen dieselben Daten, nichts geht verloren</div></div><${ModeToggle} c=${c}/></div>
- <button onClick=${c.toggleFocusMode} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="target" s=${18} cls="acc"/><div className="flex-1">Fokusmodus<div className="text-[11px] mute font-normal">Ohne Liga, Planvergleich und Punkte. Deine Daten bleiben.</div></div><span className=${`chip ${focusMode(S)?'on':''}`}>${focusMode(S)?'An':'Aus'}</span></button>
+ <button onClick=${c.toggleFocusMode} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="target" s=${18} cls="acc"/><div className="flex-1">Fokusmodus<div className="text-[11px] mute font-normal">Ohne Arena, Planvergleich und Punkte. Deine Daten bleiben.</div></div><span className=${`chip ${focusMode(S)?'on':''}`}>${focusMode(S)?'An':'Aus'}</span></button>
  <button onClick=${c.toggleWeather} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="temple" s=${18} cls="acc"/><div className="flex-1">Verwitterung im Tempel<div className="text-[11px] mute font-normal">Zeigt gemessene Rückschritte als leichte Risse. Nie bei fehlenden Daten.</div></div><span className=${`chip ${S.life.temple.weather?'on':''}`}>${S.life.temple.weather?'An':'Aus'}</span></button>
  <button onClick=${c.toggleTempleAnim} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="column" s=${18} cls="acc"/><div className="flex-1">Tempel-Animationen<div className="text-[11px] mute font-normal">Bausteine gleiten ein. Bei „Bewegung reduzieren“ automatisch aus.</div></div><span className=${`chip ${S.life.temple.anim?'on':''}`}>${S.life.temple.anim?'An':'Aus'}</span></button>
  <button onClick=${()=>{c.closeSheet();c.setTab('reflect')}} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="owl" s=${18} cls="acc"/><div className="flex-1">Reflexion<div className="text-[11px] mute font-normal">Daily Debrief, Wochenrückblick, Experimente, Muster</div></div><${Icon} n="chevR" s=${16} cls="mute"/></button>
@@ -2775,7 +2792,10 @@ function WisdomCodex({c,init}){const {S}=c;const [mode,setMode]=useState(init===
 
 /* Future Self uses the same Hoplite figure as the plan simulation. */
 function futureSelfContext(c){return{LC,day:dayKey(c.S),isDone,choices:todayPriorities(c.S,c.D),block:nextTimeBlock(c.S,nowMinOf(c)),loop:loopNow(c)}}
-function FutureSelfMark({size=40}){return html`<svg width=${size} height=${size} viewBox="10 -24 108 212" aria-hidden="true" focusable="false"><${HopliteFig} cape="var(--nem)" plume=${true}/></svg>`}
+function FutureSelfMark({size=40,animated=true}){const id='future-armour-'+React.useId().replace(/:/g,'');return html`<svg className="future-mark" width=${size} height=${size} viewBox="8 -30 108 232" aria-hidden="true" focusable="false">
+ <defs><clipPath id=${id}><path d="M34 52 Q52 46 70 52 L66 100 L38 100Z"/><circle cx="66" cy="92" r="24"/></clipPath></defs>
+ <${HopliteFig} cape="var(--nem)" plume=${true} animated=${animated}/>
+ ${animated&&html`<g className="future-breathe"><g clipPath=${'url(#'+id+')'}><path className="future-glint" d="M18 32 L96 6 L104 22 L26 48Z" fill="var(--stone)"/></g></g>`}</svg>`}
 function FutureSelfDock({c}){const p=FS.settings(c.S),key=dayKey(c.S),h=!c.sheet&&FS.hint(c.S,key,todayPriorities(c.S,c.D)),[shown,setShown]=useState(null);
  useEffect(()=>{if(h){setShown({day:key,text:h});c.upd(n=>FS.markHint(n,key))}},[h,key]);
  useEffect(()=>{if(!p.enabled||p.minimized||!p.hints)setShown(null)},[p.enabled,p.minimized,p.hints]);
@@ -2784,14 +2804,14 @@ function FutureSelfDock({c}){const p=FS.settings(c.S),key=dayKey(c.S),h=!c.sheet
  return html`<aside aria-label="Zugang zum Zukunfts-Ich" className="future-self shrink-0 relative px-4 py-1.5" style=${{borderTop:'1px solid var(--line)',background:'var(--card)'}}>
  ${hint&&html`<div className="flex items-center gap-2 pb-1"><button type="button" onClick=${()=>{setShown(null);c.openSheet({t:'futureSelf'})}} className="text-left bg-transparent border-0 flex-1 text-[12px] leading-snug" style=${{color:'var(--mute)',minHeight:44}}>${hint}</button><button type="button" aria-label="Tageshinweis ausblenden" className="icon-btn shrink-0" onClick=${()=>setShown(null)}><${Icon} n="x" s=${16}/></button></div>`}
  <div className=${'flex items-center gap-2'+(p.minimized?' justify-end':'')}>
- <button type="button" aria-label="Dein Zukunfts-Ich öffnen" title="Dein Zukunfts-Ich" onClick=${()=>c.openSheet({t:'futureSelf'})} className=${'flex items-center text-left bg-transparent border-0 p-0'+(p.minimized?'':' flex-1 min-w-0')} style=${{minWidth:44,minHeight:44,color:'var(--ink)'}}><span className="shrink-0 rounded-full" style=${{background:'var(--ghost)'}}><${FutureSelfMark}/></span>${!p.minimized&&html`<span className="min-w-0 ml-2"><span className="block text-[13.5px] font-semibold">Dein Zukunfts-Ich</span><span className="block text-[11px] mute">Deine Entscheidungen. Dein Maßstab.</span></span>`}</button>
+ <button type="button" aria-label="Dein Zukunfts-Ich öffnen" title="Dein Zukunfts-Ich" onClick=${()=>c.openSheet({t:'futureSelf'})} className=${'flex items-center text-left bg-transparent border-0 p-0'+(p.minimized?'':' flex-1 min-w-0')} style=${{minWidth:44,minHeight:44,color:'var(--ink)'}}><span className="shrink-0 rounded-full" style=${{background:'var(--ghost)'}}><${FutureSelfMark} animated=${!p.minimized&&!c.sheet}/></span>${!p.minimized&&html`<span className="min-w-0 ml-2"><span className="block text-[13.5px] font-semibold">Dein Zukunfts-Ich</span><span className="block text-[11px] mute">Deine Entscheidungen. Dein Maßstab.</span></span>`}</button>
  <button type="button" aria-label=${p.minimized?'Zukunfts-Ich-Präsenz vergrößern':'Zukunfts-Ich-Präsenz minimieren'} className="icon-btn shrink-0" onClick=${()=>c.upd(n=>FS.configure(n,{minimized:!p.minimized}))}><${Icon} n=${p.minimized?'plus':'minus'} s=${16}/></button></div></aside>`}
 function FutureSelfPanel({c}){const prefs=FS.settings(c.S),[mode,setMode]=useState(prefs.lastMode),ctx=futureSelfContext(c),answer=mode&&prefs.enabled?FS.respond(c.S,mode,ctx):null;
  const ask=m=>{const r=FS.respond(c.S,m,ctx);setMode(m);c.upd(n=>FS.record(n,m,r.rule,dayKey(n)))};
  const act=()=>{const a=answer&&answer.action;if(!a)return;if(a.kind==='item')completePriority(c,a.item);else c.openSheet({t:{goal:'goal',review:'review',plan:'dayplan'}[a.kind]||'goal'})};
  const V=({title,rows,empty})=>html`<div className="mt-4"><div className="lbl">${title}</div>${rows.length?html`<ul className="list-disc pl-5 mt-1.5 space-y-1 text-[13px] leading-snug">${rows.map((x,i)=>html`<li key=${i}>${x}</li>`)}</ul>`:html`<div className="text-[12.5px] mute mt-1">${empty}</div>`}</div>`;
  return html`<${Sheet} sub="Mögliche Zukunft · lokale Simulation" title="Dein Zukunfts-Ich" onClose=${c.closeSheet}>
- <div className="flex gap-3 items-center"><span className="shrink-0"><${FutureSelfMark} size=${64}/></span><p className="text-[13px] leading-snug">${FS.TEXT.identity}</p></div>
+ <div className="flex gap-3 items-center"><span className="shrink-0"><${FutureSelfMark} size=${120} animated=${prefs.enabled}/></span><p className="text-[13px] leading-snug">${FS.TEXT.identity}</p></div>
  <p className="text-[12px] mute mt-2 leading-snug">Eine mögliche Version von dir, keine reale Person und kein Erfolgsversprechen. Rückmeldung nur aus deinen Einträgen. Persönliche Texte bleiben auf diesem Gerät.</p>
  ${prefs.enabled?html`<div className="flex flex-col gap-2 mt-4" role="group" aria-label="Fragen an dein Zukunfts-Ich">${[['confront','Konfrontiere mich'],['next','Was würde mein Zukunfts-Ich tun?'],['verdict','Mein Tagesurteil']].map(([id,label])=>html`<button type="button" key=${id} aria-pressed=${mode===id} className=${mode===id?'btn px-3 py-3 text-[13px] text-left':'ghost px-3 py-3 text-[13px] text-left'} style=${{minHeight:44}} onClick=${()=>ask(id)}>${label}</button>`)}</div>
  ${answer?html`<section aria-label="Rückmeldung deines Zukunfts-Ichs" aria-live="polite" className="card2 p-3.5 mt-4 break-words"><div className="lbl acc">${answer.loop} · dein Success Loop</div><h3 className="text-[17px] font-semibold mt-2">${answer.title}</h3><p className="text-[14px] leading-relaxed mt-2">${answer.message}</p>${answer.next&&html`<p className="text-[13px] mute mt-2">${answer.next}</p>`}
@@ -3581,7 +3601,7 @@ function DataBackup({c}){const {S}=c;const [pend,setPend]=useState(null),[err,se
   const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);const st=j&&j.app==='war-within'?j.state:j;if(!st||st.v!==5||!Array.isArray(st.missions))throw 0;setPend({st,at:j.exported||null})}catch(x){setErr('Das ist keine gültige Sicherung von The War Within.')}};r.onerror=()=>setErr('Die Datei konnte nicht gelesen werden.');r.readAsText(f)};
  const apply=()=>{const before=S;const st=LC.ensureLife(pend.st);c.restore(st);setPend(null);c.toast('Sicherung wiederhergestellt.','good',{undo:()=>c.restore(before)})};
  return html`<div className="card2 p-3.5"><div className="flex items-center gap-2"><${Icon} n="lock" s=${15} cls="acc"/><div className="text-[14px] font-semibold flex-1">Daten sichern</div></div>
-  <div className="text-[12px] mute mt-1 leading-snug">Deine Daten liegen nur auf diesem Gerät. Mit einer Sicherung nimmst du sie auf ein neues Gerät mit.</div>
+  <div className="text-[12px] mute mt-1 leading-snug">Dein persönlicher Spielstand und private Texte liegen auf diesem Gerät. Sichere sie für den Gerätewechsel. Gemeinsame Arena-Einträge werden separat gespeichert.</div>
   <div className="grid grid-cols-2 gap-2 mt-2.5"><button type="button" onClick=${exp} className="chip justify-center">Exportieren</button><button type="button" onClick=${()=>ref.current&&ref.current.click()} className="chip justify-center">Importieren</button></div>
   <input ref=${ref} type="file" accept="application/json,.json" className="hidden" onChange=${pick} aria-label="Sicherung auswählen"/>
   ${err&&html`<div role="alert" className="text-[12px] mt-2" style=${{color:'var(--bad)'}}>${err}</div>`}
@@ -3914,8 +3934,7 @@ function Account({c}){
  if(v==='notif'){const N={daily:true,weekly:true,nemesis:true,time:'08:00',...(P.notif||{})};return W(html`<div className="flex flex-col gap-2">${NOTIF.map(([k,l,d])=>html`<button key=${k} role="switch" aria-checked=${N[k]?'true':'false'} onClick=${()=>setP({notif:{...N,[k]:!N[k]}})} className="ghost p-3.5 flex items-center gap-3 text-left"><div className="flex-1"><div className="text-[14px] font-medium">${l}</div><div className="text-[11px] mute">${d}</div></div><${Toggle} on=${N[k]}/></button>`)}
   <div className="flex items-center justify-between ghost p-3.5"><label htmlFor="nt-time" className="text-[14px] font-medium">Uhrzeit</label><input id="nt-time" type="time" className="inp" style=${{width:120,padding:'7px 10px'}} value=${N.time} onChange=${e=>setP({notif:{...N,time:e.target.value}})}/></div>
   <${DemoNote}>Im Prototyp werden noch keine Benachrichtigungen verschickt. Die Einstellungen sind für die echte App vorbereitet.<//></div>`)}
- if(v==='privacy')return W(html`<div><div className="text-[12.5px] mute mb-3">Was deine Liga sehen darf. Alles andere bleibt privat.</div><div className="flex flex-col gap-2">${Object.keys(SHARE_L).map(k=>html`<button key=${k} role="switch" aria-checked=${S.share[k]?'true':'false'} onClick=${()=>c.toggleShare(k)} className="ghost p-3.5 flex items-center gap-3 text-left"><span className="flex-1 text-[14px] font-medium">${SHARE_L[k]}</span><${Toggle} on=${!!S.share[k]}/></button>`)}</div>
-  <div className="text-[11px] mute mt-3 leading-relaxed">Liga-Mitglieder sind im Prototyp simuliert. Es werden keine Daten an andere übertragen.</div></div>`);
+ if(v==='privacy')return W(html`<div><div className="card2 p-3 text-[13px] leading-relaxed"><b>Gemeinsame Arena</b><p className="mt-2">Wenn du einer Arena beitrittst, sehen ihre Mitglieder deinen Arenanamen, die gewählten Wochentage, deine gemeldeten Erfüllungen und deine Reaktionen.</p><p className="mt-2">Deine E-Mail-Adresse, persönliche Ziele, Gedanken, Reflexionen und Zukunftstexte werden dort nicht geteilt. Es werden keine Körper- oder Finanzwerte übertragen.</p></div><p className="text-[12px] mute mt-3">Dein persönlicher Spielstand bleibt auf diesem Gerät. Gemeinsame Arena-Einträge werden separat gespeichert. Der persönliche Planvergleich verwendet weiterhin eine Simulation.</p></div>`);
  return null}
 function Toggle({on}){return html`<span className="w-11 h-6 rounded-full relative shrink-0 transition-colors" style=${{background:on?'var(--acc)':'var(--card2)',border:'1px solid var(--line)'}}><span className="absolute top-[2px] w-[18px] h-[18px] rounded-full bg-white transition-all" style=${{left:on?22:2}}/></span>`}
 function ProfileEdit({c,P,name,setP,done}){const [n,setN]=useState(name);const [age,setAge]=useState(P.ageRange||'');
@@ -3964,7 +3983,7 @@ const METRICS={'5-km-Lauf':[true,S=>S.stats.run5k.last,fmtT],'Bankdrücken (Verb
 function App({init,auth,skey='war_within_v5'}){
  const [S,setS]=useState(()=>{const s=syncCalendar(LC.ensureLife(init||loadState(skey)));WC.ensure(s);FS.ensure(s);LC.syncTemple(s);return s});
  const [tSel,setTSel]=useState(null),[tFlash,setTFlash]=useState(null);
- const [tab,setTab]=useState('home'),[statTab,setStatTab]=useState('out'),[sheet,setSheet]=useState(null),[sel,setSel]=useState(null),[coreSel,setCoreSel]=useState(null),[freq,setFreq]=useState('all');
+ const [tab,setTab]=useState(()=>{try{return !focusMode(S)&&new URLSearchParams(location.search).has('arena')?'league':'home'}catch(e){return'home'}}),[statTab,setStatTab]=useState('out'),[sheet,setSheet]=useState(null),[sel,setSel]=useState(null),[coreSel,setCoreSel]=useState(null),[freq,setFreq]=useState('all');
  const [toasts,setToasts]=useState([]),[floats,setFloats]=useState([]),[flash,setFlash]=useState({}),[sparks,setSparks]=useState([]),[undo,setUndo]=useState(null);
  useEffect(()=>{if(!undo)return;const t=setTimeout(()=>setUndo(u=>u&&u.id===undo.id?null:u),5000);return()=>clearTimeout(t)},[undo&&undo.id]);
  const now=useNow(1000);const scrollRef=useRef(null);const [scrolled,setScrolled]=useState(false);const [fabOff,setFabOff]=useState(false);const lastY=useRef(0);const lock=useRef({});
@@ -3981,7 +4000,7 @@ function App({init,auth,skey='war_within_v5'}){
  const fx=(pos,text)=>{const id=uid();const p=pos&&pos.currentTarget?pos.currentTarget.getBoundingClientRect():pos&&pos.left!=null?pos:{left:200,top:420,width:0};setFloats(f=>[...f,{id,x:p.left+(p.width||0)/2,y:p.top,text}]);setTimeout(()=>setFloats(f=>f.filter(x=>x.id!==id)),1200)};
  const [simMin,setSimMin]=useState(null);
  const openSheet=o=>setSheet(o),closeSheet=()=>setSheet(null);
- useEffect(()=>{if(focusMode(S)&&tab==='solo')setTab('home')},[S.life&&S.life.focusMode,tab]);
+ useEffect(()=>{if(focusMode(S)&&['solo','league'].includes(tab))setTab('home')},[S.life&&S.life.focusMode,tab]);
  /* Rang-Toasts */
  const pr=useRef(D.me.rank);
  useEffect(()=>{const p=pr.current;if(focusMode(S)||D.standings.every(x=>!x.pts)){pr.current=D.me.rank;return}if(D.me.rank>p)toast(`${D.standings[D.me.rank-2].name} hat dich überholt: jetzt Platz ${D.me.rank}`,'warn');else if(D.me.rank<p)toast(`Du bist auf Platz ${D.me.rank} aufgestiegen!`,'good');pr.current=D.me.rank},[D.me.rank]);
@@ -4139,7 +4158,7 @@ function App({init,auth,skey='war_within_v5'}){
  const setLifeGoalStatus=(gid,st)=>{lifeUpd(n=>{LC.setGoalStatus(n,gid,st);if(st==='achieved')n.life.flags={...(n.life.flags||{}),goal:true}});setSheet(null);toast(st==='achieved'?'Ziel erreicht. Stark. Zeit für das nächste.':st==='archived'?'Ziel archiviert. Verlauf und Messwerte bleiben.':'Ziel wieder aktiv.','good')};
  const addMeas=(gid,v)=>{const g=LC.goalById(S.life,gid),hit=g&&g.status==='active'&&LC.reached(g,v);lifeUpd(n=>{LC.addMeasurement(n,gid,v)});setSheet(null);toast(hit?'Zielwert erreicht! Das ist echter Fortschritt.':'Messwert gespeichert. Er fließt in den Wochenrückblick ein.','good')};
  const saveWeekly=p=>{lifeUpd(n=>{Object.entries(p.decisions||{}).forEach(([id,d])=>LC.decideExperiment(n,id,d));const e=p.exp?LC.startExperiment(n,{...p.exp,wk:p.wk}):null;LC.saveWeeklyReview(n,{wk:p.wk,rate:p.rate,rows:p.rows,worked:p.worked,notWorked:p.notWorked,obstacle:p.obstacle,expStarted:e&&e.id,expLabel:e&&e.label})});setSheet(null);toast(p.exp?'Experiment gestartet. Im nächsten Rückblick prüfst du, ob es wirkt.':'Wochenrückblick gespeichert.','good')};
- const toggleFocusMode=()=>{const on=focusMode(S);lifeUpd(n=>{n.life.focusMode=!on;if(on&&n.life.fund&&n.life.fund.ob)n.life.fund.ob={...n.life.fund.ob,calmOff:true}});toast(on?'Fokusmodus aus: Liga, Planvergleich und Punkte sind wieder da.':'Fokusmodus an: Ziele, Handlungen und Reflexion.','good')};
+ const toggleFocusMode=()=>{const on=focusMode(S);lifeUpd(n=>{n.life.focusMode=!on;if(on&&n.life.fund&&n.life.fund.ob)n.life.fund.ob={...n.life.fund.ob,calmOff:true}});toast(on?'Fokusmodus aus: Arena, Planvergleich und Punkte sind wieder da.':'Fokusmodus an: Ziele, Handlungen und Reflexion.','good')};
  const setAreaSat=(id,v)=>lifeUpd(n=>{n.life.areas[id]={...(n.life.areas[id]||{}),sat:v,known:true}});
  const setFocusArea=id=>{lifeUpd(n=>{n.life.focus=id});toast(LC.AREA[id].de+' hat jetzt Priorität.','good')};
  const setMainGoal=gid=>{lifeUpd(n=>{n.life.main=gid});setSheet(null);toast('Hauptziel geändert.','good')};
@@ -4176,14 +4195,14 @@ function App({init,auth,skey='war_within_v5'}){
  const newA=S.newAch[0];
  useEffect(()=>{if(!newA)return;const t=setTimeout(()=>upd(n=>{n.newAch=n.newAch.slice(1)}),2600);return()=>clearTimeout(t)},[newA]);
  const c={auth,upd,restore:x=>setS(syncCalendar(structuredClone(x))),wisFav,wisDismiss,wisToggle,saveDebrief,saveEvening,saveMonthly,tSel,setTSel,tFlash,toggleWeather,toggleTempleAnim,closeTempleSeason,setSkin,addLifeGoal,updLifeGoal,setLifeGoalStatus,addMeas,saveWeekly,toggleFocusMode,setAreaSat,setFocusArea,setMainGoal,saveValues,saveWhy,setActPerWeek,removeAction,addActionTo,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,togglePush,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
- const nav=[['home','Heute','home'],['tasks','Aufgaben','target'],['life','Mein Leben','grid'],['stats','Fortschritt','bars'],...(focusMode(S)?[]:[['solo','Duell','swords']])];const navKey={league:'stats',reflect:'home'}[tab]||tab;const revDue=LC.reviewWeek(S.life)!=null;
+ const nav=[['home','Heute','home'],['tasks','Aufgaben','target'],['life','Mein Leben','grid'],['stats','Fortschritt','bars'],...(focusMode(S)?[]:[['league','Arena','swords']])];const navKey={solo:'league',reflect:'home'}[tab]||tab;const revDue=LC.reviewWeek(S.life)!=null;
  const ach=newA&&ACHS.find(a=>a.id===newA);
  const fp=FS.settings(S),dockOffset=fp.enabled?(fp.hints&&!fp.minimized?240:180):104;
  return html`<div data-theme=${S.theme} data-skin=${S.skin||'antik'} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(var(--acc-rgb),.12)'}}>
  <div className="absolute inset-0 pointer-events-none overflow-hidden"><div className="absolute rounded-full" style=${{top:-110,left:-80,width:300,height:300,background:'rgba(var(--acc-rgb),.13)',filter:'blur(70px)'}}/><div className="absolute rounded-full" style=${{top:260,right:-140,width:260,height:260,background:'rgba(var(--sky-rgb),.07)',filter:'blur(80px)'}}/></div>
  <div ref=${scrollRef} onScroll=${e=>{const y=e.currentTarget.scrollTop,v=y>70;if(v!==scrolled)setScrolled(v);const dn=y>lastY.current+4,up=y<lastY.current-4;if(dn&&!fabOff&&y>120)setFabOff(true);else if((up||y<120)&&fabOff)setFabOff(false);lastY.current=y}} className="flex-1 overflow-y-auto relative scroll-fade" style=${{paddingBottom:dockOffset}}>
-  ${['league','reflect'].includes(tab)&&html`<div className="px-4 pt-4 -mb-2 flex gap-2"><button onClick=${()=>setTab(navKey)} className="chip flex items-center gap-1"><${Icon} n="chevL" s=${14}/>${navKey==='home'?'Heute':'Fortschritt'}</button></div>`}${tab==='home'&&html`<${Home} c=${c}/>`}${tab==='life'&&html`<${MyLife} c=${c}/>`}${tab==='reflect'&&html`<${Reflect} c=${c}/>`}${tab==='tasks'&&html`<${Tasks} c=${c}/>`}${tab==='solo'&&html`<${Solo} c=${c}/>`}${tab==='league'&&html`<${League} c=${c}/>`}${tab==='stats'&&html`<${Stats} c=${c}/>`}</div>
- ${(()=>{const T={home:'Heute',life:'Mein Leben',reflect:'Reflexion',tasks:'Aufgaben',solo:'Duell · Saison '+S.season,league:'Liga',stats:'Fortschritt'}[tab];return html`<div aria-hidden=${!scrolled} className="topbar absolute top-0 inset-x-0 z-20 px-4 flex items-center justify-between pointer-events-none" style=${{height:52,paddingTop:'env(safe-area-inset-top)',opacity:scrolled?1:0,transform:scrolled?'none':'translateY(-8px)',background:'var(--glass)',backdropFilter:'blur(16px) saturate(1.4)',WebkitBackdropFilter:'blur(16px) saturate(1.4)',borderBottom:'1px solid var(--line)'}}><div className="disp text-[19px]">${T}</div><button tabIndex=${scrolled?0:-1} onClick=${()=>{if(scrollRef.current)scrollRef.current.scrollTo({top:0,behavior:'smooth'})}} className="chip pointer-events-auto" style=${{padding:'4px 10px',minHeight:28}} aria-label="Nach oben"><${Icon} n="up" s=${14}/></button></div>`})()}
+  ${['solo','reflect'].includes(tab)&&html`<div className="px-4 pt-4 -mb-2 flex gap-2"><button onClick=${()=>setTab(navKey)} className="chip flex items-center gap-1"><${Icon} n="chevL" s=${14}/>${navKey==='home'?'Heute':'Arena'}</button></div>`}${tab==='home'&&html`<${Home} c=${c}/>`}${tab==='life'&&html`<${MyLife} c=${c}/>`}${tab==='reflect'&&html`<${Reflect} c=${c}/>`}${tab==='tasks'&&html`<${Tasks} c=${c}/>`}${tab==='solo'&&html`<${Solo} c=${c}/>`}${tab==='league'&&html`<${League} c=${c}/>`}${tab==='stats'&&html`<${Stats} c=${c}/>`}</div>
+ ${(()=>{const T={home:'Heute',life:'Mein Leben',reflect:'Reflexion',tasks:'Aufgaben',solo:'Duell · Saison '+S.season,league:'Arena',stats:'Fortschritt'}[tab];return html`<div aria-hidden=${!scrolled} className="topbar absolute top-0 inset-x-0 z-20 px-4 flex items-center justify-between pointer-events-none" style=${{height:52,paddingTop:'env(safe-area-inset-top)',opacity:scrolled?1:0,transform:scrolled?'none':'translateY(-8px)',background:'var(--glass)',backdropFilter:'blur(16px) saturate(1.4)',WebkitBackdropFilter:'blur(16px) saturate(1.4)',borderBottom:'1px solid var(--line)'}}><div className="disp text-[19px]">${T}</div><button tabIndex=${scrolled?0:-1} onClick=${()=>{if(scrollRef.current)scrollRef.current.scrollTo({top:0,behavior:'smooth'})}} className="chip pointer-events-auto" style=${{padding:'4px 10px',minHeight:28}} aria-label="Nach oben"><${Icon} n="up" s=${14}/></button></div>`})()}
  
  <div className="absolute bottom-0 inset-x-0 z-30" style=${{paddingBottom:'env(safe-area-inset-bottom)',background:'var(--bg)',borderTop:'1px solid var(--line)'}}>
   <${FutureSelfDock} c=${c}/>

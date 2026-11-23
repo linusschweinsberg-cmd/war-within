@@ -1,6 +1,7 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 const dir=process.argv[2]||require('path').join(__dirname,'..');
 const source=fs.readFileSync(dir+'/index.html','utf8');
+for(const m of source.matchAll(/<script src="(?!https?:)([^"]+)"/g))new vm.Script(fs.readFileSync(dir+'/'+m[1].split('?')[0],'utf8'));
 const script=[...source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).find(s=>s.includes('function loadState'));
 new vm.Script(fs.readFileSync(dir+'/future-self-core.js','utf8'));new vm.Script(script);new vm.Script(fs.readFileSync(dir+'/auth.js','utf8'));new vm.Script(fs.readFileSync(dir+'/sw.js','utf8'));
 const c=vm.createContext({window:{authApi:{}},React:{},htm:{bind:()=>()=>null},ReactDOM:{createRoot:()=>({render(){}})},document:{getElementById:()=>({})},localStorage:{getItem:()=>null},console});

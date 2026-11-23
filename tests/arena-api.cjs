@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs'),path=require('node:path');
+const ctx=vm.createContext({URL});for(const f of ['arena-core.js','arena-api.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),ctx);
+(async()=>{const calls=[];let err;const a=ctx.ArenaApi.create(async(name,args)=>{calls.push({name,args});if(err)throw Error(err);return{ok:true}});
+ await a.create({name:' Kreis ',displayName:' Linus ',capacity:3,audit:'private'});assert.equal(calls[0].args.p_data.capacity,3);assert.equal(calls[0].args.p_data.display_name,'Linus');assert.equal('audit' in calls[0].args.p_data,false);
+ await a.join({code:' abcd ',displayName:'A'});assert.equal(calls.at(-1).args.p_data.code,'ABCD');
+ await a.save('league',1,{mind:3,body:2,growth:4,bonds:1});assert.equal(calls.at(-1).args.p_data.week,1);await assert.rejects(a.save('league',1,{mind:99}),/ein bis sieben/);
+ await a.report('league','mind',true);assert.deepEqual(Object.keys(calls.at(-1).args.p_data).sort(),['done','slot']);assert.equal('day' in calls.at(-1).args.p_data,false,'server owns date');assert.equal('score' in calls.at(-1).args.p_data,false,'client cannot send a score');
+ await a.react('league','event','respect');await a.start('league');await a.list();await a.load('league');assert.equal(calls.at(-1).name,'arena_snapshot');
+ err='PGRST202 schema cache';await assert.rejects(a.list(),/noch nicht freigeschaltet/);err='Failed to fetch';await assert.rejects(a.list(),/Keine Verbindung/);err='Diese Arena ist bereits voll.';await assert.rejects(a.join({code:'x',displayName:'A'}),/bereits voll/);
+ const authSource=fs.readFileSync(path.join(__dirname,'../auth.js'),'utf8');let rpc;const authContext=vm.createContext({window:{WAR_WITHIN_SUPABASE:{url:'https://test.supabase.co',publishableKey:'sb_publishable_test'},supabase:{createClient:()=>({auth:{onAuthStateChange(){}},rpc:async(name,args)=>{rpc={name,args};return{data:[]}}})}},location:{},sessionStorage:{}});vm.runInContext(authSource,authContext);await authContext.window.authApi.arenaRpc('arena_list',{});assert.equal(rpc.name,'arena_list');await assert.rejects(authContext.window.authApi.arenaRpc('arbitrary_rpc',{}),/Unbekannte/);
+ console.log('PASS arena API: payload allowlists, no private text/score/date upload, shared auth client, errors, RPC restrictions');
+})().catch(e=>{console.error(e);process.exitCode=1});

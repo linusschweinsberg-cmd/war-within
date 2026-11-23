@@ -41,3 +41,10 @@ Die Leiste hat eigenen Platz über der Navigation. Inhalt und bestehende Undo-/R
 Automatisch: zehn Testskripte (future-self, today-focus, calendar, life-core, release-smoke, auth-contract, wisdom-core, ftue-flows, auth-resume, service-worker). Die neuen Tests decken leere/vollständige Profile, offene/erledigte Vorhaben, unbekannte Erledigungstage, Rückschläge, Erholung, schwierigen Tag ohne unterstellte Energieknappheit, Standards/Minimum/Commitment, echte Ergebniswerte, unveränderte Bestandsdaten, reine Leselogik ohne Punkte und datensparsame Persistenz ab. Offline-Test umfasst das neue Skript und den Upgradepfad über versionsgebundene URLs; Release ww-v59.
 
 Browser: frischer lokaler Gast, alle drei Modi, Zugang aus Heute/Aufgaben/Mein Leben/Fortschritt/Duell, aktuelle Rückmeldung nach tatsächlicher Erledigung, Modus/Minimieren/Deaktivieren nach Reload, Wiederaktivierung über Optionen, einmaliger Tageshinweis und Ausblenden mit anschließendem Reload geprüft. Escape/Fokusrückkehr und Tab-Schleife bestätigt. Mobile 375 px, Desktop sowie hell/dunkel und antik/violet geprüft. Leere und vollständige persönliche Profile sind deterministisch im Test abgedeckt; kein echter E-Mail-Postfach-Test. Veröffentlichung erst nach Review; keine Supabase-Einstellung oder Migration geändert.
+
+
+## Animation (ww-v60)
+
+Die vorhandene Hopliten-Figur atmet langsam, ihr Umhang bewegt sich leicht und ein kurzer Lichtreflex läuft über die Rüstung. Im Dialog ist sie größer sichtbar. SVG und CSS nutzen ausschließlich vorhandene Theme-Farben; keine neuen Bilder, Bibliotheken, Netzaufrufe oder Zustandsänderungen. Andere Szenen behalten ihre bisherige Darstellung.
+
+Die minimierte Präsenz und eine deaktivierte Figur bleiben statisch; bei geöffnetem Dialog ruht die Figur in der Zugangsleiste. Die Systemeinstellung „Bewegung reduzieren“ schaltet alle drei Animationen vollständig ab. Keine Tonwiedergabe.
