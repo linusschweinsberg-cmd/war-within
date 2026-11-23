@@ -39,11 +39,19 @@
   const max=Math.max(0,...activity.map(m=>m.activeDays));
   return{comebacks,consistent:max?activity.filter(m=>m.activeDays===max):[],days:max};
  }
+ /* Nächster Zug: was eine Meldung heute je Bereich bringt – gleiche Wertungsfunktion, nur vorausgerechnet, nichts wird verändert. */
+ function gains(s){const p=phase(s);if(p.kind!=='running')return[];const me=s.user_id,t=targetsOf(s),before=weekly(s,p.week),mine=before.find(r=>r.user_id===me);if(!mine)return[];
+  const at=s.server_now||new Date(date(s.today)+12*3600000).toISOString();
+  return SLOTS.filter(x=>!s.completions.some(e=>e.user_id===me&&e.week===p.week&&e.slot===x.id&&e.day===s.today)&&mine.counts[x.id]<t[x.id]).map(x=>{
+   const after=weekly({...s,completions:[{id:'preview',user_id:me,week:p.week,slot:x.id,day:s.today,created_at:at},...s.completions]},p.week),r=after.find(y=>y.user_id===me);
+   const passes=before.filter(o=>o.user_id!==me&&o.score>=mine.score&&o.score<r.score).map(o=>o.display_name);
+   return{slot:x.id,points:r.score-mine.score,rank:r.rank,oracle:oracle(s,s.today)===x.id,bounty:r.bounty>mine.bounty,passes};
+  }).sort((a,b)=>b.points-a.points||SLOTS.findIndex(x=>x.id===a.slot)-SLOTS.findIndex(x=>x.id===b.slot));}
  function season(s){const p=phase(s);return s.members.map(m=>({...m,points:Array.from({length:p.closed},(_,i)=>weekly(s,i+1).find(x=>x.user_id===m.user_id)?.points||0).reduce((a,b)=>a+b,0)})).map((m,i,a)=>({...m,rank:1+a.filter(x=>x.points>m.points).length})).sort((a,b)=>a.rank-b.rank||a.display_name.localeCompare(b.display_name,'de'));}
  function invitation(code,base){const url=new URL(base);url.search='';url.hash='';url.searchParams.set('arena',String(code));return url.href;}
  /* Automatische Übernahme: welche App-Aufgabe zählt für welchen Arena-Bereich. Finanzen haben bewusst keinen Platz. */
  const ACT_SLOT={body:'body',run:'body',lang:'growth',read:'growth',deep:'growth',code:'growth',rel:'bonds'};
  function contribution(S,m,extra={}){if(extra.auto)return null;const slot=ACT_SLOT[m.act],action=(S.life?.actions||[]).find(a=>a.missionId===m.id&&!a.off),minutes=extra.arenaMinutes??action?.minutes;
   return slot&&Number.isFinite(minutes)&&minutes>=({body:20,growth:20,bonds:10,mind:10}[slot])?slot:null;}
- G.ArenaCore={SLOTS,DEFAULT_TARGETS,ORACLE_FACTOR,BOUNTY,ACT_SLOT,contribution,phase,validTargets,targetsOf,oracle,bounty,weekly,awards,season,invitation,addDays};
+ G.ArenaCore={SLOTS,DEFAULT_TARGETS,ORACLE_FACTOR,BOUNTY,ACT_SLOT,contribution,phase,validTargets,targetsOf,oracle,bounty,weekly,gains,awards,season,invitation,addDays};
 })(typeof window==='undefined'?globalThis:window);

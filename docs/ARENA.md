@@ -90,3 +90,12 @@ Lokaler Integrations-Review: Heute, Mein Leben und Arena bei 375 × 812 geprüft
 Stufe Handeln: Auszeichnungen würdigen die Umsetzung gemeinsamer Standards. Comeback: nach einem bereits aktiven Saisontag mindestens zwei freie Kalendertage und dann drei aktive Tage in Folge. Ein Bereich pro Tag reicht. Lorbeer am dritten Tag, auch über Wochengrenzen, höchstens einmal je Person/Woche. Rücknahmen aktualisieren die Ableitung. Keine Zusatzpunkte. Konstanz würdigt die meisten unterschiedlichen aktiven Tage, auch bei Gleichstand. Keine Aktivität bedeutet keine Auszeichnung.
 
 Abgeschlossene Wochen erscheinen in der Wochenzeremonie, neueste zuerst: Podest, Wochensieg, Konstanz und Comebacks. Wertung nachvollziehen zeigt je Mitglied Tage/Soll, gerundete Basis und Orakel je Bereich, Prämie, Gesamtsumme, Rang und Tabellenpunkte; laufende Woche vorläufig. Alle Zahlen stammen aus derselben Wertungsfunktion. Nur bestehende öffentliche Meldungen; keine privaten Texte, neue Serverdaten oder Migration.
+
+## Nächster Zug, Kampfbericht und neue Zeremonie (ww-v69)
+
+Stufe Handeln: Die Arena zeigt, was heute zählt.
+
+- **Dein nächster Zug** (Kampfplatz): `ArenaCore.gains(snapshot)` rechnet für jeden offenen Bereich mit derselben Wertungsfunktion vor, wie viele Arenapunkte eine Meldung heute bringt (Orakel und Wochenprämie eingeschlossen) und an wem du damit vorbeiziehst. Der beste Bereich lässt sich direkt melden; die Kacheln unter „Heute melden“ zeigen den Wert je Bereich. Bereits heute gemeldete oder volle Bereiche erscheinen nicht. Rein lesend, keine neuen Serverdaten.
+- **Kampfbericht:** nach Tagen gruppiert (Heute, Gestern, Datum), Herkunft sichtbar („selbst gemeldet“ bzw. „aus Aufgaben übernommen“), zunächst sechs Einträge, ältere auf Wunsch. Eigene Meldungen zeigen erhaltene Reaktionen statt Reaktionsknöpfen; der SQL-Entwurf lehnt Reaktionen auf eigene Meldungen ab.
+- **Neu gewertet:** Ist eine Woche abgeschlossen, erscheint ihre Zeremonie einmal oben, bis „Gesehen“ getippt wird. Gemerkt wird nur die Wochennummer je Arena (`S.arenaSeen`), lokal im Spielstand.
+- Texte zur automatischen Übernahme (Opt-in) und zur Sichtbarkeit beim Beitritt an den aktuellen Stand angepasst.
