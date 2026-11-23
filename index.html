@@ -1515,39 +1515,39 @@ const doneToday=S=>{try{return FS.context(S,{LC,isDone,choices:[],day:dayKey(S)}
 const tint=(col,p)=>`color-mix(in srgb,${col} ${p}%,transparent)`;
 function AreaBadge({area,size=40}){const col=area?area.color:'var(--acc2)';
  return html`<span aria-hidden="true" className="shrink-0 flex items-center justify-center" style=${{width:size,height:size,borderRadius:size*.32,background:tint(col,16),color:col,boxShadow:'0 0 0 1px '+tint(col,30)+' inset'}}><${Icon} n=${area?area.icon:'target'} s=${Math.round(size*.5)}/></span>`}
-function TodayHero({c,open,ini}){const {S}=c,now=nowMinOf(c),nm=((S.profile&&S.profile.name)||'').trim(),hr=Math.floor(now/60),greet=hr<5?'Gute Nacht':hr<11?'Guten Morgen':hr<17?'Guten Tag':hr<22?'Guten Abend':'Gute Nacht';
- const done=doneToday(S),total=done+open,rest=c.D.restToday,all=total>0&&!open;
- return html`<section className="card relative overflow-hidden px-5 pt-3 pb-5 mt-4" style=${{background:'var(--hero)'}} aria-label="Dein Tag">
+/* Ringe je Lebensbereich: „Fokus heute“ (wie im Aufgaben-Tab) plus eigenständige Standards. Erledigt/geplant, kein erfundener Wert. */
+function areaDay(S,D){const L=S.life||{},out={};LC.AREAS.forEach(a=>{out[a.id]={area:a,total:0,done:0,open:[]}});
+ focusMs(S,D).forEach(m=>{const o=out[LC.ACT_AREA[m.act]];if(!o)return;o.total++;if(isDone(S,m))o.done++;else o.open.push(m)});
+ Object.values(L.standards||{}).filter(x=>x.std&&!x.aid&&x.status!=='paused').forEach(x=>{const o=out[x.area];if(!o)return;o.total++;if((L.stdLog||[]).some(e=>e.area===x.area&&e.d===(L.d||0)))o.done++;else o.std=x});
+ return LC.AREAS.map(a=>out[a.id])}
+/* Nächste Handlung eines Bereichs: zuerst aus den Prioritäten, sonst offene Fokus-Mission oder offener Standard. */
+function areaItem(S,items,ring){if(!ring)return null;const hit=items.find(x=>{const a=priorityArea(x);return a&&a.id===ring.area.id});if(hit)return hit;
+ const m=ring.open[0];if(m){const x=goalMs(S).find(y=>y.m.id===m.id);return{key:'m:'+m.id,kind:'mission',m,g:x&&x.g,title:m.title}}
+ return ring.std?{key:'std:'+ring.area.id,kind:'standard',std:ring.std,area:ring.area.id,title:ring.std.std.text}:null}
+function TodayHero({c,ini,rings,sel,onSel}){const {S}=c,rest=c.D.restToday,planned=rings.filter(r=>r.total>0),closed=planned.filter(r=>r.done>=r.total).length,all=planned.length>0&&closed===planned.length;
+ return html`<section className="card relative overflow-hidden px-4 pt-3 pb-4 mt-4" style=${{background:'var(--hero)'}} aria-label="Dein Tag">
  <div className="flex items-center justify-between gap-2"><div className="lbl truncate">${deDate(c.now,calendarZone(S))}</div><div className="flex shrink-0 -mr-2"><button aria-label="Menü und Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0" style=${{color:'var(--ink)'}}><${Icon} n="dots" s=${20}/></button><button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0 p-0"><span className="w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold" style=${{background:'var(--card2)',color:'var(--ink)',boxShadow:'0 0 0 1px var(--line) inset'}}>${ini}</span></button></div></div>
- <div className="flex items-center gap-4">
- <div className="flex-1 min-w-0"><h1 className="disp text-[34px] leading-none">Heute</h1><div className="text-[14px] mute mt-2 truncate">${greet}${nm?', '+nm:''}</div></div>
- <${Ring} pct=${rest?1:total?done/total:0} size=${80} stroke=${8} color=${all||rest?'var(--done)':'var(--acc)'}>${rest?html`<${Icon} n="moon" s=${26}/>`:html`<div className="num text-[26px] font-bold leading-none">${done}<span className="text-[15px] mute">/${total}</span></div>`}<//>
- </div>
- ${all&&html`<div className="mt-3 text-[13px] font-semibold" style=${{color:'var(--done)'}}>Alles erledigt. Stark.</div>`}
+ <div className="flex items-end justify-between gap-2"><h1 className="disp text-[34px] leading-none">Heute</h1>
+ <button type="button" onClick=${()=>c.setTab('tasks')} className="bg-transparent border-0 flex items-center gap-0.5 text-[13px] px-1" style=${{minHeight:36,color:all?'var(--good)':'var(--mute)'}}>${rest?'Ruhetag':all?'Alle Ringe geschlossen':closed+' von '+planned.length+' Ringen'}<${Icon} n="chevR" s=${14}/></button></div>
+ <div className="grid grid-cols-4 gap-1 mt-3" role="group" aria-label="Lebensbereiche heute">${rings.map(r=>{const a=r.area,has=r.total>0,full=has&&r.done>=r.total,on=sel===a.id;
+  return html`<button key=${a.id} type="button" onClick=${()=>has?onSel(a.id):c.setTab('life')} aria-pressed=${on} aria-label=${a.de+': '+(has?r.done+' von '+r.total+' erledigt':'heute nichts geplant')} className="bg-transparent border-0 p-0 flex flex-col items-center gap-1" style=${{color:'var(--ink)',minHeight:44,opacity:has?1:.45}}>
+  <span className="rounded-full" style=${{padding:2,boxShadow:on&&has?'0 0 0 2px '+tint(a.color,55):'none',transition:'box-shadow .2s'}}><${Ring} pct=${has?r.done/r.total:0} size=${58} stroke=${6} color=${a.color}><span style=${{color:a.color,display:'flex'}}>${full?html`<${Icon} n="check" s=${20} sw=${2.6}/>`:html`<${Icon} n=${a.icon} s=${20}/>`}</span><//></span>
+  <span className=${'text-[11px] leading-tight '+(on&&has?'font-semibold':'mute')}>${a.de}</span></button>`})}</div>
  </section>`}
-function NowCard({c,item}){const area=priorityArea(item),logs=item.kind==='mission'&&wantsLog(c.S,item.m),t=cleanTitle(item.title);
- return html`<section className="relative overflow-hidden mt-4 p-5" data-today-priority="primary" aria-label="Jetzt" style=${{borderRadius:24,paddingTop:12,background:'linear-gradient(150deg,var(--acc) 0%,var(--acc-d) 100%)',color:'var(--on-acc)',boxShadow:'0 18px 40px -18px rgba(var(--acc-rgb),.75)'}}>
- <div className="flex items-center justify-between gap-2"><span className="text-[11px] font-bold tracking-[.16em] uppercase" style=${{opacity:.85}}>Jetzt${item.when?' · '+item.when:''}</span>
+function NowCard({c,item,ring}){const area=priorityArea(item),logs=item.kind==='mission'&&wantsLog(c.S,item.m),t=cleanTitle(item.title),open=ring&&ring.total-ring.done>0,closes=ring&&ring.total-ring.done===1;
+ return html`<section className="relative overflow-hidden mt-3 p-5" data-today-priority="primary" aria-label="Jetzt" style=${{borderRadius:24,paddingTop:12,background:'linear-gradient(150deg,var(--acc) 0%,var(--acc-d) 100%)',color:'var(--on-acc)',boxShadow:'0 18px 40px -18px rgba(var(--acc-rgb),.75)'}}>
+ <div className="flex items-center justify-between gap-2"><span className="text-[11px] font-bold tracking-[.16em] uppercase" style=${{opacity:.85}}>${area&&open?area.de+' fehlt noch':'Jetzt'}${item.when?' · '+item.when:''}</span>
  <button type="button" onClick=${()=>priorityDetail(c,item)} aria-label=${'Details: '+t} className="flex items-center justify-center border-0 rounded-full" style=${{width:44,height:44,background:'color-mix(in srgb,var(--on-acc) 14%,transparent)',color:'var(--on-acc)'}}><${Icon} n="info" s=${18}/></button></div>
- <div className="flex items-center gap-3 mt-2">${area&&html`<span aria-hidden="true" className="shrink-0 flex items-center justify-center rounded-2xl" style=${{width:42,height:42,background:'color-mix(in srgb,var(--on-acc) 16%,transparent)'}}><${Icon} n=${area.icon} s=${21}/></span>`}
+ <div className="flex items-center gap-3 mt-1">${area&&html`<span aria-hidden="true" className="shrink-0 flex items-center justify-center rounded-2xl" style=${{width:42,height:42,background:'color-mix(in srgb,var(--on-acc) 16%,transparent)'}}><${Icon} n=${area.icon} s=${21}/></span>`}
  <div className="text-[22px] font-bold leading-tight break-words min-w-0">${t}</div></div>
  <div className="flex items-center gap-2 mt-4">
- <button type="button" onClick=${e=>completePriority(c,item,e)} aria-label=${'Erledigen: '+t} className="flex-1 inline-flex items-center justify-center gap-2 border-0 rounded-2xl text-[15px] font-bold" style=${{minHeight:52,background:'var(--on-acc)',color:'var(--acc-d)'}}><${Icon} n="check" s=${18} sw=${2.6}/>${logs?'Erfassen':'Erledigt'}</button>
+ <button type="button" onClick=${e=>completePriority(c,item,e)} aria-label=${'Erledigen: '+t} className="flex-1 inline-flex items-center justify-center gap-2 border-0 rounded-2xl text-[15px] font-bold" style=${{minHeight:52,background:'var(--on-acc)',color:'var(--acc-d)'}}><${Icon} n="check" s=${18} sw=${2.6}/>${logs?'Erfassen':closes?'Ring schließen':'Erledigt'}</button>
  ${item.kind==='standard'&&item.std.min&&html`<button type="button" onClick=${e=>completePriority(c,item,e,'min')} title=${item.std.min.text} className="border-0 rounded-2xl px-4 text-[14px] font-semibold" style=${{minHeight:52,background:'color-mix(in srgb,var(--on-acc) 16%,transparent)',color:'var(--on-acc)'}}>Minimum</button>`}
  </div></section>`}
-/* Folgeschritt als Kachel: Bereichsfarbe oben, Titel, Haken unten rechts. Tippen auf die Kachel öffnet Details. */
-function NextTile({c,item}){const area=priorityArea(item),col=area?area.color:'var(--acc2)',t=cleanTitle(item.title);
- return html`<div className="relative" data-today-priority="next">
- <button type="button" onClick=${()=>priorityDetail(c,item)} aria-label=${'Details: '+t} className="w-full h-full text-left border-0 px-3 py-2 pr-12 flex items-center gap-3" style=${{minHeight:58,borderRadius:20,background:'var(--card-g)',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}>
- <${AreaBadge} area=${area} size=${32}/><span className="text-[13.5px] font-semibold leading-snug min-w-0" style=${{display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>${t}</span></button>
- <button type="button" onClick=${e=>completePriority(c,item,e)} aria-label=${'Erledigen: '+t} className="absolute top-1/2 -translate-y-1/2 right-1 border-0 bg-transparent flex items-center justify-center" style=${{width:44,height:44}}><span className="flex items-center justify-center rounded-full" style=${{width:28,height:28,boxShadow:'0 0 0 2px '+tint(col,80)+' inset',color:col}}><${Icon} n="check" s=${15} sw=${2.6}/></span></button></div>`}
-function TodayPriorities({c,items,mid}){
- if(c.D.restToday)return html`<section className="card p-5 mt-4 flex items-center gap-4"><${AreaBadge} area=${LC.AREA.health} size=${48}/><div><div className="text-[17px] font-bold">Ruhetag</div><div className="text-[13px] mute">Erholung gehört zum Plan.</div></div></section>${mid}`;
- if(!items.length)return html`<section className="card p-5 mt-4"><div className="text-[18px] font-bold">Nichts mehr offen.</div><div className="flex gap-2 mt-4"><button type="button" className="btn flex-1 py-3 text-[14px]" onClick=${()=>c.openSheet({t:'review'})}>Tag abschließen</button>${!mainGoal(c.S)&&html`<button type="button" className="chip" style=${{minHeight:48}} onClick=${()=>c.openSheet({t:'goal'})}>Ziel festlegen</button>`}</div></section>${mid}`;
- const next=items.slice(1);
- return html`<${NowCard} key=${items[0].key} c=${c} item=${items[0]}/>${mid}
- ${next.length>0&&html`<section aria-label="Danach" className="mt-4"><div className="flex items-center justify-between"><div className="lbl">Danach</div><button type="button" onClick=${()=>c.setTab('tasks')} className="bg-transparent border-0 acc text-[12.5px] font-semibold flex items-center gap-0.5 px-1" style=${{minHeight:44}}>Alle<${Icon} n="chevR" s=${14}/></button></div>
- <div className="grid gap-2 mt-1">${next.map(x=>html`<${NextTile} key=${x.key} c=${c} item=${x}/>`)}</div></section>`}`}
+function TodayPriorities({c,item,ring,mid}){
+ if(c.D.restToday)return html`<section className="card p-5 mt-3 flex items-center gap-4"><${AreaBadge} area=${LC.AREA.health} size=${48}/><div><div className="text-[17px] font-bold">Ruhetag</div><div className="text-[13px] mute">Erholung gehört zum Plan.</div></div></section>${mid}`;
+ if(!item)return html`<section className="card p-5 mt-3"><div className="text-[18px] font-bold">Nichts mehr offen.</div><div className="flex gap-2 mt-4"><button type="button" className="btn flex-1 py-3 text-[14px]" onClick=${()=>c.openSheet({t:'review'})}>Tag abschließen</button>${!mainGoal(c.S)&&html`<button type="button" className="chip" style=${{minHeight:48}} onClick=${()=>c.openSheet({t:'goal'})}>Ziel festlegen</button>`}</div></section>${mid}`;
+ return html`<${NowCard} key=${item.key} c=${c} item=${item} ring=${ring}/>${mid}`}
 /* Im Blick: zwei Kacheln. Zeitblock (oder planen) und Reflexion; aktiv in Akzentfarbe. */
 function DayAhead({c}){const {S,D}=c,now=nowMinOf(c),b=nextTimeBlock(S,now),r=reviewToday(S),due=LC.reviewWeek(S.life),eve=!r&&now>=1080;
  const tile=(icon,big,small,hot,on,label)=>html`<button type="button" onClick=${on} aria-label=${label} className="text-left border-0 px-3 py-2 flex items-center gap-3 min-w-0" style=${{minHeight:58,borderRadius:20,background:hot?tint('var(--acc)',16):'var(--card-g)',boxShadow:'0 0 0 1px '+(hot?tint('var(--acc2)',45):'var(--line)')+' inset',color:'var(--ink)'}}>
@@ -1571,12 +1571,15 @@ function FutureSelfTile({c}){const {S}=c,p=FS.settings(S);if(!p.enabled)return n
  ${!fm&&!rest&&d.Y>0?html`<span className="block mt-2 space-y-1">${bar('Er',d.Z,'var(--nem)')}${bar('Du',d.X,'var(--acc)')}</span>`:html`<span className="block text-[12px] mute mt-0.5">Tippen für Rat oder Tagesurteil</span>`}
  ${!fm&&!rest&&d.Y>0&&lead>0&&html`<span className="sr-only">${lead} Schritte Rückstand</span>`}
  </span><${Icon} n="chevR" s=${16} cls="mute"/></button>`}
-function Home({c}){const {S}=c;const [more,setMore]=useState(false),nm=((S.profile&&S.profile.name)||'').trim();
- const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fm=focusMode(S),items=todayPriorities(S,c.D);
+function Home({c}){const {S}=c;const [more,setMore]=useState(false),[pick,setPick]=useState(null),nm=((S.profile&&S.profile.name)||'').trim();
+ const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fm=focusMode(S),items=todayPriorities(S,c.D),rings=areaDay(S,c.D);
+ /* Gewählter Ring, sonst der Bereich der wichtigsten Priorität; ohne offene Handlung dort zurück zur wichtigsten. */
+ const first=items[0]&&priorityArea(items[0]),chosen=rings.find(r=>r.area.id===pick),pickItem=chosen&&areaItem(S,items,chosen);
+ const item=pickItem||items[0]||null,ia=item&&priorityArea(item),ring=ia&&rings.find(r=>r.area.id===ia.id),sel=pickItem?pick:first&&first.id;
  return html`<div className="screen px-4 pb-6">
- <${TodayHero} c=${c} ini=${ini} open=${c.D.restToday?0:items.length}/>
+ <${TodayHero} c=${c} ini=${ini} rings=${rings} sel=${sel} onSel=${id=>setPick(p=>p===id?null:id)}/>
  ${S.setup&&html`<button onClick=${()=>c.openSheet({t:'newseason'})} className="btn w-full py-3 mt-3 text-sm">Neue Saison einrichten</button>`}
- <${TodayPriorities} c=${c} items=${items} mid=${html`<${FutureSelfTile} c=${c}/>`}/>
+ <${TodayPriorities} c=${c} item=${item} ring=${ring} mid=${html`<${FutureSelfTile} c=${c}/>`}/>
  <${DayAhead} c=${c}/>
  <details className="mt-4" onToggle=${e=>setMore(e.currentTarget.open)}><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center'}}>Mehr: Standards und Impulse</summary>
  ${more&&html`<${StandardsToday} c=${c}/><button type="button" className="chip mt-3" onClick=${()=>c.openSheet({t:'loopinfo'})}>Wie dein Handeln wirkt</button><${InviteCard} c=${c}/><${CalmCard} c=${c}/><${WisdomSlot} c=${c} place="today"/>${!fm&&html`<div className="mt-3"><${DayScene} c=${c}/></div><${DuelPair} c=${c}/>`}`}</details>
