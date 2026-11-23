@@ -1,3 +1,6 @@
+- PR #30 (Merge `4c6ab0a`, Release `ww-v68`): enthält #23–#29, #31 und `codex/arena-ceremony` – Kalender-Korrekturen, Arena mit Freunden (faire Wertung, Amphitheater, Orakel, Wochenprämie, Wochenzeremonie, Comeback), Heute Variante B, Mein Leben als Tempel. Automatische Arena-Übernahme nur nach Opt-in mit Herkunftscode; Claude hat die Codex-Commits `6476df5`/`78be182` reviewt. Alle 16 Tests bestanden; Wochenzeremonie im lokalen Arena-Testserver geprüft. Supabase-Migration weiterhin nur Entwurf, nicht angewendet; Prüfung mit echten Konten offen.
+- (nichts)
+
 # THE WAR WITHIN – Projektkontext (für Claude Code / Codex)
 
 Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einzelne Datei `index.html`.
