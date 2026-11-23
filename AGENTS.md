@@ -27,6 +27,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
+- Codex · `codex/future-self-animation` · `index.html`, `sw.js`, `tests/future-self.cjs`, `tests/wisdom-core.cjs`, `tests/service-worker.cjs`, `docs/FUTURE-SELF.md`, `AGENTS.md`.
 
 ### Letzte Integration
 - PRs #20 → #21 → #22: echte Kalendertage, vereinfachte Heute-Ansicht und lokales Zukunfts-Ich (Release `ww-v59`). Alle zehn Tests bestanden; mobile Bedienung, Persistenz und drei Interaktionen geprüft. Livegang ausdrücklich vom Nutzer beauftragt; separates Claude-Review liegt noch nicht vor. Keine Supabase-Einstellungen geändert.
@@ -37,7 +38,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v59` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v60` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`, `node tests/ftue-flows.cjs` (Abläufe: neu, vollständig, übersprungen, zurückkehrend). Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Produktprinzip (verbindlich)
