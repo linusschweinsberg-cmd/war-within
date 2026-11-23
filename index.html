@@ -18,11 +18,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v59"></script>
-<script src="auth.js?v=ww-v59"></script>
-<script src="life-core.js?v=ww-v59"></script>
-<script src="wisdom-core.js?v=ww-v59"></script>
-<script src="future-self-core.js?v=ww-v59"></script>
+<script src="supabase-config.js?v=ww-v68"></script>
+<script src="auth.js?v=ww-v68"></script>
+<script src="life-core.js?v=ww-v68"></script>
+<script src="wisdom-core.js?v=ww-v68"></script>
+<script src="future-self-core.js?v=ww-v68"></script>
+<script src="arena-core.js?v=ww-v68"></script>
+<script src="arena-api.js?v=ww-v68"></script>
+<script src="arena-ui.js?v=ww-v68"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -256,6 +259,7 @@ html:has([data-skin=antik]),body:has([data-skin=antik]){background:#050404}
 .reaction{font-family:'Cinzel',serif;font-weight:500;letter-spacing:.04em;text-align:center;font-size:15px;line-height:23px}
 .fresco{display:grid;grid-template-columns:repeat(7,minmax(0,34px));justify-content:center;gap:4px;margin-top:12px}
 .fresco i{aspect-ratio:1;border:1px solid var(--line);border-radius:3px;display:block}
+:root{--on-acc:#fff}
 .icon-btn{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink)}
 .icon-btn[aria-pressed=true]{border-color:var(--acc2);color:var(--acc2)}
 .area-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
@@ -295,6 +299,19 @@ html:has([data-skin=antik]),body:has([data-skin=antik]){background:#050404}
 @media (max-width:359px){.wis-k{letter-spacing:.12em}}
 :root{--scene-silhouette:color-mix(in srgb,var(--bg) 70%,black);--scene-armour:color-mix(in srgb,var(--bg) 85%,var(--mute));--scene-ridge:color-mix(in srgb,var(--bg) 80%,var(--mute))}
 .future-self :is(button,summary):focus-visible,[data-future-self=true] :is(button,summary):focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
+.future-mark{display:block;overflow:visible}
+.future-breathe{transform-origin:52px 180px;animation:future-breathe 4.8s ease-in-out infinite}
+.future-cape{transform-origin:52px 50px;animation:future-cape 6.4s ease-in-out infinite}
+.future-glint{opacity:0;animation:future-glint 9s ease-in-out infinite}
+@keyframes future-breathe{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(-1px) scaleY(1.012)}}
+@keyframes future-cape{0%,100%{transform:skewY(0deg) scaleX(1)}50%{transform:skewY(-2deg) scaleX(1.035)}}
+@keyframes future-glint{0%,68%{transform:translateY(0);opacity:0}73%{opacity:.2}88%{transform:translateY(110px);opacity:0}100%{transform:translateY(110px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.future-breathe,.future-cape,.future-glint{animation:none!important}.future-glint{display:none}}
+.arena-avatar{width:36px;height:36px;flex-shrink:0;border-radius:50%;background:var(--ghost);display:flex;align-items:center;justify-content:center;font-weight:700}
+.arena-input{background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px;min-height:44px;max-width:100%;font:inherit}
+.arena button{min-height:44px}.arena button:disabled{opacity:.5;cursor:default}
+.arena :is(button,input,select,summary):focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
+.arena-track{height:5px;background:var(--ghost);border-radius:4px;overflow:hidden}.arena-track span{display:block;height:100%;transition:width .4s ease}
 </style>
 </head>
 <body>
@@ -547,16 +564,22 @@ const weekdayOf=d=>(new Date(d+'T12:00:00Z').getUTCDay()+6)%7;
 const calendarWeekday=S=>S.calendar?weekdayOf(S.calendar.date):S.day%7;
 const seasonWeek=S=>Math.floor((S.day+(S.calendar?.seasonOffset||0))/7);
 function calendarMinutes(t,S){const p=new Intl.DateTimeFormat('en-GB',{timeZone:calendarZone(S),hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(t));return +p.find(x=>x.type==='hour').value*60 + +p.find(x=>x.type==='minute').value}
+/* Demo-Spielstand (initState) hat kein Profil; nur dort sind Vorspulen, Saisonsprung und Zurücksetzen erlaubt. */
+const isDemoState=S=>!S.profile;
+function closeCalendarDays(S,days){const C=S.calendar;for(let i=0;i<days;i++){closeCalendarDay(S,true);C.date=datePlus(C.date,1);LC.syncTemple(S)}}
 function syncCalendar(S,t=Date.now()){
  const tz=calendarZone(S),today=calendarDate(t,tz),C=S.calendar;LC.ensureLife(S);
- if(!C||C.v!==1||!/^\d{4}-\d{2}-\d{2}$/.test(C.date)||!Number.isFinite(dateNumber(C.date))||C.tz!==tz||!Number.isInteger(C.seasonOffset)||Math.abs(dateNumber(today)-dateNumber(C.date))>3660){
+ const valid=C&&C.v===1&&/^\d{4}-\d{2}-\d{2}$/.test(C.date)&&Number.isFinite(dateNumber(C.date))&&Number.isInteger(C.seasonOffset);
+ // Zonenwechsel: erst die vergangenen Tage in der bisherigen Zone abschließen, dann neu verankern.
+ if(valid&&C.tz!==tz){let past=null;try{past=dateNumber(calendarDate(t,C.tz))-dateNumber(C.date)}catch(e){}if(past>0&&past<=3660)closeCalendarDays(S,past)}
+ if(!valid||C.tz!==tz||Math.abs(dateNumber(today)-dateNumber(C.date))>3660){
   const wd=weekdayOf(today),d=S.life.d||0,lifeWeek=LC.curWk(S.life),sw=seasonWeek(S),old=S.life.calendar;
   const anchor={from:d,offset:lifeWeek*7+wd-d};const segments=old?[...(old.segments||[{from:old.from,offset:old.offset}]).filter(x=>x.from<d),anchor]:[anchor];
   S.calendar={v:1,date:today,tz,seasonOffset:sw*7+wd-S.day};S.life.calendar={...anchor,segments};return S;
  }
  // A clock set backwards never reopens a previously closed day.
  const days=dateNumber(today)-dateNumber(C.date);if(days<=0)return S;
- for(let i=0;i<days;i++){closeCalendarDay(S,true);C.date=datePlus(C.date,1);LC.syncTemple(S)}
+ closeCalendarDays(S,days);
  return S;
 }
 function closeCalendarDay(n,automatic=false){
@@ -1481,38 +1504,96 @@ function completePriority(c,item,e,kind='std'){
  const before=c.S;c.upd(n=>{if(item.kind==='commit')n.life.onboard.commit={...n.life.onboard.commit,done:true,doneD:n.life.d||0};else LC.logStandard(n.life,item.area,kind)});
  c.toast(item.kind==='commit'?'Erster Schritt erledigt.':kind==='min'?'Minimum notiert.':'Standard notiert.','good',{undo:()=>c.restore(before)});
 }
-function PriorityAction({c,item,primary=false,separator=false}){const finish=e=>completePriority(c,item,e);
- const detail=()=>item.kind==='mission'?c.openSheet({t:'medit',mid:item.m.id}):item.kind==='standard'?c.openSheet({t:'standards',area:item.area}):c.openSheet({t:'fundament'});
- const context=item.g?item.g.title:item.kind==='standard'?LC.AREA[item.area].de:null;
- return html`<div className=${primary?'card p-4 mt-2':'py-3'} data-today-priority=${primary?'primary':'next'} style=${separator?{borderTop:'1px solid var(--line)'}:undefined}>
- ${item.source&&html`<div className="text-[12px] acc font-semibold mb-1">${item.source}${item.when?' · '+item.when:''}</div>`}
- <div className=${primary?'text-[21px] font-bold leading-snug break-words':'text-[15px] font-semibold leading-snug break-words'}>${item.title}</div>
- ${context&&html`<div className="text-[12.5px] mute leading-snug mt-1 break-words">${context}</div>`}
- ${item.minutes&&html`<div className="text-[12px] mute mt-1">${item.minutes} Minuten</div>`}
- ${item.plan&&html`<div className="text-[12.5px] mute mt-2 leading-snug">${item.plan}</div>`}
- <div className="flex items-center gap-2 flex-wrap mt-3">
- <button type="button" onClick=${finish} aria-label=${'Erledigen: '+item.title} className=${primary?'btn inline-flex items-center justify-center gap-2 px-5 py-3 text-[14px]':'chip'} style=${{minHeight:44}}><${Icon} n="check" s=${16}/> ${item.kind==='mission'&&wantsLog(c.S,item.m)?'Erfassen':'Erledigt'}</button>
- ${item.kind==='standard'&&item.std.min&&html`<button type="button" onClick=${e=>completePriority(c,item,e,'min')} className="chip" style=${{minHeight:44}} title=${item.std.min.text}>Minimum</button>`}
- <button type="button" onClick=${detail} className="bg-transparent border-0 acc px-2 py-2 text-[12.5px]" style=${{minHeight:44}} aria-label=${'Details: '+item.title}>Details</button></div></div>`}
-function TodayPriorities({c}){const items=todayPriorities(c.S,c.D);
- if(c.D.restToday)return html`<div className="card p-4 mt-2"><div className="lbl acc">Heute ist Ruhetag</div><div className="text-[16px] font-semibold mt-2">Erholung hat Platz in deinem Plan.</div><div className="text-[13px] mute mt-1">Deine Aufgaben bleiben unter Aufgaben erreichbar.</div></div>`;
- if(!items.length)return html`<div className="card p-4 mt-2"><div className="lbl acc">Heute zuerst</div><div className="text-[17px] font-semibold mt-2">Gerade ist keine weitere Handlung offen.</div><div className="text-[13px] mute mt-1">Du kannst deinen Tag abschließen oder einen nächsten Schritt planen.</div><div className="flex flex-wrap gap-2 mt-3"><button type="button" className="btn px-4 py-3 text-[13px]" onClick=${()=>c.openSheet({t:'review'})}>Tag reflektieren</button><button type="button" className="chip" onClick=${()=>c.openSheet({t:'goal'})}>Ziel festlegen</button></div></div>`;
- return html`<section aria-label="Deine Prioritäten für heute"><div className="lbl acc mt-2">Heute zuerst</div><${PriorityAction} key=${items[0].key} item=${items[0]} c=${c} primary=${true}/>
- ${items.length>1&&html`<div className="mt-4"><div className="lbl">Danach · Vorschläge</div><div className="card px-4 mt-2" style=${{borderColor:'var(--line)'}}>${items.slice(1).map((x,i)=>html`<${PriorityAction} key=${x.key} item=${x} c=${c} separator=${i>0}/>` )}</div></div>`}</section>`}
-function NextTimeBlock({c}){const b=nextTimeBlock(c.S,nowMinOf(c));
- return html`<section className="card p-4 mt-3" aria-label="Dein nächster Zeitblock"><div className="flex items-center gap-2"><${Icon} n="calendar" s=${17}/><div className="lbl">${!b?'Dein nächster Zeitblock':b.state==='active'?'Jetzt eingeplant':b.state==='past'?'Zeitblock vergangen':'Nächster Zeitblock'}</div></div>
- ${b?html`<div className="text-[15px] font-semibold mt-2 break-words">${b.m.title}</div><div className="text-[13px] num mute mt-1">${fmtHM(b.start)}–${fmtHM(b.end)} · ${b.minutes} Minuten</div>${b.state==='past'&&html`<div className="text-[12.5px] mute mt-1">Noch offen. Passe die Zeit an, wenn du möchtest.</div>`}`:html`<div className="text-[14px] mt-2">Noch kein fester Zeitblock.</div><div className="text-[12.5px] mute mt-1">Reserviere eine konkrete Uhrzeit für deine wichtigste Handlung.</div>`}
- <button type="button" onClick=${()=>c.openSheet({t:'dayplan'})} className="chip mt-3" style=${{minHeight:44}}>${b?'Tagesplan anpassen':'Tagesplan öffnen'}</button></section>`}
-function Home({c}){const {S}=c;const [more,setMore]=useState(false),now=nowMinOf(c),nm=((S.profile&&S.profile.name)||'').trim(),hr=Math.floor(now/60),greet=hr<5?'Gute Nacht':hr<11?'Guten Morgen':hr<17?'Guten Tag':hr<22?'Guten Abend':'Gute Nacht';
- const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fm=focusMode(S);
+/* Heute: Kopf mit Fortschrittsring · eine farbige Jetzt-Karte · Folgeschritte als Kacheln · Im Blick als zwei Kacheln. Wenig Text, klare Flächen. */
+const priorityDetail=(c,item)=>item.kind==='mission'?c.openSheet({t:'medit',mid:item.m.id}):item.kind==='standard'?c.openSheet({t:'standards',area:item.area}):c.openSheet({t:'fundament'});
+/* Gespeicherte Titel wie "20 Min. lesen (20 Min.)": doppelte Dauer für die Anzeige entfernen. */
+const cleanTitle=t=>{const m=/\s*\((\d+) Min\.\)$/.exec(t||'');return m&&new RegExp('(^|\\D)'+m[1]+'\\s*Min','i').test(t.slice(0,m.index))?t.slice(0,m.index):t};
+/* Bereich einer Priorität: Standard → eigener Bereich, sonst Ziel, sonst Missionsart. */
+const priorityArea=item=>LC.AREA[item.area||(item.g&&item.g.area)||(item.m&&LC.ACT_AREA[item.m.act])]||null;
+/* Heute erledigt: dieselbe Quelle wie das Tagesurteil des Zukunfts-Ichs (Handlungen, Standards, erster Schritt). */
+const doneToday=S=>{try{return FS.context(S,{LC,isDone,choices:[],day:dayKey(S)}).done.length}catch(e){return 0}};
+const tint=(col,p)=>`color-mix(in srgb,${col} ${p}%,transparent)`;
+function AreaBadge({area,size=40}){const col=area?area.color:'var(--acc2)';
+ return html`<span aria-hidden="true" className="shrink-0 flex items-center justify-center" style=${{width:size,height:size,borderRadius:size*.32,background:tint(col,16),color:col,boxShadow:'0 0 0 1px '+tint(col,30)+' inset'}}><${Icon} n=${area?area.icon:'target'} s=${Math.round(size*.5)}/></span>`}
+/* Ringe je Lebensbereich: „Fokus heute“ (wie im Aufgaben-Tab) plus eigenständige Standards. Erledigt/geplant, kein erfundener Wert. */
+function areaDay(S,D){const L=S.life||{},out={};LC.AREAS.forEach(a=>{out[a.id]={area:a,total:0,done:0,open:[]}});
+ focusMs(S,D).forEach(m=>{const o=out[LC.ACT_AREA[m.act]];if(!o)return;o.total++;if(isDone(S,m))o.done++;else o.open.push(m)});
+ Object.values(L.standards||{}).filter(x=>x.std&&!x.aid&&x.status!=='paused').forEach(x=>{const o=out[x.area];if(!o)return;o.total++;if((L.stdLog||[]).some(e=>e.area===x.area&&e.d===(L.d||0)))o.done++;else o.std=x});
+ return LC.AREAS.map(a=>out[a.id])}
+/* Nächste Handlung eines Bereichs: zuerst aus den Prioritäten, sonst offene Fokus-Mission oder offener Standard. */
+function areaItem(S,items,ring){if(!ring)return null;const hit=items.find(x=>{const a=priorityArea(x);return a&&a.id===ring.area.id});if(hit)return hit;
+ const m=ring.open[0];if(m){const x=goalMs(S).find(y=>y.m.id===m.id);return{key:'m:'+m.id,kind:'mission',m,g:x&&x.g,title:m.title}}
+ return ring.std?{key:'std:'+ring.area.id,kind:'standard',std:ring.std,area:ring.area.id,title:ring.std.std.text}:null}
+/* Aspis: Hoplitenschild als Bereichs-Ring. Bronzerand, Fortschritt in Bereichsfarbe, geschlossen = gefüllter Schild mit Haken. */
+function AspisRing({area,pct,full,size=62}){const r=size/2-5,cc=2*Math.PI*r,h=size/2;
+ return html`<span className="relative block" style=${{width:size,height:size}}><svg width=${size} height=${size} viewBox=${'0 0 '+size+' '+size} aria-hidden="true">
+ <circle cx=${h} cy=${h} r=${h-1.5} fill=${full?tint(area.color,22):'var(--card2)'} stroke="var(--bronze)" strokeWidth="1.5" opacity=${full?1:.9}/>
+ <circle cx=${h} cy=${h} r=${r} fill="none" stroke=${tint(area.color,18)} strokeWidth="4"/>
+ <circle cx=${h} cy=${h} r=${r} fill="none" stroke=${area.color} strokeWidth="4" strokeLinecap="round" opacity=${pct>0?1:0} strokeDasharray=${(cc*pct)+' '+cc} transform=${'rotate(-90 '+h+' '+h+')'} style=${{transition:'stroke-dasharray .6s cubic-bezier(.16,1,.3,1)'}}/>
+ <circle cx=${h} cy=${h} r=${r-6} fill="none" stroke="var(--bronze)" strokeWidth=".75" opacity=".55"/>
+ </svg><span className="absolute inset-0 flex items-center justify-center" style=${{color:full?'var(--bronze)':area.color}}>${full?html`<${Icon} n="check" s=${20} sw=${2.6}/>`:html`<${Icon} n=${area.icon} s=${19}/>`}</span></span>`}
+function TodayHero({c,ini,rings,sel,onSel}){const {S}=c,rest=c.D.restToday,planned=rings.filter(r=>r.total>0),closed=planned.filter(r=>r.done>=r.total).length,all=planned.length>0&&closed===planned.length;
+ return html`<section className="pt-3 relative" aria-label="Dein Tag">
+ <span className="page-emblem" style=${{top:44}}><${Icon} n=${all?'laurel':'aspis'} s=${76} sw=${1}/></span>
+ <div className="flex items-center justify-between gap-2"><div className="lbl truncate">${deDate(c.now,calendarZone(S))}</div><div className="flex shrink-0 -mr-2 relative"><button aria-label="Menü und Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0" style=${{color:'var(--ink)'}}><${Icon} n="dots" s=${20}/></button><button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0 p-0"><span className="w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold" style=${{background:'var(--card2)',color:'var(--ink)',boxShadow:'0 0 0 1px var(--line) inset'}}>${ini}</span></button></div></div>
+ <h1 className="disp text-[40px] leading-none">Heute</h1>
+ <button type="button" onClick=${()=>c.setTab('tasks')} className="bg-transparent border-0 p-0 mt-1 flex items-center gap-1 text-[13px]" style=${{minHeight:32,color:all?'var(--bronze)':'var(--mute)'}}>${rest?'Ruhetag. Erholung gehört zum Plan.':all?html`<${Icon} n="laurel" s=${15}/>Alle Schilde geschlossen`:closed+' von '+planned.length+' Schilden geschlossen'}<${Icon} n="chevR" s=${13}/></button>
+ <div className="meander mt-2" aria-hidden="true"/>
+ <div className="grid grid-cols-4 gap-1 mt-3" role="group" aria-label="Lebensbereiche heute">${rings.map(r=>{const a=r.area,has=r.total>0,full=has&&r.done>=r.total,on=sel===a.id;
+  return html`<button key=${a.id} type="button" onClick=${()=>has?onSel(a.id):c.setTab('life')} aria-pressed=${on} aria-label=${a.de+': '+(has?r.done+' von '+r.total+' erledigt':'heute nichts geplant')} className="bg-transparent border-0 p-0 flex flex-col items-center gap-1.5" style=${{color:'var(--ink)',minHeight:44,opacity:has?1:.4}}>
+  <span className="rounded-full" style=${{padding:2,boxShadow:on&&has?'0 0 0 1.5px var(--acc2)':'none',transition:'box-shadow .2s'}}><${AspisRing} area=${a} pct=${has?r.done/r.total:0} full=${full}/></span>
+  <span className=${'text-[11px] leading-tight '+(on&&has?'font-semibold':'mute')}>${a.de}</span></button>`})}</div>
+ </section>`}
+/* Jetzt-Karte einfarbig in gedämpftem Rost (Handeln): Fläche, Symbol und Knopf in Tönen derselben Farbe, auf die Karte gemischt. */
+function NowCard({c,item,ring}){const area=priorityArea(item),logs=item.kind==='mission'&&wantsLog(c.S,item.m),t=cleanTitle(item.title),open=ring&&ring.total-ring.done>0,closes=ring&&ring.total-ring.done===1;
+ const rust=p=>`color-mix(in srgb,var(--acc) ${p}%,var(--card))`;
+ return html`<section className="relative overflow-hidden mt-4 p-4" data-today-priority="primary" aria-label="Jetzt" style=${{borderRadius:16,background:rust(18),color:'var(--ink)',boxShadow:'0 0 0 1px '+rust(40)+' inset'}}>
+ <div className="flex items-start justify-between gap-2"><div className="lbl pt-1" style=${{color:'var(--acc2)'}}>${area&&open?area.de+' fehlt noch':'Jetzt'}${item.when?' · '+item.when:''}</div>
+ <button type="button" onClick=${()=>priorityDetail(c,item)} aria-label=${'Details: '+t} className="flex items-center justify-center border-0 bg-transparent -mt-2 -mr-2" style=${{width:44,height:44,color:'var(--mute)'}}><${Icon} n="info" s=${18}/></button></div>
+ <div className="flex items-center gap-3">${area&&html`<span aria-hidden="true" className="shrink-0 flex items-center justify-center" style=${{width:44,height:44,borderRadius:14,background:rust(32),color:'var(--acc2)'}}><${Icon} n=${area.icon} s=${22}/></span>`}
+ <div className="text-[21px] font-bold leading-snug break-words min-w-0">${t}</div></div>
+ <div className="flex items-center gap-2 mt-4">
+ <button type="button" onClick=${e=>completePriority(c,item,e)} aria-label=${'Erledigen: '+t} className="flex-1 inline-flex items-center justify-center gap-2 border-0 text-[15px] font-bold" style=${{minHeight:52,borderRadius:12,background:rust(72),color:'var(--on-acc)'}}><${Icon} n=${closes&&!logs?'aspis':'check'} s=${18} sw=${2.2}/>${logs?'Erfassen':closes?'Schild schließen':'Erledigt'}</button>
+ ${item.kind==='standard'&&item.std.min&&html`<button type="button" onClick=${e=>completePriority(c,item,e,'min')} title=${item.std.min.text} className="border-0 px-4 text-[14px] font-semibold" style=${{minHeight:52,borderRadius:12,background:rust(32),color:'var(--ink)'}}>Minimum</button>`}
+ </div></section>`}
+function TodayPriorities({c,item,ring,mid}){
+ if(c.D.restToday)return html`<section className="card p-5 mt-4 flex items-center gap-4"><${AreaBadge} area=${LC.AREA.health} size=${48}/><div><div className="text-[17px] font-bold">Ruhetag</div><div className="text-[13px] mute">Erholung gehört zum Plan.</div></div></section>${mid}`;
+ if(!item)return html`<section className="card p-5 mt-3"><div className="text-[18px] font-bold">Nichts mehr offen.</div><div className="flex gap-2 mt-4"><button type="button" className="btn flex-1 py-3 text-[14px]" onClick=${()=>c.openSheet({t:'review'})}>Tag abschließen</button>${!mainGoal(c.S)&&html`<button type="button" className="chip" style=${{minHeight:48}} onClick=${()=>c.openSheet({t:'goal'})}>Ziel festlegen</button>`}</div></section>${mid}`;
+ return html`<${NowCard} key=${item.key} c=${c} item=${item} ring=${ring}/>${mid}`}
+/* Im Blick: zwei Kacheln. Zeitblock (oder planen) und Reflexion; aktiv in Akzentfarbe. */
+function DayAhead({c}){const {S,D}=c,now=nowMinOf(c),b=nextTimeBlock(S,now),r=reviewToday(S),due=LC.reviewWeek(S.life),eve=!r&&now>=1080;
+ const tile=(icon,big,small,hot,on,label)=>html`<button type="button" onClick=${on} aria-label=${label} className="text-left border-0 px-3 py-2 flex items-center gap-3 min-w-0" style=${{minHeight:58,borderRadius:16,background:hot?tint('var(--acc)',16):'var(--card-g)',boxShadow:'0 0 0 1px '+(hot?tint('var(--acc2)',45):'var(--line)')+' inset',color:'var(--ink)'}}>
+ <span className=${'shrink-0 '+(hot?'acc':'mute')}><${Icon} n=${icon} s=${20}/></span><span className="min-w-0"><span className="block num text-[17px] font-bold leading-none">${big}</span><span className="block text-[12px] mute mt-1 truncate">${small}</span></span></button>`;
+ const plan=b?tile('calendar',fmtHM(b.start),b.state==='past'?'vorbei · anpassen':cleanTitle(b.m.title),b.state==='active',()=>c.openSheet({t:'dayplan'}),'Tagesplan: '+fmtHM(b.start)+' '+cleanTitle(b.m.title))
+  :tile('calendar','Planen','feste Zeit',false,()=>c.openSheet({t:'dayplan'}),'Tagesplan öffnen');
+ const refl=due!=null?tile('owl','Woche','Rückblick bereit',true,()=>c.openSheet({t:'weekly'}),'Wochenrückblick öffnen')
+  :eve?tile('owl','1 Min.','Tag abschließen',true,()=>c.openSheet({t:'review'}),'Daily Debrief öffnen')
+  :tile('owl',r?'Erledigt':'18:00',r?'Debrief':'Debrief',false,()=>c.setTab('reflect'),'Reflexion öffnen');
+ return html`<section aria-label="Im Blick" className="mt-3"><div className="lbl">Im Blick</div><div className="grid grid-cols-2 gap-2 mt-2">${plan}${refl}</div></section>`}
+/* Zukunfts-Ich als Kachel auf Heute: Figur, was es laut deinem Plan gerade tut, Er gegen Du. Ersetzt dort die untere Leiste. */
+function FutureSelfTile({c}){const {S}=c,p=FS.settings(S);if(!p.enabled)return null;
+ const now=nowMinOf(c),fm=focusMode(S),d=duelNow(S,now),cur=d.plan.length?getCurrentActivity(d.plan,now):null,act=cur&&(SCN[cur.kind]||SCN.idle).label,rest=c.D.restToday;
+ const bar=(who,n,col)=>html`<div className="flex items-center gap-2"><span className="text-[11px] font-semibold w-6 mute">${who}</span><span className="flex-1 block rounded-full overflow-hidden" style=${{height:6,background:'var(--ghost)'}}><span className="block h-full rounded-full" style=${{width:(d.Y?Math.round(n/d.Y*100):0)+'%',background:col,transition:'width .4s ease'}}/></span><span className="num text-[11px] mute w-7 text-right">${n}/${d.Y}</span></div>`;
+ const lead=d.Z-d.X;
+ return html`<button type="button" onClick=${()=>c.openSheet({t:'futureSelf'})} aria-label="Dein Zukunfts-Ich öffnen" className="w-full mt-3 text-left border-0 p-3 pr-4 flex items-center gap-3 relative overflow-hidden" style=${{minHeight:88,borderRadius:16,background:'var(--card)',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}>
+ <span className="shrink-0 flex items-end justify-center rounded-2xl" style=${{width:64,height:68,background:'color-mix(in srgb,var(--nem) 14%,transparent)'}}><${FutureSelfMark} size=${66}/></span>
+ <span className="flex-1 min-w-0">
+ <span className="block text-[11px] font-bold tracking-[.14em] uppercase" style=${{color:'var(--nem)'}}>Dein Zukunfts-Ich</span>
+ <span className="block text-[16px] font-bold leading-snug mt-0.5 truncate">${rest?'Hält den Ruhetag':fm||!act?'Was würde ich jetzt tun?':act+' gerade'}</span>
+ ${!fm&&!rest&&d.Y>0?html`<span className="block mt-2 space-y-1">${bar('Er',d.Z,'var(--nem)')}${bar('Du',d.X,'var(--acc)')}</span>`:html`<span className="block text-[12px] mute mt-0.5">Tippen für Rat oder Tagesurteil</span>`}
+ ${!fm&&!rest&&d.Y>0&&lead>0&&html`<span className="sr-only">${lead} Schritte Rückstand</span>`}
+ </span><${Icon} n="chevR" s=${16} cls="mute"/></button>`}
+function Home({c}){const {S}=c;const [more,setMore]=useState(false),[pick,setPick]=useState(null),nm=((S.profile&&S.profile.name)||'').trim();
+ const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fm=focusMode(S),items=todayPriorities(S,c.D),rings=areaDay(S,c.D);
+ /* Gewählter Ring, sonst der Bereich der wichtigsten Priorität; ohne offene Handlung dort zurück zur wichtigsten. */
+ const first=items[0]&&priorityArea(items[0]),chosen=rings.find(r=>r.area.id===pick),pickItem=chosen&&areaItem(S,items,chosen);
+ const item=pickItem||items[0]||null,ia=item&&priorityArea(item),ring=ia&&rings.find(r=>r.area.id===ia.id),sel=pickItem?pick:first&&first.id;
  return html`<div className="screen px-4 pb-6">
- <div className="flex items-start justify-between pt-5 pb-3 gap-2"><div className="min-w-0"><div className="lbl truncate">${greet}${nm?', '+nm:''} · ${deDate(c.now,calendarZone(S))}</div><h1 className="disp text-[32px] mt-1 leading-none">Heute</h1></div>
- <div className="flex shrink-0"><button aria-label="Menü und Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="icon-btn"><${Icon} n="dots" s=${22}/></button><button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="icon-btn ml-1 font-semibold">${ini}</button></div></div>
- ${S.setup&&html`<button onClick=${()=>c.openSheet({t:'newseason'})} className="btn w-full py-3 mb-3 text-sm">Neue Saison einrichten</button>`}
- <${TodayPriorities} c=${c}/><${NextTimeBlock} c=${c}/>
- <button type="button" onClick=${()=>c.setTab('tasks')} className="ghost w-full py-3 mt-2 text-[13px] font-semibold">Alle Aufgaben ansehen</button>
- <${ReflectLine} c=${c}/>
- <details className="mt-4" onToggle=${e=>setMore(e.currentTarget.open)}><summary className="text-[13px] mute py-3 cursor-pointer">Standards, Impulse und mehr</summary>
+ <${TodayHero} c=${c} ini=${ini} rings=${rings} sel=${sel} onSel=${id=>setPick(p=>p===id?null:id)}/>
+ ${S.setup&&html`<button onClick=${()=>c.openSheet({t:'newseason'})} className="btn w-full py-3 mt-3 text-sm">Neue Saison einrichten</button>`}
+ <${TodayPriorities} c=${c} item=${item} ring=${ring} mid=${html`<${FutureSelfTile} c=${c}/>`}/>
+ <${DayAhead} c=${c}/>
+ <details className="mt-4" onToggle=${e=>setMore(e.currentTarget.open)}><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center'}}>Mehr: Standards und Impulse</summary>
  ${more&&html`<${StandardsToday} c=${c}/><button type="button" className="chip mt-3" onClick=${()=>c.openSheet({t:'loopinfo'})}>Wie dein Handeln wirkt</button><${InviteCard} c=${c}/><${CalmCard} c=${c}/><${WisdomSlot} c=${c} place="today"/>${!fm&&html`<div className="mt-3"><${DayScene} c=${c}/></div><${DuelPair} c=${c}/>`}`}</details>
  </div>`}
 /* Heute zuerst: Ziel, Ergebnis/Umsetzung, nächste Handlung, Loop-Phase */
@@ -1738,8 +1819,8 @@ const slotOf=now=>now<300||now>=1200?'Nacht':now<660?'Morgen':now<900?'Mittag':'
 const SLOT_PAL={Morgen:['var(--mt1)','var(--acc)',1,'var(--stone)',135],Mittag:['var(--mt2)','var(--stone)',.35,'var(--stone)',75],Abend:['var(--mt1)','var(--acc-d)',1,'var(--stone)',130],Nacht:['var(--bg)','var(--mute)',.3,'var(--mute)',65]};
 const deDate=(t,tz)=>new Date(t).toLocaleDateString('de-DE',{timeZone:tz,weekday:'long',day:'numeric',month:'long'});
 /* Hoplit als Silhouette (Linolschnitt-Anmutung): Helm, Umhang, Speer und Schild bestimmen die Kontur */
-function HopliteFig({cape='var(--nem)',plume=true,ghost}){const dk=ghost?'var(--mute)':'var(--scene-silhouette)',dk2=ghost?'var(--mute)':'var(--scene-silhouette)',dk3=ghost?'var(--mute)':'var(--scene-armour)',ac=ghost?'var(--mute)':cape;
- return html`<g><path d="M52 50 C70 52 92 60 108 88 C100 84 96 90 100 104 C92 100 86 108 90 122 C70 112 58 104 46 92Z" fill=${cape}/><path d="M52 50 C66 56 82 66 92 84" fill="none" stroke="var(--acc2)" strokeWidth="1.2" opacity=".6"/>
+function HopliteFig({cape='var(--nem)',plume=true,ghost,animated=false}){const dk=ghost?'var(--mute)':'var(--scene-silhouette)',dk2=ghost?'var(--mute)':'var(--scene-silhouette)',dk3=ghost?'var(--mute)':'var(--scene-armour)',ac=ghost?'var(--mute)':cape;
+ return html`<g className=${animated?'future-breathe':undefined}><g className=${animated?'future-cape':undefined}><path d="M52 50 C70 52 92 60 108 88 C100 84 96 90 100 104 C92 100 86 108 90 122 C70 112 58 104 46 92Z" fill=${cape}/><path d="M52 50 C66 56 82 66 92 84" fill="none" stroke="var(--acc2)" strokeWidth="1.2" opacity=".6"/></g>
  <path d="M38 112 L33 160 L30 178 L42 180 L46 160 L50 120Z" fill=${dk2}/><path d="M52 112 L58 160 L60 178 L72 178 L66 158 L62 112Z" fill=${dk2}/><path d="M32 150 L46 150 L44 170 L31 170Z M57 150 L68 150 L69 170 L58 170Z" fill=${ghost?'var(--mute)':'var(--scene-armour)'}/>
  <path d="M36 98 L68 98 L74 124 L30 124Z" fill=${dk3}/><path d="M36 98 L68 98" stroke=${ac} strokeWidth="2"/><path d="M34 52 Q52 46 70 52 L66 100 L38 100Z" fill=${dk}/>
  <path d="M40 58 Q52 54 64 58" stroke="var(--mute)" strokeWidth="1.2" fill="none"/><path d="M42 70 Q52 66 62 70 M43 80 Q52 76 61 80" stroke="var(--line2)" strokeWidth="1.2" fill="none"/><path d="M34 54 L24 68 L22 86 L28 88 L36 72Z" fill=${dk}/>
@@ -1874,7 +1955,8 @@ function Finale({c,big}){const {S,D}=c;const n=new Date(c.now),mid=new Date(n);m
  ${!big&&html`<button onClick=${()=>c.setTab('league')} className="btn w-full py-3 mt-3 text-sm" style=${{background:'linear-gradient(135deg,#FBBF24,#EA580C)'}}>Zum Live-Finale</button>`}
  </div></div>`}
 function StoryCard({s,sub}){return html`<div className="card p-4 mt-3" style=${{borderRadius:22}}><div className="flex items-center gap-2"><span className="acc"><${Icon} n="flag" s=${15}/></span><div className="lbl acc">${sub}</div></div><div className="disp text-[24px] mt-1.5 leading-none">${s.title}</div><div className="flex flex-col gap-1 mt-2">${s.lines.map((l,i)=>html`<div key=${i} className="text-[13px] leading-snug" style=${{color:i===0?'var(--ink)':'color-mix(in srgb,var(--mute) 85%,var(--ink))'}}>${l}</div>`)}</div></div>`}
-function League({c}){
+function League({c}){return html`<${window.ArenaView} c=${c}/>`}
+function LegacyLeague({c}){
  const {S,D,flash}=c;const [mode,setMode]=useState('pts');const st=D.standings;const ROW=68;const max=Math.max(...st.map(r=>r.pts),1);
  const above=st[D.me.rank-2];
  const ago=t=>{const x=Math.round((c.now-t)/1000);return x<10?'gerade eben':x<60?`vor ${x} Sek.`:`vor ${Math.round(x/60)} Min.`};
@@ -2187,7 +2269,7 @@ function Stats({c}){
  ${t==='out'&&html`<${OutcomeView} c=${c}/>`}${t==='temple'&&html`<${TempleProgress} c=${c}/>`}${t==='proc'&&html`<${ProcessView} c=${c}/>`}${t==='exp'&&html`<${ExpView} c=${c}/>`}
  ${t==='compound'&&html`<div className="text-[11.5px] mute mb-3 px-1">Spielwelt: Punkte und Mengen. Echte Ergebnisse findest du unter „Ergebnisse“.</div>`}
  ${t==='compound'&&html`<${Compound} c=${c}/>`}${t==='matrix'&&html`<${LifeMatrix} c=${c}/>`}${t==='gen'&&html`<${Gen} c=${c}/>`}${t==='over'&&html`<${Over} c=${c}/>`}${t==='rec'&&html`<${Recs} c=${c}/>`}${t==='calc'&&html`<${Calc} c=${c}/>`}${t==='proj'&&html`<${Proj} c=${c}/>`}
- ${!focusMode(c.S)&&html`<button onClick=${()=>c.setTab('league')} className="card w-full p-4 mt-5 flex items-center gap-3 text-left"><span className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style=${{background:'rgba(var(--gold-rgb),.14)',color:'var(--gold)'}}><${Icon} n="trophy" s=${19}/></span><div className="flex-1"><div className="text-[14.5px] font-semibold">Arena: Liga${c.S.ui==='adv'?' und Duell':''}</div><div className="text-[12px] mute">Optionaler Wettbewerb mit simulierten Mitspielern</div></div><${Icon} n="chevR" s=${16} cls="mute"/></button>`}</div>`}
+ ${!focusMode(c.S)&&html`<button onClick=${()=>c.setTab('league')} className="card w-full p-4 mt-5 flex items-center gap-3 text-left"><span className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style=${{background:'rgba(var(--gold-rgb),.14)',color:'var(--gold)'}}><${Icon} n="trophy" s=${19}/></span><div className="flex-1"><div className="text-[14.5px] font-semibold">Arena · Mit Freunden</div><div className="text-[12px] mute">Zu zweit, zu dritt oder in einer Gruppe</div></div><${Icon} n="chevR" s=${16} cls="mute"/></button>`}</div>`}
 /* ───── Log-Berechnung ───── */
 function calcBonus(k,v,S){
  if(k==='lift'){const e=epley(v.w,v.r),ver=S.stats.bench.ver,rel=(e-ver)/ver*100;return{bonus:clamp(Math.round(rel),0,20),label:`Qualität ${rel>=0?'+':''}${n1(rel)} % zur Baseline`}}
@@ -2390,7 +2472,7 @@ function Settings({c}){const {S}=c;
  <div className="flex flex-col gap-2">
  <button type="button" onClick=${()=>c.openSheet({t:'futureSelf'})} className="ghost p-3.5 flex items-center gap-3 text-left"><${FutureSelfMark}/><span className="flex-1 text-[14px]">Dein Zukunfts-Ich<span className="block text-[11.5px] mute">${FS.settings(S).enabled?'Fragen und Präsenz einstellen':'Deaktiviert · hier wieder aktivieren'}</span></span></button>
  <div className="ghost p-3.5 flex items-center gap-3 text-[14px] font-medium"><${Icon} n="eye" s=${18} cls="acc"/><div className="flex-1">Erlebnismodus<div className="text-[11px] mute font-normal">Beide nutzen dieselben Daten, nichts geht verloren</div></div><${ModeToggle} c=${c}/></div>
- <button onClick=${c.toggleFocusMode} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="target" s=${18} cls="acc"/><div className="flex-1">Fokusmodus<div className="text-[11px] mute font-normal">Ohne Liga, Planvergleich und Punkte. Deine Daten bleiben.</div></div><span className=${`chip ${focusMode(S)?'on':''}`}>${focusMode(S)?'An':'Aus'}</span></button>
+ <button onClick=${c.toggleFocusMode} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="target" s=${18} cls="acc"/><div className="flex-1">Fokusmodus<div className="text-[11px] mute font-normal">Ohne Arena, Planvergleich und Punkte. Deine Daten bleiben.</div></div><span className=${`chip ${focusMode(S)?'on':''}`}>${focusMode(S)?'An':'Aus'}</span></button>
  <button onClick=${c.toggleWeather} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="temple" s=${18} cls="acc"/><div className="flex-1">Verwitterung im Tempel<div className="text-[11px] mute font-normal">Zeigt gemessene Rückschritte als leichte Risse. Nie bei fehlenden Daten.</div></div><span className=${`chip ${S.life.temple.weather?'on':''}`}>${S.life.temple.weather?'An':'Aus'}</span></button>
  <button onClick=${c.toggleTempleAnim} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="column" s=${18} cls="acc"/><div className="flex-1">Tempel-Animationen<div className="text-[11px] mute font-normal">Bausteine gleiten ein. Bei „Bewegung reduzieren“ automatisch aus.</div></div><span className=${`chip ${S.life.temple.anim?'on':''}`}>${S.life.temple.anim?'An':'Aus'}</span></button>
  <button onClick=${()=>{c.closeSheet();c.setTab('reflect')}} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="owl" s=${18} cls="acc"/><div className="flex-1">Reflexion<div className="text-[11px] mute font-normal">Daily Debrief, Wochenrückblick, Experimente, Muster</div></div><${Icon} n="chevR" s=${16} cls="mute"/></button>
@@ -2406,13 +2488,13 @@ function Settings({c}){const {S}=c;
  <button onClick=${c.toggleTheme} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n=${S.theme==='dark'?'sun':'moon'} s=${18} cls="acc"/>${S.theme==='dark'?'Helles Design aktivieren':'Dunkles Design aktivieren'}</button>
  <button onClick=${()=>c.openSheet({t:'achs'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="award" s=${18} cls="acc"/>Erfolge ansehen</button>
  <button onClick=${()=>c.openSheet({t:'integ'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="plug" s=${18} cls="acc"/>Integrationen</button>
- <div className="lbl mt-3">Demo-Steuerung</div>
+ <div className="lbl mt-3">${isDemoState(S)?'Demo-Steuerung':'Saison und Auswertung'}</div>
  <button onClick=${()=>c.openSheet({t:'tseason'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="temple" s=${18} cls="acc"/><div>Tempel-Saison abschließen<div className="text-[11px] mute font-normal">Bilanz ansehen und neue Saison beginnen</div></div></button>
- <${TimeDebug} c=${c}/>
- <button onClick=${()=>{c.closeSheet();c.advance()}} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="ff" s=${18} cls="acc"/><div>Zum nächsten Tag vorspulen<div className="text-[11px] mute font-normal">Sonntag löst den Wochenrückblick aus, Woche 4 den Saisonbericht</div></div></button>
+ ${isDemoState(S)&&html`<${TimeDebug} c=${c}/>
+ <button onClick=${()=>{c.closeSheet();c.advance()}} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="ff" s=${18} cls="acc"/><div>Zum nächsten Tag vorspulen<div className="text-[11px] mute font-normal">Sonntag löst den Wochenrückblick aus, Woche 4 den Saisonbericht</div></div></button>`}
  <button onClick=${()=>c.openSheet({t:'eval'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="check" s=${18} cls="acc"/><div>Wochen-Evaluation öffnen<div className="text-[11px] mute font-normal">Der Code: Standards prüfen, Zeugnis, Protokolle</div></div></button>
- <button onClick=${c.skipSeason} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="ff" s=${18} cls="acc"/><div>Zum Saisonende springen<div className="text-[11px] mute font-normal">Setzt den letzten Spieltag mit simulierten Punkten</div></div></button>
- <button onClick=${c.resetDemo} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="rotate" s=${18} cls="bad"/>Demo zurücksetzen</button></div></${Sheet}>`}
+ ${isDemoState(S)&&html`<button onClick=${c.skipSeason} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="ff" s=${18} cls="acc"/><div>Zum Saisonende springen<div className="text-[11px] mute font-normal">Setzt den letzten Spieltag mit simulierten Punkten</div></div></button>
+ <button onClick=${c.resetDemo} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="rotate" s=${18} cls="bad"/>Demo zurücksetzen</button>`}</div></${Sheet}>`}
 function Swap({c,sh}){const {S}=c;const o=S.acts[sh.out],i=S.acts[sh.inn];const remO=o.cap-(S.weekPts[o.id]||0),remI=i.cap-(S.weekPts[i.id]||0);
  return html`<${Sheet} sub="Wechsel" title="Aufstellung ändern?" onClose=${c.closeSheet}>
  <div className="flex items-center gap-3"><div className="flex-1 card2 p-3 text-center"><div className="text-[10px] mute tracking-wider">RAUS</div><div className="flex justify-center my-1"><${Tile} a=${o} s=${36}/></div><div className="text-[13px] font-semibold">${o.short}</div><div className="num mute text-xs">${Math.floor(o.rating)}</div></div><${Icon} n="swap" s=${20} cls="acc"/><div className="flex-1 card2 p-3 text-center" style=${{border:'1px solid var(--acc)'}}><div className="text-[10px] acc tracking-wider">REIN</div><div className="flex justify-center my-1"><${Tile} a=${i} s=${36}/></div><div className="text-[13px] font-semibold">${i.short}</div><div className="num mute text-xs">${Math.floor(i.rating)}</div></div></div>
@@ -2769,7 +2851,10 @@ function WisdomCodex({c,init}){const {S}=c;const [mode,setMode]=useState(init===
 
 /* Future Self uses the same Hoplite figure as the plan simulation. */
 function futureSelfContext(c){return{LC,day:dayKey(c.S),isDone,choices:todayPriorities(c.S,c.D),block:nextTimeBlock(c.S,nowMinOf(c)),loop:loopNow(c)}}
-function FutureSelfMark({size=40}){return html`<svg width=${size} height=${size} viewBox="10 -24 108 212" aria-hidden="true" focusable="false"><${HopliteFig} cape="var(--nem)" plume=${true}/></svg>`}
+function FutureSelfMark({size=40,animated=true}){const id='future-armour-'+React.useId().replace(/:/g,'');return html`<svg className="future-mark" width=${size} height=${size} viewBox="8 -30 108 232" aria-hidden="true" focusable="false">
+ <defs><clipPath id=${id}><path d="M34 52 Q52 46 70 52 L66 100 L38 100Z"/><circle cx="66" cy="92" r="24"/></clipPath></defs>
+ <${HopliteFig} cape="var(--nem)" plume=${true} animated=${animated}/>
+ ${animated&&html`<g className="future-breathe"><g clipPath=${'url(#'+id+')'}><path className="future-glint" d="M18 32 L96 6 L104 22 L26 48Z" fill="var(--stone)"/></g></g>`}</svg>`}
 function FutureSelfDock({c}){const p=FS.settings(c.S),key=dayKey(c.S),h=!c.sheet&&FS.hint(c.S,key,todayPriorities(c.S,c.D)),[shown,setShown]=useState(null);
  useEffect(()=>{if(h){setShown({day:key,text:h});c.upd(n=>FS.markHint(n,key))}},[h,key]);
  useEffect(()=>{if(!p.enabled||p.minimized||!p.hints)setShown(null)},[p.enabled,p.minimized,p.hints]);
@@ -2778,14 +2863,14 @@ function FutureSelfDock({c}){const p=FS.settings(c.S),key=dayKey(c.S),h=!c.sheet
  return html`<aside aria-label="Zugang zum Zukunfts-Ich" className="future-self shrink-0 relative px-4 py-1.5" style=${{borderTop:'1px solid var(--line)',background:'var(--card)'}}>
  ${hint&&html`<div className="flex items-center gap-2 pb-1"><button type="button" onClick=${()=>{setShown(null);c.openSheet({t:'futureSelf'})}} className="text-left bg-transparent border-0 flex-1 text-[12px] leading-snug" style=${{color:'var(--mute)',minHeight:44}}>${hint}</button><button type="button" aria-label="Tageshinweis ausblenden" className="icon-btn shrink-0" onClick=${()=>setShown(null)}><${Icon} n="x" s=${16}/></button></div>`}
  <div className=${'flex items-center gap-2'+(p.minimized?' justify-end':'')}>
- <button type="button" aria-label="Dein Zukunfts-Ich öffnen" title="Dein Zukunfts-Ich" onClick=${()=>c.openSheet({t:'futureSelf'})} className=${'flex items-center text-left bg-transparent border-0 p-0'+(p.minimized?'':' flex-1 min-w-0')} style=${{minWidth:44,minHeight:44,color:'var(--ink)'}}><span className="shrink-0 rounded-full" style=${{background:'var(--ghost)'}}><${FutureSelfMark}/></span>${!p.minimized&&html`<span className="min-w-0 ml-2"><span className="block text-[13.5px] font-semibold">Dein Zukunfts-Ich</span><span className="block text-[11px] mute">Deine Entscheidungen. Dein Maßstab.</span></span>`}</button>
+ <button type="button" aria-label="Dein Zukunfts-Ich öffnen" title="Dein Zukunfts-Ich" onClick=${()=>c.openSheet({t:'futureSelf'})} className=${'flex items-center text-left bg-transparent border-0 p-0'+(p.minimized?'':' flex-1 min-w-0')} style=${{minWidth:44,minHeight:44,color:'var(--ink)'}}><span className="shrink-0 rounded-full" style=${{background:'var(--ghost)'}}><${FutureSelfMark} animated=${!p.minimized&&!c.sheet}/></span>${!p.minimized&&html`<span className="min-w-0 ml-2"><span className="block text-[13.5px] font-semibold">Dein Zukunfts-Ich</span><span className="block text-[11px] mute">Deine Entscheidungen. Dein Maßstab.</span></span>`}</button>
  <button type="button" aria-label=${p.minimized?'Zukunfts-Ich-Präsenz vergrößern':'Zukunfts-Ich-Präsenz minimieren'} className="icon-btn shrink-0" onClick=${()=>c.upd(n=>FS.configure(n,{minimized:!p.minimized}))}><${Icon} n=${p.minimized?'plus':'minus'} s=${16}/></button></div></aside>`}
 function FutureSelfPanel({c}){const prefs=FS.settings(c.S),[mode,setMode]=useState(prefs.lastMode),ctx=futureSelfContext(c),answer=mode&&prefs.enabled?FS.respond(c.S,mode,ctx):null;
  const ask=m=>{const r=FS.respond(c.S,m,ctx);setMode(m);c.upd(n=>FS.record(n,m,r.rule,dayKey(n)))};
  const act=()=>{const a=answer&&answer.action;if(!a)return;if(a.kind==='item')completePriority(c,a.item);else c.openSheet({t:{goal:'goal',review:'review',plan:'dayplan'}[a.kind]||'goal'})};
  const V=({title,rows,empty})=>html`<div className="mt-4"><div className="lbl">${title}</div>${rows.length?html`<ul className="list-disc pl-5 mt-1.5 space-y-1 text-[13px] leading-snug">${rows.map((x,i)=>html`<li key=${i}>${x}</li>`)}</ul>`:html`<div className="text-[12.5px] mute mt-1">${empty}</div>`}</div>`;
  return html`<${Sheet} sub="Mögliche Zukunft · lokale Simulation" title="Dein Zukunfts-Ich" onClose=${c.closeSheet}>
- <div className="flex gap-3 items-center"><span className="shrink-0"><${FutureSelfMark} size=${64}/></span><p className="text-[13px] leading-snug">${FS.TEXT.identity}</p></div>
+ <div className="flex gap-3 items-center"><span className="shrink-0"><${FutureSelfMark} size=${120} animated=${prefs.enabled}/></span><p className="text-[13px] leading-snug">${FS.TEXT.identity}</p></div>
  <p className="text-[12px] mute mt-2 leading-snug">Eine mögliche Version von dir, keine reale Person und kein Erfolgsversprechen. Rückmeldung nur aus deinen Einträgen. Persönliche Texte bleiben auf diesem Gerät.</p>
  ${prefs.enabled?html`<div className="flex flex-col gap-2 mt-4" role="group" aria-label="Fragen an dein Zukunfts-Ich">${[['confront','Konfrontiere mich'],['next','Was würde mein Zukunfts-Ich tun?'],['verdict','Mein Tagesurteil']].map(([id,label])=>html`<button type="button" key=${id} aria-pressed=${mode===id} className=${mode===id?'btn px-3 py-3 text-[13px] text-left':'ghost px-3 py-3 text-[13px] text-left'} style=${{minHeight:44}} onClick=${()=>ask(id)}>${label}</button>`)}</div>
  ${answer?html`<section aria-label="Rückmeldung deines Zukunfts-Ichs" aria-live="polite" className="card2 p-3.5 mt-4 break-words"><div className="lbl acc">${answer.loop} · dein Success Loop</div><h3 className="text-[17px] font-semibold mt-2">${answer.title}</h3><p className="text-[14px] leading-relaxed mt-2">${answer.message}</p>${answer.next&&html`<p className="text-[13px] mute mt-2">${answer.next}</p>`}
@@ -2954,20 +3039,45 @@ function GoalCard({c,g}){const {S}=c;const L=S.life,wk=LC.curWk(L),now=LC.goalNo
  <div className="flex items-end justify-between gap-2 mt-2.5"><div className="min-w-0"><div className="text-[11.5px] mute truncate">${g.metric.name} · ${SRC_L[g.metric.src]||'Selbst'}</div><div className="num text-[18px] font-bold">${LC.fmtV(g.metric,now)} <span className="mute text-[13px] font-medium">→ ${LC.fmtV(g.metric,g.metric.target)}</span></div></div><button onClick=${()=>c.openSheet({t:'measure',gid:g.id})} className="chip shrink-0">Messen</button></div>
  ${p!=null&&html`<div className="mt-2"><${Bar} pct=${p} h=${5} color="var(--good)"/></div>`}
  ${!ach&&html`<div className="border-t ln mt-3 pt-2.5 flex flex-col gap-1.5">${acts.map(a=>html`<div key=${a.id} className="flex items-center gap-2 text-[13px]"><span className="flex-1 min-w-0 truncate">${LC.missionTitle(a)}</span><span className="num mute shrink-0">${LC.doneIn(L,a.id,wk)}/${LC.plannedAt(a,wk)} Woche</span></div>`)}${!acts.length&&html`<div className="text-[12.5px] mute">Noch keine Handlung. Über den Stift fügst du eine hinzu.</div>`}</div>`}</div>`}
-function MyLife({c}){const {S}=c;const L=S.life;const P=S.principles||[];const goals=L.goals||[],act=goals.filter(g=>g.status==='active'),ach=goals.filter(g=>g.status==='achieved');const W=L.why||{};
- return html`<div className="screen px-4 pb-6"><div className="pt-5 relative"><span className="page-emblem"><${Icon} n="compass" s=${76} sw=${1}/></span><div className="lbl">Dein Kompass</div><h1 className="disp text-[40px] mt-1">Mein Leben</h1><div className="text-[13px] mute mt-1 leading-snug">Werte geben die Richtung. Ziele machen sie messbar. Handlungen bringen dich hin.</div><div className="meander mt-3" aria-hidden="true"/></div>
- <${TempleView} c=${c}/>
+/* Mein Leben: Tempel als Kopf (Dach = Warum, Fundament = Werte), darunter eine Zeile je Säule; Tippen klappt Ziele und Details auf. */
+function TempleHead({c,st,sel}){const {S}=c,T=S.life.temple,W=S.life.why||{},P=S.principles||[];
+ const chip=(icon,label,value,empty,on)=>html`<button type="button" onClick=${on} className="flex-1 min-w-0 text-left border-0 px-3 py-2" style=${{minHeight:52,borderRadius:12,background:'var(--card2)',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}>
+  <span className="flex items-center gap-1.5 lbl" style=${{color:'var(--bronze)'}}><${Icon} n=${icon} s=${12}/>${label}</span><span className=${'block text-[13px] truncate mt-0.5 '+(value?'font-semibold':'mute')}>${value||empty}</span></button>`;
+ return html`<section className="card p-4 mt-4" style=${{background:'var(--hero)'}} aria-label="Dein Tempel">
+ <div className="flex items-start justify-between gap-2"><div className="min-w-0"><div className="lbl acc">Saison ${st.n} · Woche ${st.week}/${st.len}</div><div className="disp-serif text-[20px] mt-1 truncate">${st.phaseInfo.name}</div></div>
+ <button type="button" onClick=${()=>c.openSheet({t:'trules'})} aria-label="Bauregeln" className="flex items-center justify-center border-0 bg-transparent -mt-1 -mr-2" style=${{width:44,height:44,color:'var(--mute)'}}><${Icon} n="info" s=${18}/></button></div>
+ ${st.due&&html`<button onClick=${()=>c.openSheet({t:'tseason'})} className="btn w-full py-2.5 mt-3 text-[13px]">Saison abgeschlossen · Bilanz ansehen</button>`}
+ <div className="flex gap-2 mt-3">${chip('temple','Dach · Warum',W.text?'„'+W.text+'“':'','festlegen',()=>c.openSheet({t:'why'}))}</div>
+ <div className=${'mt-1 mx-auto '+(T.anim?'':'no-anim')} style=${{maxWidth:280}}><${TempleSVG} st=${st} sel=${sel} onSel=${a=>c.setTSel(sel===a?null:a)} flash=${c.tFlash} anim=${T.anim}/></div>
+ <div className="flex gap-2">${chip('column','Fundament · Werte',P.map(p=>p.n).join(' · '),'wählen',()=>c.openSheet({t:'values'}))}</div>
+ ${P.length>0&&html`<div className="flex flex-wrap gap-1.5 mt-2" role="group" aria-label="Heute nach einem Wert gehandelt">${P.map(p=>html`<button key=${p.id} type="button" onClick=${()=>c.actPrinciple(p.id)} className="chip" style=${{minHeight:36}} aria-label=${p.n+': heute danach gehandelt'}><${Icon} n="check" s=${12}/> ${p.n}${p.acts?html`<span className="num mute ml-1">${p.acts}</span>`:null}</button>`)}</div>`}
+ </section>`}
+/* Eine Säule = ein Lebensbereich: Hauptziel, Wochenstand, Fortschritt. */
+function PillarRow({c,area,st,open,onToggle}){const {S}=c,L=S.life,a=LC.AREA[area],wk=LC.curWk(L),aw=LC.areaWeek(L,area,wk);
+ const goals=(L.goals||[]).filter(g=>g.area===area&&g.status==='active'),g=goals.find(x=>x.id===L.main)||goals[0],p=g?LC.goalProgress(L,g):null,f=L.focus===area;
+ const bar=p!=null?p:aw.planned?aw.done/aw.planned:0;
+ return html`<div className="card overflow-hidden mt-2" style=${open?{borderColor:tint(a.color,55)}:undefined}>
+ <button type="button" onClick=${onToggle} aria-expanded=${open} className="w-full flex items-center gap-3 px-3 py-3 bg-transparent border-0 text-left" style=${{color:'var(--ink)',minHeight:64}}>
+ <${AreaBadge} area=${a} size=${40}/>
+ <span className="flex-1 min-w-0"><span className="flex items-center gap-1.5"><span className="text-[15px] font-bold truncate">${a.de}</span>${f&&html`<span className="acc shrink-0" title="Priorität" aria-label="Priorität"><${Icon} n="flag" s=${13}/></span>`}</span>
+ <span className="block text-[12.5px] mute truncate">${g?g.title+(goals.length>1?' · +'+(goals.length-1):''):'Noch kein Ziel'}</span>
+ <span className="block mt-1.5 rounded-full overflow-hidden" style=${{height:4,background:tint(a.color,16)}}><span className="block h-full rounded-full" style=${{width:Math.round(bar*100)+'%',background:a.color,transition:'width .5s'}}/></span></span>
+ ${aw.planned>0&&html`<span className="num text-[13px] shrink-0 text-right"><b>${aw.done}/${aw.planned}</b><span className="block text-[10.5px] mute">Woche</span></span>`}
+ <span className="mute shrink-0" style=${{transform:open?'rotate(90deg)':'none',transition:'transform .2s'}}><${Icon} n="chevR" s=${16}/></span></button>
+ ${open&&html`<div className="px-3 pb-3" style=${{animation:'fadeIn .25s ease-out'}}>
+ ${goals.length?html`<div className="flex flex-col gap-2">${goals.map(x=>html`<${GoalCard} key=${x.id} c=${c} g=${x}/>`)}</div>`:html`<button type="button" onClick=${()=>c.openSheet({t:'goal',area})} className="ghost w-full py-3 text-[13px] font-semibold flex items-center justify-center gap-1.5"><${Icon} n="plus" s=${14}/>Ziel für ${a.de}</button>`}
+ <details className="mt-2"><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center'}}>Säule ${a.de} im Detail</summary><${ColumnDetails} c=${c} area=${area} st=${st}/></details>
+ </div>`}</div>`}
+function MyLife({c}){const {S}=c;const L=S.life;const st=LC.templeState(S),sel=c.tSel,ach=(L.goals||[]).filter(g=>g.status==='achieved'),fs=LC.fundSections(S),fn=fs.filter(x=>x.state==='done').length,wn=((S.wisdom&&S.wisdom.fav)||[]).length;
+ const tile=(icon,title,sub,on)=>html`<button type="button" onClick=${on} className="text-left border-0 px-3 py-2 flex items-center gap-3 min-w-0" style=${{minHeight:58,borderRadius:16,background:'var(--card-g)',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}><span className="shrink-0" style=${{color:'var(--bronze)'}}><${Icon} n=${icon} s=${20}/></span><span className="min-w-0"><span className="block text-[14px] font-semibold truncate">${title}</span><span className="block text-[11.5px] mute truncate">${sub}</span></span></button>`;
+ return html`<div className="screen px-4 pb-6"><div className="pt-5 relative"><span className="page-emblem"><${Icon} n="compass" s=${76} sw=${1}/></span><div className="lbl">Dein Kompass</div><h1 className="disp text-[40px] mt-1">Mein Leben</h1><div className="meander mt-3" aria-hidden="true"/></div>
+ <${TempleHead} c=${c} st=${st} sel=${sel}/>
+ <div className="flex items-center justify-between mt-5"><div className="lbl">Deine Säulen</div><button type="button" onClick=${()=>c.openSheet({t:'goal'})} className="bg-transparent border-0 acc text-[12.5px] font-semibold flex items-center gap-1 px-1" style=${{minHeight:44}}><${Icon} n="plus" s=${13}/>Ziel</button></div>
+ ${LC.AREAS.map(a=>html`<${PillarRow} key=${a.id} c=${c} area=${a.id} st=${st} open=${sel===a.id} onToggle=${()=>c.setTSel(sel===a.id?null:a.id)}/>`)}
+ <div className="grid grid-cols-2 gap-2 mt-5">${tile('column','Fundament',fn+' von '+fs.length+' Teilen',()=>c.openSheet({t:'fundament'}))}${WC.enabled(S)?tile('scroll','Wisdom Codex',wn?wn+' gemerkt':'Lebensweisheiten',()=>c.openSheet({t:'codex',f:wn?'fav':'all'})):html`<span/>`}</div>
  <${WisdomSlot} c=${c} place="season"/>
- <${FundamentCard} c=${c}/>
- ${WC.enabled(S)&&(()=>{const n=((S.wisdom&&S.wisdom.fav)||[]).length;return html`<button onClick=${()=>c.openSheet({t:'codex',f:n?'fav':'all'})} className="ghost w-full p-3 mt-3 flex items-center gap-3 text-left text-[14px] font-medium"><span className="wis-ic" aria-hidden="true"><${Icon} n="scroll" s=${15} sw=${1.6}/></span><div className="flex-1">Wisdom Codex<div className="text-[11.5px] mute font-normal">${n?n+(n===1?' Inschrift':' Inschriften')+' gespeichert':'Deine Sammlung kurzer Lebensweisheiten'}</div></div><${Icon} n="chevR" s=${15} cls="mute"/></button>`})()}
- <${Title} right=${html`<button onClick=${()=>c.openSheet({t:'values'})} className="chip">${P.length?'Bearbeiten':'Wählen'}</button>`}>Fundament · Werte<//>
- ${P.length?html`<div className="card p-3.5"><div className="flex flex-wrap gap-1.5">${P.map(p=>html`<button key=${p.id} onClick=${()=>c.actPrinciple(p.id)} className="chip" aria-label=${p.n+': heute danach gehandelt'}>${p.n}${p.acts?html`<span className="num mute ml-1.5">${p.acts}</span>`:null}</button>`)}</div><div className="text-[11.5px] mute mt-2">Tippe einen Wert, wenn du heute bewusst danach gehandelt hast.${S.tradition&&S.tradition!=='Keine'?' Inspiration: '+S.tradition+'.':''}</div></div>`
- :html`<button onClick=${()=>c.openSheet({t:'values'})} className="card w-full p-4 text-left"><div className="text-[14.5px] font-semibold">Wähle drei Werte</div><div className="text-[12.5px] mute mt-0.5">Zwei Minuten. Sie helfen bei Entscheidungen und bei der Wahl deiner Ziele.</div></button>`}
- <${Title} right=${html`<button onClick=${()=>c.openSheet({t:'why'})} className="chip">${W.text?'Vertiefen':'Formulieren'}</button>`}>Dach · Dein Warum<//>
- <div className="card p-3.5">${W.text?html`<div className="text-[15px] leading-snug font-medium">„${W.text}“</div>`:html`<div className="text-[13px] mute leading-snug">Optional. Ein Satz reicht. Du kannst ihn jederzeit mit den Ikigai-Fragen vertiefen.</div>`}</div>
-  <${Title} right=${html`<button onClick=${()=>c.openSheet({t:'goal'})} className="chip flex items-center gap-1"><${Icon} n="plus" s=${13}/>Ziel</button>`}>Ziele<//>
- <div className="flex flex-col gap-2.5">${act.map(g=>html`<${GoalCard} key=${g.id} c=${c} g=${g}/>`)}${!act.length&&html`<button onClick=${()=>c.openSheet({t:'goal'})} className="card p-5 text-center text-[13.5px] font-semibold" style=${{borderStyle:'dashed'}}>Erstes Ziel anlegen</button>`}</div>
- ${ach.length>0&&html`<div className="lbl mt-5 mb-2">Erreicht</div><div className="flex flex-col gap-2">${ach.map(g=>html`<${GoalCard} key=${g.id} c=${c} g=${g}/>`)}</div>`}</div>`}
+ ${ach.length>0&&html`<details className="mt-3"><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center'}}>Erreichte Ziele (${ach.length})</summary><div className="flex flex-col gap-2">${ach.map(g=>html`<${GoalCard} key=${g.id} c=${c} g=${g}/>`)}</div></details>`}
+ </div>`}
 
 /* ───── Reflexion ───── */
 function ExpCard({c,e}){const {S}=c;const L=S.life,g=LC.goalById(L,e.goalId),wk=LC.curWk(L),r=e.result||LC.evalExperiment(L,e),[l,col]=EXP_ST[e.status]||EXP_ST.running;const live=e.status==='running',early=wk<e.startWk;const dw=early?0:LC.doneIn(L,e.aid,Math.min(wk,e.endWk));
@@ -3575,7 +3685,7 @@ function DataBackup({c}){const {S}=c;const [pend,setPend]=useState(null),[err,se
   const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);const st=j&&j.app==='war-within'?j.state:j;if(!st||st.v!==5||!Array.isArray(st.missions))throw 0;setPend({st,at:j.exported||null})}catch(x){setErr('Das ist keine gültige Sicherung von The War Within.')}};r.onerror=()=>setErr('Die Datei konnte nicht gelesen werden.');r.readAsText(f)};
  const apply=()=>{const before=S;const st=LC.ensureLife(pend.st);c.restore(st);setPend(null);c.toast('Sicherung wiederhergestellt.','good',{undo:()=>c.restore(before)})};
  return html`<div className="card2 p-3.5"><div className="flex items-center gap-2"><${Icon} n="lock" s=${15} cls="acc"/><div className="text-[14px] font-semibold flex-1">Daten sichern</div></div>
-  <div className="text-[12px] mute mt-1 leading-snug">Deine Daten liegen nur auf diesem Gerät. Mit einer Sicherung nimmst du sie auf ein neues Gerät mit.</div>
+  <div className="text-[12px] mute mt-1 leading-snug">Dein persönlicher Spielstand und private Texte liegen auf diesem Gerät. Sichere sie für den Gerätewechsel. Gemeinsame Arena-Einträge werden separat gespeichert.</div>
   <div className="grid grid-cols-2 gap-2 mt-2.5"><button type="button" onClick=${exp} className="chip justify-center">Exportieren</button><button type="button" onClick=${()=>ref.current&&ref.current.click()} className="chip justify-center">Importieren</button></div>
   <input ref=${ref} type="file" accept="application/json,.json" className="hidden" onChange=${pick} aria-label="Sicherung auswählen"/>
   ${err&&html`<div role="alert" className="text-[12px] mt-2" style=${{color:'var(--bad)'}}>${err}</div>`}
@@ -3908,8 +4018,7 @@ function Account({c}){
  if(v==='notif'){const N={daily:true,weekly:true,nemesis:true,time:'08:00',...(P.notif||{})};return W(html`<div className="flex flex-col gap-2">${NOTIF.map(([k,l,d])=>html`<button key=${k} role="switch" aria-checked=${N[k]?'true':'false'} onClick=${()=>setP({notif:{...N,[k]:!N[k]}})} className="ghost p-3.5 flex items-center gap-3 text-left"><div className="flex-1"><div className="text-[14px] font-medium">${l}</div><div className="text-[11px] mute">${d}</div></div><${Toggle} on=${N[k]}/></button>`)}
   <div className="flex items-center justify-between ghost p-3.5"><label htmlFor="nt-time" className="text-[14px] font-medium">Uhrzeit</label><input id="nt-time" type="time" className="inp" style=${{width:120,padding:'7px 10px'}} value=${N.time} onChange=${e=>setP({notif:{...N,time:e.target.value}})}/></div>
   <${DemoNote}>Im Prototyp werden noch keine Benachrichtigungen verschickt. Die Einstellungen sind für die echte App vorbereitet.<//></div>`)}
- if(v==='privacy')return W(html`<div><div className="text-[12.5px] mute mb-3">Was deine Liga sehen darf. Alles andere bleibt privat.</div><div className="flex flex-col gap-2">${Object.keys(SHARE_L).map(k=>html`<button key=${k} role="switch" aria-checked=${S.share[k]?'true':'false'} onClick=${()=>c.toggleShare(k)} className="ghost p-3.5 flex items-center gap-3 text-left"><span className="flex-1 text-[14px] font-medium">${SHARE_L[k]}</span><${Toggle} on=${!!S.share[k]}/></button>`)}</div>
-  <div className="text-[11px] mute mt-3 leading-relaxed">Liga-Mitglieder sind im Prototyp simuliert. Es werden keine Daten an andere übertragen.</div></div>`);
+ if(v==='privacy')return W(html`<div><div className="card2 p-3 text-[13px] leading-relaxed"><b>Gemeinsame Arena</b><p className="mt-2">Wenn du einer Arena beitrittst, sehen ihre Mitglieder deinen Arenanamen, die gewählten Wochentage, deine gemeldeten Erfüllungen und deine Reaktionen.</p><p className="mt-2">Deine E-Mail-Adresse, persönliche Ziele, Gedanken, Reflexionen und Zukunftstexte werden dort nicht geteilt. Es werden keine Körper- oder Finanzwerte übertragen.</p></div><p className="text-[12px] mute mt-3">Dein persönlicher Spielstand bleibt auf diesem Gerät. Gemeinsame Arena-Einträge werden separat gespeichert. Der persönliche Planvergleich verwendet weiterhin eine Simulation.</p></div>`);
  return null}
 function Toggle({on}){return html`<span className="w-11 h-6 rounded-full relative shrink-0 transition-colors" style=${{background:on?'var(--acc)':'var(--card2)',border:'1px solid var(--line)'}}><span className="absolute top-[2px] w-[18px] h-[18px] rounded-full bg-white transition-all" style=${{left:on?22:2}}/></span>`}
 function ProfileEdit({c,P,name,setP,done}){const [n,setN]=useState(name);const [age,setAge]=useState(P.ageRange||'');
@@ -3958,7 +4067,7 @@ const METRICS={'5-km-Lauf':[true,S=>S.stats.run5k.last,fmtT],'Bankdrücken (Verb
 function App({init,auth,skey='war_within_v5'}){
  const [S,setS]=useState(()=>{const s=syncCalendar(LC.ensureLife(init||loadState(skey)));WC.ensure(s);FS.ensure(s);LC.syncTemple(s);return s});
  const [tSel,setTSel]=useState(null),[tFlash,setTFlash]=useState(null);
- const [tab,setTab]=useState('home'),[statTab,setStatTab]=useState('out'),[sheet,setSheet]=useState(null),[sel,setSel]=useState(null),[coreSel,setCoreSel]=useState(null),[freq,setFreq]=useState('all');
+ const [tab,setTab]=useState(()=>{try{return !focusMode(S)&&new URLSearchParams(location.search).has('arena')?'league':'home'}catch(e){return'home'}}),[statTab,setStatTab]=useState('out'),[sheet,setSheet]=useState(null),[sel,setSel]=useState(null),[coreSel,setCoreSel]=useState(null),[freq,setFreq]=useState('all');
  const [toasts,setToasts]=useState([]),[floats,setFloats]=useState([]),[flash,setFlash]=useState({}),[sparks,setSparks]=useState([]),[undo,setUndo]=useState(null);
  useEffect(()=>{if(!undo)return;const t=setTimeout(()=>setUndo(u=>u&&u.id===undo.id?null:u),5000);return()=>clearTimeout(t)},[undo&&undo.id]);
  const now=useNow(1000);const scrollRef=useRef(null);const [scrolled,setScrolled]=useState(false);const [fabOff,setFabOff]=useState(false);const lastY=useRef(0);const lock=useRef({});
@@ -3975,7 +4084,7 @@ function App({init,auth,skey='war_within_v5'}){
  const fx=(pos,text)=>{const id=uid();const p=pos&&pos.currentTarget?pos.currentTarget.getBoundingClientRect():pos&&pos.left!=null?pos:{left:200,top:420,width:0};setFloats(f=>[...f,{id,x:p.left+(p.width||0)/2,y:p.top,text}]);setTimeout(()=>setFloats(f=>f.filter(x=>x.id!==id)),1200)};
  const [simMin,setSimMin]=useState(null);
  const openSheet=o=>setSheet(o),closeSheet=()=>setSheet(null);
- useEffect(()=>{if(focusMode(S)&&tab==='solo')setTab('home')},[S.life&&S.life.focusMode,tab]);
+ useEffect(()=>{if(focusMode(S)&&['solo','league'].includes(tab))setTab('home')},[S.life&&S.life.focusMode,tab]);
  /* Rang-Toasts */
  const pr=useRef(D.me.rank);
  useEffect(()=>{const p=pr.current;if(focusMode(S)||D.standings.every(x=>!x.pts)){pr.current=D.me.rank;return}if(D.me.rank>p)toast(`${D.standings[D.me.rank-2].name} hat dich überholt: jetzt Platz ${D.me.rank}`,'warn');else if(D.me.rank<p)toast(`Du bist auf Platz ${D.me.rank} aufgestiegen!`,'good');pr.current=D.me.rank},[D.me.rank]);
@@ -3993,6 +4102,14 @@ function App({init,auth,skey='war_within_v5'}){
  const PUNCT=20,GRACE=30;
  const punctOf=mid=>{const p=nemPlanNow.find(x=>x.id===mid&&!x.virtual&&x.kind!=='sleep');return !!p&&nowM>=nemPlanNow[0].start-180&&nowM<=(p.fixed?p.start:p.end)+GRACE};
  const curIds=new Set(nemPlanNow.filter(p=>!p.virtual&&p.kind!=='sleep'&&nowM>=p.start&&nowM<=(p.fixed?p.start:p.end)+GRACE).map(p=>p.id));
+ /* Arena sharing requires explicit opt-in; only qualified completed actions count. */
+ const arenaRef=useRef(null);
+ if(!arenaRef.current&&window.ArenaSync)arenaRef.current=ArenaSync.bridge({api:window.arenaApi,userId:auth?.session?.id,onSaved:slot=>toast('Auch in der Arena gezählt: '+ArenaCore.SLOTS.find(x=>x.id===slot).name,'good'),onError:()=>toast('Arena konnte nicht vollständig aktualisiert werden. Bitte den Stand in der Arena prüfen.','warn')});
+ useEffect(()=>()=>arenaRef.current?.dispose(),[]);
+ const arenaAuto=(m,extra)=>{if(auth?.session?.mode!=='supabase'||S.arenaAuto!==true||extra.auto||!window.ArenaCore)return;
+  const slot=ArenaCore.contribution(S,m,extra);if(!slot)return;
+  arenaRef.current?.add(m.id,slot,dayKey(S));};
+ useEffect(()=>{arenaRef.current?.reconcile(dayKey(S),mid=>{const m=S.missions.find(x=>x.id===mid);return !!m&&isDone(S,m)})},[S.done,S.counts]);
  const complete=(mid,pos,extra={})=>{
   if(lock.current[mid])return;lock.current[mid]=1;setTimeout(()=>{delete lock.current[mid]},700);
   const m=S.missions.find(x=>x.id===mid);if(!m||isDone(S,m)){toast(m&&m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
@@ -4012,6 +4129,7 @@ function App({init,auth,skey='war_within_v5'}){
    n.events.unshift({id:uid(),text:m.title+(extra.msg?' · '+extra.msg:''),pts:award,t:Date.now()});n.events=n.events.slice(0,12);
    n.feed.unshift({id:uid(),who:'me',pts:award,text:`${n.acts[m.act].short} erledigt`,t:Date.now()});n.feed=n.feed.slice(0,12);
    LC.onComplete(n,mid);if(extra.apply)extra.apply(n);checkAch(n)});
+  arenaAuto(m,extra);
   const fm=focusMode(S),la=(S.life.actions||[]).find(x=>x.missionId===mid&&!x.off),lwk=LC.curWk(S.life),limp=la?`Umsetzung ${LC.doneIn(S.life,la.id,lwk)+1}/${LC.plannedAt(la,lwk)} diese Woche`:null;
   if(!fm){fx(pos,award>0?`+${award}`:'Limit');if(award>0)burst(pos,ACOL[m.act]||'var(--acc2)')}try{navigator.vibrate&&navigator.vibrate(award>0?[12,40,18]:8)}catch(e){}
   {const b=briefToday(S);if(b&&b.ids.includes(mid)&&b.ids.filter(id=>{const x=S.missions.find(y=>y.id===id);return x&&!isDone(S,x)}).length===1)setTimeout(()=>toast('Alle Prioritäten erledigt. Tag gewonnen.','good'),900)}
@@ -4060,7 +4178,7 @@ function App({init,auth,skey='war_within_v5'}){
    if(kind==='save'){n.save.saved+=v.amt;n.save.hist[n.save.hist.length-1]=n.save.saved}};
   if((kind==='lift'||kind==='squat')&&v.r!==1)msg=null;
   if(kind==='lift'){const e=epley(v.w,v.r);msg=e>S.stats.bench.ver&&!(v.r===1&&v.ver)?`Schätzung ${n1(e)} kg, PR bleibt ${S.stats.bench.ver} kg`:''}
-  if(mid)complete(mid,null,{bonus,apply,q,auto:keep,msg:keep?'Auto (Demo)'+(q!=null?' · '+qLabel(q):''):(q!=null&&!msg?qLabel(q):msg),keep});
+  if(mid)complete(mid,null,{arenaMinutes:['focus','study','read'].includes(kind)?v.min:['run','swim'].includes(kind)?((v.mn||0)*60+(v.sc||0))/60:undefined,bonus,apply,q,auto:keep,msg:keep?'Auto (Demo)'+(q!=null?' · '+qLabel(q):''):(q!=null&&!msg?qLabel(q):msg),keep});
   else{upd(n=>{apply(n);checkAch(n)});toast('Gespeichert'+(kind==='lift'&&v.r!==1?` · geschätzter 1RM ${n1(epley(v.w,v.r))} kg (kein verifizierter PR)`:''),'good');setSheet(null)}};
  
  const syncHealth=()=>{
@@ -4111,7 +4229,7 @@ function App({init,auth,skey='war_within_v5'}){
  const setSave=p=>upd(n=>{Object.assign(n.save,p);if(p.saved!=null)n.save.hist[n.save.hist.length-1]=p.saved});
  const setStudy=p=>upd(n=>{Object.assign(n.study,p)});
  const setQuote=()=>upd(n=>{n.quoteIdx++});
- const resetDemo=()=>{try{localStorage.removeItem(skey)}catch(e){}setS(LC.ensureLife(initState()));setSheet(null);setSel(null);setTab('home');toast('Demo zurückgesetzt')};
+ const resetDemo=()=>{if(!isDemoState(S))return;try{localStorage.removeItem(skey)}catch(e){}setS(LC.ensureLife(initState()));setSheet(null);setSel(null);setTab('home');toast('Demo zurückgesetzt')};
  /* Life OS */
  const lifeUpd=fn=>upd(n=>{LC.ensureLife(n);fn(n);checkAch(n)});
  const msN=((S.life&&S.life.temple&&S.life.temple.cur.ms)||[]).length,msRef=useRef(msN);
@@ -4133,7 +4251,7 @@ function App({init,auth,skey='war_within_v5'}){
  const setLifeGoalStatus=(gid,st)=>{lifeUpd(n=>{LC.setGoalStatus(n,gid,st);if(st==='achieved')n.life.flags={...(n.life.flags||{}),goal:true}});setSheet(null);toast(st==='achieved'?'Ziel erreicht. Stark. Zeit für das nächste.':st==='archived'?'Ziel archiviert. Verlauf und Messwerte bleiben.':'Ziel wieder aktiv.','good')};
  const addMeas=(gid,v)=>{const g=LC.goalById(S.life,gid),hit=g&&g.status==='active'&&LC.reached(g,v);lifeUpd(n=>{LC.addMeasurement(n,gid,v)});setSheet(null);toast(hit?'Zielwert erreicht! Das ist echter Fortschritt.':'Messwert gespeichert. Er fließt in den Wochenrückblick ein.','good')};
  const saveWeekly=p=>{lifeUpd(n=>{Object.entries(p.decisions||{}).forEach(([id,d])=>LC.decideExperiment(n,id,d));const e=p.exp?LC.startExperiment(n,{...p.exp,wk:p.wk}):null;LC.saveWeeklyReview(n,{wk:p.wk,rate:p.rate,rows:p.rows,worked:p.worked,notWorked:p.notWorked,obstacle:p.obstacle,expStarted:e&&e.id,expLabel:e&&e.label})});setSheet(null);toast(p.exp?'Experiment gestartet. Im nächsten Rückblick prüfst du, ob es wirkt.':'Wochenrückblick gespeichert.','good')};
- const toggleFocusMode=()=>{const on=focusMode(S);lifeUpd(n=>{n.life.focusMode=!on;if(on&&n.life.fund&&n.life.fund.ob)n.life.fund.ob={...n.life.fund.ob,calmOff:true}});toast(on?'Fokusmodus aus: Liga, Planvergleich und Punkte sind wieder da.':'Fokusmodus an: Ziele, Handlungen und Reflexion.','good')};
+ const toggleFocusMode=()=>{const on=focusMode(S);lifeUpd(n=>{n.life.focusMode=!on;if(on&&n.life.fund&&n.life.fund.ob)n.life.fund.ob={...n.life.fund.ob,calmOff:true}});toast(on?'Fokusmodus aus: Arena, Planvergleich und Punkte sind wieder da.':'Fokusmodus an: Ziele, Handlungen und Reflexion.','good')};
  const setAreaSat=(id,v)=>lifeUpd(n=>{n.life.areas[id]={...(n.life.areas[id]||{}),sat:v,known:true}});
  const setFocusArea=id=>{lifeUpd(n=>{n.life.focus=id});toast(LC.AREA[id].de+' hat jetzt Priorität.','good')};
  const setMainGoal=gid=>{lifeUpd(n=>{n.life.main=gid});setSheet(null);toast('Hauptziel geändert.','good')};
@@ -4157,7 +4275,7 @@ function App({init,auth,skey='war_within_v5'}){
   upd(n=>{const c=n.challenges.find(k=>k.id===id);c.status='done';c.res=r;const s=c.stake;if(r.win==='me'){n.adj+=s;n.seasonPts+=s;n.others[c.who]=Math.max(0,n.others[c.who]-s);n.flags.won=true}else if(r.win==='other'){n.adj-=s;n.seasonPts=Math.max(0,n.seasonPts-s);n.others[c.who]+=s}checkAch(n)});
   toast(r.win==='me'?`Duell gewonnen! +${x.stake} Pkt.`:r.win==='draw'?'Unentschieden.':`Duell verloren: −${x.stake} Pkt. Dein Fortschritt bleibt.`,r.win==='me'?'good':undefined)};
  /* Tageswechsel */
- const advance=()=>{const idle=S.streak>0&&todayTotal(S)===0&&!S.rest.includes(S.day);upd(n=>{closeCalendarDay(n);if(n.calendar)n.calendar.date=datePlus(n.calendar.date,1)});
+ const advance=()=>{if(!isDemoState(S))return;const idle=S.streak>0&&todayTotal(S)===0&&!S.rest.includes(S.day);upd(n=>{closeCalendarDay(n);if(n.calendar)n.calendar.date=datePlus(n.calendar.date,1)});
   if(sheet&&sheet.t!=='aar')setSheet(null);toast(idle?(S.freezes>0?'Streak-Schonung eingesetzt. Deine Serie bleibt bestehen.':'Serie unterbrochen. Ein neuer Start zählt sofort.'):'Neuer Tag. Dein Tagesplan ist bereit.');if(S.health&&S.health.on)setTimeout(()=>sref.current(),1200)};
  const saveEval=g=>{upd(n=>{n.evalHist=[{week:n.aar?n.aar.week:seasonWeek(n)+1,season:n.season,grades:g},...(n.evalHist||[])].slice(0,12);n.evalDone=true;n.codeCk={};CORE.forEach(id=>{const ct=n.acts[id].cat;n.catScore[ct]=Math.round(clamp((n.catScore[ct]??40)*.7+g[id]*100*.3,0,100))})});toast('Evaluation gespeichert.','good')};
  const toggleCode=k=>upd(n=>{n.codeCk=n.codeCk||{};n.codeCk[k]=!n.codeCk[k]});
@@ -4165,22 +4283,22 @@ function App({init,auth,skey='war_within_v5'}){
  const dismissAar=()=>{upd(n=>{n.aar=null});setSheet(null)};
  const dismissSeason=()=>{upd(n=>{n.sreport=null});setSheet(null)};
  const startSeason=(theme,len,goal,focus,ag)=>{upd(n=>{n.sAreaGoals=ag;n.sAreaPts={};n.sLocked=true;n.mArea=theme;n.mDays=0;n.mTarget=Math.round(.7*len*7);n.sSigned={season:n.season,t:focus};n.sTheme=theme;n.sLen=len;n.sGoal=goal;n.sFocus=focus;n.setup=false});setSheet(null);toast('Neue Saison gestartet. Dein Fortschritt bleibt.','good')};
- const skipSeason=()=>{upd(n=>{const t=SDAYS(n)-1;n.seasonPts=Math.max(n.seasonPts,Math.round(planWeek(n)*SL(n)*(.78+Math.random()*.3)));for(let i=0;i<t;i++)if(n.seasonCum[i]==null)n.seasonCum[i]=Math.round(n.seasonPts*i/t);n.sAreaPts=n.sAreaPts||{};CORE.forEach(id=>{n.sAreaPts[id]=Math.round(n.acts[id].cap*SL(n)*(.55+Math.random()*.5))});n.sThemePts=n.sAreaPts[n.sTheme]||0;n.mDays=Math.round(.7*SDAYS(n)*(.7+Math.random()*.5));n.day=t;n.seasonCum[t]=n.seasonPts});setSheet(null);toast('Letzter Spieltag der Saison (Demo). Jetzt vorspulen, um den Saisonbericht zu sehen.')};
+ const skipSeason=()=>{if(!isDemoState(S))return;upd(n=>{const t=SDAYS(n)-1;n.seasonPts=Math.max(n.seasonPts,Math.round(planWeek(n)*SL(n)*(.78+Math.random()*.3)));for(let i=0;i<t;i++)if(n.seasonCum[i]==null)n.seasonCum[i]=Math.round(n.seasonPts*i/t);n.sAreaPts=n.sAreaPts||{};CORE.forEach(id=>{n.sAreaPts[id]=Math.round(n.acts[id].cap*SL(n)*(.55+Math.random()*.5))});n.sThemePts=n.sAreaPts[n.sTheme]||0;n.mDays=Math.round(.7*SDAYS(n)*(.7+Math.random()*.5));n.day=t;n.seasonCum[t]=n.seasonPts});setSheet(null);toast('Letzter Spieltag der Saison (Demo). Jetzt vorspulen, um den Saisonbericht zu sehen.')};
  /* Erfolge */
  const newA=S.newAch[0];
  useEffect(()=>{if(!newA)return;const t=setTimeout(()=>upd(n=>{n.newAch=n.newAch.slice(1)}),2600);return()=>clearTimeout(t)},[newA]);
  const c={auth,upd,restore:x=>setS(syncCalendar(structuredClone(x))),wisFav,wisDismiss,wisToggle,saveDebrief,saveEvening,saveMonthly,tSel,setTSel,tFlash,toggleWeather,toggleTempleAnim,closeTempleSeason,setSkin,addLifeGoal,updLifeGoal,setLifeGoalStatus,addMeas,saveWeekly,toggleFocusMode,setAreaSat,setFocusArea,setMainGoal,saveValues,saveWhy,setActPerWeek,removeAction,addActionTo,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,togglePush,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
- const nav=[['home','Heute','home'],['tasks','Aufgaben','target'],['life','Mein Leben','grid'],['stats','Fortschritt','bars'],...(focusMode(S)?[]:[['solo','Duell','swords']])];const navKey={league:'stats',reflect:'home'}[tab]||tab;const revDue=LC.reviewWeek(S.life)!=null;
+ const nav=[['home','Heute','home'],['tasks','Aufgaben','target'],['life','Mein Leben','grid'],['stats','Fortschritt','bars'],...(focusMode(S)?[]:[['league','Arena','swords']])];const navKey={solo:'league',reflect:'home'}[tab]||tab;const revDue=LC.reviewWeek(S.life)!=null;
  const ach=newA&&ACHS.find(a=>a.id===newA);
- const fp=FS.settings(S),dockOffset=fp.enabled?(fp.hints&&!fp.minimized?240:180):104;
+ const fp=FS.settings(S),dockOffset=fp.enabled&&tab!=='home'?(fp.hints&&!fp.minimized?240:180):104;
  return html`<div data-theme=${S.theme} data-skin=${S.skin||'antik'} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(var(--acc-rgb),.12)'}}>
  <div className="absolute inset-0 pointer-events-none overflow-hidden"><div className="absolute rounded-full" style=${{top:-110,left:-80,width:300,height:300,background:'rgba(var(--acc-rgb),.13)',filter:'blur(70px)'}}/><div className="absolute rounded-full" style=${{top:260,right:-140,width:260,height:260,background:'rgba(var(--sky-rgb),.07)',filter:'blur(80px)'}}/></div>
  <div ref=${scrollRef} onScroll=${e=>{const y=e.currentTarget.scrollTop,v=y>70;if(v!==scrolled)setScrolled(v);const dn=y>lastY.current+4,up=y<lastY.current-4;if(dn&&!fabOff&&y>120)setFabOff(true);else if((up||y<120)&&fabOff)setFabOff(false);lastY.current=y}} className="flex-1 overflow-y-auto relative scroll-fade" style=${{paddingBottom:dockOffset}}>
-  ${['league','reflect'].includes(tab)&&html`<div className="px-4 pt-4 -mb-2 flex gap-2"><button onClick=${()=>setTab(navKey)} className="chip flex items-center gap-1"><${Icon} n="chevL" s=${14}/>${navKey==='home'?'Heute':'Fortschritt'}</button></div>`}${tab==='home'&&html`<${Home} c=${c}/>`}${tab==='life'&&html`<${MyLife} c=${c}/>`}${tab==='reflect'&&html`<${Reflect} c=${c}/>`}${tab==='tasks'&&html`<${Tasks} c=${c}/>`}${tab==='solo'&&html`<${Solo} c=${c}/>`}${tab==='league'&&html`<${League} c=${c}/>`}${tab==='stats'&&html`<${Stats} c=${c}/>`}</div>
- ${(()=>{const T={home:'Heute',life:'Mein Leben',reflect:'Reflexion',tasks:'Aufgaben',solo:'Duell · Saison '+S.season,league:'Liga',stats:'Fortschritt'}[tab];return html`<div aria-hidden=${!scrolled} className="topbar absolute top-0 inset-x-0 z-20 px-4 flex items-center justify-between pointer-events-none" style=${{height:52,paddingTop:'env(safe-area-inset-top)',opacity:scrolled?1:0,transform:scrolled?'none':'translateY(-8px)',background:'var(--glass)',backdropFilter:'blur(16px) saturate(1.4)',WebkitBackdropFilter:'blur(16px) saturate(1.4)',borderBottom:'1px solid var(--line)'}}><div className="disp text-[19px]">${T}</div><button tabIndex=${scrolled?0:-1} onClick=${()=>{if(scrollRef.current)scrollRef.current.scrollTo({top:0,behavior:'smooth'})}} className="chip pointer-events-auto" style=${{padding:'4px 10px',minHeight:28}} aria-label="Nach oben"><${Icon} n="up" s=${14}/></button></div>`})()}
+  ${['solo','reflect'].includes(tab)&&html`<div className="px-4 pt-4 -mb-2 flex gap-2"><button onClick=${()=>setTab(navKey)} className="chip flex items-center gap-1"><${Icon} n="chevL" s=${14}/>${navKey==='home'?'Heute':'Arena'}</button></div>`}${tab==='home'&&html`<${Home} c=${c}/>`}${tab==='life'&&html`<${MyLife} c=${c}/>`}${tab==='reflect'&&html`<${Reflect} c=${c}/>`}${tab==='tasks'&&html`<${Tasks} c=${c}/>`}${tab==='solo'&&html`<${Solo} c=${c}/>`}${tab==='league'&&html`<${League} c=${c}/>`}${tab==='stats'&&html`<${Stats} c=${c}/>`}</div>
+ ${(()=>{const T={home:'Heute',life:'Mein Leben',reflect:'Reflexion',tasks:'Aufgaben',solo:'Duell · Saison '+S.season,league:'Arena',stats:'Fortschritt'}[tab];return html`<div aria-hidden=${!scrolled} className="topbar absolute top-0 inset-x-0 z-20 px-4 flex items-center justify-between pointer-events-none" style=${{height:52,paddingTop:'env(safe-area-inset-top)',opacity:scrolled?1:0,transform:scrolled?'none':'translateY(-8px)',background:'var(--glass)',backdropFilter:'blur(16px) saturate(1.4)',WebkitBackdropFilter:'blur(16px) saturate(1.4)',borderBottom:'1px solid var(--line)'}}><div className="disp text-[19px]">${T}</div><button tabIndex=${scrolled?0:-1} onClick=${()=>{if(scrollRef.current)scrollRef.current.scrollTo({top:0,behavior:'smooth'})}} className="chip pointer-events-auto" style=${{padding:'4px 10px',minHeight:28}} aria-label="Nach oben"><${Icon} n="up" s=${14}/></button></div>`})()}
  
  <div className="absolute bottom-0 inset-x-0 z-30" style=${{paddingBottom:'env(safe-area-inset-bottom)',background:'var(--bg)',borderTop:'1px solid var(--line)'}}>
-  <${FutureSelfDock} c=${c}/>
+  ${tab!=='home'&&html`<${FutureSelfDock} c=${c}/>`}
   <nav aria-label="Hauptnavigation" className="flex px-1 pt-1.5 pb-2">${nav.map(([k,l,i])=>{const on=navKey===k;return html`<button key=${k} aria-label=${l+(k==='home'&&revDue?', Wochenrückblick bereit':'')} aria-current=${on?'page':undefined} onClick=${()=>{setTab(k);setSel(null);try{navigator.vibrate&&navigator.vibrate(6)}catch(e){}}} className="relative flex-1 flex flex-col items-center justify-center gap-1 border-0 bg-transparent" style=${{minHeight:52,color:on?'var(--acc2)':'var(--mute)',transition:'color .14s'}}><${Icon} n=${i} s=${24} sw=${2}/>${k==='home'&&revDue&&html`<span aria-hidden="true" className="absolute rounded-full" style=${{top:4,right:'calc(50% - 17px)',width:7,height:7,background:'var(--acc)'}}/>`}<span className="text-[12px] font-medium">${l}</span>${on&&html`<span aria-hidden="true" className="absolute" style=${{bottom:-4,left:'25%',right:'25%',height:2,borderRadius:2,background:'var(--acc)'}}/>`}</button>`})}</nav></div>
  ${tab==='home'&&S.push&&!undo&&!sheet&&dueAsk&&html`<div key=${'ask'+dueAsk.id} role="status" className="absolute z-40 left-3 right-3 rounded-[22px] p-3" style=${{bottom:dockOffset,background:'var(--glass)',backdropFilter:'blur(14px)',WebkitBackdropFilter:'blur(14px)',border:'1px solid rgba(var(--acc2-rgb),.4)',boxShadow:'0 14px 34px -12px rgba(0,0,0,.6)',animation:'toastIn .3s ease-out'}}>
   <div className="flex items-center gap-3"><span className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style=${{background:'rgba(var(--acc-rgb),.18)',color:'var(--acc2)'}}><${Icon} n=${dueAsk.icon} s=${18}/></span><div className="flex-1 min-w-0"><div className="text-[13.5px] font-semibold truncate">${dueAsk.name} erledigt?</div><div className="text-[11.5px] mute">Geplant ${fmtHM(dueAsk.start)}–${fmtHM(dueAsk.end)}${nowM<=dueAsk.end+GRACE?' · jetzt bestätigt = pünktlich':''}</div></div><button aria-label="Heute nicht mehr fragen" onClick=${()=>answerAsk(dueAsk,'no')} className="bg-transparent border-0 mute p-1 shrink-0"><${Icon} n="x" s=${16}/></button></div>
