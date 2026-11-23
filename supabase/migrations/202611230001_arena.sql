@@ -118,7 +118,12 @@ begin
   if w<1 or w>4 then raise exception 'Die Spielwoche läuft gerade nicht.'; end if;
   k:=p_data->>'slot';if k is null or k not in ('mind','body','growth','bonds') then raise exception 'Unbekannter Bereich.'; end if;
   select targets into t from public.arena_lineups where league_id=g.id and user_id=u and week=w;
-  if not found then raise exception 'Für diese Woche fehlt deine Aufstellung.'; end if;
+  if not found then
+   -- Versäumte Aufstellung: die letzte eigene gilt unverändert weiter (Woche 1 ist vor dem Start Pflicht).
+   select targets into t from public.arena_lineups where league_id=g.id and user_id=u and week<w order by week desc limit 1;
+   if not found then raise exception 'Für diese Woche fehlt deine Aufstellung.'; end if;
+   insert into public.arena_lineups(league_id,user_id,week,targets) values(g.id,u,w,t) on conflict(league_id,user_id,week) do nothing;
+  end if;
   if p_data->'done'='true'::jsonb then
    n:=(select count(*) from public.arena_completions where league_id=g.id and user_id=u and week=w and slot=k);
    if n<(t->>k)::integer then insert into public.arena_completions(league_id,user_id,week,slot,day) values(g.id,u,w,k,d) on conflict do nothing; end if;

@@ -12,6 +12,7 @@ s.today='2026-12-07';assert.deepEqual(Array.from(A.season(s),r=>r.points),[3,3,0
 s.completions.push({...s.completions[0]});assert.equal(A.weekly(s,1)[0].score,332,'duplicate reports do not score twice');
 s.lineups=s.lineups.filter(l=>l.user_id!=='c');assert.equal(A.weekly(s,1).find(r=>r.user_id==='c').rank,null);
 s=fixture();s.lineups=s.lineups.map(l=>({...l,targets:{mind:1,body:1,growth:1,bonds:1}}));for(const slot of ['mind','body','growth','bonds'])for(const day of ['2026-11-30','2026-12-01'])s.completions.push({user_id:'a',slot,week:1,day});assert.equal(A.weekly(s,1)[0].score,1000,'score caps at 100');
+s=fixture();s.today='2026-12-08';s.lineups.push({user_id:'a',week:2,targets:{mind:1,body:1,growth:1,bonds:1}});s.completions.push({user_id:'b',slot:'mind',week:2,day:'2026-12-08'});assert.deepEqual(A.lineupFor(s,'b',2).targets,targets,'missed lineup carries the last one');assert.equal(A.lineupFor(s,'a',2).week,2);assert.equal(A.weekly(s,2).find(r=>r.user_id==='b').score,83);assert.equal(A.lineupFor(s,'a',0),null);
 const u=new URL(A.invitation('ABC123','https://example.com/war-within/?token=private#secret'));assert.equal(u.search,'?arena=ABC123');assert.equal(u.hash,'');assert.equal(u.pathname,'/war-within/');
 const original=JSON.stringify(s);A.phase(s);A.weekly(s,1);A.season(s);assert.equal(JSON.stringify(s),original,'rules do not mutate any state');
 console.log('PASS arena rules: three players, ties, week and season boundaries, no free points, deduplication, caps, read-only rules, safe invitation URLs');

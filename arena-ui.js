@@ -7,11 +7,11 @@
  const reactions=[['respect','Respekt'],['fire','Stark'],['rematch','Revanche']];
  function Lineup({snapshot,week,busy,onSave}){
   const current=snapshot.lineups.find(l=>l.user_id===snapshot.user_id&&l.week===week)?.targets;
-  const [targets,setTargets]=useState(()=>current||{mind:3,body:3,growth:3,bonds:3});
+  const [targets,setTargets]=useState(()=>current||A.lineupFor(snapshot,snapshot.user_id,week)?.targets||{mind:3,body:3,growth:3,bonds:3});
   const dirty=!current||A.SLOTS.some(s=>targets[s.id]!==current[s.id]);
   return html`<form className="card p-4 mt-3" onSubmit=${e=>{e.preventDefault();onSave(week,targets)}}>
    <h2 className="disp text-[23px]">Aufstellung · Woche ${week}</h2>
-   <p className="text-[12px] mute mt-1">Vier feste Plätze, jeweils höchstens 25 Arenapunkte. Wähle realistische Tage. Ab Montag steht die Aufstellung fest.</p>
+   <p className="text-[12px] mute mt-1">Vier feste Plätze, jeweils höchstens 25 Arenapunkte. Wähle realistische Tage. Ab Montag steht die Aufstellung fest. Speicherst du keine neue, gilt deine letzte weiter.</p>
    <div className="mt-3 space-y-3">${A.SLOTS.map(s=>html`<label key=${s.id} className="flex items-center gap-3"><span className="flex-1 min-w-0"><b className="text-[13px] block">${s.name}</b><span className="text-[12px] mute block">${s.action}</span></span><select aria-label=${s.name+' · Tage pro Woche'} className="arena-input" value=${targets[s.id]} disabled=${busy} onChange=${e=>setTargets(t=>({...t,[s.id]:Number(e.target.value)}))}>${[1,2,3,4,5,6,7].map(n=>html`<option key=${n} value=${n}>${n} ${n===1?'Tag':'Tage'}</option>`)}</select></label>`)}</div>
    <button type="submit" className="btn w-full py-3 mt-4 text-[13px]" disabled=${busy||!dirty}>${current&&!dirty?'Aufstellung gespeichert':'Aufstellung speichern'}</button>
   </form>`;
