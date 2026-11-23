@@ -18,14 +18,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v63"></script>
-<script src="auth.js?v=ww-v63"></script>
-<script src="life-core.js?v=ww-v63"></script>
-<script src="wisdom-core.js?v=ww-v63"></script>
-<script src="future-self-core.js?v=ww-v63"></script>
-<script src="arena-core.js?v=ww-v63"></script>
-<script src="arena-api.js?v=ww-v63"></script>
-<script src="arena-ui.js?v=ww-v63"></script>
+<script src="supabase-config.js?v=ww-v64"></script>
+<script src="auth.js?v=ww-v64"></script>
+<script src="life-core.js?v=ww-v64"></script>
+<script src="wisdom-core.js?v=ww-v64"></script>
+<script src="future-self-core.js?v=ww-v64"></script>
+<script src="arena-core.js?v=ww-v64"></script>
+<script src="arena-api.js?v=ww-v64"></script>
+<script src="arena-ui.js?v=ww-v64"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -3039,20 +3039,45 @@ function GoalCard({c,g}){const {S}=c;const L=S.life,wk=LC.curWk(L),now=LC.goalNo
  <div className="flex items-end justify-between gap-2 mt-2.5"><div className="min-w-0"><div className="text-[11.5px] mute truncate">${g.metric.name} · ${SRC_L[g.metric.src]||'Selbst'}</div><div className="num text-[18px] font-bold">${LC.fmtV(g.metric,now)} <span className="mute text-[13px] font-medium">→ ${LC.fmtV(g.metric,g.metric.target)}</span></div></div><button onClick=${()=>c.openSheet({t:'measure',gid:g.id})} className="chip shrink-0">Messen</button></div>
  ${p!=null&&html`<div className="mt-2"><${Bar} pct=${p} h=${5} color="var(--good)"/></div>`}
  ${!ach&&html`<div className="border-t ln mt-3 pt-2.5 flex flex-col gap-1.5">${acts.map(a=>html`<div key=${a.id} className="flex items-center gap-2 text-[13px]"><span className="flex-1 min-w-0 truncate">${LC.missionTitle(a)}</span><span className="num mute shrink-0">${LC.doneIn(L,a.id,wk)}/${LC.plannedAt(a,wk)} Woche</span></div>`)}${!acts.length&&html`<div className="text-[12.5px] mute">Noch keine Handlung. Über den Stift fügst du eine hinzu.</div>`}</div>`}</div>`}
-function MyLife({c}){const {S}=c;const L=S.life;const P=S.principles||[];const goals=L.goals||[],act=goals.filter(g=>g.status==='active'),ach=goals.filter(g=>g.status==='achieved');const W=L.why||{};
- return html`<div className="screen px-4 pb-6"><div className="pt-5 relative"><span className="page-emblem"><${Icon} n="compass" s=${76} sw=${1}/></span><div className="lbl">Dein Kompass</div><h1 className="disp text-[40px] mt-1">Mein Leben</h1><div className="text-[13px] mute mt-1 leading-snug">Werte geben die Richtung. Ziele machen sie messbar. Handlungen bringen dich hin.</div><div className="meander mt-3" aria-hidden="true"/></div>
- <${TempleView} c=${c}/>
+/* Mein Leben: Tempel als Kopf (Dach = Warum, Fundament = Werte), darunter eine Zeile je Säule; Tippen klappt Ziele und Details auf. */
+function TempleHead({c,st,sel}){const {S}=c,T=S.life.temple,W=S.life.why||{},P=S.principles||[];
+ const chip=(icon,label,value,empty,on)=>html`<button type="button" onClick=${on} className="flex-1 min-w-0 text-left border-0 px-3 py-2" style=${{minHeight:52,borderRadius:12,background:'var(--card2)',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}>
+  <span className="flex items-center gap-1.5 lbl" style=${{color:'var(--bronze)'}}><${Icon} n=${icon} s=${12}/>${label}</span><span className=${'block text-[13px] truncate mt-0.5 '+(value?'font-semibold':'mute')}>${value||empty}</span></button>`;
+ return html`<section className="card p-4 mt-4" style=${{background:'var(--hero)'}} aria-label="Dein Tempel">
+ <div className="flex items-start justify-between gap-2"><div className="min-w-0"><div className="lbl acc">Saison ${st.n} · Woche ${st.week}/${st.len}</div><div className="disp-serif text-[20px] mt-1 truncate">${st.phaseInfo.name}</div></div>
+ <button type="button" onClick=${()=>c.openSheet({t:'trules'})} aria-label="Bauregeln" className="flex items-center justify-center border-0 bg-transparent -mt-1 -mr-2" style=${{width:44,height:44,color:'var(--mute)'}}><${Icon} n="info" s=${18}/></button></div>
+ ${st.due&&html`<button onClick=${()=>c.openSheet({t:'tseason'})} className="btn w-full py-2.5 mt-3 text-[13px]">Saison abgeschlossen · Bilanz ansehen</button>`}
+ <div className="flex gap-2 mt-3">${chip('temple','Dach · Warum',W.text?'„'+W.text+'“':'','festlegen',()=>c.openSheet({t:'why'}))}</div>
+ <div className=${'mt-1 mx-auto '+(T.anim?'':'no-anim')} style=${{maxWidth:280}}><${TempleSVG} st=${st} sel=${sel} onSel=${a=>c.setTSel(sel===a?null:a)} flash=${c.tFlash} anim=${T.anim}/></div>
+ <div className="flex gap-2">${chip('column','Fundament · Werte',P.map(p=>p.n).join(' · '),'wählen',()=>c.openSheet({t:'values'}))}</div>
+ ${P.length>0&&html`<div className="flex flex-wrap gap-1.5 mt-2" role="group" aria-label="Heute nach einem Wert gehandelt">${P.map(p=>html`<button key=${p.id} type="button" onClick=${()=>c.actPrinciple(p.id)} className="chip" style=${{minHeight:36}} aria-label=${p.n+': heute danach gehandelt'}><${Icon} n="check" s=${12}/> ${p.n}${p.acts?html`<span className="num mute ml-1">${p.acts}</span>`:null}</button>`)}</div>`}
+ </section>`}
+/* Eine Säule = ein Lebensbereich: Hauptziel, Wochenstand, Fortschritt. */
+function PillarRow({c,area,st,open,onToggle}){const {S}=c,L=S.life,a=LC.AREA[area],wk=LC.curWk(L),aw=LC.areaWeek(L,area,wk);
+ const goals=(L.goals||[]).filter(g=>g.area===area&&g.status==='active'),g=goals.find(x=>x.id===L.main)||goals[0],p=g?LC.goalProgress(L,g):null,f=L.focus===area;
+ const bar=p!=null?p:aw.planned?aw.done/aw.planned:0;
+ return html`<div className="card overflow-hidden mt-2" style=${open?{borderColor:tint(a.color,55)}:undefined}>
+ <button type="button" onClick=${onToggle} aria-expanded=${open} className="w-full flex items-center gap-3 px-3 py-3 bg-transparent border-0 text-left" style=${{color:'var(--ink)',minHeight:64}}>
+ <${AreaBadge} area=${a} size=${40}/>
+ <span className="flex-1 min-w-0"><span className="flex items-center gap-1.5"><span className="text-[15px] font-bold truncate">${a.de}</span>${f&&html`<span className="acc shrink-0" title="Priorität" aria-label="Priorität"><${Icon} n="flag" s=${13}/></span>`}</span>
+ <span className="block text-[12.5px] mute truncate">${g?g.title+(goals.length>1?' · +'+(goals.length-1):''):'Noch kein Ziel'}</span>
+ <span className="block mt-1.5 rounded-full overflow-hidden" style=${{height:4,background:tint(a.color,16)}}><span className="block h-full rounded-full" style=${{width:Math.round(bar*100)+'%',background:a.color,transition:'width .5s'}}/></span></span>
+ ${aw.planned>0&&html`<span className="num text-[13px] shrink-0 text-right"><b>${aw.done}/${aw.planned}</b><span className="block text-[10.5px] mute">Woche</span></span>`}
+ <span className="mute shrink-0" style=${{transform:open?'rotate(90deg)':'none',transition:'transform .2s'}}><${Icon} n="chevR" s=${16}/></span></button>
+ ${open&&html`<div className="px-3 pb-3" style=${{animation:'fadeIn .25s ease-out'}}>
+ ${goals.length?html`<div className="flex flex-col gap-2">${goals.map(x=>html`<${GoalCard} key=${x.id} c=${c} g=${x}/>`)}</div>`:html`<button type="button" onClick=${()=>c.openSheet({t:'goal',area})} className="ghost w-full py-3 text-[13px] font-semibold flex items-center justify-center gap-1.5"><${Icon} n="plus" s=${14}/>Ziel für ${a.de}</button>`}
+ <details className="mt-2"><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center'}}>Säule ${a.de} im Detail</summary><${ColumnDetails} c=${c} area=${area} st=${st}/></details>
+ </div>`}</div>`}
+function MyLife({c}){const {S}=c;const L=S.life;const st=LC.templeState(S),sel=c.tSel,ach=(L.goals||[]).filter(g=>g.status==='achieved'),fs=LC.fundSections(S),fn=fs.filter(x=>x.state==='done').length,wn=((S.wisdom&&S.wisdom.fav)||[]).length;
+ const tile=(icon,title,sub,on)=>html`<button type="button" onClick=${on} className="text-left border-0 px-3 py-2 flex items-center gap-3 min-w-0" style=${{minHeight:58,borderRadius:16,background:'var(--card-g)',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}><span className="shrink-0" style=${{color:'var(--bronze)'}}><${Icon} n=${icon} s=${20}/></span><span className="min-w-0"><span className="block text-[14px] font-semibold truncate">${title}</span><span className="block text-[11.5px] mute truncate">${sub}</span></span></button>`;
+ return html`<div className="screen px-4 pb-6"><div className="pt-5 relative"><span className="page-emblem"><${Icon} n="compass" s=${76} sw=${1}/></span><div className="lbl">Dein Kompass</div><h1 className="disp text-[40px] mt-1">Mein Leben</h1><div className="meander mt-3" aria-hidden="true"/></div>
+ <${TempleHead} c=${c} st=${st} sel=${sel}/>
+ <div className="flex items-center justify-between mt-5"><div className="lbl">Deine Säulen</div><button type="button" onClick=${()=>c.openSheet({t:'goal'})} className="bg-transparent border-0 acc text-[12.5px] font-semibold flex items-center gap-1 px-1" style=${{minHeight:44}}><${Icon} n="plus" s=${13}/>Ziel</button></div>
+ ${LC.AREAS.map(a=>html`<${PillarRow} key=${a.id} c=${c} area=${a.id} st=${st} open=${sel===a.id} onToggle=${()=>c.setTSel(sel===a.id?null:a.id)}/>`)}
+ <div className="grid grid-cols-2 gap-2 mt-5">${tile('column','Fundament',fn+' von '+fs.length+' Teilen',()=>c.openSheet({t:'fundament'}))}${WC.enabled(S)?tile('scroll','Wisdom Codex',wn?wn+' gemerkt':'Lebensweisheiten',()=>c.openSheet({t:'codex',f:wn?'fav':'all'})):html`<span/>`}</div>
  <${WisdomSlot} c=${c} place="season"/>
- <${FundamentCard} c=${c}/>
- ${WC.enabled(S)&&(()=>{const n=((S.wisdom&&S.wisdom.fav)||[]).length;return html`<button onClick=${()=>c.openSheet({t:'codex',f:n?'fav':'all'})} className="ghost w-full p-3 mt-3 flex items-center gap-3 text-left text-[14px] font-medium"><span className="wis-ic" aria-hidden="true"><${Icon} n="scroll" s=${15} sw=${1.6}/></span><div className="flex-1">Wisdom Codex<div className="text-[11.5px] mute font-normal">${n?n+(n===1?' Inschrift':' Inschriften')+' gespeichert':'Deine Sammlung kurzer Lebensweisheiten'}</div></div><${Icon} n="chevR" s=${15} cls="mute"/></button>`})()}
- <${Title} right=${html`<button onClick=${()=>c.openSheet({t:'values'})} className="chip">${P.length?'Bearbeiten':'Wählen'}</button>`}>Fundament · Werte<//>
- ${P.length?html`<div className="card p-3.5"><div className="flex flex-wrap gap-1.5">${P.map(p=>html`<button key=${p.id} onClick=${()=>c.actPrinciple(p.id)} className="chip" aria-label=${p.n+': heute danach gehandelt'}>${p.n}${p.acts?html`<span className="num mute ml-1.5">${p.acts}</span>`:null}</button>`)}</div><div className="text-[11.5px] mute mt-2">Tippe einen Wert, wenn du heute bewusst danach gehandelt hast.${S.tradition&&S.tradition!=='Keine'?' Inspiration: '+S.tradition+'.':''}</div></div>`
- :html`<button onClick=${()=>c.openSheet({t:'values'})} className="card w-full p-4 text-left"><div className="text-[14.5px] font-semibold">Wähle drei Werte</div><div className="text-[12.5px] mute mt-0.5">Zwei Minuten. Sie helfen bei Entscheidungen und bei der Wahl deiner Ziele.</div></button>`}
- <${Title} right=${html`<button onClick=${()=>c.openSheet({t:'why'})} className="chip">${W.text?'Vertiefen':'Formulieren'}</button>`}>Dach · Dein Warum<//>
- <div className="card p-3.5">${W.text?html`<div className="text-[15px] leading-snug font-medium">„${W.text}“</div>`:html`<div className="text-[13px] mute leading-snug">Optional. Ein Satz reicht. Du kannst ihn jederzeit mit den Ikigai-Fragen vertiefen.</div>`}</div>
-  <${Title} right=${html`<button onClick=${()=>c.openSheet({t:'goal'})} className="chip flex items-center gap-1"><${Icon} n="plus" s=${13}/>Ziel</button>`}>Ziele<//>
- <div className="flex flex-col gap-2.5">${act.map(g=>html`<${GoalCard} key=${g.id} c=${c} g=${g}/>`)}${!act.length&&html`<button onClick=${()=>c.openSheet({t:'goal'})} className="card p-5 text-center text-[13.5px] font-semibold" style=${{borderStyle:'dashed'}}>Erstes Ziel anlegen</button>`}</div>
- ${ach.length>0&&html`<div className="lbl mt-5 mb-2">Erreicht</div><div className="flex flex-col gap-2">${ach.map(g=>html`<${GoalCard} key=${g.id} c=${c} g=${g}/>`)}</div>`}</div>`}
+ ${ach.length>0&&html`<details className="mt-3"><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center'}}>Erreichte Ziele (${ach.length})</summary><div className="flex flex-col gap-2">${ach.map(g=>html`<${GoalCard} key=${g.id} c=${c} g=${g}/>`)}</div></details>`}
+ </div>`}
 
 /* ───── Reflexion ───── */
 function ExpCard({c,e}){const {S}=c;const L=S.life,g=LC.goalById(L,e.goalId),wk=LC.curWk(L),r=e.result||LC.evalExperiment(L,e),[l,col]=EXP_ST[e.status]||EXP_ST.running;const live=e.status==='running',early=wk<e.startWk;const dw=early?0:LC.doneIn(L,e.aid,Math.min(wk,e.endWk));
