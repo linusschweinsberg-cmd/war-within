@@ -18,14 +18,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v62"></script>
-<script src="auth.js?v=ww-v62"></script>
-<script src="life-core.js?v=ww-v62"></script>
-<script src="wisdom-core.js?v=ww-v62"></script>
-<script src="future-self-core.js?v=ww-v62"></script>
-<script src="arena-core.js?v=ww-v62"></script>
-<script src="arena-api.js?v=ww-v62"></script>
-<script src="arena-ui.js?v=ww-v62"></script>
+<script src="supabase-config.js?v=ww-v63"></script>
+<script src="auth.js?v=ww-v63"></script>
+<script src="life-core.js?v=ww-v63"></script>
+<script src="wisdom-core.js?v=ww-v63"></script>
+<script src="future-self-core.js?v=ww-v63"></script>
+<script src="arena-core.js?v=ww-v63"></script>
+<script src="arena-api.js?v=ww-v63"></script>
+<script src="arena-ui.js?v=ww-v63"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -1503,38 +1503,62 @@ function completePriority(c,item,e,kind='std'){
  const before=c.S;c.upd(n=>{if(item.kind==='commit')n.life.onboard.commit={...n.life.onboard.commit,done:true,doneD:n.life.d||0};else LC.logStandard(n.life,item.area,kind)});
  c.toast(item.kind==='commit'?'Erster Schritt erledigt.':kind==='min'?'Minimum notiert.':'Standard notiert.','good',{undo:()=>c.restore(before)});
 }
-function PriorityAction({c,item,primary=false,separator=false}){const finish=e=>completePriority(c,item,e);
- const detail=()=>item.kind==='mission'?c.openSheet({t:'medit',mid:item.m.id}):item.kind==='standard'?c.openSheet({t:'standards',area:item.area}):c.openSheet({t:'fundament'});
- const context=item.g?item.g.title:item.kind==='standard'?LC.AREA[item.area].de:null;
- return html`<div className=${primary?'card p-4 mt-2':'py-3'} data-today-priority=${primary?'primary':'next'} style=${separator?{borderTop:'1px solid var(--line)'}:undefined}>
+/* Heute: 1) Wo stehe ich? 2) Was jetzt? 3) Was danach? 4) Was steht an? Alles andere unter „Mehr“. */
+const priorityDetail=(c,item)=>item.kind==='mission'?c.openSheet({t:'medit',mid:item.m.id}):item.kind==='standard'?c.openSheet({t:'standards',area:item.area}):c.openSheet({t:'fundament'});
+/* Eine Zeile Kontext: Ziel bzw. Bereich und Dauer, Dauer nur wenn sie nicht schon im Titel steht. */
+/* Gespeicherte Titel wie "20 Min. lesen (20 Min.)": doppelte Dauer für die Anzeige entfernen. */
+const cleanTitle=t=>{const m=/\s*\((\d+) Min\.\)$/.exec(t||'');return m&&new RegExp('(^|\\D)'+m[1]+'\\s*Min','i').test(t.slice(0,m.index))?t.slice(0,m.index):t};
+function priorityMeta(item){const ctx=item.g?item.g.title:item.kind==='standard'?LC.AREA[item.area].de:item.kind==='commit'?'Dein erster Schritt':null;
+ const min=item.minutes&&!/\d\s*Min/i.test(item.title)?item.minutes+' Min.':null;return [ctx,min].filter(Boolean).join(' · ')}
+/* Heute erledigt: dieselbe Quelle wie das Tagesurteil des Zukunfts-Ichs (Handlungen, Standards, erster Schritt). */
+const doneToday=S=>{try{return FS.context(S,{LC,isDone,choices:[],day:dayKey(S)}).done.length}catch(e){return 0}};
+function TodayStatus({c,open}){const done=doneToday(c.S),total=done+open;
+ const txt=c.D.restToday?'Ruhetag':!total?'Noch nichts geplant':!open?'Alles erledigt für heute':done?done+' erledigt · '+open+' offen':open+(open===1?' Schritt':' Schritte')+' für heute';
+ return html`<div className="flex items-center gap-3 mt-3" data-today-status>
+ ${total>0&&!c.D.restToday&&html`<div className="flex gap-1 shrink-0" aria-hidden="true">${Array.from({length:Math.min(total,6)},(_,i)=>html`<span key=${i} className="block rounded-full" style=${{width:18,height:6,background:i<done?'var(--good)':'var(--ghost)',boxShadow:i<done?'none':'0 0 0 1px var(--line) inset'}}/>`)}</div>`}
+ <div className="text-[13px] mute">${txt}</div></div>`}
+function PriorityAction({c,item}){const meta=priorityMeta(item);
+ return html`<div className="card p-4 mt-2" data-today-priority="primary">
  ${item.source&&html`<div className="text-[12px] acc font-semibold mb-1">${item.source}${item.when?' · '+item.when:''}</div>`}
- <div className=${primary?'text-[21px] font-bold leading-snug break-words':'text-[15px] font-semibold leading-snug break-words'}>${item.title}</div>
- ${context&&html`<div className="text-[12.5px] mute leading-snug mt-1 break-words">${context}</div>`}
- ${item.minutes&&html`<div className="text-[12px] mute mt-1">${item.minutes} Minuten</div>`}
+ <div className="text-[21px] font-bold leading-snug break-words">${cleanTitle(item.title)}</div>
+ ${meta&&html`<div className="text-[13px] mute leading-snug mt-1 break-words">${meta}</div>`}
  ${item.plan&&html`<div className="text-[12.5px] mute mt-2 leading-snug">${item.plan}</div>`}
- <div className="flex items-center gap-2 flex-wrap mt-3">
- <button type="button" onClick=${finish} aria-label=${'Erledigen: '+item.title} className=${primary?'btn inline-flex items-center justify-center gap-2 px-5 py-3 text-[14px]':'chip'} style=${{minHeight:44}}><${Icon} n="check" s=${16}/> ${item.kind==='mission'&&wantsLog(c.S,item.m)?'Erfassen':'Erledigt'}</button>
+ <div className="flex items-center gap-2 flex-wrap mt-4">
+ <button type="button" onClick=${e=>completePriority(c,item,e)} aria-label=${'Erledigen: '+cleanTitle(item.title)} className="btn inline-flex items-center justify-center gap-2 px-5 py-3 text-[14px]" style=${{minHeight:44}}><${Icon} n="check" s=${16}/> ${item.kind==='mission'&&wantsLog(c.S,item.m)?'Erfassen':'Erledigt'}</button>
  ${item.kind==='standard'&&item.std.min&&html`<button type="button" onClick=${e=>completePriority(c,item,e,'min')} className="chip" style=${{minHeight:44}} title=${item.std.min.text}>Minimum</button>`}
- <button type="button" onClick=${detail} className="bg-transparent border-0 acc px-2 py-2 text-[12.5px]" style=${{minHeight:44}} aria-label=${'Details: '+item.title}>Details</button></div></div>`}
-function TodayPriorities({c}){const items=todayPriorities(c.S,c.D);
- if(c.D.restToday)return html`<div className="card p-4 mt-2"><div className="lbl acc">Heute ist Ruhetag</div><div className="text-[16px] font-semibold mt-2">Erholung hat Platz in deinem Plan.</div><div className="text-[13px] mute mt-1">Deine Aufgaben bleiben unter Aufgaben erreichbar.</div></div>`;
- if(!items.length)return html`<div className="card p-4 mt-2"><div className="lbl acc">Heute zuerst</div><div className="text-[17px] font-semibold mt-2">Gerade ist keine weitere Handlung offen.</div><div className="text-[13px] mute mt-1">Du kannst deinen Tag abschließen oder einen nächsten Schritt planen.</div><div className="flex flex-wrap gap-2 mt-3"><button type="button" className="btn px-4 py-3 text-[13px]" onClick=${()=>c.openSheet({t:'review'})}>Tag reflektieren</button><button type="button" className="chip" onClick=${()=>c.openSheet({t:'goal'})}>Ziel festlegen</button></div></div>`;
- return html`<section aria-label="Deine Prioritäten für heute"><div className="lbl acc mt-2">Heute zuerst</div><${PriorityAction} key=${items[0].key} item=${items[0]} c=${c} primary=${true}/>
- ${items.length>1&&html`<div className="mt-4"><div className="lbl">Danach · Vorschläge</div><div className="card px-4 mt-2" style=${{borderColor:'var(--line)'}}>${items.slice(1).map((x,i)=>html`<${PriorityAction} key=${x.key} item=${x} c=${c} separator=${i>0}/>` )}</div></div>`}</section>`}
-function NextTimeBlock({c}){const b=nextTimeBlock(c.S,nowMinOf(c));
- return html`<section className="card p-4 mt-3" aria-label="Dein nächster Zeitblock"><div className="flex items-center gap-2"><${Icon} n="calendar" s=${17}/><div className="lbl">${!b?'Dein nächster Zeitblock':b.state==='active'?'Jetzt eingeplant':b.state==='past'?'Zeitblock vergangen':'Nächster Zeitblock'}</div></div>
- ${b?html`<div className="text-[15px] font-semibold mt-2 break-words">${b.m.title}</div><div className="text-[13px] num mute mt-1">${fmtHM(b.start)}–${fmtHM(b.end)} · ${b.minutes} Minuten</div>${b.state==='past'&&html`<div className="text-[12.5px] mute mt-1">Noch offen. Passe die Zeit an, wenn du möchtest.</div>`}`:html`<div className="text-[14px] mt-2">Noch kein fester Zeitblock.</div><div className="text-[12.5px] mute mt-1">Reserviere eine konkrete Uhrzeit für deine wichtigste Handlung.</div>`}
- <button type="button" onClick=${()=>c.openSheet({t:'dayplan'})} className="chip mt-3" style=${{minHeight:44}}>${b?'Tagesplan anpassen':'Tagesplan öffnen'}</button></section>`}
+ <button type="button" onClick=${()=>priorityDetail(c,item)} className="bg-transparent border-0 acc px-2 py-2 text-[13px] ml-auto" style=${{minHeight:44}} aria-label=${'Details: '+cleanTitle(item.title)}>Details</button></div></div>`}
+/* Folgeschritt als schlanke Zeile: Kreis zum Abhaken, Tippen auf den Text öffnet Details. */
+function PriorityRow({c,item,first}){const meta=priorityMeta(item);
+ return html`<div className="flex items-center gap-1" data-today-priority="next" style=${first?undefined:{borderTop:'1px solid var(--line)'}}>
+ <button type="button" onClick=${e=>completePriority(c,item,e)} aria-label=${'Erledigen: '+cleanTitle(item.title)} className="shrink-0 bg-transparent border-0 p-0 flex items-center justify-center" style=${{width:44,height:52}}><span className="block rounded-full" style=${{width:22,height:22,boxShadow:'0 0 0 1.5px var(--mute) inset'}}/></button>
+ <button type="button" onClick=${()=>priorityDetail(c,item)} className="flex-1 min-w-0 flex items-center gap-2 bg-transparent border-0 py-3 pr-1 text-left" style=${{color:'var(--ink)',minHeight:52}} aria-label=${'Details: '+cleanTitle(item.title)}>
+ <span className="flex-1 min-w-0"><span className="block text-[15px] font-semibold leading-snug truncate">${cleanTitle(item.title)}</span>${meta&&html`<span className="block text-[12.5px] mute truncate">${meta}</span>`}</span><${Icon} n="chevR" s=${15} cls="mute"/></button></div>`}
+function TodayPriorities({c,items}){
+ if(c.D.restToday)return html`<div className="card p-4 mt-4"><div className="lbl acc">Heute ist Ruhetag</div><div className="text-[16px] font-semibold mt-2">Erholung hat Platz in deinem Plan.</div><div className="text-[13px] mute mt-1">Deine Aufgaben bleiben unter Aufgaben erreichbar.</div></div>`;
+ if(!items.length)return html`<div className="card p-4 mt-4"><div className="lbl acc">Jetzt</div><div className="text-[17px] font-semibold mt-2">Gerade ist keine weitere Handlung offen.</div><div className="text-[13px] mute mt-1">Du kannst deinen Tag abschließen oder einen nächsten Schritt planen.</div><div className="flex flex-wrap gap-2 mt-3"><button type="button" className="btn px-4 py-3 text-[13px]" onClick=${()=>c.openSheet({t:'review'})}>Tag reflektieren</button>${mainGoal(c.S)?html`<button type="button" className="chip" style=${{minHeight:44}} onClick=${()=>c.setTab('tasks')}>Alle Aufgaben</button>`:html`<button type="button" className="chip" style=${{minHeight:44}} onClick=${()=>c.openSheet({t:'goal'})}>Ziel festlegen</button>`}</div></div>`;
+ return html`<section aria-label="Deine Prioritäten für heute"><div className="lbl acc mt-5">Jetzt</div><${PriorityAction} key=${items[0].key} item=${items[0]} c=${c}/>
+ ${items.length>1&&html`<div className="lbl mt-5">Danach</div><div className="card px-2 mt-2">${items.slice(1).map((x,i)=>html`<${PriorityRow} key=${x.key} item=${x} c=${c} first=${i===0}/>`)}</div>`}</section>`}
+/* Was steht an: fester Zeitblock und Reflexion in einer Karte, je eine Zeile. */
+function DayAhead({c}){const {S,D}=c,now=nowMinOf(c),b=nextTimeBlock(S,now),L=S.life,r=reviewToday(S),due=LC.reviewWeek(L),eve=!r&&now>=1080,toSun=6-D.di,days=toSun===0?7:toSun;
+ const row=(key,icon,title,sub,hot,on,label)=>html`<button key=${key} type="button" onClick=${on} aria-label=${label||title} className="w-full flex items-center gap-3 px-3 bg-transparent border-0 text-left" style=${{minHeight:56,color:'var(--ink)',borderTop:key==='plan'?'none':'1px solid var(--line)'}}>
+ <span className=${hot?'acc':'mute'}><${Icon} n=${icon} s=${18}/></span><span className="flex-1 min-w-0 py-2.5"><span className=${'block text-[14px] leading-snug '+(hot?'font-semibold':'')}>${title}</span>${sub&&html`<span className="block text-[12px] mute">${sub}</span>`}</span><${Icon} n="chevR" s=${15} cls="mute"/></button>`;
+ const plan=b?row('plan','calendar',html`<span className="num">${fmtHM(b.start)}–${fmtHM(b.end)}</span> · ${b.m.title}`,b.state==='active'?'Läuft gerade':b.state==='past'?'Zeitfenster vorbei · anpassen':'Nächster fester Zeitblock',b.state==='active',()=>c.openSheet({t:'dayplan'}),'Tagesplan: '+b.m.title)
+  :row('plan','calendar','Feste Zeit einplanen','Noch kein Zeitblock für heute',false,()=>c.openSheet({t:'dayplan'}));
+ const refl=due!=null?row('refl','owl','Wochenrückblick bereit','Was hat funktioniert, was änderst du?',true,()=>c.openSheet({t:'weekly'}))
+  :eve?row('refl','owl','Tag abschließen','Daily Debrief · 1 Minute',true,()=>c.openSheet({t:'review'}))
+  :row('refl','owl',r?'Debrief erledigt':'Debrief ab 18 Uhr','Wochenrückblick in '+days+(days===1?' Tag':' Tagen'),false,()=>c.setTab('reflect'));
+ return html`<section aria-label="Was heute ansteht"><div className="lbl mt-5">Im Blick</div><div className="card mt-2 overflow-hidden">${plan}${refl}</div></section>`}
 function Home({c}){const {S}=c;const [more,setMore]=useState(false),now=nowMinOf(c),nm=((S.profile&&S.profile.name)||'').trim(),hr=Math.floor(now/60),greet=hr<5?'Gute Nacht':hr<11?'Guten Morgen':hr<17?'Guten Tag':hr<22?'Guten Abend':'Gute Nacht';
- const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fm=focusMode(S);
+ const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fm=focusMode(S),items=todayPriorities(S,c.D);
  return html`<div className="screen px-4 pb-6">
- <div className="flex items-start justify-between pt-5 pb-3 gap-2"><div className="min-w-0"><div className="lbl truncate">${greet}${nm?', '+nm:''} · ${deDate(c.now,calendarZone(S))}</div><h1 className="disp text-[32px] mt-1 leading-none">Heute</h1></div>
+ <div className="flex items-start justify-between pt-5 gap-2"><div className="min-w-0"><div className="lbl">${deDate(c.now,calendarZone(S))}</div><h1 className="disp text-[32px] mt-1 leading-none">Heute</h1></div>
  <div className="flex shrink-0"><button aria-label="Menü und Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="icon-btn"><${Icon} n="dots" s=${22}/></button><button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="icon-btn ml-1 font-semibold">${ini}</button></div></div>
- ${S.setup&&html`<button onClick=${()=>c.openSheet({t:'newseason'})} className="btn w-full py-3 mb-3 text-sm">Neue Saison einrichten</button>`}
- <${TodayPriorities} c=${c}/><${NextTimeBlock} c=${c}/>
- <button type="button" onClick=${()=>c.setTab('tasks')} className="ghost w-full py-3 mt-2 text-[13px] font-semibold">Alle Aufgaben ansehen</button>
- <${ReflectLine} c=${c}/>
- <details className="mt-4" onToggle=${e=>setMore(e.currentTarget.open)}><summary className="text-[13px] mute py-3 cursor-pointer">Standards, Impulse und mehr</summary>
+ <div className="text-[15px] mt-2">${greet}${nm?', '+nm:''}.</div><${TodayStatus} c=${c} open=${items.length}/>
+ ${S.setup&&html`<button onClick=${()=>c.openSheet({t:'newseason'})} className="btn w-full py-3 mt-3 text-sm">Neue Saison einrichten</button>`}
+ <${TodayPriorities} c=${c} items=${items}/>
+ <${DayAhead} c=${c}/>
+ ${items.length>0&&html`<button type="button" onClick=${()=>c.setTab('tasks')} className="bg-transparent border-0 acc text-[13px] font-semibold px-1 mt-3" style=${{minHeight:44}}>Alle Aufgaben ansehen</button>`}
+ <details onToggle=${e=>setMore(e.currentTarget.open)}><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center'}}>Mehr für heute: Standards und Impulse</summary>
  ${more&&html`<${StandardsToday} c=${c}/><button type="button" className="chip mt-3" onClick=${()=>c.openSheet({t:'loopinfo'})}>Wie dein Handeln wirkt</button><${InviteCard} c=${c}/><${CalmCard} c=${c}/><${WisdomSlot} c=${c} place="today"/>${!fm&&html`<div className="mt-3"><${DayScene} c=${c}/></div><${DuelPair} c=${c}/>`}`}</details>
  </div>`}
 /* Heute zuerst: Ziel, Ergebnis/Umsetzung, nächste Handlung, Loop-Phase */

@@ -58,7 +58,9 @@ const curWk=L=>wkOf(L.d||0,L);
 const actById=(L,id)=>(L.actions||[]).find(a=>a.id===id);
 const goalById=(L,id)=>(L.goals||[]).find(g=>g.id===id);
 const actionsOf=(L,gid)=>(L.actions||[]).filter(a=>a.goalId===gid&&!a.off);
-const actLabel=a=>a.title+(a.when?' · '+a.when:'')+(a.minutes?` (${a.minutes} Min.)`:'');
+/* Dauer nur anhängen, wenn der Titel sie nicht schon nennt ("20 Min. lesen") */
+const minSuffix=a=>a.minutes&&!/\d\s*Min/i.test(a.title||'')?` (${a.minutes} Min.)`:'';
+const actLabel=a=>a.title+(a.when?' · '+a.when:'')+minSuffix(a);
 /* geplante Einheiten einer Handlung in Woche wk (Planänderungen bleiben nachvollziehbar) */
 function plannedAt(a,wk){if(wk<(a.since??0))return 0;const h=(a.hist||[]).slice().sort((x,y)=>x.wk-y.wk);if(!h.length)return a.perWeek;
  const past=h.filter(x=>x.wk<=wk);return past.length?past[past.length-1].perWeek:(h[0].from??a.perWeek)}
@@ -130,7 +132,7 @@ function applyChange(S,L,a,ch,wk){const prev={perWeek:a.perWeek,when:a.when||'',
  ['when','minutes','anchor','days','rule','method'].forEach(k=>{if(ch[k]!=null)a[k]=ch[k]});
  syncMission(S,a);return prev}
 function syncMission(S,a){const m=(S.missions||[]).find(x=>x.id===a.missionId);if(!m)return;m.title=missionTitle(a);if(a.perWeek>=7){m.freq='daily';delete m.times}else{m.freq='multi';m.times=a.perWeek}}
-const missionTitle=a=>a.title+(a.anchor?' · '+a.anchor:a.when?' · '+a.when:'')+(a.minutes?` (${a.minutes} Min.)`:'');
+const missionTitle=a=>a.title+(a.anchor?' · '+a.anchor:a.when?' · '+a.when:'')+minSuffix(a);
 function startExperiment(S,{goalId,aid,obstacle,obstacleText,sug,wk,weeks=1}){const L=S.life,a=actById(L,aid);if(!a)return null;
  (L.exps||[]).filter(e=>e.goalId===goalId&&e.status==='running').forEach(e=>{e.status='replaced'});
  const startWk=wk+1,prev=applyChange(S,L,a,sug.change,startWk);

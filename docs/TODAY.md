@@ -4,6 +4,8 @@ Schritt 2 des Nutzungsplans, auf dem Kalender-PR #20 aufgebaut. Branch codex/tod
 
 ## Startseite
 
+Aufbau (seit ww-v63), vier Fragen von oben nach unten: **Wo stehe ich?** Datum, Gruß und Tagesfortschritt (erledigt aus derselben Quelle wie das Tagesurteil des Zukunfts-Ichs; offen = sichtbare Prioritäten, kein erfundener Gesamtwert). **Jetzt:** eine Hauptaufgabe mit Erledigt/Minimum/Details. **Danach:** höchstens zwei Zeilen mit Abhak-Kreis, Tippen auf den Text öffnet Details. **Im Blick:** eine Karte mit festem Zeitblock (oder Einladung, Zeit einzuplanen) und Reflexion (Debrief ab 18 Uhr, Wochenrückblick). Darunter „Alle Aufgaben ansehen“ und „Mehr für heute“. Eine im Titel schon genannte Dauer wird nicht wiederholt.
+
 Heute zeigt eine Hauptaufgabe, höchstens zwei weitere Vorschläge, den nächsten fest eingeplanten Zeitblock und den Zugang zum Rückblick. Alle Aufgaben bleiben über einen eigenen Knopf und den Aufgaben-Tab erreichbar. Standards, Impulse, Wirkungsmodell und Wettbewerb stehen im eingeklappten Zusatzbereich. Im Fokusmodus bleiben Nemesis und Duell auch nach dem Aufklappen verborgen. Die Wissensauswahl wird erst beim tatsächlichen Aufklappen gerendert und als gesehen vermerkt.
 
 Prioritäten werden ohne zusätzliche gespeicherte Liste aus vorhandenen Angaben gewählt: offene Abendentscheidung, unverknüpfter erster Schritt, explizite Tagespriorität, nächste Handlung des Hauptziels, bestehendes Briefing, eigenständige Standards und weitere vorhandene Aufgaben. Duplikate anhand ihrer Mission-/Standard-ID entfallen; maximal drei Elemente bleiben sichtbar. Die weiteren Handlungen sind ausdrücklich Vorschläge, keine neu angelegten Pflichtaufgaben. Nach dem Erledigen rückt die nächste offene Handlung nach.
