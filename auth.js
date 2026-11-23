@@ -25,6 +25,7 @@
   async function result(promise){const r=await promise;if(r.error)throw new Error(r.error.message);return r.data;}
   window.authApi={
     demo:false,
+    async arenaRpc(name,args){if(!['arena_list','arena_snapshot','arena_command'].includes(name))throw Error('Unbekannte Arena-Anfrage.');return result(getClient().rpc(name,args));},
     async signUp({name,email,password}){const d=await result(getClient().auth.signUp({email:email.trim(),password,options:{data:{name},emailRedirectTo:redirectTo()}}));return{user:d.user?user(d.user):null,needsVerification:!d.session};},
     async signIn({email,password}){const d=await result(getClient().auth.signInWithPassword({email:email.trim(),password}));return{user:user(d.user)};},
     async resetPassword(email){await result(getClient().auth.resetPasswordForEmail(email.trim(),{redirectTo:redirectTo()}));return{sent:true};},

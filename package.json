@@ -1,0 +1,8 @@
+{
+  "name": "war-within-checks",
+  "private": true,
+  "scripts": {
+    "test:arena": "node tests/arena-core.cjs && node tests/arena-api.cjs && node tests/arena-db.cjs"
+  },
+  "devDependencies": {"@electric-sql/pglite": "0.5.17"}
+}
