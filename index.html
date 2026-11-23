@@ -1544,17 +1544,17 @@ function TodayHero({c,ini,rings,sel,onSel}){const {S}=c,rest=c.D.restToday,plann
   <span className="rounded-full" style=${{padding:2,boxShadow:on&&has?'0 0 0 1.5px var(--acc2)':'none',transition:'box-shadow .2s'}}><${AspisRing} area=${a} pct=${has?r.done/r.total:0} full=${full}/></span>
   <span className=${'text-[11px] leading-tight '+(on&&has?'font-semibold':'mute')}>${a.de}</span></button>`})}</div>
  </section>`}
-/* Jetzt-Karte einfarbig in Rost (Handeln): Fläche, Symbol und Knopf in Tönen derselben Farbe, Schrift in --on-acc. */
+/* Jetzt-Karte einfarbig in gedämpftem Rost (Handeln): Fläche, Symbol und Knopf in Tönen derselben Farbe, auf die Karte gemischt. */
 function NowCard({c,item,ring}){const area=priorityArea(item),logs=item.kind==='mission'&&wantsLog(c.S,item.m),t=cleanTitle(item.title),open=ring&&ring.total-ring.done>0,closes=ring&&ring.total-ring.done===1;
- const soft=p=>`color-mix(in srgb,var(--on-acc) ${p}%,transparent)`;
- return html`<section className="relative overflow-hidden mt-4 p-4" data-today-priority="primary" aria-label="Jetzt" style=${{borderRadius:16,background:'var(--acc)',color:'var(--on-acc)'}}>
- <div className="flex items-start justify-between gap-2"><div className="lbl pt-1" style=${{color:soft(85)}}>${area&&open?area.de+' fehlt noch':'Jetzt'}${item.when?' · '+item.when:''}</div>
- <button type="button" onClick=${()=>priorityDetail(c,item)} aria-label=${'Details: '+t} className="flex items-center justify-center border-0 bg-transparent -mt-2 -mr-2" style=${{width:44,height:44,color:soft(85)}}><${Icon} n="info" s=${18}/></button></div>
- <div className="flex items-center gap-3">${area&&html`<span aria-hidden="true" className="shrink-0 flex items-center justify-center" style=${{width:44,height:44,borderRadius:14,background:soft(16)}}><${Icon} n=${area.icon} s=${22}/></span>`}
+ const rust=p=>`color-mix(in srgb,var(--acc) ${p}%,var(--card))`;
+ return html`<section className="relative overflow-hidden mt-4 p-4" data-today-priority="primary" aria-label="Jetzt" style=${{borderRadius:16,background:rust(18),color:'var(--ink)',boxShadow:'0 0 0 1px '+rust(40)+' inset'}}>
+ <div className="flex items-start justify-between gap-2"><div className="lbl pt-1" style=${{color:'var(--acc2)'}}>${area&&open?area.de+' fehlt noch':'Jetzt'}${item.when?' · '+item.when:''}</div>
+ <button type="button" onClick=${()=>priorityDetail(c,item)} aria-label=${'Details: '+t} className="flex items-center justify-center border-0 bg-transparent -mt-2 -mr-2" style=${{width:44,height:44,color:'var(--mute)'}}><${Icon} n="info" s=${18}/></button></div>
+ <div className="flex items-center gap-3">${area&&html`<span aria-hidden="true" className="shrink-0 flex items-center justify-center" style=${{width:44,height:44,borderRadius:14,background:rust(32),color:'var(--acc2)'}}><${Icon} n=${area.icon} s=${22}/></span>`}
  <div className="text-[21px] font-bold leading-snug break-words min-w-0">${t}</div></div>
  <div className="flex items-center gap-2 mt-4">
- <button type="button" onClick=${e=>completePriority(c,item,e)} aria-label=${'Erledigen: '+t} className="flex-1 inline-flex items-center justify-center gap-2 border-0 text-[15px] font-bold" style=${{minHeight:52,borderRadius:12,background:'var(--acc-d)',color:'var(--on-acc)'}}><${Icon} n=${closes&&!logs?'aspis':'check'} s=${18} sw=${2.2}/>${logs?'Erfassen':closes?'Schild schließen':'Erledigt'}</button>
- ${item.kind==='standard'&&item.std.min&&html`<button type="button" onClick=${e=>completePriority(c,item,e,'min')} title=${item.std.min.text} className="border-0 px-4 text-[14px] font-semibold" style=${{minHeight:52,borderRadius:12,background:soft(16),color:'var(--on-acc)'}}>Minimum</button>`}
+ <button type="button" onClick=${e=>completePriority(c,item,e)} aria-label=${'Erledigen: '+t} className="flex-1 inline-flex items-center justify-center gap-2 border-0 text-[15px] font-bold" style=${{minHeight:52,borderRadius:12,background:rust(72),color:'var(--on-acc)'}}><${Icon} n=${closes&&!logs?'aspis':'check'} s=${18} sw=${2.2}/>${logs?'Erfassen':closes?'Schild schließen':'Erledigt'}</button>
+ ${item.kind==='standard'&&item.std.min&&html`<button type="button" onClick=${e=>completePriority(c,item,e,'min')} title=${item.std.min.text} className="border-0 px-4 text-[14px] font-semibold" style=${{minHeight:52,borderRadius:12,background:rust(32),color:'var(--ink)'}}>Minimum</button>`}
  </div></section>`}
 function TodayPriorities({c,item,ring,mid}){
  if(c.D.restToday)return html`<section className="card p-5 mt-4 flex items-center gap-4"><${AreaBadge} area=${LC.AREA.health} size=${48}/><div><div className="text-[17px] font-bold">Ruhetag</div><div className="text-[13px] mute">Erholung gehört zum Plan.</div></div></section>${mid}`;
