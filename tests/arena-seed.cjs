@@ -27,6 +27,14 @@ async function seedArena(db,ids,names){
  /* Reaktionen der anderen auf die jüngsten Meldungen */
  const recent=events.sort((x,y)=>new Date(y.at)-new Date(x.at)).slice(0,10),kinds=['respect','fire','rematch'];
  for(const [i,e] of recent.entries())for(const q of [0,1,2])if(q!==e.user&&(i+q)%2===0)await db.query('insert into public.arena_reactions(event_id,user_id,kind) values($1,$2,$3) on conflict do nothing',[e.id,ids[q],kinds[(i+q)%3]]);
+ /* Arena 3.0 (nur wenn die v3-Migration geladen ist): gesperrte Formationen der laufenden Woche 3 mit Wochenplan,
+    Doktrinen. Linus hat für Woche 4 noch nichts gewählt (Vorbereitung sichtbar), Jonas schon. */
+ if((await db.query("select to_regclass('public.arena_formations') as t")).rows[0].t){
+  const plan={mind:[1,3,5],body:[1,3,5,7],growth:[1,3,5],bonds:[2,4]};
+  for(const [p,kind,slot] of [[0,'guardian','mind'],[1,'spear','body'],[2,'shield','mind']])await db.query('insert into public.arena_formations(league_id,user_id,week,kind,slot,plan) values($1,$2,3,$3,$4,$5::jsonb)',[a.id,ids[p],kind,slot,JSON.stringify(plan)]);
+  await db.query("insert into public.arena_formations(league_id,user_id,week,kind,slot,plan) values($1,$2,4,'spear','growth',$3::jsonb)",[a.id,ids[1],JSON.stringify(plan)]);
+  for(const [p,d] of [[0,'guardian'],[1,'spear'],[2,'shield']])await db.query('update public.arena_members set doctrine=$3 where league_id=$1 and user_id=$2',[a.id,ids[p],d]);
+ }
  /* Zweite Arena in der Lobby: Jonas ist Gründer, Linus sieht das Soll nur lesend */
  const {rows:[b]}=await db.query("insert into public.arena_leagues(owner_id,name,capacity,targets,invite_code) values($1,'Morgenlauf-Trio',3,$2::jsonb,'MORGENLAUFDEMO') returning id",[ids[1],JSON.stringify({mind:2,body:5,growth:2,bonds:2})]);
  for(const p of [1,0])await db.query('insert into public.arena_members(league_id,user_id,display_name) values($1,$2,$3)',[b.id,ids[p],names[p]]);

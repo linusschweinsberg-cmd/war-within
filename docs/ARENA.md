@@ -125,3 +125,51 @@ Der Reiter **Heute** übernimmt die Bildsprache des persönlichen Duells, ersetz
 - **Sieben Runden:** deine Woche Mo–So; Zahl = gemeldete Bereiche an diesem Tag, 4 von 4 in Gold, heute umrandet.
 - **Stimme:** eine Zeile in Cinzel aus den bestätigten Zahlen (Reichweite, Abstand, Führung) – ermutigend, nie spöttisch. Danach folgen „Dein nächster Zug“, Orakel/Wochenprämie und „Heute melden“.
 - Keine neuen Serverdaten, keine Migration.
+
+## Arena 3.0 · Regel 3 (ww-v72, Entwurf, Migration nicht angewendet)
+
+Stufe Handeln: Strategie über vorher vereinbarte Standards, nicht über mehr Aufgaben. Grundlage ist Codex' `codex/arena-v3` (`e25db1d`), von Claude übernommen, geprüft und um Phase 2 erweitert. Neue Ligen erhalten `rule_version=3`; bestehende Ligen bleiben bei Regel 1 und rechnen unverändert.
+
+### Wertung (zentral in `private.arena_v3_score`, gespiegelt in `ArenaCore.scoreV3`)
+
+- Einheit Zehntel; sichtbar = /10. Basis je Bereich Tage/Soll × 25, höchstens 100.
+- Bonus höchstens 15, in fester Reihenfolge angerechnet, bis 15 erreicht sind: Formation +6 → Vier Säulen +5 → Kampfgeist +4 → Wochenprämie +5 → Orakel. Wochenhöchstwert 115. Wer alle drei Strategieboni holt, bekommt keine zusätzlichen Punkte für Orakel und Prämie. Die Reihenfolge ist bewusst fest und dokumentiert.
+- Der Server ist maßgeblich. Die App rechnet mit derselben Funktion nur Vorschau („Nächster Zug“, Sonntagsfinale, Fortschritt). `tests/arena-tactics.cjs` vergleicht SQL und JS in 180 Zufallsfällen, auch mit Kriegsrat.
+
+### Formationen und Wochenplan
+
+- Vor Montag (Berliner Datum) wählt jede Person eine Formation und legt je Bereich genau das gemeinsame Soll auf Wochentage. Ab Montag ist die Formation gesperrt. Fremde Formationen sind erst ab Wochenbeginn sichtbar (RLS und Snapshot), damit niemand die Aufstellung anderer vorher sieht.
+- **Schildwall:** jeder Bereich ≥ 60 % (aufgerundet) seines Solls. **Speerspitze:** gewählter Bereich 100 %. **Wächter:** an min(4, geplante Tage) geplanten Tagen alles für diesen Tag Geplante erfüllt. Ungeplante Tage sind Ruhetage.
+- Die **Doktrin** (Saison-Draft) wird vor dem Saisonstart gewählt. Sie wählt nur die Formation vor und erscheint als Zeichen, ohne Punkte. So gibt es keinen statistischen Vorteil.
+
+### Kampfgeist (Momentum) und Vier Säulen
+
+- **Kampfgeist +4:** drei geplante Tage in Folge vollständig erfüllt. Ungeplante Tage unterbrechen nicht, ein verpasster Plantag schon. Einmal je Woche. Eine spätere Unterbrechung nimmt nichts weg. Ohne Wochenplan (also ohne Formation) gibt es keinen Kampfgeist. Meldungen sind nur für heute (Serverdatum) möglich, rückwirkendes Sammeln ist ausgeschlossen.
+- **Vier Säulen +5:** in mindestens drei Bereichen das volle Soll. Einmal je Woche. Die Oberfläche zeigt vier Säulen, die bei vollem Soll golden werden.
+
+### Kriegsrat (Taktikwechsel)
+
+- Einmal je Woche, Montag bis Donnerstag, nur wenn die gesperrte Formation noch nicht gemeistert ist (keine doppelten Boni).
+- Die neue Formation gilt ab dem Folgetag (`switch_day`). Der neue Plan legt genau das noch offene Soll je Bereich auf Tage ab morgen. Die alten Plantage davor bleiben für den Kampfgeist erhalten.
+- Gewertet wird die neue Formation nur mit Meldungen ab `switch_day`, gemessen am offenen Soll. Bereits gewertete Meldungen ändern sich nicht. Jeder Wechsel steht dauerhaft in `arena_formation_log`.
+
+### Ereignisse
+
+`arena_score_events` speichert nach `report` und `switch` die Differenz je Wertungsart (`base`, `formation`, `combo`, `momentum`, `bounty`, `oracle`) für alle Mitglieder. Felder: ID, Spieler, Arena, Woche, Art, Änderung, Bereich, Regelversion, auslösende Meldung (`source`), Zeit. Wiederholte Aufrufe ergeben keine Differenz und damit kein Ereignis. Rücknahmen erscheinen als negative Einträge. Die Ligazeilensperre serialisiert gleichzeitige Aufrufe. Der Bericht zeigt „Bestätigte Punkte“ (seitenweise, 30 je Seite) getrennt von den Meldungen und von Kriegsrat-Hinweisen.
+
+### Oberfläche
+
+Reiter **Heute** zeigt nach „Heute melden“ die Karte **Taktik der Woche**: Bonusbalken x/15, gesperrte Formation mit Fortschritt, Kampfgeist (drei Flammen, sanftes Glühen nur ohne reduzierte Bewegung), Vier Säulen und den Kriegsrat mit verbleibenden Wechseln. Darunter folgt **Formation · Woche n+1** mit drei Formationskarten und Wochenplan-Raster. Lobby und vorgemerkte Saison zeigen die **Saisonvorbereitung** (Doktrin), vor dem Start zusätzlich die Formation für Woche 1. Reiter **Bericht** zeigt die bestätigten Punkte.
+
+### Geprüft
+
+- `tests/arena-tactics.cjs` (echtes SQL in PGlite): Momentum (Ruhetage, Bruch, kein Abzug, ohne Plan), Vier Säulen, alle drei Formationen samt Grenzen, Deckel 115 und Reihenfolge, Kriegsrat (offenes Soll, ab morgen, einmalig, Mo–Do, nicht nach Erfolg, ohne Formation), Ereignisse mit Rücknahme, Wiederholung ohne Doppelungen, geheime Aufstellung, Schreibverbote, Fremdzugriff, Regel 1 unverändert, Parität SQL/JS.
+- Browser (lokaler Prüfserver, 375 × 812, Antik dunkel): Taktik-Karte, Kriegsrat-Wechsel, Formation Woche 4, Meldung mit bestätigtem Ereignis im Bericht, Doktrin in der Lobby. Keine Konsolenfehler.
+- Korrekturen an v3 bei der Übernahme: `arena_events` fehlte in der RPC-Freigabe von `auth.js` („Ältere Ereignisse laden“ wäre produktiv gescheitert). „Nächster Zug“ und Sonntagsfinale zeigten bei Regel 3 immer 0, weil sie feste Serverwerte nutzten; jetzt rechnen sie lokal mit derselben Wertung. Gleichstand bei der Wochenprämie wird wie im SQL nach Nutzer-ID entschieden.
+
+### Nicht geprüft und offen
+
+- Keine Prüfung gegen das echte Supabase-Projekt. Echte Nebenläufigkeit (zwei Verbindungen) wurde nicht getestet, PGlite hat nur eine Verbindung. Die Absicherung beruht auf `select … for update` der Liga.
+- Sommerzeit: Tag und Woche kommen aus `now() at time zone 'Europe/Berlin'` als Kalenderdatum. Ein eigener Test über den Zeitumstellungstag fehlt.
+- Phase 3/4 noch nicht umgesetzt: Live-Aktualisierung über Supabase Realtime (bisher Abfrage alle 15 s, bei Fokus und beim Wiederverbinden), Prognose, Gegner-Pokal mit Freilos, Scouting, Ruhmeshalle und saisonübergreifende Statistik.
+- Veröffentlichung: Migration `202611230002` nach Review im Supabase-SQL-Editor bzw. per `supabase db push` nach `202611230001` anwenden. Danach drei echte Konten prüfen, dann GitHub Pages über den Merge nach `main`.
