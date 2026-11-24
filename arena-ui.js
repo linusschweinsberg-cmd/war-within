@@ -63,7 +63,7 @@
    <p className="text-[13px] mt-1">Du stehst auf Platz ${f.rank}${f.above?', '+fx(f.gap)+' hinter '+f.above.display_name:''}.</p>
    <p className="text-[12.5px] mute mt-1">${line}</p></section>`}
  /* Drei Reiter statt einer langen Seite: Heute (handeln), Tabelle (Stand), Bericht (Gruppe). Flach mit Unterstrich. */
- function Tabs({view,setView,running}){const items=[running&&['today','Heute'],['table','Tabelle'],['log','Bericht']].filter(Boolean);
+ function Tabs({view,setView,running}){const items=[running&&['today','Heute'],['table','Tabelle'],['duel','Duell'],['log','Bericht']].filter(Boolean);
   return html`<div role="tablist" aria-label="Arena-Bereiche" className="flex mt-3" style=${{borderBottom:'1px solid var(--line)'}}>${items.map(([id,l])=>{const on=view===id;return html`<button key=${id} type="button" role="tab" aria-selected=${on} onClick=${()=>setView(id)} className="flex-1 py-2.5 text-[13px] font-semibold border-0" style=${{background:'transparent',color:on?'var(--ink)':'var(--mute)',boxShadow:on?'inset 0 -2px 0 var(--acc)':'none'}}>${l}</button>`})}</div>`}
  /* Neu gewertete Woche: eine Zeile mit Sieg und eigenem Platz; die ganze Zeremonie liegt unter Tabelle. */
  function FreshBanner({snapshot,week,onOpen,onDismiss}){const rows=A.weekly(snapshot,week),mine=rows.find(r=>r.user_id===snapshot.user_id),win=rows.filter(r=>r.rank===1&&r.score>0).map(r=>r.user_id===snapshot.user_id?'du':r.display_name);
@@ -259,12 +259,68 @@
    ${tactics.length>0&&html`<h3 className="lbl mt-4">Kriegsrat</h3>${tactics.map(t=>html`<p key=${t.seq} className="text-[12.5px] mt-1.5">${nameIn(snapshot,t.user_id)} ${t.user_id===snapshot.user_id?'hast':'hat'} auf ${formOf(t.kind).name} gewechselt · ab ${date(t.effective_day)}</p>`)}`}
   </section>`;
  }
+ /* ── Arena 3.0 · Phase 3: Live-Tabelle, Prognose, Gegner-Pokal, Scouting, Live-Hinweis ── */
+ /* Live-Tabelle: bestätigter Stand, Abstand nach oben, rechnerisches Maximum, aktive Boni. */
+ function LiveTable({snapshot,week,live}){const rows=A.weekly(snapshot,week),fc=A.forecast(snapshot),me=snapshot.user_id;
+  const mx=id=>fc?.rows.find(r=>r.user_id===id);
+  return html`<section className="card p-4 mt-3" aria-label="Live-Tabelle"><div className="flex items-baseline justify-between gap-2"><h2 className="disp text-[24px]">Live-Tabelle</h2><span className="lbl flex items-center gap-1.5"><span aria-hidden="true" className=${live==='live'?'arena-live':''} style=${{width:7,height:7,borderRadius:4,background:live==='live'?'var(--acc)':'var(--ghost)'}}/>${live==='live'?'Live':'alle 15 s'}</span></div>
+   <ol className="mt-3">${rows.map((r,i)=>{const above=rows.slice(0,i).filter(x=>x.score>r.score).at(-1),m=mx(r.user_id),mine=r.user_id===me;
+    return html`<li key=${r.user_id} className="flex items-center gap-2 py-2 border-t ln" style=${{borderTopWidth:i?1:0}}>
+     <span className="disp text-[20px] w-6 text-center" style=${{color:r.rank===1&&r.score>0?'var(--gold)':'var(--bronze)'}}>${r.rank}</span>
+     <span className="flex-1 min-w-0"><b className="block text-[13.5px] truncate" style=${{color:mine?'var(--acc2)':'var(--ink)'}}>${mine?'Du':r.display_name}</b>
+      <span className="flex items-center gap-1.5 text-[11px] mute">${r.formation>0&&html`<span title="Formation gemeistert" style=${{color:'var(--gold)'}}>${Ic('aspis',12)}</span>`}${r.momentum>0&&html`<span title="Kampfgeist" style=${{color:'var(--gold)'}}>${Ic('flame',12)}</span>`}${r.combo>0&&html`<span title="Vier Säulen" style=${{color:'var(--gold)'}}>${Ic('column',12)}</span>`}${above?fmt(above.score-r.score)+' bis Platz '+above.rank:r.score>0&&rows.filter(x=>x.rank===1).length===1?'führt':'—'}${m&&m.open>0?' · bis '+fmt(m.max)+' möglich':''}</span></span>
+     <span className="num text-[16px] font-bold">${fmt(r.score)}</span></li>`})}</ol>
+   <p className="text-[11px] mute mt-2">Zahlen = vom Server bestätigte Wochenpunkte. „Möglich“ ist ein rechnerisches Szenario, kein Ergebnis.</p></section>`}
+ /* Prognose: getrennt nach bestätigt und Szenario. Keine Gewinnwahrscheinlichkeit. */
+ function Forecast({snapshot}){const fc=A.forecast(snapshot);if(!fc)return null;const me=fc.rows.find(r=>r.user_id===snapshot.user_id);if(!me)return null;
+  const others=fc.rows.filter(r=>r.user_id!==me.user_id),above=others.filter(r=>r.now>me.now).sort((a,b)=>a.now-b.now)[0],chaser=others.filter(r=>r.now<=me.now).sort((a,b)=>b.now-a.now)[0];
+  const cell=(k,v,sub,col)=>html`<div className="text-center"><span className="lbl block">${k}</span><b className="num block text-[20px]" style=${{color:col}}>${v}</b><span className="text-[10.5px] mute block">${sub}</span></div>`;
+  return html`<section className="card p-4 mt-3" aria-label="Prognose"><div className="flex items-baseline justify-between gap-2"><h2 className="disp text-[22px]">Prognose</h2><span className="lbl">noch ${fc.daysLeft} ${fc.daysLeft===1?'Tag':'Tage'}</span></div>
+   <div className="grid grid-cols-3 gap-2 mt-3">${cell('Bestätigt',fmt(me.now),'jetzt','var(--ink)')}${cell('Noch möglich','+'+fmt(me.open),'Basis '+fmt(me.maxBase-me.base)+' · Bonus '+fmt(Math.max(0,me.maxBonus-me.bonus)),'var(--acc2)')}${cell('Höchstens',fmt(me.max),'Szenario','var(--gold)')}</div>
+   <p className="text-[12.5px] mt-3">${me.best===me.worst?'Platz '+me.best+' steht rechnerisch fest.':'Rechnerisch möglich: Platz '+me.best+' bis '+me.worst+'.'}</p>
+   ${above&&html`<p className="text-[12px] mute mt-1">${above.display_name} liegt ${fmt(above.now-me.now)} vorn und kann selbst noch +${fmt(above.open)} holen. ${me.max>above.now?'Vorbeiziehen ist möglich.':'Diese Woche ist der Abstand nicht mehr aufholbar.'}</p>`}
+   ${!above&&chaser&&html`<p className="text-[12px] mute mt-1">${chaser.display_name} liegt ${fmt(me.now-chaser.now)} hinter dir und kann noch bis ${fmt(chaser.max)} kommen.</p>`}
+   <p className="text-[11px] mute mt-2">Szenario: Jedes offene Soll wird an den verbleibenden Tagen erfüllt, geplante Tage zuerst. Andere können ebenfalls punkten. Keine Vorhersage, keine Garantie.</p></section>`}
+ /* Gegner-Pokal: Paarung der Woche, Bilanz, Begegnungen, nächster Gegner. Ohne Zusatzpunkte. */
+ function Cup({snapshot,week,onScout}){const me=snapshot.user_id,d=A.duelOf(snapshot,week,me),rec=A.duelRecord(snapshot,me),p=A.phase(snapshot),next=week<4&&p.kind==='running'?A.duelOf(snapshot,week+1,me):null,fc=A.forecast(snapshot);
+  const name=id=>nameIn(snapshot,id),open=id=>fc?.rows.find(r=>r.user_id===id)?.open??0;if(!d)return null;
+  const res={win:['Sieg','var(--gold)'],loss:['Niederlage','var(--mute)'],draw:['Unentschieden','var(--ink)']};
+  return html`<section className="card p-4 mt-3" aria-label="Gegner-Pokal"><div className="flex items-baseline justify-between gap-2"><h2 className="disp text-[24px]">Gegner-Pokal</h2><span className="num text-[12px]">${rec.win}–${rec.draw}–${rec.loss}</span></div>
+   <p className="text-[11.5px] mute">Woche ${week} · Bilanz Siege–Unentschieden–Niederlagen</p>
+   ${d.bye?html`<p className="text-[13px] mt-3"><b>Freilos.</b> Diese Woche hast du keinen Gegner – das Freilos wandert jede Woche weiter. Deine Wochenpunkte zählen wie immer.</p>`
+   :html`<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 mt-3 text-center">
+     <div><span className="lbl block" style=${{color:'var(--acc2)'}}>Du</span><b className="duel-n num block">${fmt(d.mine)}</b><span className="text-[10.5px] mute">${p.kind==='running'&&!d.closed?'+'+fmt(open(me))+' möglich':''}</span></div>
+     <span className="disp text-[18px]" style=${{color:'var(--bronze)'}}>${Ic('swords',22)}</span>
+     <div><span className="lbl block truncate">${name(d.opp)}</span><b className="duel-n num block">${fmt(d.theirs)}</b><span className="text-[10.5px] mute">${p.kind==='running'&&!d.closed?'+'+fmt(open(d.opp))+' möglich':''}</span></div></div>
+    <p className="text-[12.5px] mt-2 text-center">${d.closed?html`<b style=${{color:res[d.result][1]}}>${res[d.result][0]}</b>`:d.mine===d.theirs?'Gleichstand':d.mine>d.theirs?'Du liegst vorn':name(d.opp)+' liegt vorn'}${!d.closed?' · vorläufig':''}</p>
+    ${rec.meetings(d.opp).length>1&&html`<p className="text-[11.5px] mute text-center mt-1">Revanche: ${rec.meetings(d.opp).filter(x=>x.week!==week).map(x=>'Woche '+x.week+(x.result?' '+res[x.result][0]:'')).join(' · ')}</p>`}
+    <button type="button" className="chip mx-auto mt-2 flex" onClick=${()=>onScout(d.opp)}>${name(d.opp)} scouten</button>`}
+   ${rec.weeks.filter(x=>x.closed).length>0&&html`<h3 className="lbl mt-4">Begegnungen</h3><ul className="mt-1 text-[12.5px] space-y-1">${rec.weeks.filter(x=>x.closed).map(x=>html`<li key=${x.week} className="flex justify-between gap-2"><span>Woche ${x.week} · ${x.bye?'Freilos':'gegen '+name(x.opp)}</span>${!x.bye&&html`<span className="num" style=${{color:res[x.result][1]}}>${fmt(x.mine)} : ${fmt(x.theirs)}</span>`}</li>`)}</ul>`}
+   ${next&&html`<p className="text-[12px] mute mt-3">Nächste Woche: ${next.bye?'Freilos':name(next.opp)}</p>`}
+   <p className="text-[11px] mute mt-2">Paarungen nach festem Rundenturnier, vor Wochenbeginn bekannt. Verglichen werden nur die normalen Wochenpunkte; die Tabelle bleibt unverändert.</p></section>`}
+ /* Scouting: Vergleich nur mit freigegebenen Arena-Daten. */
+ function Scouting({snapshot,focus,setFocus}){const me=snapshot.user_id,others=snapshot.members.filter(m=>m.user_id!==me);if(!others.length)return null;
+  const opp=others.some(m=>m.user_id===focus)?focus:others[0].user_id,a=A.scout(snapshot,me),b=A.scout(snapshot,opp);if(!a||!b)return null;
+  const pct=x=>Math.round(x*100)+' %',rows=[['Ø Wochenpunkte'+(a.provisional?' (vorläufig)':''),fmt(a.avg),fmt(b.avg),a.avg-b.avg],['Beständigkeit',a.activeDays+' / '+a.elapsed+' Tage',b.activeDays+' / '+b.elapsed+' Tage',a.consistency-b.consistency],['Gewonnene Duelle',a.duelWins,b.duelWins,a.duelWins-b.duelWins],['Trend letzte Woche',a.trend==null?'–':(a.trend>=0?'+':'−')+fmt(Math.abs(a.trend)),b.trend==null?'–':(b.trend>=0?'+':'−')+fmt(Math.abs(b.trend)),(a.trend||0)-(b.trend||0)],['Stärkster Bereich',a.strongest?slotOf(a.strongest).name:'–',b.strongest?slotOf(b.strongest).name:'–',0],['Platz Woche · Saison',a.weekRank+' · '+a.seasonRank,b.weekRank+' · '+b.seasonRank,0]];
+  const hints=A.catchUp(a,b),labels={avg:g=>'Ø '+fmt(g)+' Wochenpunkte',consistency:g=>g+' aktive Tage',duels:g=>g+' Duellsiege'};
+  return html`<section className="card p-4 mt-3" aria-label="Scouting"><h2 className="disp text-[24px]">Scouting</h2>
+   <div className="flex flex-wrap gap-1 mt-2" role="group" aria-label="Gegner wählen">${others.map(m=>html`<button key=${m.user_id} type="button" className="chip" aria-pressed=${m.user_id===opp} onClick=${()=>setFocus(m.user_id)}>${m.display_name}</button>`)}</div>
+   <div className="overflow-x-auto mt-3"><table className="w-full text-[12.5px] text-left"><thead><tr><th scope="col" className="font-normal mute"></th><th scope="col" className="lbl" style=${{color:'var(--acc2)'}}>Du</th><th scope="col" className="lbl">${nameIn(snapshot,opp)}</th></tr></thead>
+    <tbody>${rows.map(([k,x,y,diff])=>html`<tr key=${k} className="border-t ln"><th scope="row" className="py-2 font-normal mute pr-2">${k}</th><td className="num" style=${{fontWeight:diff>0?700:400}}>${x}</td><td className="num" style=${{fontWeight:diff<0?700:400}}>${y}</td></tr>`)}</tbody></table></div>
+   <p className="text-[12.5px] mt-3">${hints.length?'Aufholen kannst du bei: '+hints.map(h=>labels[h.key](h.gap)).join(', ')+'.':'Du liegst in allen Vergleichswerten mindestens gleichauf.'}</p>
+   <p className="text-[11px] mute mt-2">Nur gemeldete Bereiche, Wochenpunkte und Duelle aus dieser Arena. Keine Ziele, Texte oder Gesundheitsdaten.</p></section>`}
+ /* Live-Hinweis nach bestätigten Änderungen: kurz, ein Hinweis zur Zeit, schließbar. */
+ function LiveToast({news,onClose}){if(!news)return null;const gold=news.kind!=='points';
+  return html`<div role="status" className="arena-toast sticky z-10 mt-2 p-3 flex items-center gap-3" style=${{top:64,borderRadius:14,background:'color-mix(in srgb,'+(gold?'var(--gold)':'var(--acc)')+' 16%,var(--card))',boxShadow:'0 0 0 1px color-mix(in srgb,'+(gold?'var(--gold)':'var(--acc)')+' 50%,transparent) inset'}}>
+   <span style=${{color:gold?'var(--gold)':'var(--acc2)'}}>${Ic({formation:'aspis',lead:'crown',leadOther:'crown',record:'laurel',rank:'up',points:'check'}[news.kind]||'check',20)}</span>
+   <b className="flex-1 text-[13px]">${news.text}${news.points?' · +'+fmt(news.points):''}</b><button type="button" className="chip" aria-label="Hinweis schließen" onClick=${onClose}>✕</button></div>`}
  function ArenaView({c}){
   const session=c.auth?.session,signed=session?.mode==='supabase',api=G.arenaApi;
   const [list,setList]=useState([]),[snapshot,setSnapshot]=useState(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[loaded,setLoaded]=useState(false),[notice,setNotice]=useState('');
   const [name,setName]=useState('Unser Eiserner Kreis'),[displayName,setDisplayName]=useState(session?.name?.slice(0,24)||'Krieger'),[capacity,setCapacity]=useState(3);
   const [online,setOnline]=useState(navigator.onLine!==false);
   const [view,setView]=useState('today'),[opened,setOpened]=useState(0);
+  const [live,setLive]=useState('off'),[news,setNews]=useState(null),[focus,setFocus]=useState(null),prevSnap=useRef(null);
   useEffect(()=>{const update=()=>setOnline(navigator.onLine!==false);addEventListener('online',update);addEventListener('offline',update);return()=>{removeEventListener('online',update);removeEventListener('offline',update)}},[]);
   const [code,setCode]=useState(()=>{try{return new URL(G.location.href).searchParams.get('arena')||''}catch(e){return''}}),[form,setForm]=useState(''),[confirm,setConfirm]=useState(false);
   const section=useRef(null);
@@ -272,9 +328,15 @@
   const active=useRef(true),gate=useRef(false),serial=useRef(0),selected=useRef(null);selected.current=snapshot?.league.id||null;
   useEffect(()=>{active.current=true;return()=>{active.current=false;serial.current++}},[]);
   async function run(fn,apply){if(gate.current)return;gate.current=true;setBusy(true);setError('');const seq=++serial.current;try{const r=await fn();if(active.current&&seq===serial.current){apply(r);setLoaded(true)}}catch(e){if(active.current&&seq===serial.current)setError(e.message||'Die Arena konnte nicht geladen werden.')}finally{gate.current=false;if(active.current&&seq===serial.current)setBusy(false)}}
-  const open=s=>{setSnapshot(s);setForm('');setConfirm(false);setNotice('');setView('today');setOpened(0)};
+  const open=s=>{prevSnap.current=null;setFocus(null);setSnapshot(s);setForm('');setConfirm(false);setNotice('');setView('today');setOpened(0)};
   useEffect(()=>{if(signed)run(()=>api.list(),setList)},[signed]);
-  useEffect(()=>{if(!signed||!snapshot)return;const id=snapshot.league.id;const refresh=()=>{if(document.visibilityState==='hidden'||navigator.onLine===false||gate.current)return;run(()=>api.load(id),s=>{if(selected.current===id)setSnapshot(s)})};const interval=setInterval(refresh,15000);addEventListener('focus',refresh);addEventListener('online',refresh);document.addEventListener('visibilitychange',refresh);return()=>{clearInterval(interval);removeEventListener('focus',refresh);removeEventListener('online',refresh);document.removeEventListener('visibilitychange',refresh)}},[signed,snapshot?.league.id]);
+  useEffect(()=>{if(!signed||!snapshot)return;const id=snapshot.league.id;const refresh=()=>{if(document.visibilityState==='hidden'||navigator.onLine===false||gate.current)return;run(()=>api.load(id),s=>{if(selected.current===id)setSnapshot(s)})};const interval=setInterval(refresh,live==='live'?30000:15000);addEventListener('focus',refresh);addEventListener('online',refresh);document.addEventListener('visibilitychange',refresh);return()=>{clearInterval(interval);removeEventListener('focus',refresh);removeEventListener('online',refresh);document.removeEventListener('visibilitychange',refresh)}},[signed,snapshot?.league.id,live]);
+  /* Live: Realtime-Signal lädt den bestätigten Stand neu (gebündelt); ohne Realtime bleibt die Abfrage alle 15 s. */
+  useEffect(()=>{if(!signed||!snapshot)return;const id=snapshot.league.id;let timer;const pull=()=>{clearTimeout(timer);timer=setTimeout(()=>{if(document.visibilityState==='hidden')return;if(gate.current)return pull();run(()=>api.load(id),s=>{if(selected.current===id)setSnapshot(s)})},400)};
+   const stop=api.watch(id,pull,setLive);return()=>{clearTimeout(timer);stop();setLive('off')}},[signed,snapshot?.league.id]);
+  /* Live-Hinweis: nur aus dem Vergleich zweier bestätigter Stände, höchstens einer, verschwindet nach 4,5 s. */
+  useEffect(()=>{if(!snapshot)return;const n=A.liveNews(prevSnap.current,snapshot);prevSnap.current=snapshot;if(n)setNews({...n,at:Date.now()})},[snapshot]);
+  useEffect(()=>{if(!news)return;const t=setTimeout(()=>setNews(null),4500);return()=>clearTimeout(t)},[news]);
   const change=fn=>run(fn,s=>{setSnapshot(s);setConfirm(false);setNotice('Gespeichert.')});
   const p=snapshot&&A.phase(snapshot),week=p?.week||1,rows=snapshot&&A.weekly(snapshot,week),me=rows?.find(r=>r.user_id===snapshot.user_id),own=snapshot?.league.owner_id===snapshot?.user_id;
   const allReady=snapshot&&snapshot.members.length>=2;
@@ -307,6 +369,7 @@
      ${confirm&&html`<div role="group" aria-label="Saisonstart bestätigen" className="card2 p-3 mt-3 rounded-xl"><p className="text-[13px]">Start am nächsten Montag. Danach können keine weiteren Personen dieser Saison beitreten. Das gemeinsame Soll steht dann für die ganze Saison fest.</p><div className="flex gap-2 mt-3"><button type="button" className="ghost flex-1 py-3" disabled=${busy} onClick=${()=>setConfirm(false)}>Zurück</button><button type="button" className="btn flex-1 py-3" disabled=${busy} onClick=${()=>change(()=>api.start(snapshot.league.id))}>Start bestätigen</button></div></div>`}
     </div>`:html`
     ${(p.kind==='running'||p.kind==='finished')&&html`<${Tabs} view=${tab} setView=${setView} running=${p.kind==='running'}/>`}
+    <${LiveToast} news=${news} onClose=${()=>setNews(null)}/>
     ${tab==='today'&&p.kind==='running'&&html`
      ${fresh>0&&html`<${FreshBanner} snapshot=${snapshot} week=${fresh} onOpen=${()=>{setOpened(fresh);setView('table');markSeen()}} onDismiss=${markSeen}/>`}
      <${Finale} snapshot=${snapshot}/>
@@ -320,12 +383,14 @@
      ${v3&&html`<${Tactics} key=${snapshot.league.id+'-t'+week} snapshot=${snapshot} week=${week} me=${me} busy=${busy} onSwitch=${(k,sl,plan)=>change(()=>api.switchFormation(snapshot.league.id,k,sl,plan))}/><${FormationPrep} key=${snapshot.league.id+'-p'+week} snapshot=${snapshot} busy=${busy} onSave=${saveFormation}/>`}
     `}
     ${tab==='table'&&html`
+     ${v3&&p.kind==='running'&&html`<${LiveTable} snapshot=${snapshot} week=${week} live=${live}/><${Forecast} snapshot=${snapshot}/>`}
      <div className="card p-4 mt-3"><div className="flex items-baseline justify-between gap-2"><h2 className="disp text-[24px]">${p.kind==='finished'?'Letzte Spielwoche':'Kampfplatz'}</h2><span className="lbl">Woche ${week}${p.kind==='running'?' · vorläufig':''}</span></div><${Podium} rows=${rows} me=${snapshot.user_id}/>${rows.length>3&&html`<ol className="mt-3 space-y-1.5">${rows.slice(3).map(r=>html`<li key=${r.user_id} className="flex gap-2 items-center text-[13px]"><span className="num w-5 mute">${r.rank}.</span><b className="flex-1 min-w-0 truncate">${r.display_name}${r.user_id===snapshot.user_id?' · du':''}</b><span className="num">${fmt(r.score)}</span></li>`)}</ol>`}</div>
      <${WeekGrid} snapshot=${snapshot} week=${week}/>
      <div className="card p-4 mt-3"><div className="flex items-baseline justify-between gap-2"><h2 className="disp text-[22px]">Saisontabelle</h2><span className="lbl">${closed} von 4 gewertet</span></div><ol className="mt-3 space-y-2">${A.season(snapshot).map(r=>html`<li key=${r.user_id} className="flex gap-2 text-[13px]"><span className="num">${r.rank}.</span><b className="flex-1 break-words">${r.display_name}${r.user_id===snapshot.user_id?' · du':''}</b><span className="num">${r.points} Pkt.</span></li>`)}</ol><p className="text-[11.5px] mute mt-2">Platz 1–3 einer Woche erhält 3, 2, 1 Punkte.</p>${p.kind==='finished'&&html`<p className="text-[13px] mt-3" style=${{color:'var(--gold)'}}>${A.season(snapshot).some(r=>r.points>0)?'Saisonsieg: '+A.season(snapshot).filter(r=>r.rank===1).map(r=>r.display_name).join(' und '):'Keine Erfüllungen in dieser Saison.'}</p><p className="text-[12px] mute mt-1">Eine neue Runde könnt ihr über „Meine Arenen“ erstellen.</p>`}</div>
      ${closed>0&&html`<details key=${'cer-'+opened} open=${opened>0} className="card p-4 mt-3"><summary className="text-[14px] font-semibold">Wochenzeremonien</summary>${Array.from({length:closed},(_,i)=>closed-i).map(w=>html`<${Ceremony} key=${snapshot.league.id+'-'+w} snapshot=${snapshot} week=${w}/>`)}</details>`}
      <${Scoring} snapshot=${snapshot} week=${week}/>
     `}
+    ${tab==='duel'&&html`<${Cup} snapshot=${snapshot} week=${week} onScout=${id=>{setFocus(id);setTimeout(()=>document.querySelector('[aria-label="Scouting"]')?.scrollIntoView({behavior:'smooth',block:'start'}),0)}}/><${Scouting} snapshot=${snapshot} focus=${focus} setFocus=${setFocus}/>`}
     ${tab==='log'&&html`
      ${p.kind==='running'&&A.awards(snapshot,week).comebacks.map(m=>html`<div key=${m.user_id} className="card p-3 mt-3 text-[13px]" style=${{color:'var(--gold)'}}><b>Comeback-Lorbeer · ${m.display_name}</b><p className="text-[12px] mute mt-1">Nach mindestens zwei freien Tagen wieder drei Tage in Folge aktiv. Ohne Zusatzpunkte.</p></div>`)}
      ${v3&&html`<${ScoreFeed} key=${snapshot.league.id} snapshot=${snapshot} api=${api}/>`}

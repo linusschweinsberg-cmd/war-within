@@ -221,4 +221,15 @@ grant execute on function public.arena_events(uuid,bigint) to authenticated;
 revoke all on function private.arena_hash(text),private.arena_v3_score(uuid,uuid,integer),private.arena_plan_ok(jsonb,jsonb,integer),private.arena_snapshot_v1(uuid),private.arena_command_v1(text,uuid,jsonb) from public,anon,authenticated;
 revoke all on function public.arena_snapshot(uuid),public.arena_command(text,uuid,jsonb) from public,anon,authenticated;
 grant execute on function public.arena_snapshot(uuid),public.arena_command(text,uuid,jsonb) to authenticated;
+-- Live-Arena: neue Punkteereignisse und Meldungen über Supabase Realtime (postgres_changes beachtet die Lese-RLS).
+-- Nur wenn die Supabase-Publikation existiert; lokal/ohne Realtime ohne Wirkung. Wiederholbar.
+do $$ declare t text; begin
+ if exists(select 1 from pg_publication where pubname='supabase_realtime') then
+  foreach t in array array['arena_score_events','arena_completions'] loop
+   if not exists(select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename=t) then
+    execute format('alter publication supabase_realtime add table public.%I',t);
+   end if;
+  end loop;
+ end if;
+end $$;
 commit;

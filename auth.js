@@ -26,6 +26,19 @@
   window.authApi={
     demo:false,
     async arenaRpc(name,args){if(!['arena_list','arena_snapshot','arena_command','arena_events'].includes(name))throw Error('Unbekannte Arena-Anfrage.');return result(getClient().rpc(name,args));},
+    /* Live-Arena: Supabase Realtime auf neue bestätigte Punkte und Meldungen einer Arena (RLS: nur Mitglieder).
+       Liefert nur ein Signal „neu laden“; Daten kommen weiter über arena_snapshot. Ohne Realtime: Status 'off'. */
+    arenaWatch(league,onChange,onStatus=()=>{}){
+      if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(league))){onStatus('off');return()=>{};}
+      let c;try{c=getClient();}catch(e){onStatus('off');return()=>{};}
+      if(!c.channel){onStatus('off');return()=>{};}
+      const filter='league_id=eq.'+league,ping=()=>onChange();
+      const ch=c.channel('arena:'+league)
+        .on('postgres_changes',{event:'INSERT',schema:'public',table:'arena_score_events',filter},ping)
+        .on('postgres_changes',{event:'INSERT',schema:'public',table:'arena_completions',filter},ping)
+        .subscribe(st=>onStatus(st==='SUBSCRIBED'?'live':st==='CHANNEL_ERROR'||st==='TIMED_OUT'||st==='CLOSED'?'off':'connecting'));
+      return()=>{try{c.removeChannel(ch);}catch(e){}};
+    },
     async signUp({name,email,password}){const d=await result(getClient().auth.signUp({email:email.trim(),password,options:{data:{name},emailRedirectTo:redirectTo()}}));return{user:d.user?user(d.user):null,needsVerification:!d.session};},
     async signIn({email,password}){const d=await result(getClient().auth.signInWithPassword({email:email.trim(),password}));return{user:user(d.user)};},
     async resetPassword(email){await result(getClient().auth.resetPasswordForEmail(email.trim(),{redirectTo:redirectTo()}));return{sent:true};},

@@ -96,10 +96,65 @@
   const above=rows.filter(r=>r.user_id!==me&&r.score>mine.score).sort((a,b)=>a.score-b.score)[0]||null;
   return{week:p.week,rank:mine.rank,score:mine.score,above,gap:above?above.score-mine.score:0,open,potential:after.score-mine.score,rankAfter:after.rank};}
  function season(s){const p=phase(s);return s.members.map(m=>({...m,points:Array.from({length:p.closed},(_,i)=>weekly(s,i+1).find(x=>x.user_id===m.user_id)?.points||0).reduce((a,b)=>a+b,0)})).map((m,i,a)=>({...m,rank:1+a.filter(x=>x.points>m.points).length})).sort((a,b)=>a.rank-b.rank||a.display_name.localeCompare(b.display_name,'de'));}
+ /* ── Arena 3.0 · Phase 3: Prognose, Gegner-Pokal, Scouting, Live-Hinweise. Alles rein aus öffentlichen Arena-Daten
+    abgeleitet und lesend; keine neuen Punkte. ── */
+ const dayIndex=(s,week)=>Math.floor((date(s.today)-date(addDays(s.league.start_date,(week-1)*7)))/DAY)+1;
+ /* Bestes Szenario einer Person: jedes offene Soll an den verbleibenden Tagen (ab heute) erfüllt, geplante Tage zuerst. */
+ function scenario(s,uid,week){const t=targetsOf(s),ws=addDays(s.league.start_date,(week-1)*7),from=Math.max(1,dayIndex(s,week)),f=formationOf(s,uid,week),extra=[];
+  if(from>7)return s;
+  for(const x of SLOTS){const k=x.id,done=new Set(s.completions.filter(e=>e.user_id===uid&&e.week===week&&e.slot===k).map(e=>e.day)),open=t[k]-Math.min(done.size,t[k]),planned=f?(f.plan[k]||[]):[];
+   const cand=[];for(let d=from;d<=7;d++)if(!done.has(addDays(ws,d-1)))cand.push(d);
+   cand.sort((a,b)=>(planned.includes(b)-planned.includes(a))||a-b);
+   for(const d of cand.slice(0,open))extra.push({id:'scenario-'+k+'-'+d,user_id:uid,week,slot:k,day:addDays(ws,d-1),created_at:new Date(date(addDays(ws,d-1))+22*3600000).toISOString()});}
+  return{...s,scores:null,completions:[...s.completions,...extra]};}
+ /* Prognose der laufenden Woche: bestätigter Stand, rechnerisches Maximum und mögliche Plätze. Keine Wahrscheinlichkeiten. */
+ function forecast(s){const p=phase(s);if(p.kind!=='running'||s.league.rule_version!==3)return null;const week=p.week,now=weekly(s,week);
+  const rows=now.map(r=>{const max=scoreV3(scenario(s,r.user_id,week),r.user_id,week);return{user_id:r.user_id,display_name:r.display_name,now:r.score,base:r.base,bonus:r.bonus,max:Math.max(max.score,r.score),maxBase:max.base,maxBonus:max.bonus,rank:r.rank}});
+  for(const r of rows){r.open=r.max-r.now;r.best=1+rows.filter(o=>o.user_id!==r.user_id&&o.now>r.max).length;r.worst=1+rows.filter(o=>o.user_id!==r.user_id&&o.max>r.now).length;}
+  return{week,daysLeft:Math.max(0,8-dayIndex(s,week)),rows};}
+ /* Gegner-Pokal: Rundenturnier (Kreisverfahren) über die feste Mitgliederreihenfolge. Ungerade Zahl: ein Freilos, das jede Woche weiterwandert.
+    Steht vor Wochenbeginn fest, weil nach dem Start niemand beitritt. Keine Zusatzpunkte: verglichen werden nur die Wochenpunkte. */
+ function pairings(s,week){const ids=s.members.map(m=>m.user_id);if(ids.length<2)return[];if(ids.length%2)ids.push(null);const n=ids.length,r=(week-1)%(n-1);
+  const rest=ids.slice(1),rot=rest.map((_,i)=>rest[(i+r)%rest.length]),order=[ids[0],...rot],out=[];
+  for(let i=0;i<n/2;i++){const a=order[i],b=order[n-1-i];out.push(a===null?{a:b,b:null}:{a,b});}
+  return out;}
+ function duelOf(s,week,uid){const m=pairings(s,week).find(x=>x.a===uid||x.b===uid);if(!m)return null;const opp=m.a===uid?m.b:m.a;if(!opp)return{week,bye:true,opp:null,closed:week<=phase(s).closed,result:null};
+  const rows=weekly(s,week),me=rows.find(r=>r.user_id===uid),o=rows.find(r=>r.user_id===opp),closed=week<=phase(s).closed;
+  const result=!closed?null:me.score>o.score?'win':me.score<o.score?'loss':'draw';
+  return{week,bye:false,opp,mine:me.score,theirs:o.score,closed,result};}
+ function duelRecord(s,uid){const p=phase(s),weeks=Array.from({length:Math.max(p.closed,p.week)},(_,i)=>duelOf(s,i+1,uid)).filter(Boolean);
+  const done=weeks.filter(d=>d.closed&&!d.bye);
+  return{weeks,win:done.filter(d=>d.result==='win').length,loss:done.filter(d=>d.result==='loss').length,draw:done.filter(d=>d.result==='draw').length,
+   meetings:opp=>weeks.filter(d=>d.opp===opp)};}
+ /* Scouting: nur freigegebene Arena-Daten (Meldungen, Wochenpunkte, Duelle). Keine Ziele, Texte oder Gesundheitswerte. */
+ function scout(s,uid){const p=phase(s),t=targetsOf(s),start=s.league.start_date;if(!start||p.kind==='scheduled'||p.kind==='lobby')return null;
+  const closedWeeks=Array.from({length:p.closed},(_,i)=>i+1),weeks=closedWeeks.length?closedWeeks:[p.week];
+  const scores=weeks.map(w=>weekly(s,w).find(r=>r.user_id===uid)?.score||0),mine=s.completions.filter(e=>e.user_id===uid&&e.day<=s.today);
+  const elapsed=Math.min(28,Math.floor((date(s.today)-date(start))/DAY)+1),active=new Set(mine.map(e=>e.day)).size;
+  const wk=Math.max(1,p.closed+(p.kind==='running'?1:0)),share=SLOTS.map(x=>({slot:x.id,rate:mine.filter(e=>e.slot===x.id).length/(t[x.id]*wk)})).sort((a,b)=>b.rate-a.rate);
+  const rec=duelRecord(s,uid),last=closedWeeks.length>=2?scores.at(-1)-scores.at(-2):null;
+  return{user_id:uid,avg:Math.round(scores.reduce((a,b)=>a+b,0)/scores.length),consistency:elapsed?active/elapsed:0,activeDays:active,elapsed,duelWins:rec.win,duelLosses:rec.loss,
+   strongest:share[0].rate>0?share[0].slot:null,trend:last,weekRank:weekly(s,p.week).find(r=>r.user_id===uid)?.rank||null,seasonRank:season(s).find(r=>r.user_id===uid)?.rank||null,provisional:!closedWeeks.length};}
+ /* Wo kann ich rechnerisch aufholen? Kategorien, in denen der Gegner vorn liegt, mit Abstand. */
+ function catchUp(a,b){if(!a||!b)return[];const out=[];
+  if(b.avg>a.avg)out.push({key:'avg',gap:b.avg-a.avg});if(b.consistency>a.consistency)out.push({key:'consistency',gap:b.activeDays-a.activeDays});if(b.duelWins>a.duelWins)out.push({key:'duels',gap:b.duelWins-a.duelWins});
+  return out;}
+ /* Live-Hinweise: Vergleich zweier bestätigter Stände (vorher/nachher). Höchstens ein Hinweis, der wichtigste zuerst. */
+ function liveNews(prev,next){if(!prev||!next||prev.league.id!==next.league.id)return null;const p=phase(next);if(p.kind!=='running')return null;const w=p.week,me=next.user_id;
+  const a=weekly(prev,w),b=weekly(next,w),ma=a.find(r=>r.user_id===me),mb=b.find(r=>r.user_id===me);if(!ma||!mb)return null;
+  const leadA=a.filter(r=>r.rank===1&&r.score>0).map(r=>r.user_id),leadB=b.filter(r=>r.rank===1&&r.score>0).map(r=>r.user_id);
+  const best=Math.max(0,...Array.from({length:p.closed},(_,i)=>weekly(next,i+1).find(r=>r.user_id===me)?.score||0));
+  if(mb.formation>(ma.formation||0))return{kind:'formation',text:'Formation gemeistert',points:mb.formation};
+  if(leadB.length===1&&leadB[0]===me&&!(leadA.length===1&&leadA[0]===me))return{kind:'lead',text:'Du hast die Führung übernommen'};
+  if(leadB.length===1&&leadB[0]!==me&&!(leadA.length===1&&leadA[0]===leadB[0]))return{kind:'leadOther',text:(b.find(r=>r.user_id===leadB[0]).display_name)+' führt jetzt die Arena'};
+  if(p.closed>0&&mb.score>best&&ma.score<=best)return{kind:'record',text:'Neuer persönlicher Wochenrekord'};
+  if(mb.rank<ma.rank)return{kind:'rank',text:'Aufstieg auf Platz '+mb.rank};
+  if(mb.score>ma.score)return{kind:'points',text:'Bestätigt',points:mb.score-ma.score};
+  return null;}
  function invitation(code,base){const url=new URL(base);url.search='';url.hash='';url.searchParams.set('arena',String(code));return url.href;}
  /* Automatische Übernahme: welche App-Aufgabe zählt für welchen Arena-Bereich. Finanzen haben bewusst keinen Platz. */
  const ACT_SLOT={body:'body',run:'body',lang:'growth',read:'growth',deep:'growth',code:'growth',rel:'bonds'};
  function contribution(S,m,extra={}){if(extra.auto)return null;const slot=ACT_SLOT[m.act],action=(S.life?.actions||[]).find(a=>a.missionId===m.id&&!a.off),minutes=extra.arenaMinutes??action?.minutes;
   return slot&&Number.isFinite(minutes)&&minutes>=({body:20,growth:20,bonds:10,mind:10}[slot])?slot:null;}
- G.ArenaCore={FORMATIONS,BONUS_CAP,FORMATION_PTS,COMBO_PTS,MOMENTUM_PTS,MOMENTUM_RUN,scoreV3,formationOf,switchNeed,SLOTS,DEFAULT_TARGETS,ORACLE_FACTOR,BOUNTY,ACT_SLOT,contribution,phase,validTargets,targetsOf,oracle,bounty,weekly,gains,activity,finale,awards,season,invitation,addDays};
+ G.ArenaCore={forecast,scenario,pairings,duelOf,duelRecord,scout,catchUp,liveNews,FORMATIONS,BONUS_CAP,FORMATION_PTS,COMBO_PTS,MOMENTUM_PTS,MOMENTUM_RUN,scoreV3,formationOf,switchNeed,SLOTS,DEFAULT_TARGETS,ORACLE_FACTOR,BOUNTY,ACT_SLOT,contribution,phase,validTargets,targetsOf,oracle,bounty,weekly,gains,activity,finale,awards,season,invitation,addDays};
 })(typeof window==='undefined'?globalThis:window);
