@@ -221,6 +221,15 @@ grant execute on function public.arena_events(uuid,bigint) to authenticated;
 revoke all on function private.arena_hash(text),private.arena_v3_score(uuid,uuid,integer),private.arena_plan_ok(jsonb,jsonb,integer),private.arena_snapshot_v1(uuid),private.arena_command_v1(text,uuid,jsonb) from public,anon,authenticated;
 revoke all on function public.arena_snapshot(uuid),public.arena_command(text,uuid,jsonb) from public,anon,authenticated;
 grant execute on function public.arena_snapshot(uuid),public.arena_command(text,uuid,jsonb) to authenticated;
+-- Ruhmeshalle: alle begonnenen Saisons der angemeldeten Person als Snapshots (nur eigene Arenen, höchstens 20).
+-- Keine eigene Statistiktabelle: Auszeichnungen werden aus diesen Daten nachvollziehbar abgeleitet.
+create or replace function public.arena_hall() returns jsonb language plpgsql stable security definer set search_path='' as $$
+begin
+ if auth.uid() is null then raise exception 'Bitte anmelden.'; end if;
+ return coalesce((select jsonb_agg(public.arena_snapshot(x.id) order by x.start_date desc) from (select g.id,g.start_date from public.arena_leagues g join public.arena_members m on m.league_id=g.id and m.user_id=auth.uid() where g.start_date is not null and g.start_date<=(now() at time zone 'Europe/Berlin')::date order by g.start_date desc limit 20) x),'[]');
+end $$;
+revoke all on function public.arena_hall() from public,anon,authenticated;
+grant execute on function public.arena_hall() to authenticated;
 -- Live-Arena: neue Punkteereignisse und Meldungen über Supabase Realtime (postgres_changes beachtet die Lese-RLS).
 -- Nur wenn die Supabase-Publikation existiert; lokal/ohne Realtime ohne Wirkung. Wiederholbar.
 do $$ declare t text; begin

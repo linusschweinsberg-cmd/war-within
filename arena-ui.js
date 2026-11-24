@@ -314,13 +314,51 @@
   return html`<div role="status" className="arena-toast sticky z-10 mt-2 p-3 flex items-center gap-3" style=${{top:64,borderRadius:14,background:'color-mix(in srgb,'+(gold?'var(--gold)':'var(--acc)')+' 16%,var(--card))',boxShadow:'0 0 0 1px color-mix(in srgb,'+(gold?'var(--gold)':'var(--acc)')+' 50%,transparent) inset'}}>
    <span style=${{color:gold?'var(--gold)':'var(--acc2)'}}>${Ic({formation:'aspis',lead:'crown',leadOther:'crown',record:'laurel',rank:'up',points:'check'}[news.kind]||'check',20)}</span>
    <b className="flex-1 text-[13px]">${news.text}${news.points?' · +'+fmt(news.points):''}</b><button type="button" className="chip" aria-label="Hinweis schließen" onClick=${onClose}>✕</button></div>`}
+ /* ── Arena 3.0 · Phase 4: Saisonfinale und Ruhmeshalle ── */
+ /* Steintafel: matte Karte mit eingelassener Innenkante. */
+ const Tablet=({children,label,gold})=>html`<section aria-label=${label} className="mt-3 p-1" style=${{borderRadius:18,background:'color-mix(in srgb,var(--stone) 10%,var(--card))',border:'1px solid '+(gold?'color-mix(in srgb,var(--gold) 45%,transparent)':'var(--line)')}}><div className="p-3.5" style=${{borderRadius:14,boxShadow:'inset 0 0 0 1px color-mix(in srgb,var(--stone) 22%,transparent)'}}>${children}</div></section>`;
+ /* Persönlicher Schild: Initiale, Zeichen der Doktrin, Lorbeer bei Saisonsieg. */
+ const PersonalShield=({name,doctrine,titles})=>html`<div className="relative shrink-0" style=${{width:64,height:64}} aria-hidden="true"><svg viewBox="0 0 64 64" width="64" height="64"><circle cx="32" cy="32" r="29" fill="color-mix(in srgb,var(--bronze) 22%,var(--card2))" stroke="var(--bronze)" strokeWidth="2"/><circle cx="32" cy="32" r="22" fill="none" stroke="color-mix(in srgb,var(--stone) 40%,transparent)" strokeWidth="1"/></svg>
+  <span className="absolute inset-0 flex items-center justify-center disp text-[24px]" style=${{color:'var(--stone)'}}>${(name||'?').slice(0,1).toUpperCase()}</span>
+  ${doctrine&&html`<span className="absolute -bottom-1 -right-1 rounded-full p-1" style=${{background:'var(--card)',color:'var(--bronze)',boxShadow:'0 0 0 1px var(--line)'}}>${Ic(FICON[doctrine],14)}</span>`}
+  ${titles>0&&html`<span className="absolute -top-2 left-1/2 -translate-x-1/2" style=${{color:'var(--gold)'}}>${Ic('laurel',20,1.6)}</span>`}</div>`;
+ const LICON={title:'crown',best:'trophy',weeks:'laurel',steady:'column',formation:'aspis',duel:'swords',comeback:'rotate',phalanx:'users'};
+ /* Saisonfinale: nach Woche 4 oben unter Tabelle – Podest der Saison, eigene Bilanz, verdiente Lorbeeren. */
+ function SeasonFinale({snapshot}){const st=A.seasonStats(snapshot,snapshot.user_id);if(!st||!st.finished)return null;const table=A.season(snapshot),top=table.filter(r=>r.rank===1&&r.points>0);
+  const own=A.hall([snapshot],snapshot.user_id).laurels;
+  return html`<${Tablet} label="Saisonfinale" gold=${true}><div className="text-center"><span style=${{color:'var(--gold)'}}>${Ic('laurel',30,1.5)}</span><div className="lbl mt-1" style=${{color:'var(--gold)'}}>Saisonfinale</div>
+   <h2 className="disp-serif text-[24px] mt-1">${top.length?top.map(r=>r.user_id===snapshot.user_id?'Du':r.display_name).join(' & '):'Ohne Sieger'}</h2><p className="text-[12px] mute">${top.length?'Saisonsieg · '+top[0].points+' Tabellenpunkte':'Keine Erfüllungen in dieser Saison.'}</p></div>
+   <div className="grid grid-cols-3 gap-2 mt-4 text-center">${[['Platz',st.rank],['Wochensiege',st.weekWins.length],['Duelle',st.duel.win+'–'+st.duel.draw+'–'+st.duel.loss]].map(([k,v])=>html`<div key=${k}><span className="lbl block">${k}</span><b className="num text-[20px]">${v}</b></div>`)}</div>
+   <div className="grid grid-cols-3 gap-2 mt-2 text-center">${[['Bestwoche',st.best?fmt(st.best.score):'–'],['Formationen',st.formations],['Phalanx',st.phalanx.length]].map(([k,v])=>html`<div key=${k}><span className="lbl block">${k}</span><b className="num text-[17px]">${v}</b></div>`)}</div>
+   ${own.length>0&&html`<ul className="mt-4 space-y-1.5">${own.map(l=>html`<li key=${l.id} className="flex items-start gap-2 text-[12.5px]"><span className="mt-0.5" style=${{color:'var(--gold)'}}>${Ic(LICON[l.kind],16)}</span><span className="min-w-0"><b className="block">${l.title}${l.count?' ×'+l.count:''}${l.value?' · '+fmt(l.value):''}</b><span className="block mute text-[11.5px]">${l.detail}</span></span></li>`)}</ul>`}
+   <p className="text-[11px] mute mt-3 text-center">Alle Werte aus abgeschlossenen Wochen dieser Arena. Sie bleiben in deiner Ruhmeshalle.</p></${Tablet}>`}
+ /* Ruhmeshalle: alle Saisons der angemeldeten Person – Lorbeeren, Summen, Rivalen, Saisontafeln. */
+ function HallOfFame({api,name,onClose}){const [data,setData]=useState(null),[err,setErr]=useState(''),[uid,setUid]=useState(null);
+  useEffect(()=>{let on=true;api.hall().then(list=>{if(!on)return;const id=list[0]?.user_id||null;setUid(id);setData(A.hall(list,id))}).catch(e=>on&&setErr(e.message));return()=>{on=false}},[]);
+  const h=data,t=h?.totals,doctrine=h?.seasons[0]?.doctrine;
+  return html`<section aria-label="Ruhmeshalle" className="mt-3">
+   <div className="flex justify-between items-center"><h2 className="disp text-[26px]">Ruhmeshalle</h2><button type="button" className="chip" onClick=${onClose}>Schließen</button></div>
+   ${err&&html`<p role="alert" className="card p-3 mt-2 text-[13px]">${err}</p>`}
+   ${!h&&!err&&html`<p className="text-[12.5px] mute mt-2" role="status">Wird geladen …</p>`}
+   ${h&&!h.seasons.length&&html`<p className="card p-4 mt-2 text-[13px]">Noch keine begonnene Saison. Lorbeeren entstehen aus abgeschlossenen Arena-Wochen.</p>`}
+   ${h&&h.seasons.length>0&&html`
+    <${Tablet} label="Dein Schild"><div className="flex items-center gap-4"><${PersonalShield} name=${name} doctrine=${doctrine} titles=${t.titles}/>
+     <div className="flex-1 min-w-0"><b className="disp-serif text-[18px] block truncate">${name}</b><span className="text-[12px] mute block">${t.seasons} ${t.seasons===1?'Saison':'Saisons'} · ${t.titles} ${t.titles===1?'Titel':'Titel'} · ${t.weekWins} Wochensiege</span><span className="text-[12px] mute block">Duelle ${t.win}–${t.draw}–${t.loss}${h.streak>=2?' · '+h.streak+' starke Wochen in Folge':''}</span></div></div></${Tablet}>
+    ${h.laurels.length>0&&html`<${Tablet} label="Lorbeeren" gold=${true}><h3 className="lbl" style=${{color:'var(--gold)'}}>Lorbeeren</h3><ul className="mt-2 grid grid-cols-2 gap-2">${h.laurels.map(l=>html`<li key=${l.id} className="p-2.5 text-center" style=${{borderRadius:12,background:'var(--card)',boxShadow:'0 0 0 1px var(--line) inset'}}><span style=${{color:'var(--gold)'}}>${Ic(LICON[l.kind],22,1.6)}</span><b className="block text-[12.5px] mt-1">${l.title}${l.count?' ×'+l.count:''}</b>${l.value&&html`<b className="num block text-[15px]">${fmt(l.value)}</b>`}<span className="block text-[10.5px] mute leading-snug mt-0.5">${l.detail}</span></li>`)}</ul></${Tablet}>`}
+    ${h.rivals.length>0&&html`<${Tablet} label="Rivalen"><h3 className="lbl">Rivalen im Gegner-Pokal</h3><ul className="mt-2 space-y-1.5 text-[13px]">${h.rivals.slice(0,5).map(r=>html`<li key=${r.opp} className="flex justify-between gap-2"><span className="truncate">${r.name}</span><span className="num">${r.win}–${r.draw}–${r.loss}</span></li>`)}</ul><p className="text-[10.5px] mute mt-2">Siege–Unentschieden–Niederlagen über alle Saisons.</p></${Tablet}>`}
+    <h3 className="lbl mt-4">Saisontafeln</h3>
+    ${h.seasons.map(x=>html`<${Tablet} key=${x.league} label=${'Saison '+x.name} gold=${x.champion}><div className="flex items-baseline justify-between gap-2"><b className="disp text-[18px] truncate">${x.name}</b><span className="lbl shrink-0" style=${{color:x.champion?'var(--gold)':'var(--mute)'}}>${x.champion?'Saisonsieg':x.finished?'Platz '+x.rank:'läuft · '+x.closed+' von 4'}</span></div>
+     <p className="text-[11.5px] mute">ab ${date(x.start)} · ${x.members} Krieger</p>
+     <p className="text-[12.5px] mt-2">${x.weekWins.length} Wochensiege · Bestwoche ${x.best?fmt(x.best.score):'–'} · Duelle ${x.duel.win}–${x.duel.draw}–${x.duel.loss}${x.formations?' · '+x.formations+' Formationen':''}${x.phalanx.length?' · '+x.phalanx.length+' Phalanx-Wochen':''}</p></${Tablet}>`)}
+    <p className="text-[11px] mute mt-3">Nur abgeschlossene Wochen zählen. Alles wird aus den gespeicherten Arena-Meldungen und Wertungen berechnet. Lorbeeren bringen keine Punkte und keinen Vorteil in neuen Saisons.</p>`}
+  </section>`}
  function ArenaView({c}){
   const session=c.auth?.session,signed=session?.mode==='supabase',api=G.arenaApi;
   const [list,setList]=useState([]),[snapshot,setSnapshot]=useState(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[loaded,setLoaded]=useState(false),[notice,setNotice]=useState('');
   const [name,setName]=useState('Unser Eiserner Kreis'),[displayName,setDisplayName]=useState(session?.name?.slice(0,24)||'Krieger'),[capacity,setCapacity]=useState(3);
   const [online,setOnline]=useState(navigator.onLine!==false);
   const [view,setView]=useState('today'),[opened,setOpened]=useState(0);
-  const [live,setLive]=useState('off'),[news,setNews]=useState(null),[focus,setFocus]=useState(null),prevSnap=useRef(null);
+  const [live,setLive]=useState('off'),[news,setNews]=useState(null),[focus,setFocus]=useState(null),prevSnap=useRef(null),[hallOpen,setHallOpen]=useState(false);
   useEffect(()=>{const update=()=>setOnline(navigator.onLine!==false);addEventListener('online',update);addEventListener('offline',update);return()=>{removeEventListener('online',update);removeEventListener('offline',update)}},[]);
   const [code,setCode]=useState(()=>{try{return new URL(G.location.href).searchParams.get('arena')||''}catch(e){return''}}),[form,setForm]=useState(''),[confirm,setConfirm]=useState(false);
   const section=useRef(null);
@@ -357,6 +395,8 @@
     <div className="flex justify-between items-center mt-3"><h2 className="disp text-[23px]">Meine Arenen</h2><button className="chip" type="button" disabled=${busy} onClick=${()=>run(()=>api.list(),setList)}>Aktualisieren</button></div>
     ${list.map(l=>html`<button key=${l.id} type="button" className="card p-4 mt-2 w-full text-left" disabled=${busy} onClick=${()=>run(()=>api.load(l.id),open)}><b className="block">${l.name}</b><span className="text-[12px] mute">${l.members}/${l.capacity} Personen · ${l.start_date?'Saison ab '+date(l.start_date):'Wartet auf den Start'}</span></button>`)}
     ${loaded&&!list.length&&html`<p className="text-[13px] mute mt-2">Noch keine gemeinsame Arena.</p>`}
+    <button type="button" className="card w-full mt-3 p-3 flex items-center gap-3 text-left" onClick=${()=>setHallOpen(!hallOpen)} aria-expanded=${hallOpen}><span style=${{color:'var(--gold)'}}>${Ic('laurel',24,1.6)}</span><span className="flex-1"><b className="block text-[14px]">Ruhmeshalle</b><span className="block text-[11.5px] mute">Lorbeeren, Rivalen und alle deine Saisons</span></span>${Ic('chevR',16)}</button>
+    ${hallOpen&&html`<${HallOfFame} api=${api} name=${displayName} onClose=${()=>setHallOpen(false)}/>`}
     <div className="grid grid-cols-2 gap-2 mt-4"><button type="button" className="btn py-3 text-[13px]" disabled=${busy} onClick=${()=>setForm('create')}>Arena erstellen</button><button type="button" className="ghost py-3 text-[13px]" disabled=${busy} onClick=${()=>setForm('join')}>Mit Code beitreten</button></div>
     ${(form||code)&&html`<form className="card p-4 mt-3 space-y-3" onSubmit=${e=>{e.preventDefault();run(()=>form==='create'?api.create({name,displayName,capacity}):api.join({code,displayName}),open)}}><h2 className="disp text-[24px]">${form==='create'?'Deine Arena':'Einladung annehmen'}</h2><label className="block text-[12px]">Dein öffentlicher Arenaname<input className="arena-input w-full mt-1" required maxLength="24" value=${displayName} onChange=${e=>setDisplayName(e.target.value)}/></label>
      ${form==='create'?html`<label className="block text-[12px]">Name der Arena<input className="arena-input w-full mt-1" required maxLength="40" value=${name} onChange=${e=>setName(e.target.value)}/></label><label className="block text-[12px]">Personen<select className="arena-input w-full mt-1" value=${capacity} onChange=${e=>setCapacity(Number(e.target.value))}>${[2,3,4,5,6,7,8].map(n=>html`<option key=${n} value=${n}>${n} Personen</option>`)}</select></label>`:html`<label className="block text-[12px]">Einladungscode<input className="arena-input w-full mt-1" required maxLength="16" pattern="[A-Fa-f0-9]{16}" autoCapitalize="characters" value=${code} onChange=${e=>setCode(e.target.value)}/></label>`}
@@ -383,6 +423,7 @@
      ${v3&&html`<${Tactics} key=${snapshot.league.id+'-t'+week} snapshot=${snapshot} week=${week} me=${me} busy=${busy} onSwitch=${(k,sl,plan)=>change(()=>api.switchFormation(snapshot.league.id,k,sl,plan))}/><${FormationPrep} key=${snapshot.league.id+'-p'+week} snapshot=${snapshot} busy=${busy} onSave=${saveFormation}/>`}
     `}
     ${tab==='table'&&html`
+     <${SeasonFinale} snapshot=${snapshot}/>
      ${v3&&p.kind==='running'&&html`<${LiveTable} snapshot=${snapshot} week=${week} live=${live}/><${Forecast} snapshot=${snapshot}/>`}
      <div className="card p-4 mt-3"><div className="flex items-baseline justify-between gap-2"><h2 className="disp text-[24px]">${p.kind==='finished'?'Letzte Spielwoche':'Kampfplatz'}</h2><span className="lbl">Woche ${week}${p.kind==='running'?' · vorläufig':''}</span></div><${Podium} rows=${rows} me=${snapshot.user_id}/>${rows.length>3&&html`<ol className="mt-3 space-y-1.5">${rows.slice(3).map(r=>html`<li key=${r.user_id} className="flex gap-2 items-center text-[13px]"><span className="num w-5 mute">${r.rank}.</span><b className="flex-1 min-w-0 truncate">${r.display_name}${r.user_id===snapshot.user_id?' · du':''}</b><span className="num">${fmt(r.score)}</span></li>`)}</ol>`}</div>
      <${WeekGrid} snapshot=${snapshot} week=${week}/>

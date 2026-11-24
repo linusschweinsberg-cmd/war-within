@@ -25,7 +25,7 @@
   async function result(promise){const r=await promise;if(r.error)throw new Error(r.error.message);return r.data;}
   window.authApi={
     demo:false,
-    async arenaRpc(name,args){if(!['arena_list','arena_snapshot','arena_command','arena_events'].includes(name))throw Error('Unbekannte Arena-Anfrage.');return result(getClient().rpc(name,args));},
+    async arenaRpc(name,args){if(!['arena_list','arena_snapshot','arena_command','arena_events','arena_hall'].includes(name))throw Error('Unbekannte Arena-Anfrage.');return result(getClient().rpc(name,args));},
     /* Live-Arena: Supabase Realtime auf neue bestätigte Punkte und Meldungen einer Arena (RLS: nur Mitglieder).
        Liefert nur ein Signal „neu laden“; Daten kommen weiter über arena_snapshot. Ohne Realtime: Status 'off'. */
     arenaWatch(league,onChange,onStatus=()=>{}){

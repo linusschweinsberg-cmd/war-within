@@ -151,10 +151,46 @@
   if(mb.rank<ma.rank)return{kind:'rank',text:'Aufstieg auf Platz '+mb.rank};
   if(mb.score>ma.score)return{kind:'points',text:'Bestätigt',points:mb.score-ma.score};
   return null;}
+ /* ── Arena 3.0 · Phase 4: Saisonstatistik, Ruhmeshalle, Auszeichnungen. Nur abgeschlossene Wochen zählen;
+    alles wird aus den gespeicherten Meldungen und Wertungen abgeleitet (keine zweite Statistik, nichts Erfundenes). ── */
+ const PHALANX_BASE=600,STEADY_BASE=600;
+ function seasonStats(s,uid){const p=phase(s);if(p.kind==='lobby'||p.kind==='scheduled'||!s.members.some(m=>m.user_id===uid))return null;
+  const weeks=Array.from({length:p.closed},(_,i)=>i+1),table=weeks.map(w=>({w,rows:weekly(s,w)})),mine=table.map(x=>({w:x.w,r:x.rows.find(r=>r.user_id===uid),rows:x.rows}));
+  const sea=season(s).find(r=>r.user_id===uid),rec=duelRecord(s,uid),name=id=>s.members.find(m=>m.user_id===id)?.display_name||'Mitglied';
+  let best=null;for(const x of mine)if(x.r&&x.r.score>0&&(!best||x.r.score>best.score))best={week:x.w,score:x.r.score};
+  const count=k=>mine.filter(x=>(x.r?.[k]||0)>0).length;
+  return{league:s.league.id,name:s.league.name,start:s.league.start_date,finished:p.kind==='finished',closed:p.closed,members:s.members.length,
+   rank:sea?.rank??null,points:sea?.points??0,champion:p.kind==='finished'&&sea?.rank===1&&sea.points>0,
+   weekWins:mine.filter(x=>x.r&&x.r.rank===1&&x.r.score>0).map(x=>x.w),best,
+   formations:count('formation'),momentum:count('momentum'),combos:count('combo'),
+   comebacks:weeks.filter(w=>awards(s,w).comebacks.some(m=>m.user_id===uid)).length,
+   phalanx:table.filter(x=>x.rows.length>1&&x.rows.every(r=>(r.base||0)>=PHALANX_BASE)).map(x=>x.w),
+   duel:{win:rec.win,loss:rec.loss,draw:rec.draw},duels:rec.weeks.filter(d=>d.closed&&!d.bye).map(d=>({week:d.week,opp:d.opp,name:name(d.opp),result:d.result})),
+   weekBases:mine.map(x=>({start:addDays(s.league.start_date,(x.w-1)*7),base:x.r?.base||0})),doctrine:(s.doctrines||{})[uid]||null};}
+ /* Ruhmeshalle über alle Saisons: Summen, längste Folge starker Wochen, Rivalen und Lorbeeren mit Herkunft. */
+ function hall(snaps,uid){const seasons=(snaps||[]).map(s=>seasonStats(s,uid)).filter(Boolean).sort((a,b)=>b.start.localeCompare(a.start));
+  const sum=k=>seasons.reduce((n,x)=>n+(Array.isArray(x[k])?x[k].length:x[k]),0);
+  const byWeek=new Map();for(const x of seasons)for(const w of x.weekBases)byWeek.set(w.start,Math.max(byWeek.get(w.start)||0,w.base));
+  let streak=0,run=0,prev=null;for(const d of [...byWeek.keys()].sort()){const ok=byWeek.get(d)>=STEADY_BASE;run=ok?(prev&&ok&&date(d)-date(prev)===7*DAY&&run>0?run+1:1):0;if(ok)prev=d;else prev=null;streak=Math.max(streak,run)}
+  let best=null;for(const x of seasons)if(x.best&&(!best||x.best.score>best.score))best={...x.best,name:x.name};
+  const riv=new Map();for(const x of seasons)for(const d of x.duels){const r=riv.get(d.opp)||{opp:d.opp,name:d.name,win:0,loss:0,draw:0,n:0};r.name=d.name;r[d.result]++;r.n++;riv.set(d.opp,r)}
+  const rivals=[...riv.values()].sort((a,b)=>b.n-a.n||b.win-a.win||a.name.localeCompare(b.name,'de'));
+  const totals={seasons:seasons.length,finished:seasons.filter(x=>x.finished).length,titles:seasons.filter(x=>x.champion).length,weekWins:sum('weekWins'),formations:sum('formations'),momentum:sum('momentum'),combos:sum('combos'),comebacks:sum('comebacks'),phalanx:sum('phalanx'),
+   win:seasons.reduce((n,x)=>n+x.duel.win,0),loss:seasons.reduce((n,x)=>n+x.duel.loss,0),draw:seasons.reduce((n,x)=>n+x.duel.draw,0)};
+  const laurels=[];
+  for(const x of seasons.filter(x=>x.champion))laurels.push({id:'title-'+x.league,kind:'title',title:'Saisonsieg',detail:x.name+' · '+new Date(date(x.start)).toLocaleDateString('de-DE',{month:'long',year:'numeric',timeZone:'UTC'})});
+  if(best)laurels.push({id:'best',kind:'best',title:'Bestwoche',value:best.score,detail:best.name+' · Woche '+best.week});
+  if(totals.weekWins)laurels.push({id:'weeks',kind:'weeks',title:'Wochensiege',count:totals.weekWins,detail:'Platz 1 in einer abgeschlossenen Woche'});
+  if(streak>=2)laurels.push({id:'steady',kind:'steady',title:'Beständigkeit',count:streak,detail:'Wochen in Folge mit mindestens 60 Basispunkten'});
+  if(totals.formations)laurels.push({id:'form',kind:'formation',title:'Formationen gemeistert',count:totals.formations,detail:'Bedingung der gesperrten Formation erfüllt'});
+  if(totals.win)laurels.push({id:'duel',kind:'duel',title:'Duellsiege',count:totals.win,detail:'Gegner-Pokal, mehr Wochenpunkte als der Gegner'});
+  if(totals.comebacks)laurels.push({id:'comeback',kind:'comeback',title:'Comebacks',count:totals.comebacks,detail:'Nach Pause wieder drei Tage in Folge aktiv'});
+  if(totals.phalanx)laurels.push({id:'phalanx',kind:'phalanx',title:'Phalanx-Wochen',count:totals.phalanx,detail:'Alle Mitglieder mit mindestens 60 Basispunkten'});
+  return{seasons,totals,streak,best,rivals,laurels};}
  function invitation(code,base){const url=new URL(base);url.search='';url.hash='';url.searchParams.set('arena',String(code));return url.href;}
  /* Automatische Übernahme: welche App-Aufgabe zählt für welchen Arena-Bereich. Finanzen haben bewusst keinen Platz. */
  const ACT_SLOT={body:'body',run:'body',lang:'growth',read:'growth',deep:'growth',code:'growth',rel:'bonds'};
  function contribution(S,m,extra={}){if(extra.auto)return null;const slot=ACT_SLOT[m.act],action=(S.life?.actions||[]).find(a=>a.missionId===m.id&&!a.off),minutes=extra.arenaMinutes??action?.minutes;
   return slot&&Number.isFinite(minutes)&&minutes>=({body:20,growth:20,bonds:10,mind:10}[slot])?slot:null;}
- G.ArenaCore={forecast,scenario,pairings,duelOf,duelRecord,scout,catchUp,liveNews,FORMATIONS,BONUS_CAP,FORMATION_PTS,COMBO_PTS,MOMENTUM_PTS,MOMENTUM_RUN,scoreV3,formationOf,switchNeed,SLOTS,DEFAULT_TARGETS,ORACLE_FACTOR,BOUNTY,ACT_SLOT,contribution,phase,validTargets,targetsOf,oracle,bounty,weekly,gains,activity,finale,awards,season,invitation,addDays};
+ G.ArenaCore={seasonStats,hall,forecast,scenario,pairings,duelOf,duelRecord,scout,catchUp,liveNews,FORMATIONS,BONUS_CAP,FORMATION_PTS,COMBO_PTS,MOMENTUM_PTS,MOMENTUM_RUN,scoreV3,formationOf,switchNeed,SLOTS,DEFAULT_TARGETS,ORACLE_FACTOR,BOUNTY,ACT_SLOT,contribution,phase,validTargets,targetsOf,oracle,bounty,weekly,gains,activity,finale,awards,season,invitation,addDays};
 })(typeof window==='undefined'?globalThis:window);

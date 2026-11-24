@@ -7,7 +7,7 @@
   const days=p=>Object.fromEntries(G.ArenaCore.SLOTS.map(s=>[s.id,(Array.isArray(p&&p[s.id])?p[s.id]:[]).map(Number).filter(d=>Number.isInteger(d)&&d>=1&&d<=7)]));
   const command=(action,id,data)=>call('arena_command',{p_action:action,p_league:id||null,p_data:data||{}});
   return{
-   list:()=>call('arena_list',{}),load:id=>call('arena_snapshot',{p_league:id}),
+   list:()=>call('arena_list',{}),load:id=>call('arena_snapshot',{p_league:id}),hall:()=>call('arena_hall',{}),
    create:({name,displayName,capacity,targets})=>{const t=targets||G.ArenaCore.DEFAULT_TARGETS;if(!G.ArenaCore.validTargets(t))return Promise.reject(Error('Wähle für jeden Bereich ein bis sieben Tage.'));return command('create',null,{name:String(name).trim().slice(0,40),display_name:String(displayName).trim().slice(0,24),capacity:Number(capacity),targets:pick(t)});},
    join:({code,displayName})=>command('join',null,{code:String(code).trim().toUpperCase(),display_name:String(displayName).trim().slice(0,24)}),
    start:id=>command('start',id),

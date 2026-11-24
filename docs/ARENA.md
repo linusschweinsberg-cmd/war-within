@@ -171,7 +171,7 @@ Reiter **Heute** zeigt nach „Heute melden“ die Karte **Taktik der Woche**: B
 
 - Keine Prüfung gegen das echte Supabase-Projekt. Echte Nebenläufigkeit (zwei Verbindungen) wurde nicht getestet, PGlite hat nur eine Verbindung. Die Absicherung beruht auf `select … for update` der Liga.
 - Sommerzeit: Tag und Woche kommen aus `now() at time zone 'Europe/Berlin'` als Kalenderdatum. Ein eigener Test über den Zeitumstellungstag fehlt.
-- Phase 4 noch nicht umgesetzt: Ruhmeshalle und saisonübergreifende Statistik (Phase 3 siehe unten).
+- Phase 3 und 4 siehe unten.
 - Veröffentlichung: Migration `202611230002` nach Review im Supabase-SQL-Editor bzw. per `supabase db push` nach `202611230001` anwenden. Danach drei echte Konten prüfen, dann GitHub Pages über den Merge nach `main`.
 
 ## Arena 3.0 · Phase 3: Live-Wettbewerb (ww-v73)
@@ -188,3 +188,19 @@ Alle Funktionen dieser Phase lesen nur die öffentlichen Arena-Daten, die schon 
 Geprüft: `tests/arena-live.cjs` – Rundenturnier für 2–8 Personen (vollständige Paarung, Freilos nur bei ungerader Zahl, Rotation, keine Wiederholung), Duelle ohne Einfluss auf die Tabelle, Gleichstand, Prognose (lesend, Maximum ≤ 115, Rang in der Spanne, erfülltes Soll ohne Potenzial, nur Regel 3), Szenario nutzt Plantage, Scouting-Felder, Live-Hinweise, Realtime-Abo (Filter, Status, Aufräumen, ungültige ID, Rückfall) und die Publikation im echten SQL. Im Browser (Prüfserver, 375 × 812): Live-Tabelle, Prognose, Pokal, Scouting, Hinweis nach Meldung („Du hast die Führung übernommen“, „Bestätigt · +8,4“). Keine Konsolenfehler.
 
 Nicht geprüft: Supabase Realtime gegen das echte Projekt (Publikation, RLS-Filter, Token-Wechsel). Der Prüfserver schaltet Realtime ab, damit er das echte Projekt nie kontaktiert. Saisonübergreifende Duellbilanz und Ruhmeshalle folgen in Phase 4, weil sie Daten über mehrere Arenen brauchen.
+
+## Arena 3.0 · Phase 4: Ruhmeshalle und Saisonfinale (ww-v74)
+
+Stufe Handeln, langfristig: Die Ruhmeshalle würdigt nachhaltige Beständigkeit, nicht pausenlose Aktivität. Lorbeeren bringen weder Punkte noch Vorteile in neuen Saisons.
+
+- **Daten:** `public.arena_hall()` liefert die Snapshots aller begonnenen Arenen der angemeldeten Person (höchstens 20, neueste zuerst; ohne Lobby). Die Funktion prüft die Anmeldung, jeder Snapshot zusätzlich die Mitgliedschaft. Es gibt keine eigene Statistiktabelle: Alles wird in `ArenaCore.seasonStats` und `ArenaCore.hall` aus den gespeicherten Meldungen und Wertungen abgeleitet. Deshalb bleibt es nachvollziehbar und kann nicht von der Wertung abweichen. Die Historie besteht, solange die Arenen bestehen.
+- **Nur abgeschlossene Wochen** zählen. Die laufende Woche ist nie Teil der Historie.
+- **Saisonstatistik je Arena:** Saisonplatz und Tabellenpunkte, Saisonsieg (auch geteilt), Wochensiege, Bestwoche, gemeisterte Formationen, Kampfgeist, Vier Säulen, Comebacks, Phalanx-Wochen, Duellbilanz mit Gegnern.
+- **Saisonübergreifend:** Summen, Bestwoche aller Saisons, Rivalen (Duellbilanz je Person über alle Saisons) und die **Beständigkeitsfolge**: Kalenderwochen in Folge mit mindestens 60 Basispunkten. Ruhetage innerhalb der Woche zählen nicht dagegen. Fehlt eine Woche oder liegt sie darunter, beginnt die Folge neu. Überschneiden sich Arenen, zählt die beste Woche einmal.
+- **Lorbeeren** (jeweils mit Herkunft): Saisonsieg, Bestwoche, Wochensiege, Beständigkeit (ab 2 Wochen), Formationen gemeistert, Duellsiege, Comebacks, Phalanx-Wochen (gemeinsamer Erfolg: alle Mitglieder mit mindestens 60 Basispunkten).
+- **Oberfläche:** In „Meine Arenen“ öffnet sich die **Ruhmeshalle**: persönlicher Schild (Initiale, Zeichen der zuletzt gewählten Doktrin, Lorbeer bei Titel), Lorbeeren-Tafel, Rivalen und Saisontafeln als Steintafeln. Nach Woche 4 zeigt der Reiter Tabelle oben das **Saisonfinale** mit Sieg, eigener Bilanz und den Lorbeeren dieser Saison.
+- Testdaten: Der Prüfserver legt zusätzlich die abgeschlossene Saison „Erste Schlacht“ an. Sie beginnt sechs Wochen vor heute und endet mit einem geteilten Sieg.
+
+Geprüft: `tests/arena-hall.cjs` (echtes SQL): nur eigene begonnene Arenen, fremdes Konto leer, Gast abgewiesen, keine privaten Felder. Saisonsieg, Wochensiege, Bestwoche, Formationen und Phalanx stimmen mit der Wertung überein, die laufende Woche ist ausgeschlossen, Rivalen ergeben die Duellbilanz, die Beständigkeitsfolge folgt einer festen Regel (auch synthetisch geprüft), alles rein lesend. Im Browser (375 × 812): Ruhmeshalle und Saisonfinale ohne Konsolenfehler.
+
+Nicht geprüft: echtes Supabase-Projekt. Löscht jemand sein Konto, verschwinden dessen Arenen (Gründer) bzw. Mitgliedschaften und damit auch die daraus abgeleitete Historie. Eine dauerhafte Archivierung wäre eine eigene, gesondert zu entscheidende Tabelle.
