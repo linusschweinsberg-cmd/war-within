@@ -1508,8 +1508,8 @@ function battleItem(S,key){if(!key)return null;const L=S.life||{},d=L.d||0;
  if(key==='commit'){const cm=L.onboard&&L.onboard.commit;if(!cm||cm.mid||!(cm.text||'').trim()||(cm.done&&cm.doneD!==d))return null;return{key,kind:'commit',title:cm.text,area:cm.area,done:!!cm.done}}
  return null}
 function battleEarlier(S){const L=S.life||{},d=L.d||0,ev=LC.eveningFor(L,d),ob=L.onboard&&L.onboard.for===d&&L.onboard.mid?L.onboard:null,out=[];
- if(ev&&ev.mid)out.push({key:'m:'+ev.mid,source:'Gestern Abend festgelegt',plan:ev.plan,when:ev.when});else if(ob)out.push({key:'m:'+ob.mid,source:'Beim Start festgelegt',plan:ob.plan,when:ob.when});
- if(ev&&ev.std)out.push({key:'std:'+ev.std,source:'Gestern Abend festgelegt',plan:ev.plan,when:ev.when});
+ if(ev&&ev.mid)out.push({key:'m:'+ev.mid,source:'Gestern Abend festgelegt',plan:ev.plan,when:ev.when,risk:ev.risk});else if(ob)out.push({key:'m:'+ob.mid,source:'Beim Start festgelegt',plan:ob.plan,when:ob.when,risk:ob.risk});
+ if(ev&&ev.std)out.push({key:'std:'+ev.std,source:'Gestern Abend festgelegt',plan:ev.plan,when:ev.when,risk:ev.risk});
  out.push({key:'commit',source:'Dein erster Schritt'});
  if(S.nextPrio&&S.nextPrio.k===dayKey(S))out.push({key:'m:'+S.nextPrio.mid,source:'Von dir festgelegt'});
  return out}
@@ -1517,6 +1517,10 @@ function todayBattle(S,D,items=todayPriorities(S,D)){if(D.restToday)return null;
  if(S.battle&&S.battle.k===dayKey(S)){const b=battleItem(S,S.battle.key);return b?{...b,source:'Von dir gewählt'}:null}
  for(const e of battleEarlier(S)){const b=battleItem(S,e.key);if(b&&(b.done||items.some(x=>x.key===e.key)))return{...b,...e}}
  return null}
+/* Morgen-Briefing: ein Hindernis. Abends genannt, sonst das häufigste aus den Debriefs der letzten 7 Tage (Erholungstage zählen nicht). */
+function battleObstacle(S,b){const L=S.life||{};if(b&&b.risk&&b.risk!=='none'){const r=LC.EVE_RISK.find(x=>x[0]===b.risk);return r?{label:r[1],src:'evening'}:null}
+ const n={};(L.daily||[]).filter(e=>e.d>=(L.d||0)-7&&!e.recover).forEach(e=>(e.obst||[]).forEach(o=>{n[o]=(n[o]||0)+1}));const top=Object.entries(n).sort((x,y)=>y[1]-x[1])[0];
+ const r=top&&LC.DEBRIEF_OBST.find(x=>x[0]===top[0]);return r?{label:r[1],src:'recent',n:top[1]}:null}
 const chooseBattle=(c,key)=>c.upd(n=>{n.battle={k:dayKey(n),key:key||null}});
 /* Compound-Effekt aus echten Daten. Handlungen insgesamt bleiben bei Pausen erhalten. Momentum: Tage mit Handlung in den
    letzten 7 Saisontagen; Ruhetage zählen nicht dagegen, heute erst mit einer Handlung. Potenzial: Saisonstand + Tempo × Resttage,
@@ -1593,7 +1597,7 @@ function TodayHero({c,ini,rings,sel,onSel}){const {S}=c,rest=c.D.restToday,plann
  </section>`}
 /* Hauptschlacht-Karte einfarbig in gedämpftem Rost (Handeln). Gewonnen: Bronze-Kontur, Schild, „Schlacht gewonnen“.
    Sieg-Rückmeldung nur beim Wechsel offen → gewonnen, 700 ms, ohne Overlay, blockiert nichts; reduzierte Bewegung ohne Animation. */
-function BattleCard({c,b,ring}){const area=priorityArea(b),logs=b.kind==='mission'&&wantsLog(c.S,b.m),t=cleanTitle(b.title),closes=ring&&ring.total-ring.done===1;
+function BattleCard({c,b,ring}){const morning=nowMinOf(c)<720,ob=battleObstacle(c.S,b),obLine=ob&&html`<div className="text-[12.5px] mt-2 leading-snug" data-battle-obstacle><span className="mute">${b.done?'Hindernis überwunden: ':'Hindernis: '}</span><b>${ob.label}</b>${ob.src==='recent'&&!b.done?html`<span className="mute"> · zuletzt ${ob.n}× genannt</span>`:''}</div>`,area=priorityArea(b),logs=b.kind==='mission'&&wantsLog(c.S,b.m),t=cleanTitle(b.title),closes=ring&&ring.total-ring.done===1;
  const rust=p=>`color-mix(in srgb,var(--acc) ${p}%,var(--card))`,was=useRef(b.done),[fx,setFx]=useState(false);
  useEffect(()=>{const prev=was.current;was.current=b.done;if(!b.done){setFx(false);return}if(prev)return;setFx(true);const id=setTimeout(()=>setFx(false),800);return()=>clearTimeout(id)},[b.done]);
  /* Gewonnen: gleicher Aufbau und gleiche Höhe wie offen, damit ein zweiter Tipp nichts Nachgerücktes trifft. */
@@ -1602,13 +1606,15 @@ function BattleCard({c,b,ring}){const area=priorityArea(b),logs=b.kind==='missio
  <div className="flex items-center gap-3"><span aria-hidden="true" className="battle-shield shrink-0 flex items-center justify-center" style=${{width:44,height:44,borderRadius:22,background:tint('var(--bronze)',16),color:'var(--bronze)',boxShadow:'0 0 0 1.5px var(--bronze) inset'}}><${Icon} n="aspis" s=${24}/></span>
  <div className="text-[21px] font-bold leading-snug break-words min-w-0">${t}</div></div>
  ${b.plan&&html`<div className="text-[12.5px] mute mt-2 leading-snug">${b.plan}</div>`}
+ ${obLine}
  <div role="status" className="select-none mt-4 flex items-center justify-center gap-2 text-[15px] font-bold" style=${{minHeight:52,borderRadius:12,background:tint('var(--bronze)',14),color:'var(--bronze)'}}><${Icon} n=${b.min?'check':'laurel'} s=${18}/>${b.min?'Minimum gehalten':'Schlacht gewonnen'}</div></section>`;
  return html`<section className="relative overflow-hidden mt-4 p-4" data-today-battle="open" data-today-priority="primary" aria-label="Hauptschlacht" style=${{borderRadius:16,background:rust(18),color:'var(--ink)',boxShadow:'0 0 0 1px '+rust(40)+' inset'}}>
- <div className="flex items-start justify-between gap-2"><div className="lbl pt-1 min-w-0" style=${{color:'var(--acc2)'}}>Hauptschlacht<span className="mute font-normal normal-case tracking-normal">${' · '+b.source}${b.when?' · '+b.when:''}</span></div>
+ <div className="flex items-start justify-between gap-2"><div className="lbl pt-1 min-w-0" style=${{color:'var(--acc2)'}}>${morning?'Morgen-Briefing · ':''}Hauptschlacht<span className="mute font-normal normal-case tracking-normal">${' · '+b.source}${b.when?' · '+b.when:''}</span></div>
  <div className="flex shrink-0 -mt-2 -mr-2"><button type="button" onClick=${()=>chooseBattle(c,null)} className="border-0 bg-transparent text-[12.5px] px-2" style=${{minHeight:44,color:'var(--mute)'}}>Ändern</button><button type="button" onClick=${()=>priorityDetail(c,b)} aria-label=${'Details: '+t} className="flex items-center justify-center border-0 bg-transparent" style=${{width:44,height:44,color:'var(--mute)'}}><${Icon} n="info" s=${18}/></button></div></div>
  <div className="flex items-center gap-3">${area&&html`<span aria-hidden="true" className="shrink-0 flex items-center justify-center" style=${{width:44,height:44,borderRadius:14,background:rust(32),color:'var(--acc2)'}}><${Icon} n=${area.icon} s=${22}/></span>`}
  <div className="text-[21px] font-bold leading-snug break-words min-w-0">${t}</div></div>
  ${b.plan&&html`<div className="text-[12.5px] mute mt-2 leading-snug">${b.plan}</div>`}
+ ${obLine}
  <div className="flex items-center gap-2 mt-4">
  <button type="button" onClick=${e=>completePriority(c,b,e)} aria-label=${'Erledigen: '+t} className="flex-1 inline-flex items-center justify-center gap-2 border-0 text-[15px] font-bold" style=${{minHeight:52,borderRadius:12,background:rust(72),color:'var(--on-acc)'}}><${Icon} n=${logs?'check':'aspis'} s=${18} sw=${2.2}/>${logs?'Erfassen':closes?'Schild schließen':'Erledigt'}</button>
  ${b.kind==='standard'&&b.std.min&&html`<button type="button" onClick=${e=>completePriority(c,b,e,'min')} title=${b.std.min.text} className="border-0 px-4 text-[14px] font-semibold" style=${{minHeight:52,borderRadius:12,background:rust(32),color:'var(--ink)'}}>Minimum</button>`}
@@ -1658,7 +1664,7 @@ function Home({c}){const {S}=c;const [more,setMore]=useState(false),[pick,setPic
  const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fm=focusMode(S),items=todayPriorities(S,c.D,5),rings=areaDay(S,c.D),battle=todayBattle(S,c.D,items);
  /* Ring antippen holt die nächste Handlung dieses Bereichs nach vorn: in die Nebenmissionen bzw. an den Anfang der Auswahl. Die Hauptschlacht bleibt. */
  const chosen=rings.find(r=>r.area.id===pick),pickItem=chosen&&areaItem(S,items,chosen),uniq=a=>a.filter((x,i)=>x&&a.findIndex(y=>y&&y.key===x.key)===i);
- const side=battle?uniq([pickItem,...items]).filter(x=>x.key!==battle.key).slice(0,3):[],choices=uniq([pickItem,...items]).slice(0,3);
+ const side=battle?uniq([pickItem,...items]).filter(x=>x.key!==battle.key).slice(0,nowMinOf(c)<720?2:3):[],choices=uniq([pickItem,...items]).slice(0,3);
  const ba=battle&&priorityArea(battle),ring=ba&&rings.find(r=>r.area.id===ba.id),sel=pickItem?pick:ba&&ba.id;
  const main=c.D.restToday?html`<section className="card p-5 mt-4 flex items-center gap-4"><${AreaBadge} area=${LC.AREA.health} size=${48}/><div><div className="text-[17px] font-bold">Ruhetag</div><div className="text-[13px] mute">Erholung gehört zum Plan.</div></div></section>`
   :battle?html`<${BattleCard} key=${battle.key} c=${c} b=${battle} ring=${ring}/>`
@@ -2848,7 +2854,7 @@ function EveningStep({c,cands,pre}){const {S}=c;const L=S.life;const [mid,setMid
  const [when,setWhen]=useState(()=>LC.EVE_WHEN.some(e=>e[0]===x.a.when)?x.a.when:'morgens'),[risk,setRisk]=useState(null);const st=useMemo(()=>LC.eveningStats(L),[]);
  return html`<${Sheet} sub="Abendritual · 2/2" title="Morgen vorbereiten" onClose=${c.closeSheet}>
  <div className="text-[13px] mute -mt-1 leading-snug">Heute Abend entscheiden, morgen nur noch anfangen.</div>
- <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Was ist morgen das Wichtigste?</div>
+ <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Deine Hauptschlacht für morgen</div>
  <div className="flex flex-col gap-1.5" role="radiogroup">${cands.map(y=>{const on=y.m.id===x.m.id;return html`<button key=${y.m.id} role="radio" aria-checked=${on} onClick=${()=>setMid(y.m.id)} className="card2 p-3 text-left flex items-center gap-2.5 border-0 w-full" style=${on?{boxShadow:'0 0 0 1.5px var(--acc2) inset'}:undefined}><span className=${'chk shrink-0'+(on?' on':'')} style=${{width:20,height:20,borderRadius:10}}>${on&&html`<${Icon} n="check" s=${12} sw=${3}/>`}</span><span className="flex-1 min-w-0"><span className="block text-[13.5px] font-medium truncate">${y.a.title}</span><span className="block text-[11.5px] mute truncate">${y.g.title}</span></span></button>`})}</div>
  <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Wann?</div>${dChips(LC.EVE_WHEN,when,setWhen)}
  <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Was könnte dazwischenkommen?</div>${dChips(LC.EVE_RISK,risk,setRisk)}
@@ -2861,16 +2867,21 @@ function Debrief({c}){const {S,D}=c;const L=S.life;const plan=useMemo(()=>debrie
  const prev=(L.daily||[]).find(e=>e.d===L.d)||{};const [mood,setMood]=useState(prev.mood||null),[ob,setOb]=useState((prev.obst||[])[0]||null),[ch,setCh]=useState(prev.change||(skipped.length?null:'keep'));
  const areas=[...new Set(done.map(m=>{const x=goalMs(S).find(y=>y.m.id===m.id);return x&&x.g.area}).filter(Boolean))];const st=LC.templeState(S);
  const chips=(opts,val,set)=>html`<div className="flex flex-wrap gap-1.5">${opts.map(([k,l])=>html`<button key=${k} aria-pressed=${val===k} onClick=${()=>set(val===k?null:k)} className=${`chip ${val===k?'on':''}`} style=${{minHeight:38,padding:'8px 14px',fontSize:13}}>${l}</button>`)}</div>`;
- const next=ch==='earlier'&&skipped[0]?skipped[0].id:null;
- const save=()=>{c.saveDebrief({mood,obst:ob?[ob]:[],change:ch,done:done.map(m=>m.id),skipped:skipped.map(m=>m.id),next},{stay:cands.length>0});if(cands.length)setEve({pre:next})};
+ /* Ruhe oder Krankheit: kein Hindernis, nichts gilt als ausgelassen; der Tag wird als bewusste Pause vermerkt. */
+ const [rec,setRec]=useState(prev.recover||(D.restToday?'rest':null)),bt=todayBattle(S,D);
+ const next=!rec&&ch==='earlier'&&skipped[0]?skipped[0].id:null;
+ const save=()=>{c.saveDebrief({mood,obst:!rec&&ob?[ob]:[],change:rec?null:ch,done:done.map(m=>m.id),skipped:rec?[]:skipped.map(m=>m.id),next,recover:rec},{stay:cands.length>0});if(cands.length)setEve({pre:next})};
  if(eve)return html`<${EveningStep} c=${c} cands=${cands} pre=${eve.pre}/>`;
  return html`<${Sheet} sub=${'Daily Debrief · '+DAYS_L[D.di]+(cands.length?' · 1/2':'')} title="Dein Tag" onClose=${c.closeSheet}>
- <div className="card2 p-3.5 -mt-1"><div className="flex items-baseline justify-between"><span className="lbl">Automatisch ausgewertet</span><span className="num text-[14px] font-bold">${done.length} von ${plan.length}</span></div>
-  <div className="mt-2 flex flex-col gap-1.5">${plan.map(m=>{const ok=!!S.done[m.id];return html`<div key=${m.id} className="flex items-center gap-2.5 text-[13.5px]"><span className=${'chk'+(ok?' on':'')} style=${{width:20,height:20,borderRadius:6}}>${ok&&html`<${Icon} n="check" s=${12} sw=${3}/>`}</span><span className=${'flex-1 truncate '+(ok?'':'mute')}>${m.title}</span>${!ok&&html`<span className="text-[11.5px] mute">ausgelassen</span>`}</div>`})}${!plan.length&&html`<div className="text-[13px] mute">Heute war nichts geplant.</div>`}</div></div>
+ ${bt&&html`<div className="card2 p-3.5 -mt-1 mb-3 flex items-center gap-3" data-debrief-battle><span className="shrink-0" style=${{color:bt.done?'var(--bronze)':'var(--mute)'}}><${Icon} n="aspis" s=${22}/></span><span className="flex-1 min-w-0"><span className="block lbl">Hauptschlacht</span><span className="block text-[14px] font-semibold truncate">${cleanTitle(bt.title)}</span></span><span className="text-[12.5px] font-semibold shrink-0" style=${{color:bt.done?'var(--bronze)':'var(--mute)'}}>${bt.done?(bt.min?'Minimum gehalten':'Gewonnen'):'Offen'}</span></div>`}
+ <div className="card2 p-3.5 -mt-1"><div className="flex items-baseline justify-between"><span className="lbl">Was du erreicht hast</span><span className="num text-[14px] font-bold">${done.length} von ${plan.length}</span></div>
+  <div className="mt-2 flex flex-col gap-1.5">${plan.map(m=>{const ok=!!S.done[m.id];return html`<div key=${m.id} className="flex items-center gap-2.5 text-[13.5px]"><span className=${'chk'+(ok?' on':'')} style=${{width:20,height:20,borderRadius:6}}>${ok&&html`<${Icon} n="check" s=${12} sw=${3}/>`}</span><span className=${'flex-1 truncate '+(ok?'':'mute')}>${m.title}</span>${!ok&&html`<span className="text-[11.5px] mute">${rec?'pausiert':'offen'}</span>`}</div>`})}${!plan.length&&html`<div className="text-[13px] mute">Heute war nichts geplant.</div>`}</div></div>
  ${areas.length>0&&html`<div className="flex items-center gap-3 mt-3"><span style=${{width:70}} className="shrink-0"><${TempleSVG} st=${st} sel=${areas[0]} mini=${true} anim=${false}/></span><div className="text-[13px] leading-snug">Heute gebaut an: <b>${areas.map(a=>LC.AREA[a].de).join(', ')}</b>. Jede umgesetzte Ziel-Handlung zählt für die konstante Woche deiner Säule.</div></div>`}
  <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Wie lief dein Tag?</div>${chips(LC.MOODS,mood,setMood)}
- ${skipped.length?html`<div className="text-[13.5px] font-semibold mt-4 mb-1.5">Was hat dich aufgehalten?</div>${chips(LC.DEBRIEF_OBST,ob,setOb)}
-  <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Was möchtest du ändern?</div>${chips(LC.CHANGES,ch,setCh)}
+ <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Ging es heute um Erholung?</div>${chips([['rest','Bewusste Ruhe'],['sick','Krank']],rec,setRec)}
+ ${rec?html`<div className="card2 p-3 mt-3 text-[13.5px] leading-snug" data-debrief-recover><b>Erholung gehört zum Plan.</b> Nichts wird als ausgelassen gezählt, deine Serie bleibt.</div>`
+ :skipped.length?html`<div className="text-[13.5px] font-semibold mt-4 mb-1.5">Was hat Widerstand erzeugt?</div>${chips(LC.DEBRIEF_OBST,ob,setOb)}
+  <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Nächste Anpassung?</div>${chips(LC.CHANGES,ch,setCh)}
   ${ch==='earlier'&&html`<div className="text-[12px] mute mt-1.5">„${skipped[0].title}“ steht morgen an erster Stelle.</div>`}${ch==='smaller'&&html`<div className="text-[12px] mute mt-1.5">${skipped.length===1?'Notiert. Im Wochenrückblick bekommst du eine kleinere Version als Experiment vorgeschlagen.':'Notiert. Wiederholt es sich, schlägt der Wochenrückblick eine kleinere Version vor.'} Dein Plan ändert sich nicht ungefragt.</div>`}`
  :plan.length?html`<div className="card2 p-3 mt-4 text-[13.5px] leading-snug"><b>Der Plan funktioniert.</b> Behalte ihn bei.</div>`:null}
  <button onClick=${save} disabled=${!mood} className="btn w-full py-3.5 mt-5 text-sm">${cands.length?'Weiter: Morgen vorbereiten':'Debrief abschließen'}</button>
@@ -4314,7 +4325,7 @@ function App({init,auth,skey='war_within_v5'}){
  const msN=((S.life&&S.life.temple&&S.life.temple.cur.ms)||[]).length,msRef=useRef(msN);
  useEffect(()=>{const p=msRef.current;msRef.current=msN;if(msN>p){const m=S.life.temple.cur.ms[msN-1];toast('Neuer Baustein · '+LC.AREA[m.area].de+'-Säule: '+m.label,'good');setTFlash(m.area);const t=setTimeout(()=>setTFlash(null),1800);return()=>clearTimeout(t)}},[msN]);
  const saveEvening=x=>{upd(n=>{LC.ensureLife(n);const sx=String(x.mid||'').startsWith('std:')?{std:x.mid.slice(4),when:x.when,risk:x.risk}:x;const e=LC.onEvening(n,sx);if(e&&e.mid)n.nextPrio={k:n.season+'-'+(n.day+1),mid:e.mid}});setSheet(null);toast('Morgen steht. Der Tag ist abgeschlossen.','good')};
- const saveDebrief=(x,o)=>{const doneN=x.done.length;upd(n=>{LC.ensureLife(n);LC.onDebrief(n,x);const k=dayKey(n);n.reviews=[{k,done:doneN,block:x.obst,mood:x.mood,next:x.next,t:Date.now()},...(n.reviews||[]).filter(r=>r.k!==k)].slice(0,30);n.wlog=n.wlog||{};n.wlog[k]={...(n.wlog[k]||{}),r:1};if(x.next)n.nextPrio={k:n.season+'-'+(n.day+1),mid:x.next}});if(!(o&&o.stay))setSheet(null);
+ const saveDebrief=(x,o)=>{const doneN=x.done.length;upd(n=>{LC.ensureLife(n);LC.onDebrief(n,x);if(x.recover&&!n.rest.includes(n.day))n.rest=[...n.rest,n.day];const k=dayKey(n);n.reviews=[{k,done:doneN,block:x.obst,mood:x.mood,next:x.next,t:Date.now()},...(n.reviews||[]).filter(r=>r.k!==k)].slice(0,30);n.wlog=n.wlog||{};n.wlog[k]={...(n.wlog[k]||{}),r:1};if(x.next)n.nextPrio={k:n.season+'-'+(n.day+1),mid:x.next}});if(!(o&&o.stay))setSheet(null);
   const rm=S.missions.find(m=>m.id==='m_ref');if(rm&&!isDone(S,rm))setTimeout(()=>cref.current('m_ref',null,{keep:true,msg:'über den Debrief'}),400);
   if(o&&o.stay)return;toast(!x.skipped.length?'Debrief gespeichert. Der Plan funktioniert.':x.next?'Debrief gespeichert. Morgen zuerst: das Ausgelassene.':'Debrief gespeichert. Muster wertet der Wochenrückblick aus.','good')};
  const saveMonthly=(m,dec)=>{lifeUpd(n=>LC.saveMonthly(n,m,dec));setSheet(null);const adj=Object.entries(dec).find(([,d])=>d==='adjust');if(adj)setTimeout(()=>setSheet({t:'goal',gid:adj[0]}),250);toast('Monats-Check gespeichert.','good')};
