@@ -14,7 +14,7 @@ Erfüllte Wochenquoten und erledigte Missionen werden übersprungen. Eigenständ
 
 Missionen verwenden die vorhandene Erledigungs-/Erfassungslogik. Unverknüpfte Commitments und Standards verwenden die bisherigen Daten und Rückgängig-Snapshots. Die Auswahl erzeugt keine Punkte oder Spielstandänderungen. Beschriftungen über Langdruck werden an den neuen normalen Schaltflächen nicht angezeigt; die Aufgabenansicht behält ihren bisherigen Langdruck.
 
-## Hauptschlacht (ww-v75, Branch claude/hauptschlacht)
+## Hauptschlacht (ww-v76, Branch claude/hauptschlacht)
 
 Ersetzt die Jetzt-Karte. Aufbau Heute von oben: Kopf mit Datum, kompakt **Saison N · Tag X von Y · Konstanz a/b Tage**, Bereichs-Schilde · **Hauptschlacht-Karte** · bis zu drei **Nebenmissionen** · **Fortschritt** (Dauerhaft/Saison) · Zukunfts-Ich · Im Blick · Mehr. Ein Schild antippen holt die nächste Handlung dieses Bereichs an den Anfang der Nebenmissionen bzw. der Auswahl; die Hauptschlacht bleibt.
 
