@@ -27,6 +27,50 @@ function observedPerWeek(weeks){const w=weeks.filter(x=>x.complete).slice(-4);if
 /* Messwert-Tempo pro Tag aus Messungen mit mindestens 14 Tagen Abstand (letzte 120 Tage). */
 function metricSlope(L,g){const m=measOf(L,g.id);if(m.length<2)return null;const last=m[m.length-1],first=m.find(x=>x.d>=last.d-120)||m[0];const span=last.d-first.d;if(span<14)return null;return(last.v-first.v)/span}
 
+/* Eigene Etappen eines Ziels (goal.steps), sonst null. */
+const ownSteps=g=>Array.isArray(g.steps)&&g.steps.filter(num).length?g.steps.filter(num):null;
+
+/* ───── Phase 2: Ziel zerlegen ─────
+   Etappen: runde Zwischenwerte zwischen Start und Ziel (z. B. 50 → 60 → … → 100 kg, 3.000 → 5.000 → 10.000 … €). Höchstens 6, Ziel immer zuletzt.
+   Ohne Startwert keine Etappen. Termine nur bei Finanzen mit Rate (siehe finance), nie bei Körperzielen. */
+function niceStep(x){const e=Math.pow(10,Math.floor(Math.log10(x))),f=x/e;return(f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*e}
+function suggestSteps(start,target,max=6){if(!num(start)||!num(target)||start===target)return[];const up=target>start,range=Math.abs(target-start),ints=Number.isInteger(start)&&Number.isInteger(target),fix=s=>ints?Math.max(1,Math.ceil(s)):s;let step=fix(niceStep(range/5)),out;
+ for(let k=0;k<8;k++){out=[];let v=up?Math.floor(start/step)*step+step:Math.ceil(start/step)*step-step;while(up?v<target-1e-9:v>target+1e-9){out.push(+v.toFixed(6));v+=up?step:-step}out.push(target);if(out.length<=max)break;step=fix(niceStep(step*1.5))}
+ return out}
+/* Handlungen an die verfügbare Zeit pro Woche anpassen. Nur Vorschlag; der Nutzer kann alles ändern. */
+function fitActions(actions,capacity){const acts=(actions||[]).map(a=>({...a})),load=()=>acts.reduce((s,a)=>s+(a.perWeek||0)*(a.minutes||0),0),before=load();
+ if(!num(capacity)||capacity<=0)return{actions:acts,changed:false,load:before,before,over:false};let changed=false;
+ while(load()>capacity){const a=acts.filter(x=>(x.perWeek||0)>1&&x.minutes).sort((x,y)=>y.perWeek*y.minutes-x.perWeek*x.minutes)[0];if(!a)break;a.perWeek--;changed=true}
+ return{actions:acts,changed,load:load(),before,over:load()>capacity}}
+/* Adaptive Planung: vier Fälle, jeweils mit nachvollziehbarem Vorschlag statt „mehr Disziplin“. Ändert nichts selbst. */
+function adapt(S,gid){const L=S.life||{},g=goalOf(L,gid);if(!g||g.status!=='active')return[];const lc=LCx(),t=typeOf(g),out=[],wks=processWeeks(S,g),done3=wks.filter(x=>x.complete).slice(-3);
+ const acts=actsOf(L,g.id),plan=perWeekPlan(S,g),wk=lc.curWk(L),pl=done3.reduce((a,x)=>a+x.plannedAdj,0),dn=done3.reduce((a,x)=>a+Math.min(x.done,x.plannedAdj),0),rate=pl?dn/pl:null;
+ /* (b) Konstanz nicht erreicht: Plan an das echte Tempo anpassen. */
+ if(done3.length>=2&&rate!=null&&rate<.6&&plan>1){const obs=Math.max(1,Math.ceil(done3.reduce((a,x)=>a+x.done,0)/done3.length));const a=acts.slice().sort((x,y)=>(lc.plannedAt(y,wk)||0)-(lc.plannedAt(x,wk)||0))[0];const now=a?lc.plannedAt(a,wk)||0:0,to=Math.max(1,Math.min(now-1,now-(plan-obs)));
+  if(a&&to<now)out.push({code:'consistency',title:'Der Plan ist gerade zu voll',text:'In den letzten '+done3.length+' Wochen hast du '+Math.round(rate*100)+' % des Plans geschafft. Ein Plan, den du hältst, bringt mehr als einer, den du verfehlst.',change:{type:'perWeek',aid:a.id,from:now,to},label:'„'+a.title+'“: '+to+' statt '+now+' pro Woche'})}
+ /* (a) Plan gehalten, Ergebnis bleibt aus: Methode prüfen, nicht mehr Druck. */
+ const tr=lc.trend(L,g,wk,3),kept=done3.length>=3&&rate!=null&&rate>=.8;
+ if(kept&&(tr.state==='flat'||tr.state==='worse'))out.push({code:'noeffect',title:'Du hältst den Plan, das Ergebnis bewegt sich kaum',text:'Die Umsetzung stimmt. Dann liegt es eher an der Methode als an dir.'+(g.method?' Bisheriger Ansatz: '+g.method+'.':''),change:{type:'method'},label:'Im Wochenrückblick ein Experiment mit anderer Methode starten'});
+ if(kept&&tr.state==='none'&&t!=='finance')out.push({code:'measure',title:'Ob es wirkt, zeigt erst ein Messwert',text:'Du setzt den Plan um. Trag einen aktuellen Wert ein, dann lässt sich die Wirkung prüfen.',change:{type:'measure'},label:'Messwert eintragen'});
+ /* (c) Ziel oder Deadline unrealistisch. */
+ if(t==='finance'){const p=finance(S,g);if(p.complete&&p.unrealistic){const end=(g.startWk||0)*7+(g.weeks||0)*7-(L.d||0),months=Math.max(1,Math.round(end/MONTH)),need=Math.ceil((p.target-p.now)/months/10)*10,elapsed=Math.max(0,wk-(g.startWk||0));
+  out.push({code:'unrealistic',title:'Ziel und Zeitraum passen nicht zusammen',text:p.months==null?'Mit der aktuellen Rate wird das Ziel nicht erreicht.':'Mit '+p.rate+' € pro Monat brauchst du '+p.months+' Monate, geplant sind noch '+months+'.',
+   change:p.months==null?{type:'rate',to:need}:{type:'weeks',to:Math.ceil(p.months*MONTH/7)+elapsed},label:p.months==null?'Rate auf '+need+' € pro Monat erhöhen':'Zeitraum auf '+p.months+' Monate ab heute verlängern',alt:p.months==null?null:{type:'rate',to:need},altLabel:p.months==null?null:'Rate auf '+need+' € pro Monat erhöhen'})}}
+ else{const now=lc.goalNow(L,g),tg=g.metric.target,slope=metricSlope(L,g),left=(g.startWk||0)+(g.weeks||0)-wk;
+  if(num(now)&&num(tg)&&slope!=null&&left>0){const rem=g.metric.dir==='down'?now-tg:tg-now,good=g.metric.dir==='down'?-slope:slope,ext=Math.max(4,Math.round(left));
+   if(rem>0&&(good<=0||rem/good/7>left*1.5))out.push({code:'unrealistic',title:'Der Zeitraum ist knapp bemessen',text:'Beim bisherigen Tempo reicht der Zeitraum voraussichtlich nicht. '+(t==='fitness'?'Körperliche Fortschritte lassen sich nicht genau planen; eine Etappe als Zwischenziel ist oft ehrlicher.':'Mehr Zeit oder eine Etappe als Zwischenziel nehmen Druck heraus.'),change:{type:'weeks',to:(g.weeks||0)+ext},label:'Zeitraum um '+ext+' Wochen verlängern'})}}
+ /* (d) Ressourcen haben sich geändert: Plan braucht mehr Zeit, als du angegeben hast. */
+ if(num(g.capacity)&&g.capacity>0){const cur=acts.map(a=>({id:a.id,title:a.title,perWeek:lc.plannedAt(a,wk)||0,minutes:a.minutes})),load=cur.reduce((s,a)=>s+a.perWeek*(a.minutes||0),0);
+  if(load>g.capacity){const f=fitActions(cur,g.capacity),ch=f.actions.find((a,i)=>a.perWeek!==cur[i].perWeek);
+   if(ch){const from=cur.find(a=>a.id===ch.id).perWeek;out.push({code:'resources',title:'Der Plan braucht mehr Zeit, als du hast',text:'Geplant sind '+load+' Min. pro Woche, verfügbar sind '+g.capacity+' Min.',change:{type:'perWeek',aid:ch.id,from,to:ch.perWeek},label:'„'+ch.title+'“: '+ch.perWeek+' statt '+from+' pro Woche'})}}}
+ return out}
+/* Ziel-Rahmen setzen (optionale Felder): Zeit pro Woche in Minuten, Einschränkungen (kurzer Text, bleibt lokal), eigene Etappen. */
+function setFrame(S,gid,f){const g=goalOf(S.life||{},gid);if(!g)return null;
+ if('capacity' in f){const v=+f.capacity;if(f.capacity===''||f.capacity==null||!num(v)||v<=0)delete g.capacity;else g.capacity=Math.round(v)}
+ if('limits' in f){const t=String(f.limits||'').trim().slice(0,120);if(t)g.limits=t;else delete g.limits}
+ if('steps' in f){const s=(f.steps||[]).map(Number).filter(num);if(s.length)g.steps=[...new Set(s)].slice(0,8);else delete g.steps}
+ return g}
+
 /* ───── Finanzen ───── */
 function financeRun(bal,rate,months,interest){const i=(interest||0)/100/12;const pts=[bal];for(let k=1;k<=months;k++){bal=bal*(1+i)+rate;pts.push(bal)}return pts}
 function monthsTo(start,target,rate,interest,cap=600){if(start>=target)return 0;const i=(interest||0)/100/12;let b=start;for(let k=1;k<=cap;k++){b=b*(1+i)+rate;if(b>=target-1e-9)return k}return null}
@@ -37,7 +81,7 @@ function finance(S,g,o={}){const L=S.life||{},m=measOf(L,g.id),p=g.proj||{},miss
  if(missing.length)return{...base,complete:false};
  const months=monthsTo(now,target,rate,interest),deadlineM=g.weeks?Math.max(0,Math.round(((g.startWk||0)*7+g.weeks*7-(L.d||0))/MONTH)):null;
  const at=k=>financeRun(now,rate,k,interest)[k];
- const ms=[.25,.5,.75,1].map(f=>({f,value:Math.round(target*f),months:monthsTo(now,target*f,rate,interest)}));
+ const ms=(ownSteps(g)||[.25,.5,.75,1].map(f=>Math.round(target*f))).map(v=>({f:v/target,value:v,months:monthsTo(now,v,rate,interest)}));
  const alt=[...new Set([Math.round(rate*.5/10)*10,Math.round(rate*1.5/10)*10,rate+50].filter(r=>r>0&&r!==rate))].sort((a,b)=>a-b).map(r=>({rate:r,months:monthsTo(now,target,r,interest),at12:at12(now,r,interest)}));
  function at12(b,r,i){return financeRun(b,r,12,i)[12]}
  /* Eine ausgelassene Rate: Monat 1 ohne Einzahlung, danach wie geplant. */
@@ -53,7 +97,7 @@ function fitness(S,g){const L=S.life||{},weeks=processWeeks(S,g),plan=perWeekPla
  const doneAll=weeks.reduce((a,x)=>a+x.done,0),plannedAll=weeks.filter(x=>x.complete).reduce((a,x)=>a+x.plannedAdj,0),doneComplete=weeks.filter(x=>x.complete).reduce((a,x)=>a+x.done,0);
  const full=weeks.filter(x=>x.complete),consistency=full.length?full.filter(x=>x.met).length/full.length:null,obs=observedPerWeek(weeks);
  const m=measOf(L,g.id),start=num(g.metric.start)?g.metric.start:m.length?m[0].v:null,tgt=num(g.metric.target)?g.metric.target:null,lc=LCx();
- const milestones=start!=null&&tgt!=null&&tgt!==start?[.25,.5,.75,1].map(f=>{const v=start+(tgt-start)*f,hit=m.find(x=>g.metric.dir==='down'?x.v<=v:x.v>=v);return{f,value:v,reached:!!hit,d:hit?hit.d:null}}):[];
+ const milestones=start!=null&&tgt!=null&&tgt!==start?(ownSteps(g)||[.25,.5,.75,1].map(f=>start+(tgt-start)*f)).map(v=>{const f=(v-start)/(tgt-start),hit=m.find(x=>g.metric.dir==='down'?x.v<=v:x.v>=v);return{f,value:v,reached:!!hit,d:hit?hit.d:null}}):[];
  const drift=obs!=null&&obs<plan?{perWeek:obs,src:'observed'}:{perWeek:plan/2,src:'half'};
  const cur=weeks[weeks.length-1]||{planned:0,done:0,plannedAdj:0};
  return{type:'fitness',goal:g.id,complete:!missing.length,missing,plan,done:doneAll,plannedPast:plannedAll,doneInPast:doneComplete,deviation:plannedAll?doneComplete-plannedAll:null,consistency,observed:obs,week:{done:cur.done,planned:cur.plannedAdj,excused:cur.excused},
@@ -87,6 +131,6 @@ function today(S,gid){const L=S.life||{},g=goalOf(L,gid);if(!g)return null;const
 /* Plan eines Finanzziels setzen (optionales Feld, keine Formatänderung). */
 function setPlan(S,gid,p){const g=goalOf(S.life||{},gid);if(!g)return null;const empty=v=>v==null||String(v).trim()==='',rate=!empty(p.rate)&&num(+p.rate)&&+p.rate>=0?+p.rate:null,interest=num(+p.interest)&&+p.interest>=0&&+p.interest<=20?+p.interest:0;
  if(rate==null){delete g.proj;return null}g.proj={rate,interest};return g.proj}
-const api={HORIZONS,MONTH,typeOf,project,finance,fitness,learning,today,setPlan,monthsTo,excusedDays,processWeeks};
+const api={HORIZONS,MONTH,typeOf,project,suggestSteps,fitActions,adapt,setFrame,finance,fitness,learning,today,setPlan,monthsTo,excusedDays,processWeeks};
 if(typeof window!=='undefined')window.PJ=api;else globalThis.PJ=api;
 })();

@@ -3058,7 +3058,7 @@ const emptyDraft=area=>({area:area||'health',tpl:null,title:'',metric:{name:'',u
 const PROC_RX=/training|einheit|lauf(?!zeit)|läufe|minute|stunde|tage|sessions?|mal\b|anzahl/i;
 const draftOk=d=>d.title.trim().length>=3&&d.metric.name.trim().length>=2&&LC.parseV(d.metric,d.targetStr)!=null;
 const planOk=d=>d.actions.some(a=>a.title.trim().length>=2);
-function draftOut(d){return{area:d.area,tpl:d.tpl,title:d.title.trim(),metric:{...d.metric,name:d.metric.name.trim(),target:LC.parseV(d.metric,d.targetStr)},start:LC.parseV(d.metric,d.startStr),weeks:d.weeks,method:d.method,actions:d.actions.filter(a=>a.title.trim().length>=2).map(a=>({...a,title:a.title.trim()}))}}
+function draftOut(d){return{area:d.area,tpl:d.tpl,title:d.title.trim(),metric:{...d.metric,name:d.metric.name.trim(),target:LC.parseV(d.metric,d.targetStr)},start:LC.parseV(d.metric,d.startStr),weeks:d.weeks,method:d.method,actions:d.actions.filter(a=>a.title.trim().length>=2).map(a=>({...a,title:a.title.trim()})),capacity:d.capacity||null,limits:(d.limits||'').trim()||null,steps:Array.isArray(d.steps)&&d.steps.length?[...d.steps]:null}}
 function GoalForm({d,set,part}){const m=d.metric;const up=p=>set({...d,...p}),um=p=>set({...d,metric:{...m,...p}});
  if(part==='plan'){const load=d.actions.reduce((s,a)=>s+(+a.perWeek||0),0);
   return html`<div><div className="card2 p-3 text-[12.5px] leading-relaxed mb-3"><b>Handlungen sind dein Prozess:</b> was du jede Woche tust. Ob sie wirken, zeigt das Ergebnis „${m.name||'deine Messgröße'}“.</div>
