@@ -27,7 +27,8 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
-- (nichts)
+- Codex · `codex/arena-v3` · Autoritative Punkte, Formationen und Ereignisfeed; gesichert in Commit `e25db1d`, separat von Claudes UI-Integration. Keine produktive Migration.
+- Codex · `codex/claude-arena-integration` · Claude-Branches arena-polish, arena-week und arena-look bis `8b22bb3` geprüft und übernommen. Alle 14 Testsuiten bestanden; Release `ww-v71`. PR/Merge noch offen, keine produktive Migration.
 
 ### Letzte Integration
 - PR #30 (Merge `4c6ab0a`, Release `ww-v68`): enthält #23–#29, #31 und `codex/arena-ceremony` – Kalender-Korrekturen, Arena mit Freunden (faire Wertung, Amphitheater, Orakel, Wochenprämie, Wochenzeremonie, Comeback), Heute Variante B, Mein Leben als Tempel. Automatische Arena-Übernahme nur nach Opt-in mit Herkunftscode; Claude hat die Codex-Commits `6476df5`/`78be182` reviewt. Alle 16 Tests bestanden; Wochenzeremonie im lokalen Arena-Testserver geprüft. Supabase-Migration weiterhin nur Entwurf, nicht angewendet; Prüfung mit echten Konten offen.
@@ -39,7 +40,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v68` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v71` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`, `node tests/ftue-flows.cjs` (Abläufe: neu, vollständig, übersprungen, zurückkehrend). Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Produktprinzip (verbindlich)

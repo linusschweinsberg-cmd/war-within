@@ -90,3 +90,38 @@ Lokaler Integrations-Review: Heute, Mein Leben und Arena bei 375 × 812 geprüft
 Stufe Handeln: Auszeichnungen würdigen die Umsetzung gemeinsamer Standards. Comeback: nach einem bereits aktiven Saisontag mindestens zwei freie Kalendertage und dann drei aktive Tage in Folge. Ein Bereich pro Tag reicht. Lorbeer am dritten Tag, auch über Wochengrenzen, höchstens einmal je Person/Woche. Rücknahmen aktualisieren die Ableitung. Keine Zusatzpunkte. Konstanz würdigt die meisten unterschiedlichen aktiven Tage, auch bei Gleichstand. Keine Aktivität bedeutet keine Auszeichnung.
 
 Abgeschlossene Wochen erscheinen in der Wochenzeremonie, neueste zuerst: Podest, Wochensieg, Konstanz und Comebacks. Wertung nachvollziehen zeigt je Mitglied Tage/Soll, gerundete Basis und Orakel je Bereich, Prämie, Gesamtsumme, Rang und Tabellenpunkte; laufende Woche vorläufig. Alle Zahlen stammen aus derselben Wertungsfunktion. Nur bestehende öffentliche Meldungen; keine privaten Texte, neue Serverdaten oder Migration.
+
+## Nächster Zug, Kampfbericht und neue Zeremonie (ww-v69)
+
+Stufe Handeln: Die Arena zeigt, was heute zählt.
+
+- **Dein nächster Zug** (Kampfplatz): `ArenaCore.gains(snapshot)` rechnet für jeden offenen Bereich mit derselben Wertungsfunktion vor, wie viele Arenapunkte eine Meldung heute bringt (Orakel und Wochenprämie eingeschlossen) und an wem du damit vorbeiziehst. Der beste Bereich lässt sich direkt melden; die Kacheln unter „Heute melden“ zeigen den Wert je Bereich. Bereits heute gemeldete oder volle Bereiche erscheinen nicht. Rein lesend, keine neuen Serverdaten.
+- **Kampfbericht:** nach Tagen gruppiert (Heute, Gestern, Datum), Herkunft sichtbar („selbst gemeldet“ bzw. „aus Aufgaben übernommen“), zunächst sechs Einträge, ältere auf Wunsch. Eigene Meldungen zeigen erhaltene Reaktionen statt Reaktionsknöpfen; der SQL-Entwurf lehnt Reaktionen auf eigene Meldungen ab.
+- **Neu gewertet:** Ist eine Woche abgeschlossen, erscheint ihre Zeremonie einmal oben, bis „Gesehen“ getippt wird. Gemerkt wird nur die Wochennummer je Arena (`S.arenaSeen`), lokal im Spielstand.
+- Texte zur automatischen Übernahme (Opt-in) und zur Sichtbarkeit beim Beitritt an den aktuellen Stand angepasst.
+
+## Wochenverlauf und Sonntagsfinale (ww-v70)
+
+- **Wochenverlauf:** Raster mit einer Zeile je Mitglied (nach Wochenrang) und sieben Tagen Mo–So. Die Füllung zeigt, wie viele der vier Bereiche an dem Tag gemeldet wurden; heute ist umrandet, künftige Tage sind blass. Quelle: `ArenaCore.activity(snapshot, week)`, nur bestehende öffentliche Meldungen. Ruhetage sind ausdrücklich erlaubt.
+- **Sonntagsfinale:** Am letzten Tag einer Spielwoche erscheint oben „Finale · heute bis 24 Uhr“ mit eigenem Platz, Abstand zum nächsten Platz darüber und dem, was alle heute noch offenen Bereiche zusammen bringen (`ArenaCore.finale`, dieselbe Wertungsfunktion). Keine Benachrichtigung, keine Zusatzpunkte.
+- Keine neuen Serverdaten, keine Migration.
+
+### Übersicht in drei Reitern (ww-v70)
+
+Eine laufende Arena ist in **Heute**, **Tabelle** und **Bericht** gegliedert (flache Reiterleiste mit Unterstrich):
+
+- **Heute:** Hinweis auf eine neu gewertete Woche (eine Zeile: Sieg, eigener Platz, „Ansehen“ öffnet die Zeremonie unter Tabelle), Sonntagsfinale, eigener Platz mit Abstand und nächstem Zug, Orakel und Wochenprämie in einer Zeile, „Heute melden“ mit dem Schalter für die automatische Übernahme.
+- **Tabelle:** Kampfplatz mit Podest (laufende Woche vorläufig), Wochenverlauf, Saisontabelle, Wochenzeremonien, Wertung nachvollziehen.
+- **Bericht:** Comeback-Hinweise und Kampfbericht.
+
+Eine beendete Saison öffnet direkt die Tabelle. Lobby und vorgemerkte Saison bleiben unverändert.
+
+## Arena-Bühne nach dem Vorbild des Duells (ww-v71)
+
+Der Reiter **Heute** übernimmt die Bildsprache des persönlichen Duells, ersetzt die frühere Karte „Platz X von N“ und zeigt nur bestätigte Wochenpunkte:
+
+- **Szene:** Jedes Mitglied steht als Hoplit auf einer Stufe, deren Höhe den Wochenpunkten folgt (höchstens sechs Figuren, du immer dabei; Spitze in der Mitte). Eigene Figur mit Terrakotta-Umhang, Lorbeer in Gold über Platz 1, alle anderen neutral – keine Nemesis-Farbe für Freunde.
+- **Kopf-an-Kopf:** du gegen den Platz direkt über dir (wenn du führst: gegen deinen Verfolger) in großen Ziffern, darunter der Abstand als Balken.
+- **Sieben Runden:** deine Woche Mo–So; Zahl = gemeldete Bereiche an diesem Tag, 4 von 4 in Gold, heute umrandet.
+- **Stimme:** eine Zeile in Cinzel aus den bestätigten Zahlen (Reichweite, Abstand, Führung) – ermutigend, nie spöttisch. Danach folgen „Dein nächster Zug“, Orakel/Wochenprämie und „Heute melden“.
+- Keine neuen Serverdaten, keine Migration.

@@ -48,3 +48,28 @@ assert.equal(A.awards(s,1).comebacks.length,0,'new arrival is not comeback');ass
 for(const r of A.weekly(s,1)){assert.equal(r.breakdown.reduce((n,b)=>n+b.base,0),r.base);assert.equal(r.breakdown.reduce((n,b)=>n+b.oracle,0),r.oracle);assert.equal(r.base+r.oracle+r.bounty,r.score);}
 const unchanged=JSON.stringify(s);A.awards(s,1);assert.equal(JSON.stringify(s),unchanged);
 console.log('PASS comeback, distinct days, cross-week awards, undo, ties and scoring breakdown');
+
+// Nächster Zug: preview with the real scoring, no mutation, nothing for done/full slots, oracle first.
+s=fixture();s.user_id='a';s.today='2026-12-01';report(s,'b','mind','2026-11-30');
+const gBefore=JSON.stringify(s),g=A.gains(s);assert.equal(JSON.stringify(s),gBefore,"gains do not mutate");
+assert.equal(g.length,4);const lucky=A.oracle(s,s.today);assert.equal(g[0].slot,lucky,'oracle slot is worth most');assert.ok(g[0].oracle);
+for(const x of g){const sim=JSON.parse(gBefore);sim.completions.unshift({user_id:'a',slot:x.slot,week:1,day:s.today,created_at:'2026-12-01T12:00:00Z'});assert.equal(x.points,A.weekly(sim,1).find(r=>r.user_id==='a').score-A.weekly(s,1).find(r=>r.user_id==='a').score,'same scoring function');}
+{const bs=A.weekly(s,1).find(r=>r.user_id==='b').score;for(const x of g)assert.equal(x.passes.includes('b'),x.points>bs,'overtakes only when strictly ahead');assert.ok(g[0].passes.includes('b'));}
+report(s,'a','body','2026-12-01');assert.ok(!A.gains(s).some(x=>x.slot==='body'),'already reported today');
+s=fixture({...targets,growth:1});s.user_id='a';s.today='2026-12-01';report(s,'a','growth','2026-11-30');assert.ok(!A.gains(s).some(x=>x.slot==='growth'),'target met');
+s.league.start_date=null;assert.equal(A.gains(s).length,0,'only while running');
+console.log('PASS next move: real scoring preview, oracle ranking, overtakes, done and full slots excluded, read-only');
+
+// Wochenverlauf: seven days, distinct slots per day, future days marked, read-only.
+s=fixture();s.user_id='a';s.today='2026-12-02';report(s,'a','mind','2026-11-30');report(s,'a','body','2026-11-30');report(s,'b','mind','2026-12-02');
+{const snap=JSON.stringify(s),act=A.activity(s,1),ra=act.find(r=>r.user_id==='a');assert.equal(JSON.stringify(s),snap);
+assert.equal(act.length,3);assert.equal(ra.days.length,7);assert.equal(ra.days[0].slots,2);assert.equal(ra.days[2].today,true);assert.equal(ra.days[3].future,true);assert.equal(act.find(r=>r.user_id==='b').days[2].slots,1);
+s.league.start_date=null;assert.equal(A.activity(s,1).length,0);}
+// Finale: only on the last day of a week; gap to the next place above and what all open slots can still bring.
+s=fixture();s.user_id='a';s.today='2026-12-05';for(const slot of SL)report(s,'b',slot,'2026-11-30');
+assert.equal(A.finale(s),null,'not on Saturday');s.today='2026-12-06';
+{const f=A.finale(s);assert.equal(f.week,1);assert.equal(f.above.user_id,'b');assert.equal(f.gap,A.weekly(s,1).find(r=>r.user_id==='b').score);assert.deepEqual([...f.open].sort(),[...SL].sort());
+const sim=JSON.parse(JSON.stringify(s));for(const slot of SL)sim.completions.push({user_id:'a',slot,week:1,day:'2026-12-06',created_at:'2026-12-06T12:00:00Z'});assert.equal(f.potential,A.weekly(sim,1).find(r=>r.user_id==='a').score,'same scoring function');assert.equal(f.rankAfter,A.weekly(sim,1).find(r=>r.user_id==='a').rank);}
+for(const slot of SL)report(s,'a',slot,'2026-12-06');{const f=A.finale(s);assert.equal(f.open.length,0);assert.equal(f.potential,0);}
+s.today='2026-12-13';assert.equal(A.finale(s).week,2,'second week finale');s.today='2026-12-28';assert.equal(A.finale(s),null,'season over');
+console.log('PASS week grid and Sunday finale: seven days, distinct slots, future days, last-day only, gap and potential from the real scoring');
