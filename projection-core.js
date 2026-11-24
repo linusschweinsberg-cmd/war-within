@@ -72,9 +72,11 @@ function learning(S,g){const L=S.life||{},lc=LCx(),acts=actsOf(L,g.id),weeks=pro
  const span=m.length>=2?[m[0].d,m[m.length-1].d]:null,inSpan=span?logs.filter(x=>x.d>span[0]&&x.d<=span[1]).length:0,perSession=span&&inSpan>0?(m[m.length-1].v-m[0].v)/inSpan:null;
  const freq=[...new Set([Math.max(1,plan-1),plan,plan+1,plan+2])].filter(f=>f>0).map(f=>({perWeek:f,hoursPerMonth:f*minPer/60*MONTH/7,weeks:remaining!=null&&remaining>0&&perSession&&Math.sign(perSession)===(g.metric.dir==='down'?-1:1)?Math.ceil(Math.abs(remaining/perSession)/f):remaining!=null&&remaining<=0?0:null}));
  const obs=observedPerWeek(weeks),drift=obs!=null&&obs<plan?{perWeek:obs,src:'observed'}:{perWeek:plan/2,src:'half'};
- return{type:'learning',goal:g.id,complete:!missing.length,missing,plan,hours,sessions,minPerSession:minPer,now,target:tgt,remaining,slope,restWeeks,perSession,freq,drift,
-  milestones:m.map(x=>({d:x.d,v:x.v})),assumptions:['Plan: '+plan+' Einheiten pro Woche à '+Math.round(minPer)+' Min.',perSession!=null?'Gleicher Fortschritt pro Einheit wie bisher':'Fortschritt pro Einheit noch unbekannt (mind. 2 Messungen nötig)'],unit:'Stunden',
-  series:HORIZONS.map(([d,l])=>({d,l,follow:hours+plan*minPer/60*d/7,drift:hours+drift.perWeek*minPer/60*d/7})),scenarioDiff12:(plan-drift.perWeek)*minPer/60*52}}
+ /* Ohne Dauer pro Einheit keine Stunden: dann zählt die Ansicht Einheiten statt erfundener Zeit. */
+ const timed=minPer>0,per=timed?minPer/60:1;
+ return{type:'learning',timed,goal:g.id,complete:!missing.length,missing,plan,hours,sessions,minPerSession:minPer,now,target:tgt,remaining,slope,restWeeks,perSession,freq,drift,
+  milestones:m.map(x=>({d:x.d,v:x.v})),assumptions:['Plan: '+plan+' Einheiten pro Woche'+(timed?' à '+Math.round(minPer)+' Min.':' (Dauer pro Einheit nicht angegeben)'),perSession!=null?'Gleicher Fortschritt pro Einheit wie bisher':'Fortschritt pro Einheit noch unbekannt (mind. 2 Messungen nötig)'],unit:timed?'Stunden':'Einheiten',
+  series:HORIZONS.map(([d,l])=>{const b=timed?hours:sessions;return{d,l,follow:b+plan*per*d/7,drift:b+drift.perWeek*per*d/7}}),scenarioDiff12:(plan-drift.perWeek)*per*52}}
 
 function project(S,gid,o={}){const L=S&&S.life;if(!L)return null;const g=goalOf(L,gid);if(!g)return null;const t=typeOf(g);
  if(t==='finance')return finance(S,g,o);if(t==='fitness')return fitness(S,g);if(t==='learning')return learning(S,g);return{type:null,goal:gid,complete:false,missing:['typ']}}

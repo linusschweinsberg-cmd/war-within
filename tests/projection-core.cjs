@@ -50,6 +50,8 @@ test('Learning: invested time, rest time at the same pace, other frequencies',()
  assert.equal(p.perSession,1.25);assert.equal(p.remaining,30);assert.equal(p.restWeeks,6);const f4=p.freq.find(x=>x.perWeek===4),f5=p.freq.find(x=>x.perWeek===5);assert.equal(f4.weeks,6);assert.equal(f5.weeks,5);
  const T=fresh(),q=goal(T,'lang',30).g;const pq=PJ.project(T,q.id);assert.equal(pq.restWeeks,null,'no pace without measurements');assert.ok(pq.freq.every(x=>x.weeks===null))});
 
+test('Learning without a duration per unit counts units instead of inventing hours',()=>{const S=fresh(),{g,acts}=goal(S,'lang',30);acts.forEach(a=>{a.minutes=0});log(S,acts[0].id,1);log(S,acts[0].id,2);S.life.d=3;
+ const p=PJ.project(S,g.id);assert.equal(p.timed,false);assert.equal(p.unit,'Einheiten');assert.equal(p.series[0].follow,2+4);assert.match(p.assumptions[0],/nicht angegeben/)});
 test('Today: completing vs skipping changes weekly plan fulfilment, never shaming',()=>{const S=fresh(),{g,acts}=goal(S,'strength',10);log(S,acts[0].id,0);S.life.d=1;const t=PJ.today(S,g.id);
  assert.equal(t.planned,3);assert.equal(t.done,1);assert.equal(t.ifDone,2/3);assert.equal(t.ifSkip,1/3);assert.equal(t.stillPossible,true)});
 
