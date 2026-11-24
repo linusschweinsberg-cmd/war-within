@@ -20,7 +20,11 @@
   for(const m of s.members){const mine=[...new Map(s.completions.filter(e=>e.user_id===m.user_id&&e.week===week&&e.slot===slot).sort((a,b)=>Date.parse(a.created_at)-Date.parse(b.created_at)).map(e=>[e.day,e])).values()];
    if(mine.length>=t[slot]){const reached=mine.slice().sort((a,b)=>Date.parse(a.created_at)-Date.parse(b.created_at))[t[slot]-1].created_at;if(!at||Date.parse(reached)<Date.parse(at)){at=reached;winner=m.user_id}}}
   return{slot,winner,at,points:BOUNTY};}
- function weekly(s,week){const t=targetsOf(s),b=bounty(s,week);
+ function weekly(s,week){if(s.league.rule_version===3){
+  const rows=s.members.map(m=>({...m,...(s.scores||[]).find(r=>r.user_id===m.user_id&&r.week===week),confirmed:true}));
+  for(const r of rows){r.rank=1+rows.filter(x=>x.score>r.score).length;r.points=r.score>0?Math.max(0,4-r.rank):0;}
+  return rows.sort((a,b)=>b.score-a.score||a.display_name.localeCompare(b.display_name,'de'));
+ }const t=targetsOf(s),b=bounty(s,week);
   const rows=s.members.map(m=>{const mine=s.completions.filter(e=>e.user_id===m.user_id&&e.week===week);
    const counts={},base={},boost={};let oracleHits=0;
    for(const x of SLOTS){const days=[...new Set(mine.filter(e=>e.slot===x.id).map(e=>e.day))].sort().slice(0,t[x.id]);counts[x.id]=days.length;

@@ -27,6 +27,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
+- Codex · `codex/arena-v3` · Autoritative Punkte, Formationen und Ereignisfeed; Arena-Module, additive SQL-Migration, Tests, Dokumentation und Cache. Keine produktive Migration.
 - (nichts)
 
 ### Letzte Integration

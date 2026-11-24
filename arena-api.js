@@ -10,6 +10,8 @@
    create:({name,displayName,capacity,targets})=>{const t=targets||G.ArenaCore.DEFAULT_TARGETS;if(!G.ArenaCore.validTargets(t))return Promise.reject(Error('Wähle für jeden Bereich ein bis sieben Tage.'));return command('create',null,{name:String(name).trim().slice(0,40),display_name:String(displayName).trim().slice(0,24),capacity:Number(capacity),targets:pick(t)});},
    join:({code,displayName})=>command('join',null,{code:String(code).trim().toUpperCase(),display_name:String(displayName).trim().slice(0,24)}),
    start:id=>command('start',id),
+   formation:(id,week,kind,slot,plan)=>command('formation',id,{week,kind,slot,plan}),
+   events:(id,before)=>call('arena_events',{p_league:id,p_before:before||null}),
    setTargets:(id,targets)=>{if(!G.ArenaCore.validTargets(targets))return Promise.reject(Error('Wähle für jeden Bereich ein bis sieben Tage.'));return command('targets',id,{targets:pick(targets)});},
    report:(id,slot,done)=>command('report',id,{slot:String(slot),done:done===true}),
    react:(id,event,kind)=>command('react',id,{event,kind}),
