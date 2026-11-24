@@ -14,6 +14,19 @@ Erfüllte Wochenquoten und erledigte Missionen werden übersprungen. Eigenständ
 
 Missionen verwenden die vorhandene Erledigungs-/Erfassungslogik. Unverknüpfte Commitments und Standards verwenden die bisherigen Daten und Rückgängig-Snapshots. Die Auswahl erzeugt keine Punkte oder Spielstandänderungen. Beschriftungen über Langdruck werden an den neuen normalen Schaltflächen nicht angezeigt; die Aufgabenansicht behält ihren bisherigen Langdruck.
 
+## Hauptschlacht (ww-v75, Branch claude/hauptschlacht)
+
+Ersetzt die Jetzt-Karte. Aufbau Heute von oben: Kopf mit Datum, kompakt **Saison N · Tag X von Y · Konstanz a/b Tage**, Bereichs-Schilde · **Hauptschlacht-Karte** · bis zu drei **Nebenmissionen** · **Fortschritt** (Dauerhaft/Saison) · Zukunfts-Ich · Im Blick · Mehr. Ein Schild antippen holt die nächste Handlung dieses Bereichs an den Anfang der Nebenmissionen bzw. der Auswahl; die Hauptschlacht bleibt.
+
+- **Nie automatisch.** Hauptschlacht ist nur, was der Nutzer heute angetippt hat (`S.battle={k:dayKey,key}`) oder vorher ausdrücklich festgelegt hat: Abendentscheidung, Start im Onboarding, erster Schritt, Debrief/Tagesrückblick (`nextPrio`). Sonst fragt die Karte „Welche Handlung zählt heute am meisten?“ mit bis zu drei Kandidaten aus `todayPriorities`; der erste ist nur als „Vorschlag“ markiert. „Ändern“ öffnet die Auswahl wieder. Die Wahl vergibt keine Punkte.
+- **Ein Tipp erledigt** über die bestehende Logik (`completePriority` → `c.start`/`complete`, Standards, erster Schritt). Missionen mit Erfassung öffnen weiter ihr Erfassen-Sheet.
+- **Erledigt/offen wird abgeleitet**, nicht gespeichert (`todayBattle`, `battleItem`): Mission mit Erledigung heute (`ctime` des Tages bzw. tägliches `done`), Standard mit Eintrag heute (nur Minimum → „Minimum gehalten“), erster Schritt. Eine Wochenmission von einem früheren Tag gilt nicht als heutiger Sieg.
+- **Sieg-Rückmeldung:** Der Wechsel offen → gewonnen zeigt 700 ms Bronze-Schein und Schild (`.battle-fx`), „Schlacht gewonnen“ als Statuszeile. Kein Overlay, nichts wird blockiert, bei `prefers-reduced-motion` keine Animation. Die gewonnene Karte ist so hoch wie die offene, damit ein zweiter Tipp nichts Nachgerücktes trifft.
+- **Mehrfachtippen und Rückgängig:** Missionen sperrt `complete()` (Sperre plus `isDone` im Update). Standards und erster Schritt zählen höchstens einmal pro Tag (`priorityDoneToday`, 700-ms-Sperre). Rückgängig stellt den kompletten Snapshot wieder her, die Karte wird wieder offen.
+- **Fortschritt aus echten Daten** (`compoundNow`, `momentumOf`): *Dauerhaft* = erledigte Missionen (`tally`) + Standard-Einträge + erster Schritt; bleibt bei verpassten Tagen. *Saison* = dasselbe seit Saisonstart, dazu „→ N möglich“ = Saisonstand + Tempo × Resttage / 7. Tempo ab Saisontag 8 = Erledigungen der letzten 7 Tage, vorher der eigene Wochenplan; die Annahme steht immer dabei. *Konstanz* = Tage mit Handlung in den letzten 7 Saisontagen; Ruhetage zählen nicht dagegen, heute erst mit einer Handlung. Keine erfundenen Wirkungen, keine Kurven; Tempel und Fortschritt-Tab bleiben unverändert.
+- Spielstand bleibt `v:5`; `battle` ist ein optionales Feld, alte Stände und Export/Import funktionieren unverändert.
+- Tests: `node tests/today-battle.cjs` (keine Automatik, Wahl/Ändern, frühere Festlegung, Mehrfachtippen, Rückgängig, Minimum, Wochenmission, Compound-Zahlen, Konstanz mit Ruhetag, Laden alter Stände, Animationsdauer und reduzierte Bewegung). Browser 375×812: Wahl, Doppeltipp (Punkte einmal, kein Fehltreffer), Rückgängig, hell/dunkel.
+
 ## Zeitblock
 
 Ein Zeitblock braucht eine tatsächlich gespeicherte numerische Startzeit und Dauer im bestehenden Tagesplan. Reine Tageszeitwünsche (morgens/abends) und der automatisch verteilte Nemesis-Plan gelten nicht als feste Buchung. Erledigte Aufgaben, Schlaf und ungültige Intervalle werden nicht als nächster Handlungsblock gezeigt.

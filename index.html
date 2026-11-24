@@ -18,14 +18,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v68"></script>
-<script src="auth.js?v=ww-v68"></script>
-<script src="life-core.js?v=ww-v68"></script>
-<script src="wisdom-core.js?v=ww-v68"></script>
-<script src="future-self-core.js?v=ww-v68"></script>
-<script src="arena-core.js?v=ww-v68"></script>
-<script src="arena-api.js?v=ww-v68"></script>
-<script src="arena-ui.js?v=ww-v68"></script>
+<script src="supabase-config.js?v=ww-v75"></script>
+<script src="auth.js?v=ww-v75"></script>
+<script src="life-core.js?v=ww-v75"></script>
+<script src="wisdom-core.js?v=ww-v75"></script>
+<script src="future-self-core.js?v=ww-v75"></script>
+<script src="arena-core.js?v=ww-v75"></script>
+<script src="arena-api.js?v=ww-v75"></script>
+<script src="arena-ui.js?v=ww-v75"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -114,6 +114,11 @@ html,body{background:radial-gradient(1200px 600px at 50% -10%,var(--body-glow) 0
 @keyframes goldPulse{0%,100%{filter:drop-shadow(0 0 6px rgba(var(--gold-rgb),.45))}50%{filter:drop-shadow(0 0 14px rgba(var(--gold-rgb),.85))}}
 .gold-t{background:linear-gradient(180deg,#FFF7D6,#FBBF24 55%,#D97706);-webkit-background-clip:text;background-clip:text;color:transparent}
 @keyframes holdBar{from{width:0}to{width:100%}}
+/* Hauptschlacht gewonnen: 700 ms, Bronze-Schein und Schild, kein Overlay */
+@keyframes battleWin{0%{box-shadow:0 0 0 1px var(--bronze) inset,0 0 0 0 transparent}40%{box-shadow:0 0 0 1.5px var(--bronze) inset,0 0 22px 1px color-mix(in srgb,var(--bronze) 45%,transparent)}100%{box-shadow:0 0 0 1px color-mix(in srgb,var(--bronze) 60%,transparent) inset,0 0 0 0 transparent}}
+@keyframes shieldWin{0%{transform:scale(.8)}45%{transform:scale(1.1);filter:drop-shadow(0 0 8px var(--bronze))}100%{transform:none;filter:none}}
+.battle-fx{animation:battleWin .7s ease-out}.battle-fx .battle-shield{animation:shieldWin .7s cubic-bezier(.16,1,.3,1)}
+@media (prefers-reduced-motion:reduce){.battle-fx,.battle-fx .battle-shield{animation:none!important}}
 /* ───── UX: Lesbarkeit & Tap-Ziele ───── */
 .lbl{font-size:10.5px;letter-spacing:.12em}
 [class~="text-[9px]"],[class~="text-[9.5px]"],[class~="text-[10px]"],[class~="text-[10.5px]"]{font-size:11.5px!important;line-height:1.45}
@@ -1476,7 +1481,7 @@ function NemPlan({c}){const {S}=c;const sel=S.nem||nemDefault(S);const pool=nemP
   ${on&&(typeof sel[m.id]==='object'?html`<div className="text-[12px] mute mt-2">${fmtHM(sel[m.id].s)} · ${sel[m.id].d} Min. · im Tagesplan verschieben</div>`:html`<div className="mt-2.5"><${Seg} opts=${TOD.map(t=>[t[0],TOD_L[t[0]]])} val=${sel[m.id]} on=${v=>c.setNem(m.id,v)}/></div>`)}</div>`})}</div>
  <button onClick=${c.closeSheet} className="btn w-full py-3.5 mt-4 text-sm">Fertig</button></${Sheet}>`}
 /* Today: one main action, two next priorities, one honest scheduled block. */
-function todayPriorities(S,D){
+function todayPriorities(S,D,max=3){
  if(D.restToday)return[];
  const L=S.life||{},gm=goalMs(S),out=[],seen=new Set(),commit=L.onboard&&L.onboard.commit;
  const push=x=>{if(x&&!seen.has(x.key)){seen.add(x.key);out.push(x)}};
@@ -1491,17 +1496,58 @@ function todayPriorities(S,D){
  const brief=briefToday(S);if(brief)(brief.ids||[]).forEach(id=>push(mission(D.allM.find(m=>m.id===id))));
  standards.filter(x=>!(commit&&!commit.done&&!commit.mid&&commit.kind==='standard'&&commit.area===x.area)).forEach(push);
  briefCands(S,D).forEach(m=>push(mission(m)));
- return out.slice(0,3);
+ return out.slice(0,max);
 }
+/* Hauptschlacht: die eine Handlung, die heute zählt. Nur vom Nutzer bestimmt – heute angetippt (S.battle={k,key})
+   oder vorher ausdrücklich festgelegt (Abendentscheidung, Start, erster Schritt, Debrief/nextPrio). Nie automatisch.
+   Abgeleitet statt gespeichert: erledigt/offen kommt aus den bestehenden Daten, Rückgängig stellt es mit dem Snapshot zurück. */
+const doneTodayM=(S,m)=>((S.ctime||{})[m.id]||[]).some(x=>x.day===dayKey(S))||((m.freq==='daily'||m.freq==='multi')&&!!(S.done||{})[m.id]);
+function battleItem(S,key){if(!key)return null;const L=S.life||{},d=L.d||0;
+ if(key.startsWith('m:')){const m=S.missions.find(x=>x.id===key.slice(2));if(!m)return null;const x=goalMs(S).find(y=>y.m.id===m.id);return{key,kind:'mission',m,g:x&&x.g,minutes:x&&x.a.minutes||null,title:m.title,done:doneTodayM(S,m)}}
+ if(key.startsWith('std:')){const area=key.slice(4),s=(L.standards||{})[area];if(!s||!s.std||s.aid)return null;const e=(L.stdLog||[]).filter(x=>x.area===area&&x.d===d);return{key,kind:'standard',std:s,area,title:s.std.text,minutes:s.std.minutes||null,done:e.length>0,min:e.length>0&&!e.some(x=>x.kind==='std')}}
+ if(key==='commit'){const cm=L.onboard&&L.onboard.commit;if(!cm||cm.mid||!(cm.text||'').trim()||(cm.done&&cm.doneD!==d))return null;return{key,kind:'commit',title:cm.text,area:cm.area,done:!!cm.done}}
+ return null}
+function battleEarlier(S){const L=S.life||{},d=L.d||0,ev=LC.eveningFor(L,d),ob=L.onboard&&L.onboard.for===d&&L.onboard.mid?L.onboard:null,out=[];
+ if(ev&&ev.mid)out.push({key:'m:'+ev.mid,source:'Gestern Abend festgelegt',plan:ev.plan,when:ev.when});else if(ob)out.push({key:'m:'+ob.mid,source:'Beim Start festgelegt',plan:ob.plan,when:ob.when});
+ if(ev&&ev.std)out.push({key:'std:'+ev.std,source:'Gestern Abend festgelegt',plan:ev.plan,when:ev.when});
+ out.push({key:'commit',source:'Dein erster Schritt'});
+ if(S.nextPrio&&S.nextPrio.k===dayKey(S))out.push({key:'m:'+S.nextPrio.mid,source:'Von dir festgelegt'});
+ return out}
+function todayBattle(S,D,items=todayPriorities(S,D)){if(D.restToday)return null;
+ if(S.battle&&S.battle.k===dayKey(S)){const b=battleItem(S,S.battle.key);return b?{...b,source:'Von dir gewählt'}:null}
+ for(const e of battleEarlier(S)){const b=battleItem(S,e.key);if(b&&(b.done||items.some(x=>x.key===e.key)))return{...b,...e}}
+ return null}
+const chooseBattle=(c,key)=>c.upd(n=>{n.battle={k:dayKey(n),key:key||null}});
+/* Compound-Effekt aus echten Daten. Handlungen insgesamt bleiben bei Pausen erhalten. Momentum: Tage mit Handlung in den
+   letzten 7 Saisontagen; Ruhetage zählen nicht dagegen, heute erst mit einer Handlung. Potenzial: Saisonstand + Tempo × Resttage,
+   Tempo = letzte 7 Tage (ab Saisontag 8), sonst der eigene Wochenplan. Keine erfundene Wirkung, keine Kurve. */
+function actionDays(S){const L=S.life||{},off=(L.d||0)-S.day,pre=S.season+'-',days=new Map(),add=(d,n=1)=>{if(Number.isInteger(d)&&d>=0&&d<=S.day)days.set(d,(days.get(d)||0)+n)};
+ Object.values(S.ctime||{}).forEach(a=>(a||[]).forEach(x=>{if(typeof x.day==='string'&&x.day.startsWith(pre))add(+x.day.slice(pre.length))}));
+ (L.stdLog||[]).forEach(x=>add(x.d-off));const cm=L.onboard&&L.onboard.commit;if(cm&&cm.done&&Number.isInteger(cm.doneD))add(cm.doneD-off);
+ return days}
+function momentumOf(S){const days=actionDays(S),rest=new Set(S.rest||[]);let active=0,of=0,rd=0;
+ for(let d=Math.max(0,S.day-6);d<=S.day;d++){const on=days.has(d);if(rest.has(d)&&!on){rd++;continue}if(d===S.day&&!on)continue;of++;if(on)active++}
+ return{active,of,rest:rd}}
+function compoundNow(S){const L=S.life||{},sum=o=>Object.values(o||{}).reduce((a,b)=>a+(+b||0),0),off=(L.d||0)-S.day,std=L.stdLog||[],cm=L.onboard&&L.onboard.commit;
+ const cmAll=cm&&cm.done&&!cm.mid?1:0,cmSeason=cmAll&&(cm.doneD??off)>=off?1:0;
+ const total=sum(S.tally)+std.length+cmAll,season=sum(S.sTally)+std.filter(x=>x.d>=off).length+cmSeason;
+ const wk=LC.curWk(L),plan=goalMs(S).reduce((a,x)=>a+(LC.plannedAt(x.a,wk)||0),0)+Object.values(L.standards||{}).filter(x=>x.std&&!x.aid&&x.status!=='paused').reduce((a,x)=>a+((LC.standardWeek(L,x.area,wk)||{}).per||0),0);
+ let pace=plan,paceSrc='plan';if(S.day>=7){const days=actionDays(S);let n=0;for(let d=S.day-7;d<S.day;d++)n+=days.get(d)||0;pace=n;paceSrc='recent'}
+ const remDays=Math.max(0,SDAYS(S)-1-S.day),possible=season+Math.round(pace*remDays/7);
+ return{total,season,momentum:momentumOf(S),pace,paceSrc,remDays,possible,seasonDay:S.day+1,seasonLen:SDAYS(S)}}
 function nextTimeBlock(S,now){
  const blocks=Object.entries(S.nem||{}).map(([id,v])=>{const m=S.missions.find(m=>m.id===id);if(!m||!v||typeof v!=='object'||!Number.isFinite(v.s)||!Number.isFinite(v.d)||v.s<0||v.s>=1440||v.d<=0||v.s+v.d>1440||isDone(S,m)||kindOf(m)==='sleep')return null;return{m,start:v.s,end:v.s+v.d,minutes:v.d}}).filter(Boolean).sort((a,b)=>a.start-b.start||a.m.id.localeCompare(b.m.id));
  const active=blocks.find(b=>b.start<=now&&b.end>now);if(active)return{...active,state:'active'};
  const future=blocks.find(b=>b.start>now);if(future)return{...future,state:'next'};
  const past=blocks.filter(b=>b.end<=now).sort((a,b)=>b.end-a.end)[0];return past?{...past,state:'past'}:null;
 }
+/* Mehrfachtippen: Missionen sperrt complete(); Standards und erster Schritt zählen höchstens einmal pro Tag. */
+const prioLock={};
+const priorityDoneToday=(S,item)=>{const L=S.life||{};return item.kind==='commit'?!!(L.onboard&&L.onboard.commit&&L.onboard.commit.done):(L.stdLog||[]).some(x=>x.area===item.area&&x.d===(L.d||0))};
 function completePriority(c,item,e,kind='std'){
  if(item.kind==='mission'){c.start(item.m.id,e,{noHint:true});return}
- const before=c.S;c.upd(n=>{if(item.kind==='commit')n.life.onboard.commit={...n.life.onboard.commit,done:true,doneD:n.life.d||0};else LC.logStandard(n.life,item.area,kind)});
+ const t=Date.now();if(t-(prioLock[item.key]||0)<700||priorityDoneToday(c.S,item))return;prioLock[item.key]=t;
+ const before=c.S;c.upd(n=>{if(priorityDoneToday(n,item))return;if(item.kind==='commit')n.life.onboard.commit={...n.life.onboard.commit,done:true,doneD:n.life.d||0};else LC.logStandard(n.life,item.area,kind)});
  c.toast(item.kind==='commit'?'Erster Schritt erledigt.':kind==='min'?'Minimum notiert.':'Standard notiert.','good',{undo:()=>c.restore(before)});
 }
 /* Heute: Kopf mit Fortschrittsring · eine farbige Jetzt-Karte · Folgeschritte als Kacheln · Im Blick als zwei Kacheln. Wenig Text, klare Flächen. */
@@ -1537,6 +1583,7 @@ function TodayHero({c,ini,rings,sel,onSel}){const {S}=c,rest=c.D.restToday,plann
  <span className="page-emblem" style=${{top:44}}><${Icon} n=${all?'laurel':'aspis'} s=${76} sw=${1}/></span>
  <div className="flex items-center justify-between gap-2"><div className="lbl truncate">${deDate(c.now,calendarZone(S))}</div><div className="flex shrink-0 -mr-2 relative"><button aria-label="Menü und Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0" style=${{color:'var(--ink)'}}><${Icon} n="dots" s=${20}/></button><button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0 p-0"><span className="w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold" style=${{background:'var(--card2)',color:'var(--ink)',boxShadow:'0 0 0 1px var(--line) inset'}}>${ini}</span></button></div></div>
  <h1 className="disp text-[40px] leading-none">Heute</h1>
+ ${(()=>{const C=compoundNow(S),m=C.momentum;return html`<div className="num text-[12.5px] mt-1.5" data-today-season style=${{color:'var(--ink)'}}>Saison ${S.season} · Tag ${Math.min(C.seasonDay,C.seasonLen)} von ${C.seasonLen}<span className="mute"> · Konstanz ${m.of?m.active+'/'+m.of+' Tage':'startet heute'}${m.rest?' · '+m.rest+' Ruhetag'+(m.rest>1?'e':'')+' fair':''}</span></div>`})()}
  <button type="button" onClick=${()=>c.setTab('tasks')} className="bg-transparent border-0 p-0 mt-1 flex items-center gap-1 text-[13px]" style=${{minHeight:32,color:all?'var(--bronze)':'var(--mute)'}}>${rest?'Ruhetag. Erholung gehört zum Plan.':all?html`<${Icon} n="laurel" s=${15}/>Alle Schilde geschlossen`:closed+' von '+planned.length+' Schilden geschlossen'}<${Icon} n="chevR" s=${13}/></button>
  <div className="meander mt-2" aria-hidden="true"/>
  <div className="grid grid-cols-4 gap-1 mt-3" role="group" aria-label="Lebensbereiche heute">${rings.map(r=>{const a=r.area,has=r.total>0,full=has&&r.done>=r.total,on=sel===a.id;
@@ -1544,22 +1591,46 @@ function TodayHero({c,ini,rings,sel,onSel}){const {S}=c,rest=c.D.restToday,plann
   <span className="rounded-full" style=${{padding:2,boxShadow:on&&has?'0 0 0 1.5px var(--acc2)':'none',transition:'box-shadow .2s'}}><${AspisRing} area=${a} pct=${has?r.done/r.total:0} full=${full}/></span>
   <span className=${'text-[11px] leading-tight '+(on&&has?'font-semibold':'mute')}>${a.de}</span></button>`})}</div>
  </section>`}
-/* Jetzt-Karte einfarbig in gedämpftem Rost (Handeln): Fläche, Symbol und Knopf in Tönen derselben Farbe, auf die Karte gemischt. */
-function NowCard({c,item,ring}){const area=priorityArea(item),logs=item.kind==='mission'&&wantsLog(c.S,item.m),t=cleanTitle(item.title),open=ring&&ring.total-ring.done>0,closes=ring&&ring.total-ring.done===1;
- const rust=p=>`color-mix(in srgb,var(--acc) ${p}%,var(--card))`;
- return html`<section className="relative overflow-hidden mt-4 p-4" data-today-priority="primary" aria-label="Jetzt" style=${{borderRadius:16,background:rust(18),color:'var(--ink)',boxShadow:'0 0 0 1px '+rust(40)+' inset'}}>
- <div className="flex items-start justify-between gap-2"><div className="lbl pt-1" style=${{color:'var(--acc2)'}}>${area&&open?area.de+' fehlt noch':'Jetzt'}${item.when?' · '+item.when:''}</div>
- <button type="button" onClick=${()=>priorityDetail(c,item)} aria-label=${'Details: '+t} className="flex items-center justify-center border-0 bg-transparent -mt-2 -mr-2" style=${{width:44,height:44,color:'var(--mute)'}}><${Icon} n="info" s=${18}/></button></div>
+/* Hauptschlacht-Karte einfarbig in gedämpftem Rost (Handeln). Gewonnen: Bronze-Kontur, Schild, „Schlacht gewonnen“.
+   Sieg-Rückmeldung nur beim Wechsel offen → gewonnen, 700 ms, ohne Overlay, blockiert nichts; reduzierte Bewegung ohne Animation. */
+function BattleCard({c,b,ring}){const area=priorityArea(b),logs=b.kind==='mission'&&wantsLog(c.S,b.m),t=cleanTitle(b.title),closes=ring&&ring.total-ring.done===1;
+ const rust=p=>`color-mix(in srgb,var(--acc) ${p}%,var(--card))`,was=useRef(b.done),[fx,setFx]=useState(false);
+ useEffect(()=>{const prev=was.current;was.current=b.done;if(!b.done){setFx(false);return}if(prev)return;setFx(true);const id=setTimeout(()=>setFx(false),800);return()=>clearTimeout(id)},[b.done]);
+ /* Gewonnen: gleicher Aufbau und gleiche Höhe wie offen, damit ein zweiter Tipp nichts Nachgerücktes trifft. */
+ if(b.done)return html`<section className=${'relative overflow-hidden mt-4 p-4'+(fx?' battle-fx':'')} data-today-battle="won" aria-label="Hauptschlacht" style=${{borderRadius:16,background:'var(--card)',color:'var(--ink)',boxShadow:'0 0 0 1px '+tint('var(--bronze)',60)+' inset'}}>
+ <div className="flex items-start justify-between gap-2"><div className="lbl pt-1 min-w-0" style=${{color:'var(--bronze)'}}>Hauptschlacht<span className="mute font-normal normal-case tracking-normal"> · ${b.source}</span></div><span aria-hidden="true" className="shrink-0 -mt-2" style=${{height:44}}/></div>
+ <div className="flex items-center gap-3"><span aria-hidden="true" className="battle-shield shrink-0 flex items-center justify-center" style=${{width:44,height:44,borderRadius:22,background:tint('var(--bronze)',16),color:'var(--bronze)',boxShadow:'0 0 0 1.5px var(--bronze) inset'}}><${Icon} n="aspis" s=${24}/></span>
+ <div className="text-[21px] font-bold leading-snug break-words min-w-0">${t}</div></div>
+ ${b.plan&&html`<div className="text-[12.5px] mute mt-2 leading-snug">${b.plan}</div>`}
+ <div role="status" className="select-none mt-4 flex items-center justify-center gap-2 text-[15px] font-bold" style=${{minHeight:52,borderRadius:12,background:tint('var(--bronze)',14),color:'var(--bronze)'}}><${Icon} n=${b.min?'check':'laurel'} s=${18}/>${b.min?'Minimum gehalten':'Schlacht gewonnen'}</div></section>`;
+ return html`<section className="relative overflow-hidden mt-4 p-4" data-today-battle="open" data-today-priority="primary" aria-label="Hauptschlacht" style=${{borderRadius:16,background:rust(18),color:'var(--ink)',boxShadow:'0 0 0 1px '+rust(40)+' inset'}}>
+ <div className="flex items-start justify-between gap-2"><div className="lbl pt-1 min-w-0" style=${{color:'var(--acc2)'}}>Hauptschlacht<span className="mute font-normal normal-case tracking-normal">${' · '+b.source}${b.when?' · '+b.when:''}</span></div>
+ <div className="flex shrink-0 -mt-2 -mr-2"><button type="button" onClick=${()=>chooseBattle(c,null)} className="border-0 bg-transparent text-[12.5px] px-2" style=${{minHeight:44,color:'var(--mute)'}}>Ändern</button><button type="button" onClick=${()=>priorityDetail(c,b)} aria-label=${'Details: '+t} className="flex items-center justify-center border-0 bg-transparent" style=${{width:44,height:44,color:'var(--mute)'}}><${Icon} n="info" s=${18}/></button></div></div>
  <div className="flex items-center gap-3">${area&&html`<span aria-hidden="true" className="shrink-0 flex items-center justify-center" style=${{width:44,height:44,borderRadius:14,background:rust(32),color:'var(--acc2)'}}><${Icon} n=${area.icon} s=${22}/></span>`}
  <div className="text-[21px] font-bold leading-snug break-words min-w-0">${t}</div></div>
+ ${b.plan&&html`<div className="text-[12.5px] mute mt-2 leading-snug">${b.plan}</div>`}
  <div className="flex items-center gap-2 mt-4">
- <button type="button" onClick=${e=>completePriority(c,item,e)} aria-label=${'Erledigen: '+t} className="flex-1 inline-flex items-center justify-center gap-2 border-0 text-[15px] font-bold" style=${{minHeight:52,borderRadius:12,background:rust(72),color:'var(--on-acc)'}}><${Icon} n=${closes&&!logs?'aspis':'check'} s=${18} sw=${2.2}/>${logs?'Erfassen':closes?'Schild schließen':'Erledigt'}</button>
- ${item.kind==='standard'&&item.std.min&&html`<button type="button" onClick=${e=>completePriority(c,item,e,'min')} title=${item.std.min.text} className="border-0 px-4 text-[14px] font-semibold" style=${{minHeight:52,borderRadius:12,background:rust(32),color:'var(--ink)'}}>Minimum</button>`}
+ <button type="button" onClick=${e=>completePriority(c,b,e)} aria-label=${'Erledigen: '+t} className="flex-1 inline-flex items-center justify-center gap-2 border-0 text-[15px] font-bold" style=${{minHeight:52,borderRadius:12,background:rust(72),color:'var(--on-acc)'}}><${Icon} n=${logs?'check':'aspis'} s=${18} sw=${2.2}/>${logs?'Erfassen':closes?'Schild schließen':'Erledigt'}</button>
+ ${b.kind==='standard'&&b.std.min&&html`<button type="button" onClick=${e=>completePriority(c,b,e,'min')} title=${b.std.min.text} className="border-0 px-4 text-[14px] font-semibold" style=${{minHeight:52,borderRadius:12,background:rust(32),color:'var(--ink)'}}>Minimum</button>`}
  </div></section>`}
-function TodayPriorities({c,item,ring,mid}){
- if(c.D.restToday)return html`<section className="card p-5 mt-4 flex items-center gap-4"><${AreaBadge} area=${LC.AREA.health} size=${48}/><div><div className="text-[17px] font-bold">Ruhetag</div><div className="text-[13px] mute">Erholung gehört zum Plan.</div></div></section>${mid}`;
- if(!item)return html`<section className="card p-5 mt-3"><div className="text-[18px] font-bold">Nichts mehr offen.</div><div className="flex gap-2 mt-4"><button type="button" className="btn flex-1 py-3 text-[14px]" onClick=${()=>c.openSheet({t:'review'})}>Tag abschließen</button>${!mainGoal(c.S)&&html`<button type="button" className="chip" style=${{minHeight:48}} onClick=${()=>c.openSheet({t:'goal'})}>Ziel festlegen</button>`}</div></section>${mid}`;
- return html`<${NowCard} key=${item.key} c=${c} item=${item} ring=${ring}/>${mid}`}
+/* Noch keine Hauptschlacht: der Nutzer wählt mit einem Tipp. Der erste Eintrag ist nur als Vorschlag markiert. */
+function BattlePick({c,items}){
+ return html`<section className="card p-4 mt-4" data-today-battle="pick" aria-label="Hauptschlacht wählen">
+ <div className="lbl" style=${{color:'var(--acc2)'}}>Hauptschlacht</div><div className="text-[18px] font-bold leading-snug mt-1">Welche Handlung zählt heute am meisten?</div>
+ <div className="flex flex-col gap-2 mt-3">${items.map((x,i)=>{const a=priorityArea(x),why=x.source||(x.g?'Schritt zu deinem Ziel':x.kind==='standard'?'Dein Standard':'');return html`<button key=${x.key} type="button" onClick=${()=>chooseBattle(c,x.key)} aria-label=${'Als Hauptschlacht wählen: '+cleanTitle(x.title)} className="w-full text-left flex items-center gap-3 border-0 px-3 py-2" style=${{minHeight:52,borderRadius:12,background:i?'var(--card2)':tint('var(--acc)',14),boxShadow:'0 0 0 1px '+(i?'var(--line)':tint('var(--acc2)',40))+' inset',color:'var(--ink)'}}>
+ <${AreaBadge} area=${a} size=${32}/><span className="flex-1 min-w-0"><span className="block text-[14.5px] font-semibold truncate">${cleanTitle(x.title)}</span>${(i===0||why)&&html`<span className="block text-[11.5px] mute truncate">${i===0?'Vorschlag'+(why?' · '+why:''):why}</span>`}</span><${Icon} n="chevR" s=${15} cls="mute"/></button>`})}</div></section>`}
+/* Nebenmissionen: höchstens drei, kompakt, mit einem Tipp erledigt (gleiche Logik wie die Hauptschlacht). */
+function SideMissions({c,items}){if(!items.length)return null;
+ return html`<section aria-label="Nebenmissionen" className="mt-3"><div className="flex items-center justify-between px-1"><span className="lbl">Nebenmissionen</span><button type="button" onClick=${()=>c.setTab('tasks')} className="bg-transparent border-0 p-0 text-[12.5px] mute" style=${{minHeight:32}}>Alle Aufgaben</button></div>
+ <div className="card px-3 py-0.5 mt-1">${items.map((x,i)=>{const t=cleanTitle(x.title),a=priorityArea(x);return html`<div key=${x.key} className=${'flex items-center gap-3'+(i?' border-t ln':'')} style=${{minHeight:48}}>
+ <span aria-hidden="true" className="block rounded-full shrink-0" style=${{width:8,height:8,background:a?a.color:'var(--mute)'}}/>
+ <button type="button" onClick=${()=>priorityDetail(c,x)} className="flex-1 min-w-0 text-left bg-transparent border-0 p-0 text-[14.5px] font-medium truncate" style=${{minHeight:44,color:'var(--ink)'}}>${t}</button>
+ <button type="button" aria-label=${'Erledigen: '+t} onClick=${e=>completePriority(c,x,e)} className="chk"/></div>`})}</div></section>`}
+/* Fortschritt kompakt: Dauerhaft (bleibt) gegen Saison (endet nach SDAYS Tagen), Potenzial mit genannter Annahme. */
+function CompoundStrip({c}){const C=compoundNow(c.S),hasPot=C.pace>0&&C.remDays>0;
+ return html`<button type="button" onClick=${()=>c.setTab('stats')} aria-label="Fortschritt öffnen" data-today-compound className="w-full mt-3 text-left border-0 p-3.5 grid grid-cols-2 gap-3" style=${{borderRadius:16,background:'var(--card)',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}>
+ <span className="min-w-0"><span className="block lbl">Dauerhaft</span><span className="block num text-[24px] font-bold leading-none mt-1">${C.total}</span><span className="block text-[11.5px] mute mt-1 leading-snug">Handlungen insgesamt. Bleiben auch nach Pausen.</span></span>
+ <span className="min-w-0"><span className="block lbl">Saison · ${C.seasonLen} Tage</span><span className="block num text-[24px] font-bold leading-none mt-1">${C.season}${hasPot&&html`<span className="text-[14px] mute font-normal"> → ${C.possible} möglich</span>`}</span><span className="block text-[11.5px] mute mt-1 leading-snug">${hasPot?'Annahme: '+C.pace+'/Woche ('+(C.paceSrc==='recent'?'letzte 7 Tage':'dein Plan')+'), noch '+C.remDays+(C.remDays===1?' Tag':' Tage'):C.remDays>0?'Plane eine Handlung pro Woche, dann zeigt sich das Potenzial.':'Letzter Saisontag.'}</span></span></button>`}
 /* Im Blick: zwei Kacheln. Zeitblock (oder planen) und Reflexion; aktiv in Akzentfarbe. */
 function DayAhead({c}){const {S,D}=c,now=nowMinOf(c),b=nextTimeBlock(S,now),r=reviewToday(S),due=LC.reviewWeek(S.life),eve=!r&&now>=1080;
  const tile=(icon,big,small,hot,on,label)=>html`<button type="button" onClick=${on} aria-label=${label} className="text-left border-0 px-3 py-2 flex items-center gap-3 min-w-0" style=${{minHeight:58,borderRadius:16,background:hot?tint('var(--acc)',16):'var(--card-g)',boxShadow:'0 0 0 1px '+(hot?tint('var(--acc2)',45):'var(--line)')+' inset',color:'var(--ink)'}}>
@@ -1584,14 +1655,22 @@ function FutureSelfTile({c}){const {S}=c,p=FS.settings(S);if(!p.enabled)return n
  ${!fm&&!rest&&d.Y>0&&lead>0&&html`<span className="sr-only">${lead} Schritte Rückstand</span>`}
  </span><${Icon} n="chevR" s=${16} cls="mute"/></button>`}
 function Home({c}){const {S}=c;const [more,setMore]=useState(false),[pick,setPick]=useState(null),nm=((S.profile&&S.profile.name)||'').trim();
- const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fm=focusMode(S),items=todayPriorities(S,c.D),rings=areaDay(S,c.D);
- /* Gewählter Ring, sonst der Bereich der wichtigsten Priorität; ohne offene Handlung dort zurück zur wichtigsten. */
- const first=items[0]&&priorityArea(items[0]),chosen=rings.find(r=>r.area.id===pick),pickItem=chosen&&areaItem(S,items,chosen);
- const item=pickItem||items[0]||null,ia=item&&priorityArea(item),ring=ia&&rings.find(r=>r.area.id===ia.id),sel=pickItem?pick:first&&first.id;
+ const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fm=focusMode(S),items=todayPriorities(S,c.D,5),rings=areaDay(S,c.D),battle=todayBattle(S,c.D,items);
+ /* Ring antippen holt die nächste Handlung dieses Bereichs nach vorn: in die Nebenmissionen bzw. an den Anfang der Auswahl. Die Hauptschlacht bleibt. */
+ const chosen=rings.find(r=>r.area.id===pick),pickItem=chosen&&areaItem(S,items,chosen),uniq=a=>a.filter((x,i)=>x&&a.findIndex(y=>y&&y.key===x.key)===i);
+ const side=battle?uniq([pickItem,...items]).filter(x=>x.key!==battle.key).slice(0,3):[],choices=uniq([pickItem,...items]).slice(0,3);
+ const ba=battle&&priorityArea(battle),ring=ba&&rings.find(r=>r.area.id===ba.id),sel=pickItem?pick:ba&&ba.id;
+ const main=c.D.restToday?html`<section className="card p-5 mt-4 flex items-center gap-4"><${AreaBadge} area=${LC.AREA.health} size=${48}/><div><div className="text-[17px] font-bold">Ruhetag</div><div className="text-[13px] mute">Erholung gehört zum Plan.</div></div></section>`
+  :battle?html`<${BattleCard} key=${battle.key} c=${c} b=${battle} ring=${ring}/>`
+  :choices.length?html`<${BattlePick} c=${c} items=${choices}/>`
+  :html`<section className="card p-5 mt-3"><div className="text-[18px] font-bold">Nichts mehr offen.</div><div className="flex gap-2 mt-4"><button type="button" className="btn flex-1 py-3 text-[14px]" onClick=${()=>c.openSheet({t:'review'})}>Tag abschließen</button>${!mainGoal(S)&&html`<button type="button" className="chip" style=${{minHeight:48}} onClick=${()=>c.openSheet({t:'goal'})}>Ziel festlegen</button>`}</div></section>`;
  return html`<div className="screen px-4 pb-6">
  <${TodayHero} c=${c} ini=${ini} rings=${rings} sel=${sel} onSel=${id=>setPick(p=>p===id?null:id)}/>
  ${S.setup&&html`<button onClick=${()=>c.openSheet({t:'newseason'})} className="btn w-full py-3 mt-3 text-sm">Neue Saison einrichten</button>`}
- <${TodayPriorities} c=${c} item=${item} ring=${ring} mid=${html`<${FutureSelfTile} c=${c}/>`}/>
+ ${main}
+ <${SideMissions} c=${c} items=${side}/>
+ <${CompoundStrip} c=${c}/>
+ <${FutureSelfTile} c=${c}/>
  <${DayAhead} c=${c}/>
  <details className="mt-4" onToggle=${e=>setMore(e.currentTarget.open)}><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center'}}>Mehr: Standards und Impulse</summary>
  ${more&&html`<${StandardsToday} c=${c}/><button type="button" className="chip mt-3" onClick=${()=>c.openSheet({t:'loopinfo'})}>Wie dein Handeln wirkt</button><${InviteCard} c=${c}/><${CalmCard} c=${c}/><${WisdomSlot} c=${c} place="today"/>${!fm&&html`<div className="mt-3"><${DayScene} c=${c}/></div><${DuelPair} c=${c}/>`}`}</details>
