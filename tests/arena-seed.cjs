@@ -27,6 +27,22 @@ async function seedArena(db,ids,names){
  /* Reaktionen der anderen auf die jüngsten Meldungen */
  const recent=events.sort((x,y)=>new Date(y.at)-new Date(x.at)).slice(0,10),kinds=['respect','fire','rematch'];
  for(const [i,e] of recent.entries())for(const q of [0,1,2])if(q!==e.user&&(i+q)%2===0)await db.query('insert into public.arena_reactions(event_id,user_id,kind) values($1,$2,$3) on conflict do nothing',[e.id,ids[q],kinds[(i+q)%3]]);
+ /* Arena 3.0 (nur wenn die v3-Migration geladen ist): gesperrte Formationen der laufenden Woche 3 mit Wochenplan,
+    Doktrinen. Linus hat für Woche 4 noch nichts gewählt (Vorbereitung sichtbar), Jonas schon. */
+ if((await db.query("select to_regclass('public.arena_formations') as t")).rows[0].t){
+  const plan={mind:[1,3,5],body:[1,3,5,7],growth:[1,3,5],bonds:[2,4]};
+  for(const [p,kind,slot] of [[0,'guardian','mind'],[1,'spear','body'],[2,'shield','mind']])await db.query('insert into public.arena_formations(league_id,user_id,week,kind,slot,plan) values($1,$2,3,$3,$4,$5::jsonb)',[a.id,ids[p],kind,slot,JSON.stringify(plan)]);
+  await db.query("insert into public.arena_formations(league_id,user_id,week,kind,slot,plan) values($1,$2,4,'spear','growth',$3::jsonb)",[a.id,ids[1],JSON.stringify(plan)]);
+  for(const [p,d] of [[0,'guardian'],[1,'spear'],[2,'shield']])await db.query('update public.arena_members set doctrine=$3 where league_id=$1 and user_id=$2',[a.id,ids[p],d]);
+  /* Abgeschlossene Saison „Erste Schlacht“ (vor sechs Wochen begonnen) für Saisonfinale und Ruhmeshalle. Linus gewinnt knapp. */
+  const old=day(monday,-42),ot={mind:2,body:2,growth:2,bonds:2};
+  const {rows:[o]}=await db.query("insert into public.arena_leagues(id,owner_id,name,capacity,targets,start_date,invite_code,created_at) values('30000000-0000-4000-8000-000000000100',$1,'Erste Schlacht',3,$2::jsonb,$3::date,'ERSTESCHLACHT',$4::date) returning id",[ids[0],JSON.stringify(ot),old,day(old,-3)]);
+  for(let p=0;p<3;p++)await db.query("insert into public.arena_members(league_id,user_id,display_name,joined_at,doctrine) values($1,$2,$3,$4::date + interval '1 hour'*$5,$6)",[o.id,ids[p],names[p],day(old,-3+p),9+p,['shield','spear','guardian'][p]]);
+  const FILL={0:[2,2,1,2],1:[2,1,2,2],2:[1,2,2,1]};/* Tage je Bereich, für alle vier Wochen leicht verschoben */
+  for(let p=0;p<3;p++)for(let w=1;w<=4;w++){const fplan={mind:[1,3],body:[2,4],growth:[3,5],bonds:[1,5]};
+   await db.query('insert into public.arena_formations(league_id,user_id,week,kind,slot,plan) values($1,$2,$3,$4,$5,$6::jsonb)',[o.id,ids[p],w,['shield','spear','guardian'][p],'mind',JSON.stringify(fplan)]);
+   for(const [si,slot] of SLOTS.entries()){const n=Math.max(0,FILL[p][si]-((w+p+si)%3===0?1:0));for(const d of fplan[slot].slice(0,n))await db.query("insert into public.arena_completions(league_id,user_id,week,slot,day,created_at) values($1,$2,$3,$4,$5::date,($5::date + make_interval(hours=>$6)) at time zone 'Europe/Berlin')",[o.id,ids[p],w,slot,day(old,(w-1)*7+d-1),7+p])}}
+ }
  /* Zweite Arena in der Lobby: Jonas ist Gründer, Linus sieht das Soll nur lesend */
  const {rows:[b]}=await db.query("insert into public.arena_leagues(owner_id,name,capacity,targets,invite_code) values($1,'Morgenlauf-Trio',3,$2::jsonb,'MORGENLAUFDEMO') returning id",[ids[1],JSON.stringify({mind:2,body:5,growth:2,bonds:2})]);
  for(const p of [1,0])await db.query('insert into public.arena_members(league_id,user_id,display_name) values($1,$2,$3)',[b.id,ids[p],names[p]]);

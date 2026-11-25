@@ -90,3 +90,117 @@ Lokaler Integrations-Review: Heute, Mein Leben und Arena bei 375 × 812 geprüft
 Stufe Handeln: Auszeichnungen würdigen die Umsetzung gemeinsamer Standards. Comeback: nach einem bereits aktiven Saisontag mindestens zwei freie Kalendertage und dann drei aktive Tage in Folge. Ein Bereich pro Tag reicht. Lorbeer am dritten Tag, auch über Wochengrenzen, höchstens einmal je Person/Woche. Rücknahmen aktualisieren die Ableitung. Keine Zusatzpunkte. Konstanz würdigt die meisten unterschiedlichen aktiven Tage, auch bei Gleichstand. Keine Aktivität bedeutet keine Auszeichnung.
 
 Abgeschlossene Wochen erscheinen in der Wochenzeremonie, neueste zuerst: Podest, Wochensieg, Konstanz und Comebacks. Wertung nachvollziehen zeigt je Mitglied Tage/Soll, gerundete Basis und Orakel je Bereich, Prämie, Gesamtsumme, Rang und Tabellenpunkte; laufende Woche vorläufig. Alle Zahlen stammen aus derselben Wertungsfunktion. Nur bestehende öffentliche Meldungen; keine privaten Texte, neue Serverdaten oder Migration.
+
+## Nächster Zug, Kampfbericht und neue Zeremonie (ww-v69)
+
+Stufe Handeln: Die Arena zeigt, was heute zählt.
+
+- **Dein nächster Zug** (Kampfplatz): `ArenaCore.gains(snapshot)` rechnet für jeden offenen Bereich mit derselben Wertungsfunktion vor, wie viele Arenapunkte eine Meldung heute bringt (Orakel und Wochenprämie eingeschlossen) und an wem du damit vorbeiziehst. Der beste Bereich lässt sich direkt melden; die Kacheln unter „Heute melden“ zeigen den Wert je Bereich. Bereits heute gemeldete oder volle Bereiche erscheinen nicht. Rein lesend, keine neuen Serverdaten.
+- **Kampfbericht:** nach Tagen gruppiert (Heute, Gestern, Datum), Herkunft sichtbar („selbst gemeldet“ bzw. „aus Aufgaben übernommen“), zunächst sechs Einträge, ältere auf Wunsch. Eigene Meldungen zeigen erhaltene Reaktionen statt Reaktionsknöpfen; der SQL-Entwurf lehnt Reaktionen auf eigene Meldungen ab.
+- **Neu gewertet:** Ist eine Woche abgeschlossen, erscheint ihre Zeremonie einmal oben, bis „Gesehen“ getippt wird. Gemerkt wird nur die Wochennummer je Arena (`S.arenaSeen`), lokal im Spielstand.
+- Texte zur automatischen Übernahme (Opt-in) und zur Sichtbarkeit beim Beitritt an den aktuellen Stand angepasst.
+
+## Wochenverlauf und Sonntagsfinale (ww-v70)
+
+- **Wochenverlauf:** Raster mit einer Zeile je Mitglied (nach Wochenrang) und sieben Tagen Mo–So. Die Füllung zeigt, wie viele der vier Bereiche an dem Tag gemeldet wurden; heute ist umrandet, künftige Tage sind blass. Quelle: `ArenaCore.activity(snapshot, week)`, nur bestehende öffentliche Meldungen. Ruhetage sind ausdrücklich erlaubt.
+- **Sonntagsfinale:** Am letzten Tag einer Spielwoche erscheint oben „Finale · heute bis 24 Uhr“ mit eigenem Platz, Abstand zum nächsten Platz darüber und dem, was alle heute noch offenen Bereiche zusammen bringen (`ArenaCore.finale`, dieselbe Wertungsfunktion). Keine Benachrichtigung, keine Zusatzpunkte.
+- Keine neuen Serverdaten, keine Migration.
+
+### Übersicht in drei Reitern (ww-v70)
+
+Eine laufende Arena ist in **Heute**, **Tabelle** und **Bericht** gegliedert (flache Reiterleiste mit Unterstrich):
+
+- **Heute:** Hinweis auf eine neu gewertete Woche (eine Zeile: Sieg, eigener Platz, „Ansehen“ öffnet die Zeremonie unter Tabelle), Sonntagsfinale, eigener Platz mit Abstand und nächstem Zug, Orakel und Wochenprämie in einer Zeile, „Heute melden“ mit dem Schalter für die automatische Übernahme.
+- **Tabelle:** Kampfplatz mit Podest (laufende Woche vorläufig), Wochenverlauf, Saisontabelle, Wochenzeremonien, Wertung nachvollziehen.
+- **Bericht:** Comeback-Hinweise und Kampfbericht.
+
+Eine beendete Saison öffnet direkt die Tabelle. Lobby und vorgemerkte Saison bleiben unverändert.
+
+## Arena-Bühne nach dem Vorbild des Duells (ww-v71)
+
+Der Reiter **Heute** übernimmt die Bildsprache des persönlichen Duells, ersetzt die frühere Karte „Platz X von N“ und zeigt nur bestätigte Wochenpunkte:
+
+- **Szene:** Jedes Mitglied steht als Hoplit auf einer Stufe, deren Höhe den Wochenpunkten folgt (höchstens sechs Figuren, du immer dabei; Spitze in der Mitte). Eigene Figur mit Terrakotta-Umhang, Lorbeer in Gold über Platz 1, alle anderen neutral – keine Nemesis-Farbe für Freunde.
+- **Kopf-an-Kopf:** du gegen den Platz direkt über dir (wenn du führst: gegen deinen Verfolger) in großen Ziffern, darunter der Abstand als Balken.
+- **Sieben Runden:** deine Woche Mo–So; Zahl = gemeldete Bereiche an diesem Tag, 4 von 4 in Gold, heute umrandet.
+- **Stimme:** eine Zeile in Cinzel aus den bestätigten Zahlen (Reichweite, Abstand, Führung) – ermutigend, nie spöttisch. Danach folgen „Dein nächster Zug“, Orakel/Wochenprämie und „Heute melden“.
+- Keine neuen Serverdaten, keine Migration.
+
+## Arena 3.0 · Regel 3 (ww-v72, Entwurf, Migration nicht angewendet)
+
+Stufe Handeln: Strategie über vorher vereinbarte Standards, nicht über mehr Aufgaben. Grundlage ist Codex' `codex/arena-v3` (`e25db1d`), von Claude übernommen, geprüft und um Phase 2 erweitert. Neue Ligen erhalten `rule_version=3`; bestehende Ligen bleiben bei Regel 1 und rechnen unverändert.
+
+### Wertung (zentral in `private.arena_v3_score`, gespiegelt in `ArenaCore.scoreV3`)
+
+- Einheit Zehntel; sichtbar = /10. Basis je Bereich Tage/Soll × 25, höchstens 100.
+- Bonus höchstens 15, in fester Reihenfolge angerechnet, bis 15 erreicht sind: Formation +6 → Vier Säulen +5 → Kampfgeist +4 → Wochenprämie +5 → Orakel. Wochenhöchstwert 115. Wer alle drei Strategieboni holt, bekommt keine zusätzlichen Punkte für Orakel und Prämie. Die Reihenfolge ist bewusst fest und dokumentiert.
+- Der Server ist maßgeblich. Die App rechnet mit derselben Funktion nur Vorschau („Nächster Zug“, Sonntagsfinale, Fortschritt). `tests/arena-tactics.cjs` vergleicht SQL und JS in 180 Zufallsfällen, auch mit Kriegsrat.
+
+### Formationen und Wochenplan
+
+- Vor Montag (Berliner Datum) wählt jede Person eine Formation und legt je Bereich genau das gemeinsame Soll auf Wochentage. Ab Montag ist die Formation gesperrt. Fremde Formationen sind erst ab Wochenbeginn sichtbar (RLS und Snapshot), damit niemand die Aufstellung anderer vorher sieht.
+- **Schildwall:** jeder Bereich ≥ 60 % (aufgerundet) seines Solls. **Speerspitze:** gewählter Bereich 100 %. **Wächter:** an min(4, geplante Tage) geplanten Tagen alles für diesen Tag Geplante erfüllt. Ungeplante Tage sind Ruhetage.
+- Die **Doktrin** (Saison-Draft) wird vor dem Saisonstart gewählt. Sie wählt nur die Formation vor und erscheint als Zeichen, ohne Punkte. So gibt es keinen statistischen Vorteil.
+
+### Kampfgeist (Momentum) und Vier Säulen
+
+- **Kampfgeist +4:** drei geplante Tage in Folge vollständig erfüllt. Ungeplante Tage unterbrechen nicht, ein verpasster Plantag schon. Einmal je Woche. Eine spätere Unterbrechung nimmt nichts weg. Ohne Wochenplan (also ohne Formation) gibt es keinen Kampfgeist. Meldungen sind nur für heute (Serverdatum) möglich, rückwirkendes Sammeln ist ausgeschlossen.
+- **Vier Säulen +5:** in mindestens drei Bereichen das volle Soll. Einmal je Woche. Die Oberfläche zeigt vier Säulen, die bei vollem Soll golden werden.
+
+### Kriegsrat (Taktikwechsel)
+
+- Einmal je Woche, Montag bis Donnerstag, nur wenn die gesperrte Formation noch nicht gemeistert ist (keine doppelten Boni).
+- Die neue Formation gilt ab dem Folgetag (`switch_day`). Der neue Plan legt genau das noch offene Soll je Bereich auf Tage ab morgen. Die alten Plantage davor bleiben für den Kampfgeist erhalten.
+- Gewertet wird die neue Formation nur mit Meldungen ab `switch_day`, gemessen am offenen Soll. Bereits gewertete Meldungen ändern sich nicht. Jeder Wechsel steht dauerhaft in `arena_formation_log`.
+
+### Ereignisse
+
+`arena_score_events` speichert nach `report` und `switch` die Differenz je Wertungsart (`base`, `formation`, `combo`, `momentum`, `bounty`, `oracle`) für alle Mitglieder. Felder: ID, Spieler, Arena, Woche, Art, Änderung, Bereich, Regelversion, auslösende Meldung (`source`), Zeit. Wiederholte Aufrufe ergeben keine Differenz und damit kein Ereignis. Rücknahmen erscheinen als negative Einträge. Die Ligazeilensperre serialisiert gleichzeitige Aufrufe. Der Bericht zeigt „Bestätigte Punkte“ (seitenweise, 30 je Seite) getrennt von den Meldungen und von Kriegsrat-Hinweisen.
+
+### Oberfläche
+
+Reiter **Heute** zeigt nach „Heute melden“ die Karte **Taktik der Woche**: Bonusbalken x/15, gesperrte Formation mit Fortschritt, Kampfgeist (drei Flammen, sanftes Glühen nur ohne reduzierte Bewegung), Vier Säulen und den Kriegsrat mit verbleibenden Wechseln. Darunter folgt **Formation · Woche n+1** mit drei Formationskarten und Wochenplan-Raster. Lobby und vorgemerkte Saison zeigen die **Saisonvorbereitung** (Doktrin), vor dem Start zusätzlich die Formation für Woche 1. Reiter **Bericht** zeigt die bestätigten Punkte.
+
+### Geprüft
+
+- `tests/arena-tactics.cjs` (echtes SQL in PGlite): Momentum (Ruhetage, Bruch, kein Abzug, ohne Plan), Vier Säulen, alle drei Formationen samt Grenzen, Deckel 115 und Reihenfolge, Kriegsrat (offenes Soll, ab morgen, einmalig, Mo–Do, nicht nach Erfolg, ohne Formation), Ereignisse mit Rücknahme, Wiederholung ohne Doppelungen, geheime Aufstellung, Schreibverbote, Fremdzugriff, Regel 1 unverändert, Parität SQL/JS.
+- Browser (lokaler Prüfserver, 375 × 812, Antik dunkel): Taktik-Karte, Kriegsrat-Wechsel, Formation Woche 4, Meldung mit bestätigtem Ereignis im Bericht, Doktrin in der Lobby. Keine Konsolenfehler.
+- Korrekturen an v3 bei der Übernahme: `arena_events` fehlte in der RPC-Freigabe von `auth.js` („Ältere Ereignisse laden“ wäre produktiv gescheitert). „Nächster Zug“ und Sonntagsfinale zeigten bei Regel 3 immer 0, weil sie feste Serverwerte nutzten; jetzt rechnen sie lokal mit derselben Wertung. Gleichstand bei der Wochenprämie wird wie im SQL nach Nutzer-ID entschieden.
+
+### Nicht geprüft und offen
+
+- Keine Prüfung gegen das echte Supabase-Projekt. Echte Nebenläufigkeit (zwei Verbindungen) wurde nicht getestet, PGlite hat nur eine Verbindung. Die Absicherung beruht auf `select … for update` der Liga.
+- Sommerzeit: Tag und Woche kommen aus `now() at time zone 'Europe/Berlin'` als Kalenderdatum. Ein eigener Test über den Zeitumstellungstag fehlt.
+- Phase 3 und 4 siehe unten.
+- Veröffentlichung: Migration `202611230002` nach Review im Supabase-SQL-Editor bzw. per `supabase db push` nach `202611230001` anwenden. Danach drei echte Konten prüfen, dann GitHub Pages über den Merge nach `main`.
+
+## Arena 3.0 · Phase 3: Live-Wettbewerb (ww-v73)
+
+Alle Funktionen dieser Phase lesen nur die öffentlichen Arena-Daten, die schon im Snapshot stehen. Sie vergeben keine Punkte. Logik in `arena-core.js`, Tests in `tests/arena-live.cjs`.
+
+- **Live-Tabelle** (Reiter Tabelle): bestätigte Wochenpunkte, Platz, Abstand zum nächsten Platz, rechnerisches Maximum sowie Symbole für Formation, Kampfgeist und Vier Säulen. Ein Punkt zeigt „Live“ (Realtime verbunden) oder „alle 15 s“.
+- **Realtime mit Rückfall:** `authApi.arenaWatch` abonniert über Supabase Realtime neue `arena_score_events` und `arena_completions` der Arena (Filter `league_id`, RLS: nur Mitglieder). Das Signal lädt nur den Snapshot neu, gebündelt nach 400 ms; Daten aus dem Signal werden nicht verwendet. Ohne Realtime, bei Fehlern und im Prüfserver wird weiter alle 15 s abgefragt, mit Realtime alle 30 s als Sicherheitsnetz, dazu bei Fokus und beim Wiederverbinden. Die Migration nimmt beide Tabellen nur dann in die Publikation `supabase_realtime` auf, wenn es sie gibt, und lässt sich wiederholen.
+- **Prognose:** bestätigter Stand, noch mögliche Basis- und Bonuspunkte, rechnerisches Maximum (Szenario: jedes offene Soll an den verbleibenden Tagen, geplante Tage zuerst) und die mögliche Platzspanne (bester Fall: eigenes Maximum gegen den jetzigen Stand der anderen; schlechtester Fall umgekehrt). Ausdrücklich als Szenario gekennzeichnet. Keine Wahrscheinlichkeiten und keine Siegversprechen.
+- **Live-Hinweise:** Nach jedem neuen bestätigten Stand höchstens ein kurzer Hinweis (4,5 s, schließbar, ohne Animation bei reduzierter Bewegung), nach Wichtigkeit: Formation gemeistert, Führung übernommen, neue Führung eines anderen, neuer persönlicher Wochenrekord, Rangaufstieg, bestätigte Punkte. Der erste Aufruf einer Arena löst keinen Hinweis aus.
+- **Gegner-Pokal** (Reiter Duell): Rundenturnier im Kreisverfahren über die feste Mitgliederreihenfolge (Beitritt). Nach dem Start tritt niemand mehr bei, deshalb stehen alle Paarungen vor Wochenbeginn fest. Bei ungerader Zahl gibt es ein Freilos, das jede Woche weiterwandert. Sieg, Niederlage oder Unentschieden ergeben sich nur aus den normalen Wochenpunkten. Es gibt keine Siegpunkte, die Tabelle bleibt unverändert. Angezeigt werden Duellstand, noch mögliche Punkte beider Seiten, Bilanz, frühere Begegnungen (Revanche), Freilos-Wochen und der nächste Gegner. Bei drei Personen gibt es nach drei Wochen eine Revanche.
+- **Scouting** (Reiter Duell): Ø Wochenpunkte (abgeschlossene Wochen, sonst vorläufig), Beständigkeit (aktive Tage / vergangene Tage), gewonnene Duelle, Trend zur Vorwoche, stärkster Bereich (Anteil am Soll), Platz in Woche und Saison, dazu die Kategorien, in denen man aufholen kann. Keine Ziele, Texte oder Gesundheitsdaten.
+
+Geprüft: `tests/arena-live.cjs` – Rundenturnier für 2–8 Personen (vollständige Paarung, Freilos nur bei ungerader Zahl, Rotation, keine Wiederholung), Duelle ohne Einfluss auf die Tabelle, Gleichstand, Prognose (lesend, Maximum ≤ 115, Rang in der Spanne, erfülltes Soll ohne Potenzial, nur Regel 3), Szenario nutzt Plantage, Scouting-Felder, Live-Hinweise, Realtime-Abo (Filter, Status, Aufräumen, ungültige ID, Rückfall) und die Publikation im echten SQL. Im Browser (Prüfserver, 375 × 812): Live-Tabelle, Prognose, Pokal, Scouting, Hinweis nach Meldung („Du hast die Führung übernommen“, „Bestätigt · +8,4“). Keine Konsolenfehler.
+
+Nicht geprüft: Supabase Realtime gegen das echte Projekt (Publikation, RLS-Filter, Token-Wechsel). Der Prüfserver schaltet Realtime ab, damit er das echte Projekt nie kontaktiert. Saisonübergreifende Duellbilanz und Ruhmeshalle folgen in Phase 4, weil sie Daten über mehrere Arenen brauchen.
+
+## Arena 3.0 · Phase 4: Ruhmeshalle und Saisonfinale (ww-v74)
+
+Stufe Handeln, langfristig: Die Ruhmeshalle würdigt nachhaltige Beständigkeit, nicht pausenlose Aktivität. Lorbeeren bringen weder Punkte noch Vorteile in neuen Saisons.
+
+- **Daten:** `public.arena_hall()` liefert die Snapshots aller begonnenen Arenen der angemeldeten Person (höchstens 20, neueste zuerst; ohne Lobby). Die Funktion prüft die Anmeldung, jeder Snapshot zusätzlich die Mitgliedschaft. Es gibt keine eigene Statistiktabelle: Alles wird in `ArenaCore.seasonStats` und `ArenaCore.hall` aus den gespeicherten Meldungen und Wertungen abgeleitet. Deshalb bleibt es nachvollziehbar und kann nicht von der Wertung abweichen. Die Historie besteht, solange die Arenen bestehen.
+- **Nur abgeschlossene Wochen** zählen. Die laufende Woche ist nie Teil der Historie.
+- **Saisonstatistik je Arena:** Saisonplatz und Tabellenpunkte, Saisonsieg (auch geteilt), Wochensiege, Bestwoche, gemeisterte Formationen, Kampfgeist, Vier Säulen, Comebacks, Phalanx-Wochen, Duellbilanz mit Gegnern.
+- **Saisonübergreifend:** Summen, Bestwoche aller Saisons, Rivalen (Duellbilanz je Person über alle Saisons) und die **Beständigkeitsfolge**: Kalenderwochen in Folge mit mindestens 60 Basispunkten. Ruhetage innerhalb der Woche zählen nicht dagegen. Fehlt eine Woche oder liegt sie darunter, beginnt die Folge neu. Überschneiden sich Arenen, zählt die beste Woche einmal.
+- **Lorbeeren** (jeweils mit Herkunft): Saisonsieg, Bestwoche, Wochensiege, Beständigkeit (ab 2 Wochen), Formationen gemeistert, Duellsiege, Comebacks, Phalanx-Wochen (gemeinsamer Erfolg: alle Mitglieder mit mindestens 60 Basispunkten).
+- **Oberfläche:** In „Meine Arenen“ öffnet sich die **Ruhmeshalle**: persönlicher Schild (Initiale, Zeichen der zuletzt gewählten Doktrin, Lorbeer bei Titel), Lorbeeren-Tafel, Rivalen und Saisontafeln als Steintafeln. Nach Woche 4 zeigt der Reiter Tabelle oben das **Saisonfinale** mit Sieg, eigener Bilanz und den Lorbeeren dieser Saison.
+- Testdaten: Der Prüfserver legt zusätzlich die abgeschlossene Saison „Erste Schlacht“ an. Sie beginnt sechs Wochen vor heute und endet mit einem geteilten Sieg.
+
+Geprüft: `tests/arena-hall.cjs` (echtes SQL): nur eigene begonnene Arenen, fremdes Konto leer, Gast abgewiesen, keine privaten Felder. Saisonsieg, Wochensiege, Bestwoche, Formationen und Phalanx stimmen mit der Wertung überein, die laufende Woche ist ausgeschlossen, Rivalen ergeben die Duellbilanz, die Beständigkeitsfolge folgt einer festen Regel (auch synthetisch geprüft), alles rein lesend. Im Browser (375 × 812): Ruhmeshalle und Saisonfinale ohne Konsolenfehler.
+
+Nicht geprüft: echtes Supabase-Projekt. Löscht jemand sein Konto, verschwinden dessen Arenen (Gründer) bzw. Mitgliedschaften und damit auch die daraus abgeleitete Historie. Eine dauerhafte Archivierung wäre eine eigene, gesondert zu entscheidende Tabelle.

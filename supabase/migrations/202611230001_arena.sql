@@ -132,6 +132,7 @@ begin
  elsif p_action='react' then
   ev:=(p_data->>'event')::uuid;k:=p_data->>'kind';
   if k is null or k not in ('respect','fire','rematch') or not exists(select 1 from public.arena_completions where id=ev and league_id=g.id) then raise exception 'Diese Reaktion ist nicht verfügbar.'; end if;
+  if exists(select 1 from public.arena_completions where id=ev and user_id=u) then raise exception 'Auf eigene Meldungen kannst du nicht reagieren.'; end if;
   insert into public.arena_reactions values(ev,u,k) on conflict(event_id,user_id) do update set kind=excluded.kind;
  else raise exception 'Unbekannte Arena-Aktion.';
  end if;

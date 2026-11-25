@@ -1,5 +1,17 @@
 # Heute: wichtigste Handlung und nächster Zeitblock
 
+## Aktueller Aufbau (ab ww-v79)
+
+Seit ww-v81 zeigt die untere Navigation auf Nutzerwunsch nur Icons. Deutsche zugängliche Namen und Tooltips, `aria-current`, aktiver Unterstrich und mindestens 52 px hohe Tippflächen bleiben erhalten.
+
+Dieser Abschnitt ersetzt die unten beschriebenen früheren Reihenfolgen. Standardmäßig sichtbar: Datum und Heute-Titel, Hauptschlacht (oder bewusste Wahl/Ruhetag/Leerzustand), höchstens zwei Nebenmissionen und einmal „Im Blick“ mit Tagesplan und Reflexion. Saison- und Konstanzzahlen stehen nicht mehr im Kopf.
+
+Drei geschlossene Zusatzbereiche: „Bereiche heute“ mit den bestehenden Schildfiltern und Zugang zu allen Aufgaben; „Fortschritt und Zukunfts-Ich“ mit den vier Fortschrittsebenen, Zielprojektion und Begleitung; „Standards und Impulse“ mit den bisherigen Zusatzinhalten. Die Schilde filtern weiterhin Vorschläge, ohne die gewählte Hauptschlacht zu ersetzen. Die Auswahl und Rückgängig-Logik bleiben gleich.
+
+Ein genanntes Hindernis wird als „Von dir eingeplant“ bzw. „Zuletzt genannt“ beschriftet. Aus einer erledigten Handlung wird nicht behauptet, das Hindernis sei überwunden.
+
+Prüfung: mobile Ansichten 390 × 844 und 375 × 812, Wahl, Erledigen, Rückgängig und Reload; optionale Inhalte aufklappbar, „Im Blick“ erscheint einmal, keine Konsolenfehler. Neun passende Testsuiten bestanden. Release-Skripte und Cache verwenden ww-v79.
+
 Schritt 2 des Nutzungsplans, auf dem Kalender-PR #20 aufgebaut. Branch codex/today-focus; Claude reviewt vor der Übernahme.
 
 ## Startseite
@@ -14,6 +26,41 @@ Erfüllte Wochenquoten und erledigte Missionen werden übersprungen. Eigenständ
 
 Missionen verwenden die vorhandene Erledigungs-/Erfassungslogik. Unverknüpfte Commitments und Standards verwenden die bisherigen Daten und Rückgängig-Snapshots. Die Auswahl erzeugt keine Punkte oder Spielstandänderungen. Beschriftungen über Langdruck werden an den neuen normalen Schaltflächen nicht angezeigt; die Aufgabenansicht behält ihren bisherigen Langdruck.
 
+## Hauptschlacht (ww-v76, Branch claude/hauptschlacht)
+
+Ersetzt die Jetzt-Karte. Aufbau Heute von oben: Kopf mit Datum, kompakt **Saison N · Tag X von Y · Konstanz a/b Tage**, Bereichs-Schilde · **Hauptschlacht-Karte** · bis zu drei **Nebenmissionen** · **Fortschritt** (Dauerhaft/Saison) · Zukunfts-Ich · Im Blick · Mehr. Ein Schild antippen holt die nächste Handlung dieses Bereichs an den Anfang der Nebenmissionen bzw. der Auswahl; die Hauptschlacht bleibt.
+
+- **Nie automatisch.** Hauptschlacht ist nur, was der Nutzer heute angetippt hat (`S.battle={k:dayKey,key}`) oder vorher ausdrücklich festgelegt hat: Abendentscheidung, Start im Onboarding, erster Schritt, Debrief/Tagesrückblick (`nextPrio`). Sonst fragt die Karte „Welche Handlung zählt heute am meisten?“ mit bis zu drei Kandidaten aus `todayPriorities`; der erste ist nur als „Vorschlag“ markiert. „Ändern“ öffnet die Auswahl wieder. Die Wahl vergibt keine Punkte.
+- **Ein Tipp erledigt** über die bestehende Logik (`completePriority` → `c.start`/`complete`, Standards, erster Schritt). Missionen mit Erfassung öffnen weiter ihr Erfassen-Sheet.
+- **Erledigt/offen wird abgeleitet**, nicht gespeichert (`todayBattle`, `battleItem`): Mission mit Erledigung heute (`ctime` des Tages bzw. tägliches `done`), Standard mit Eintrag heute (nur Minimum → „Minimum gehalten“), erster Schritt. Eine Wochenmission von einem früheren Tag gilt nicht als heutiger Sieg.
+- **Sieg-Rückmeldung:** Der Wechsel offen → gewonnen zeigt 700 ms Bronze-Schein und Schild (`.battle-fx`), „Schlacht gewonnen“ als Statuszeile. Kein Overlay, nichts wird blockiert, bei `prefers-reduced-motion` keine Animation. Die gewonnene Karte ist so hoch wie die offene, damit ein zweiter Tipp nichts Nachgerücktes trifft.
+- **Mehrfachtippen und Rückgängig:** Missionen sperrt `complete()` (Sperre plus `isDone` im Update). Standards und erster Schritt zählen höchstens einmal pro Tag (`priorityDoneToday`, 700-ms-Sperre). Rückgängig stellt den kompletten Snapshot wieder her, die Karte wird wieder offen.
+- **Fortschritt aus echten Daten** (`compoundNow`, `momentumOf`): *Dauerhaft* = erledigte Missionen (`tally`) + Standard-Einträge + erster Schritt; bleibt bei verpassten Tagen. *Saison* = dasselbe seit Saisonstart, dazu „→ N möglich“ = Saisonstand + Tempo × Resttage / 7. Tempo ab Saisontag 8 = Erledigungen der letzten 7 Tage, vorher der eigene Wochenplan; die Annahme steht immer dabei. *Konstanz* = Tage mit Handlung in den letzten 7 Saisontagen; Ruhetage zählen nicht dagegen, heute erst mit einer Handlung. Keine erfundenen Wirkungen, keine Kurven; Tempel und Fortschritt-Tab bleiben unverändert.
+- **Fortschritt in vier Ebenen** (ww-v76): Heute (Hauptschlacht, erledigt), Woche (Planerfüllung der Ziel-Handlungen und Standards), Saison (Handlungen, Potenzial, Annahme), Dauerhaft (Handlungen, Rekord-Serie, Tempel-Phase). Darunter für das Hauptziel der Link „Wohin führt das?“ zur Folgen-Ansicht (`docs/IMPACT.md`).
+- **Morgen-Briefing** (vor 12 Uhr, keine eigene Karte): Die Hauptschlacht-Karte heißt „Morgen-Briefing · Hauptschlacht“ und nennt ein Hindernis (`battleObstacle`: abends genannt, sonst das häufigste aus den Debriefs der letzten 7 Tage; Erholungstage zählen nicht). Höchstens zwei Nebenmissionen. Die Hindernis-Zeile steht auch auf der gewonnenen Karte, damit die Höhe gleich bleibt.
+- **Abendrückblick** im bestehenden Daily Debrief: oben das Ergebnis der Hauptschlacht, dann „Was du erreicht hast“, „Was hat Widerstand erzeugt?“, „Nächste Anpassung?“ und im Abendschritt „Deine Hauptschlacht für morgen“. Neu ist „Ging es heute um Erholung?“ (Bewusste Ruhe/Krank): keine Hindernisfrage, nichts gilt als ausgelassen, der Tag wird als bewusste Pause vermerkt (`S.rest`, Serie bleibt) und `daily[].recover` gespeichert. Muster ignorieren solche Tage.
+- Tagesablauf-Test: `node tests/today-dayflow.cjs` (wählen, erledigen, rückgängig, neu laden, Tageswechsel, verpasster Tag, Verschieben über Debrief, Abendplan mit Hindernis, Erholung, Export/Import).
+- Spielstand bleibt `v:5`; `battle` ist ein optionales Feld, alte Stände und Export/Import funktionieren unverändert.
+- Tests: `node tests/today-battle.cjs` (keine Automatik, Wahl/Ändern, frühere Festlegung, Mehrfachtippen, Rückgängig, Minimum, Wochenmission, Compound-Zahlen, Konstanz mit Ruhetag, Laden alter Stände, Animationsdauer und reduzierte Bewegung). Browser 375×812: Wahl, Doppeltipp (Punkte einmal, kein Fehltreffer), Rückgängig, hell/dunkel.
+
+## Rückmeldungen nach Handlungen (ww-v82)
+
+Eine gemeinsame Meldung über der Navigation nennt die erledigte Handlung und, falls vorhanden, ihren Wochenstand. „Rückgängig“ ist fünf Sekunden lang erreichbar. Standards, erster Schritt und Import verwenden denselben Weg; die Meldung bleibt auch über einem offenen Sheet bedienbar. Eine neue Handlung ersetzt die vorherige Meldung, ein älterer Timer kann sie nicht versehentlich schließen.
+
+Keine zusätzlichen Punkte-Floats, Partikel, Rang-, Saisonpfad-, Prioritäten- oder Tempel-Baustein-Toasts nach dem Abhaken. Die Punkteberechnung und Fortschrittsdaten bleiben erhalten; der kurze Zustandswechsel der Hauptschlacht bleibt. Auszeichnungen und perfekter Tag überdecken das Rückgängig-Fenster nicht und erscheinen gegebenenfalls erst danach. Arena-Synchronisationsfehler bleiben sichtbar; erfolgreiche Synchronisation erzeugt keinen weiteren Toast.
+
+Prüfung: `action-feedback`, `today-focus`, `today-battle`, `today-dayflow`, `release-smoke`, `auth-contract`, `service-worker`, `arena-sync`, `future-self` und `wisdom-core` bestanden. Browser 375 × 812: genau eine Rückgängig-Schaltfläche, Erledigen und Wiederherstellen, keine Konsolenfehler.
+
+## Wiedereinstieg nach einer Öffnungslücke (ww-v83)
+
+Nach mindestens drei Kalendertagen zwischen zwei Öffnungen setzt `closeCalendarDays` das optionale Feld `S.life.reentry={d:life.d}`. Es enthält nur Tagesindex und freiwillige Entscheidungen (`dismissed`, `planAdjusted`), keine Diagnose und keine privaten Textkopien. Bei neu verankerten Spielständen und täglichem Öffnen entsteht kein Hinweis allein aus fehlenden Erledigungen. Zeitzonenwechsel und Saisonwechsel nutzen denselben Kalenderpfad.
+
+Nur am Rückkehrtag, außerhalb eines bewussten Ruhetags: „Willkommen zurück – Ein Schritt für heute“. Der Nutzer wählt eine bestehende Handlung; eine bereits ausdrücklich festgelegte Hauptschlacht bleibt bestehen. Nebenmissionen bleiben zunächst verborgen. „Meinen Tag wie gewohnt anzeigen“ bzw. „Weitere Aufgaben für heute anzeigen“ beendet diese Ansicht jederzeit. Andere Aufgaben bleiben über die Navigation erreichbar. Kein neues Nachholpensum, keine Rückstandsmeldung. Der Saison-Einrichtungsdialog öffnet sich in dieser Ansicht nicht automatisch.
+
+Bei einer gewählten Ziel-Handlung mit mehr als einer geplanten Einheit bietet ein geschlossener Abschnitt eine Reduktion auf die aufgerundete Hälfte an. Der Knopf nennt die neue Häufigkeit und der Text ihre Gültigkeit: ab dieser Woche, bis zur nächsten eigenen Änderung. Erst der Tipp ruft die bestehende `setActPerWeek`-Historienlogik auf. Es werden weder frühere Wochen noch Erledigungen oder Punkte geändert. Die Wahl allein ändert keinen Plan.
+
+Prüfung: `tests/reentry.cjs` mit frischem Spielstand, täglichen Besuchen, Öffnungslücke, Reload, Auswahl ohne Punkte-/Planänderung, Ablehnen, Ruhetag, Folgetag, Zeitzonen-/Saisonwechsel und historischen Wochenplänen. Browser 375 × 812: Import eines erzeugten Testspielstands mit fünftägiger Pause, Wahl, Reduktion 4 → 2, Erledigen, Rückgängig, Reload und freiwilliges Beenden; keine Konsolenfehler.
+
 ## Zeitblock
 
 Ein Zeitblock braucht eine tatsächlich gespeicherte numerische Startzeit und Dauer im bestehenden Tagesplan. Reine Tageszeitwünsche (morgens/abends) und der automatisch verteilte Nemesis-Plan gelten nicht als feste Buchung. Erledigte Aufgaben, Schlaf und ungültige Intervalle werden nicht als nächster Handlungsblock gezeigt.
@@ -22,7 +69,13 @@ Aktuell laufendes Zeitfenster hat Vorrang, danach das früheste künftige. Wenn 
 
 Der zugrunde liegende Tagesplan gilt weiterhin täglich. Individuelle Wochentage, verfügbare Kapazität, Termine und Puffer gehören zu Schritt 3; Timer und Umplanung bei Unterbrechung zu Schritt 4. Diese Funktionen werden hier nicht vorgetäuscht.
 
-## Prüfung
+## Gesamtprüfung ww-v83
+
+Alle 24 Testsuiten bestanden (Life OS, Wisdom, Release/Auth/FTUE/Kalender, Zukunfts-Ich, Service Worker, Heute/Hauptschlacht/Tagesablauf, Projektion/Zielzerlegung, Arena-Core/API/SQL/Sync/V3/Taktik/Live/Ruhmeshalle, Rückmeldungen und Wiedereinstieg). SQL/RLS-Prüfungen laufen lokal mit PGlite; kein produktiver Datenbankzugriff.
+
+Mobile Browserprüfung 375/390 px: bestehender Testspielstand, leerer neuer Spielstand, Rückkehr nach fünftägiger Öffnungslücke, bewusster Ruhetag, Wahl und Erledigung mit Rückgängig, Reload, freiwillige Wochenplanreduktion und Zusatzbereiche. Keine Konsolenfehler. Konto-Wiederaufnahme und Isolation automatisiert geprüft; vollständiger E-Mail-Login und Arena mit echten Konten bleiben offen. Claude-Gegenreview vor Merge erforderlich.
+
+## Frühere Prüfung
 
 Alle neun Skripte bestehen: today-focus, calendar, life-core, release-smoke, auth-contract, wisdom-core, ftue-flows, auth-resume und service-worker. today-focus prüft Maximalzahl und Eindeutigkeit der Prioritäten, Abendvorrang, Nachrücken, Wochenquoten, Standards/Minimum, Erstschritt, Ruhetag, leeren Tag, Undo, unveränderte Punkte sowie aktuelle, künftige, vergangene und ungültige Zeitfenster.
 

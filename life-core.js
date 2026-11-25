@@ -170,7 +170,7 @@ function onDailyReview(S,blocks){const L=S.life;if(!L)return;const obst=(blocks|
 const MOODS=[['good','Gut'],['ok','Okay'],['hard','Schwierig']];
 const DEBRIEF_OBST=[['time','Keine Zeit'],['energy','Keine Energie'],['unclear','Schlecht geplant'],['unexpected','Etwas anderes']];
 const CHANGES=[['earlier','Morgen früher einplanen'],['smaller','Kleiner machen'],['keep','Plan beibehalten']];
-function onDebrief(S,x){const L=S.life;if(!L)return;const e={d:L.d,wk:curWk(L),mood:x.mood||null,obst:x.obst||[],done:x.done||[],skipped:x.skipped||[],change:x.change||null,t:Date.now()};
+function onDebrief(S,x){const L=S.life;if(!L)return;const e={d:L.d,wk:curWk(L),mood:x.mood||null,obst:x.obst||[],done:x.done||[],skipped:x.skipped||[],change:x.change||null,t:Date.now()};if(x.recover==='rest'||x.recover==='sick')e.recover=x.recover;
  L.daily=[...(L.daily||[]).filter(y=>y.d!==L.d),e].slice(-120);L.flags={...(L.flags||{}),debrief:true};return e}
 /* Muster aus den letzten 14 Tagen. Nur Vorschläge, nie automatische Planänderung.
    S.ctime: {missionId:[{t:Minuten}]} = Uhrzeiten erledigter Einheiten */

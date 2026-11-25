@@ -1,15 +1,23 @@
 /* Only reviewed Arena RPCs and explicit public fields cross the network. */
 (function(G){
  'use strict';
- function create(rpc){
+ function create(rpc,watcher){
   async function call(name,args){try{return await rpc(name,args)}catch(e){const message=String(e.message||e);if(/PGRST202|schema cache|Could not find the function|does not exist/i.test(message))throw Error('Die gemeinsame Arena ist noch nicht freigeschaltet. Deine persönlichen Daten bleiben unverändert.');if(/fetch|network|offline|Failed to fetch/i.test(message))throw Error('Keine Verbindung. Bitte erneut versuchen; der letzte Stand bleibt sichtbar.');throw Error(message);}}
   const pick=t=>Object.fromEntries(G.ArenaCore.SLOTS.map(s=>[s.id,t[s.id]]));
+  const days=p=>Object.fromEntries(G.ArenaCore.SLOTS.map(s=>[s.id,(Array.isArray(p&&p[s.id])?p[s.id]:[]).map(Number).filter(d=>Number.isInteger(d)&&d>=1&&d<=7)]));
   const command=(action,id,data)=>call('arena_command',{p_action:action,p_league:id||null,p_data:data||{}});
   return{
-   list:()=>call('arena_list',{}),load:id=>call('arena_snapshot',{p_league:id}),
+   list:()=>call('arena_list',{}),load:id=>call('arena_snapshot',{p_league:id}),hall:()=>call('arena_hall',{}),
    create:({name,displayName,capacity,targets})=>{const t=targets||G.ArenaCore.DEFAULT_TARGETS;if(!G.ArenaCore.validTargets(t))return Promise.reject(Error('Wähle für jeden Bereich ein bis sieben Tage.'));return command('create',null,{name:String(name).trim().slice(0,40),display_name:String(displayName).trim().slice(0,24),capacity:Number(capacity),targets:pick(t)});},
    join:({code,displayName})=>command('join',null,{code:String(code).trim().toUpperCase(),display_name:String(displayName).trim().slice(0,24)}),
    start:id=>command('start',id),
+   /* Formation, Kriegsrat, Doktrin: nur Art, Schwerpunkt und Wochentage 1–7 je Bereich – keine Punkte, kein Datum. */
+   formation:(id,week,kind,slot,plan)=>command('formation',id,{week:Number(week),kind:String(kind),slot:String(slot),plan:days(plan)}),
+   switchFormation:(id,kind,slot,plan)=>command('switch',id,{kind:String(kind),slot:String(slot),plan:days(plan)}),
+   doctrine:(id,kind)=>command('doctrine',id,{kind:String(kind)}),
+   events:(id,before)=>call('arena_events',{p_league:id,p_before:before||null}),
+   /* Live-Signal; ohne Realtime bleibt es beim Abfragen (Status 'off'). */
+   watch:(id,onChange,onStatus=()=>{})=>{try{if(watcher)return watcher(id,onChange,onStatus)||(()=>{});}catch(e){}onStatus('off');return()=>{};},
    setTargets:(id,targets)=>{if(!G.ArenaCore.validTargets(targets))return Promise.reject(Error('Wähle für jeden Bereich ein bis sieben Tage.'));return command('targets',id,{targets:pick(targets)});},
    report:(id,slot,done)=>command('report',id,{slot:String(slot),done:done===true}),
    react:(id,event,kind)=>command('react',id,{event,kind}),
@@ -38,5 +46,5 @@
    dispose(){disposed=true;tasks.clear();},idle(){return Promise.all([...groups.values()].map(g=>g.tail))}};
  }
  G.ArenaSync={bridge};
- G.ArenaApi={create};G.arenaApi=create((name,args)=>G.authApi.arenaRpc(name,args));
+ G.ArenaApi={create};G.arenaApi=create((name,args)=>G.authApi.arenaRpc(name,args),(id,a,b)=>G.authApi.arenaWatch?G.authApi.arenaWatch(id,a,b):null);
 })(typeof window==='undefined'?globalThis:window);

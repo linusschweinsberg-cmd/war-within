@@ -18,14 +18,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v68"></script>
-<script src="auth.js?v=ww-v68"></script>
-<script src="life-core.js?v=ww-v68"></script>
-<script src="wisdom-core.js?v=ww-v68"></script>
-<script src="future-self-core.js?v=ww-v68"></script>
-<script src="arena-core.js?v=ww-v68"></script>
-<script src="arena-api.js?v=ww-v68"></script>
-<script src="arena-ui.js?v=ww-v68"></script>
+<script src="supabase-config.js?v=ww-v84"></script>
+<script src="auth.js?v=ww-v84"></script>
+<script src="life-core.js?v=ww-v84"></script>
+<script src="wisdom-core.js?v=ww-v84"></script>
+<script src="future-self-core.js?v=ww-v84"></script>
+<script src="projection-core.js?v=ww-v84"></script>
+<script src="arena-core.js?v=ww-v84"></script>
+<script src="arena-api.js?v=ww-v84"></script>
+<script src="arena-ui.js?v=ww-v84"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -114,6 +115,11 @@ html,body{background:radial-gradient(1200px 600px at 50% -10%,var(--body-glow) 0
 @keyframes goldPulse{0%,100%{filter:drop-shadow(0 0 6px rgba(var(--gold-rgb),.45))}50%{filter:drop-shadow(0 0 14px rgba(var(--gold-rgb),.85))}}
 .gold-t{background:linear-gradient(180deg,#FFF7D6,#FBBF24 55%,#D97706);-webkit-background-clip:text;background-clip:text;color:transparent}
 @keyframes holdBar{from{width:0}to{width:100%}}
+/* Hauptschlacht gewonnen: 700 ms, Bronze-Schein und Schild, kein Overlay */
+@keyframes battleWin{0%{box-shadow:0 0 0 1px var(--bronze) inset,0 0 0 0 transparent}40%{box-shadow:0 0 0 1.5px var(--bronze) inset,0 0 22px 1px color-mix(in srgb,var(--bronze) 45%,transparent)}100%{box-shadow:0 0 0 1px color-mix(in srgb,var(--bronze) 60%,transparent) inset,0 0 0 0 transparent}}
+@keyframes shieldWin{0%{transform:scale(.8)}45%{transform:scale(1.1);filter:drop-shadow(0 0 8px var(--bronze))}100%{transform:none;filter:none}}
+.battle-fx{animation:battleWin .7s ease-out}.battle-fx .battle-shield{animation:shieldWin .7s cubic-bezier(.16,1,.3,1)}
+@media (prefers-reduced-motion:reduce){.battle-fx,.battle-fx .battle-shield{animation:none!important}}
 /* ───── UX: Lesbarkeit & Tap-Ziele ───── */
 .lbl{font-size:10.5px;letter-spacing:.12em}
 [class~="text-[9px]"],[class~="text-[9.5px]"],[class~="text-[10px]"],[class~="text-[10.5px]"]{font-size:11.5px!important;line-height:1.45}
@@ -309,6 +315,13 @@ html:has([data-skin=antik]),body:has([data-skin=antik]){background:#050404}
 @media(prefers-reduced-motion:reduce){.future-breathe,.future-cape,.future-glint{animation:none!important}.future-glint{display:none}}
 .arena-avatar{width:36px;height:36px;flex-shrink:0;border-radius:50%;background:var(--ghost);display:flex;align-items:center;justify-content:center;font-weight:700}
 .arena-input{background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px;min-height:44px;max-width:100%;font:inherit}
+.arena-flame{animation:arena-flame 2.4s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes arena-flame{0%,100%{transform:scaleY(1);filter:none}50%{transform:scaleY(1.06);filter:drop-shadow(0 0 4px color-mix(in srgb,var(--gold) 55%,transparent))}}
+.arena-live{animation:arena-live 2s ease-in-out infinite}
+@keyframes arena-live{0%,100%{opacity:1}50%{opacity:.35}}
+.arena-toast{animation:arena-toast .35s cubic-bezier(.16,1,.3,1)}
+@keyframes arena-toast{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.arena-flame,.arena-live,.arena-toast{animation:none}}
 .arena button{min-height:44px}.arena button:disabled{opacity:.5;cursor:default}
 .arena :is(button,input,select,summary):focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
 .arena-track{height:5px;background:var(--ghost);border-radius:4px;overflow:hidden}.arena-track span{display:block;height:100%;transition:width .4s ease}
@@ -367,7 +380,7 @@ book:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 
 languages:'<path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/>',
 code:'<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
 check:'<polyline points="20 6 9 17 4 12"/>',
-chevR:'<path d="m9 18 6-6-6-6"/>',chevL:'<path d="m15 18-6-6 6-6"/>',
+chevR:'<path d="m9 18 6-6-6-6"/>',chevL:'<path d="m15 18-6-6 6-6"/>',chevD:'<path d="m6 9 6 6 6-6"/>',
 lock:'<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
 up:'<path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>',down:'<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
 x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
@@ -566,7 +579,7 @@ const seasonWeek=S=>Math.floor((S.day+(S.calendar?.seasonOffset||0))/7);
 function calendarMinutes(t,S){const p=new Intl.DateTimeFormat('en-GB',{timeZone:calendarZone(S),hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(t));return +p.find(x=>x.type==='hour').value*60 + +p.find(x=>x.type==='minute').value}
 /* Demo-Spielstand (initState) hat kein Profil; nur dort sind Vorspulen, Saisonsprung und Zurücksetzen erlaubt. */
 const isDemoState=S=>!S.profile;
-function closeCalendarDays(S,days){const C=S.calendar;for(let i=0;i<days;i++){closeCalendarDay(S,true);C.date=datePlus(C.date,1);LC.syncTemple(S)}}
+function closeCalendarDays(S,days){const C=S.calendar;for(let i=0;i<days;i++){closeCalendarDay(S,true);C.date=datePlus(C.date,1);LC.syncTemple(S)}if(days>=3)S.life.reentry={d:S.life.d}}
 function syncCalendar(S,t=Date.now()){
  const tz=calendarZone(S),today=calendarDate(t,tz),C=S.calendar;LC.ensureLife(S);
  const valid=C&&C.v===1&&/^\d{4}-\d{2}-\d{2}$/.test(C.date)&&Number.isFinite(dateNumber(C.date))&&Number.isInteger(C.seasonOffset);
@@ -1476,7 +1489,7 @@ function NemPlan({c}){const {S}=c;const sel=S.nem||nemDefault(S);const pool=nemP
   ${on&&(typeof sel[m.id]==='object'?html`<div className="text-[12px] mute mt-2">${fmtHM(sel[m.id].s)} · ${sel[m.id].d} Min. · im Tagesplan verschieben</div>`:html`<div className="mt-2.5"><${Seg} opts=${TOD.map(t=>[t[0],TOD_L[t[0]]])} val=${sel[m.id]} on=${v=>c.setNem(m.id,v)}/></div>`)}</div>`})}</div>
  <button onClick=${c.closeSheet} className="btn w-full py-3.5 mt-4 text-sm">Fertig</button></${Sheet}>`}
 /* Today: one main action, two next priorities, one honest scheduled block. */
-function todayPriorities(S,D){
+function todayPriorities(S,D,max=3){
  if(D.restToday)return[];
  const L=S.life||{},gm=goalMs(S),out=[],seen=new Set(),commit=L.onboard&&L.onboard.commit;
  const push=x=>{if(x&&!seen.has(x.key)){seen.add(x.key);out.push(x)}};
@@ -1491,17 +1504,79 @@ function todayPriorities(S,D){
  const brief=briefToday(S);if(brief)(brief.ids||[]).forEach(id=>push(mission(D.allM.find(m=>m.id===id))));
  standards.filter(x=>!(commit&&!commit.done&&!commit.mid&&commit.kind==='standard'&&commit.area===x.area)).forEach(push);
  briefCands(S,D).forEach(m=>push(mission(m)));
- return out.slice(0,3);
+ return out.slice(0,max);
 }
+/* Hauptschlacht: die eine Handlung, die heute zählt. Nur vom Nutzer bestimmt – heute angetippt (S.battle={k,key})
+   oder vorher ausdrücklich festgelegt (Abendentscheidung, Start, erster Schritt, Debrief/nextPrio). Nie automatisch.
+   Abgeleitet statt gespeichert: erledigt/offen kommt aus den bestehenden Daten, Rückgängig stellt es mit dem Snapshot zurück. */
+const doneTodayM=(S,m)=>((S.ctime||{})[m.id]||[]).some(x=>x.day===dayKey(S))||((m.freq==='daily'||m.freq==='multi')&&!!(S.done||{})[m.id]);
+function battleItem(S,key){if(!key)return null;const L=S.life||{},d=L.d||0;
+ if(key.startsWith('m:')){const m=S.missions.find(x=>x.id===key.slice(2));if(!m)return null;const x=goalMs(S).find(y=>y.m.id===m.id);return{key,kind:'mission',m,g:x&&x.g,minutes:x&&x.a.minutes||null,title:m.title,done:doneTodayM(S,m)}}
+ if(key.startsWith('std:')){const area=key.slice(4),s=(L.standards||{})[area];if(!s||!s.std||s.aid)return null;const e=(L.stdLog||[]).filter(x=>x.area===area&&x.d===d);return{key,kind:'standard',std:s,area,title:s.std.text,minutes:s.std.minutes||null,done:e.length>0,min:e.length>0&&!e.some(x=>x.kind==='std')}}
+ if(key==='commit'){const cm=L.onboard&&L.onboard.commit;if(!cm||cm.mid||!(cm.text||'').trim()||(cm.done&&cm.doneD!==d))return null;return{key,kind:'commit',title:cm.text,area:cm.area,done:!!cm.done}}
+ return null}
+function battleEarlier(S){const L=S.life||{},d=L.d||0,ev=LC.eveningFor(L,d),ob=L.onboard&&L.onboard.for===d&&L.onboard.mid?L.onboard:null,out=[];
+ if(ev&&ev.mid)out.push({key:'m:'+ev.mid,source:'Gestern Abend festgelegt',plan:ev.plan,when:ev.when,risk:ev.risk});else if(ob)out.push({key:'m:'+ob.mid,source:'Beim Start festgelegt',plan:ob.plan,when:ob.when,risk:ob.risk});
+ if(ev&&ev.std)out.push({key:'std:'+ev.std,source:'Gestern Abend festgelegt',plan:ev.plan,when:ev.when,risk:ev.risk});
+ out.push({key:'commit',source:'Dein erster Schritt'});
+ if(S.nextPrio&&S.nextPrio.k===dayKey(S))out.push({key:'m:'+S.nextPrio.mid,source:'Von dir festgelegt'});
+ return out}
+function todayBattle(S,D,items=todayPriorities(S,D)){if(D.restToday)return null;
+ if(S.battle&&S.battle.k===dayKey(S)){const b=battleItem(S,S.battle.key);return b?{...b,source:'Von dir gewählt'}:null}
+ for(const e of battleEarlier(S)){const b=battleItem(S,e.key);if(b&&(b.done||items.some(x=>x.key===e.key)))return{...b,...e}}
+ return null}
+/* Morgen-Briefing: ein Hindernis. Abends genannt, sonst das häufigste aus den Debriefs der letzten 7 Tage (Erholungstage zählen nicht). */
+function battleObstacle(S,b){const L=S.life||{};if(b&&b.risk&&b.risk!=='none'){const r=LC.EVE_RISK.find(x=>x[0]===b.risk);return r?{label:r[1],src:'evening'}:null}
+ const n={};(L.daily||[]).filter(e=>e.d>=(L.d||0)-7&&!e.recover).forEach(e=>(e.obst||[]).forEach(o=>{n[o]=(n[o]||0)+1}));const top=Object.entries(n).sort((x,y)=>y[1]-x[1])[0];
+ const r=top&&LC.DEBRIEF_OBST.find(x=>x[0]===top[0]);return r?{label:r[1],src:'recent',n:top[1]}:null}
+const chooseBattle=(c,key)=>c.upd(n=>{n.battle={k:dayKey(n),key:key||null}});
+/* Rückkehrtag: nur Anzeige vereinfachen; gespeicherter Plan und Historie bleiben unverändert. */
+function reentryToday(S,D){const r=S.life&&S.life.reentry;if(!r||r.d!==S.life.d||r.dismissed||D.restToday)return null;return r}
+function chooseReentry(c,key){c.upd(n=>{const r=reentryToday(n,derive(n));if(!r||!battleItem(n,key))return;n.battle={k:dayKey(n),key}})}
+function reentryAction(S,b){return b&&b.kind==='mission'&&(S.life.actions||[]).find(a=>a.missionId===b.m.id&&!a.off)}
+function ReentryPick({c,items}){return html`<section className="card p-4 mt-4" aria-label="Wiedereinstieg">
+ <div className="lbl acc">Willkommen zurück</div><h2 className="text-[20px] font-bold mt-1">Ein Schritt für heute.</h2>
+ <p className="text-[13px] mute mt-2 leading-snug">Du musst nichts nachholen. Dein bisheriger Fortschritt bleibt. Wähle eine Handlung, die heute für dich passt.</p>
+ <div className="flex flex-col gap-2 mt-3">${items.map(x=>html`<button key=${x.key} type="button" className="ghost p-3 text-left text-[14px] font-semibold" style=${{minHeight:52}} onClick=${()=>chooseReentry(c,x.key)}>${cleanTitle(x.title)}</button>`)}</div>
+ <button type="button" className="w-full bg-transparent border-0 text-[13px] mute mt-2" style=${{minHeight:44}} onClick=${()=>c.upd(n=>{if(n.life.reentry)n.life.reentry.dismissed=true})}>Meinen Tag wie gewohnt anzeigen</button></section>`}
+function ReentrySupport({c,b}){const r=reentryToday(c.S,c.D);if(!r||!b)return null;const a=reentryAction(c.S,b),from=a&&LC.plannedAt(a,LC.curWk(c.S.life)),to=from>1?Math.ceil(from/2):null;
+ return html`<section className="mt-3 px-1" aria-label="Dein Wiedereinstieg"><p className="text-[13px] mute leading-snug">${b.done?'Du hast wieder angefangen. Für heute darf das reichen.':'Für heute kannst du bei diesem einen Schritt bleiben.'}</p>
+ ${to&&!r.planAdjusted&&html`<details className="mt-2"><summary className="text-[13px] acc cursor-pointer" style=${{minHeight:44}}>Wochenplan kleiner machen</summary><div className="card p-3 text-[13px] leading-snug"><p><b>${a.title}</b>: ${from} → ${to} Mal pro Woche.</p><p className="mute mt-2">Gilt ab dieser Woche, bis du den Plan wieder änderst. Vergangene Wochen und erledigte Handlungen bleiben erhalten.</p><button type="button" className="chip mt-3" style=${{minHeight:44}} onClick=${()=>{const before=c.S;c.setActPerWeek(a.id,to);c.upd(n=>{if(n.life.reentry)n.life.reentry.planAdjusted=true});c.toast('Wochenplan auf '+to+' Mal reduziert.','good',{detail:'Gilt ab dieser Woche.',undo:()=>c.restore(before)})}}>Auf ${to} Mal pro Woche reduzieren</button></div></details>`}
+ ${r.planAdjusted&&html`<p className="text-[12px] mute mt-2">Dein kleinerer Wochenplan ist gespeichert.</p>`}
+ <button type="button" className="bg-transparent border-0 text-[13px] mute mt-1 p-0" style=${{minHeight:44}} onClick=${()=>c.upd(n=>{if(n.life.reentry)n.life.reentry.dismissed=true})}>Weitere Aufgaben für heute anzeigen</button></section>`}
+/* Compound-Effekt aus echten Daten. Handlungen insgesamt bleiben bei Pausen erhalten. Momentum: Tage mit Handlung in den
+   letzten 7 Saisontagen; Ruhetage zählen nicht dagegen, heute erst mit einer Handlung. Potenzial: Saisonstand + Tempo × Resttage,
+   Tempo = letzte 7 Tage (ab Saisontag 8), sonst der eigene Wochenplan. Keine erfundene Wirkung, keine Kurve. */
+function actionDays(S){const L=S.life||{},off=(L.d||0)-S.day,pre=S.season+'-',days=new Map(),add=(d,n=1)=>{if(Number.isInteger(d)&&d>=0&&d<=S.day)days.set(d,(days.get(d)||0)+n)};
+ Object.values(S.ctime||{}).forEach(a=>(a||[]).forEach(x=>{if(typeof x.day==='string'&&x.day.startsWith(pre))add(+x.day.slice(pre.length))}));
+ (L.stdLog||[]).forEach(x=>add(x.d-off));const cm=L.onboard&&L.onboard.commit;if(cm&&cm.done&&Number.isInteger(cm.doneD))add(cm.doneD-off);
+ return days}
+function momentumOf(S){const days=actionDays(S),rest=new Set(S.rest||[]);let active=0,of=0,rd=0;
+ for(let d=Math.max(0,S.day-6);d<=S.day;d++){const on=days.has(d);if(rest.has(d)&&!on){rd++;continue}if(d===S.day&&!on)continue;of++;if(on)active++}
+ return{active,of,rest:rd}}
+function compoundNow(S){const L=S.life||{},sum=o=>Object.values(o||{}).reduce((a,b)=>a+(+b||0),0),off=(L.d||0)-S.day,std=L.stdLog||[],cm=L.onboard&&L.onboard.commit;
+ const cmAll=cm&&cm.done&&!cm.mid?1:0,cmSeason=cmAll&&(cm.doneD??off)>=off?1:0;
+ const total=sum(S.tally)+std.length+cmAll,season=sum(S.sTally)+std.filter(x=>x.d>=off).length+cmSeason;
+ const wk=LC.curWk(L),plan=goalMs(S).reduce((a,x)=>a+(LC.plannedAt(x.a,wk)||0),0)+Object.values(L.standards||{}).filter(x=>x.std&&!x.aid&&x.status!=='paused').reduce((a,x)=>a+((LC.standardWeek(L,x.area,wk)||{}).per||0),0);
+ let pace=plan,paceSrc='plan';if(S.day>=7){const days=actionDays(S);let n=0;for(let d=S.day-7;d<S.day;d++)n+=days.get(d)||0;pace=n;paceSrc='recent'}
+ const remDays=Math.max(0,SDAYS(S)-1-S.day),possible=season+Math.round(pace*remDays/7);
+ /* Woche: Planerfüllung der Ziel-Handlungen und eigenständigen Standards dieser Woche (gleiche Quelle wie „Mein Leben“). */
+ const week={done:0,planned:0};(L.goals||[]).filter(g=>g.status==='active').forEach(g=>{const w=LC.goalWeek(L,g,wk);week.done+=Math.min(w.done,w.planned);week.planned+=w.planned});
+ Object.values(L.standards||{}).filter(x=>x.std&&!x.aid&&x.status!=='paused').forEach(x=>{const w=LC.standardWeek(L,x.area,wk);if(w){week.done+=Math.min(w.done,w.per);week.planned+=w.per}});
+ return{total,season,week,momentum:momentumOf(S),pace,paceSrc,remDays,possible,seasonDay:S.day+1,seasonLen:SDAYS(S),best:Math.max(S.streak||0,S.bestStreak||0)}}
 function nextTimeBlock(S,now){
  const blocks=Object.entries(S.nem||{}).map(([id,v])=>{const m=S.missions.find(m=>m.id===id);if(!m||!v||typeof v!=='object'||!Number.isFinite(v.s)||!Number.isFinite(v.d)||v.s<0||v.s>=1440||v.d<=0||v.s+v.d>1440||isDone(S,m)||kindOf(m)==='sleep')return null;return{m,start:v.s,end:v.s+v.d,minutes:v.d}}).filter(Boolean).sort((a,b)=>a.start-b.start||a.m.id.localeCompare(b.m.id));
  const active=blocks.find(b=>b.start<=now&&b.end>now);if(active)return{...active,state:'active'};
  const future=blocks.find(b=>b.start>now);if(future)return{...future,state:'next'};
  const past=blocks.filter(b=>b.end<=now).sort((a,b)=>b.end-a.end)[0];return past?{...past,state:'past'}:null;
 }
+/* Mehrfachtippen: Missionen sperrt complete(); Standards und erster Schritt zählen höchstens einmal pro Tag. */
+const prioLock={};
+const priorityDoneToday=(S,item)=>{const L=S.life||{};return item.kind==='commit'?!!(L.onboard&&L.onboard.commit&&L.onboard.commit.done):(L.stdLog||[]).some(x=>x.area===item.area&&x.d===(L.d||0))};
 function completePriority(c,item,e,kind='std'){
  if(item.kind==='mission'){c.start(item.m.id,e,{noHint:true});return}
- const before=c.S;c.upd(n=>{if(item.kind==='commit')n.life.onboard.commit={...n.life.onboard.commit,done:true,doneD:n.life.d||0};else LC.logStandard(n.life,item.area,kind)});
+ const t=Date.now();if(t-(prioLock[item.key]||0)<700||priorityDoneToday(c.S,item))return;prioLock[item.key]=t;
+ const before=c.S;c.upd(n=>{if(priorityDoneToday(n,item))return;if(item.kind==='commit')n.life.onboard.commit={...n.life.onboard.commit,done:true,doneD:n.life.d||0};else LC.logStandard(n.life,item.area,kind)});
  c.toast(item.kind==='commit'?'Erster Schritt erledigt.':kind==='min'?'Minimum notiert.':'Standard notiert.','good',{undo:()=>c.restore(before)});
 }
 /* Heute: Kopf mit Fortschrittsring · eine farbige Jetzt-Karte · Folgeschritte als Kacheln · Im Blick als zwei Kacheln. Wenig Text, klare Flächen. */
@@ -1532,34 +1607,65 @@ function AspisRing({area,pct,full,size=62}){const r=size/2-5,cc=2*Math.PI*r,h=si
  <circle cx=${h} cy=${h} r=${r} fill="none" stroke=${area.color} strokeWidth="4" strokeLinecap="round" opacity=${pct>0?1:0} strokeDasharray=${(cc*pct)+' '+cc} transform=${'rotate(-90 '+h+' '+h+')'} style=${{transition:'stroke-dasharray .6s cubic-bezier(.16,1,.3,1)'}}/>
  <circle cx=${h} cy=${h} r=${r-6} fill="none" stroke="var(--bronze)" strokeWidth=".75" opacity=".55"/>
  </svg><span className="absolute inset-0 flex items-center justify-center" style=${{color:full?'var(--bronze)':area.color}}>${full?html`<${Icon} n="check" s=${20} sw=${2.6}/>`:html`<${Icon} n=${area.icon} s=${19}/>`}</span></span>`}
-function TodayHero({c,ini,rings,sel,onSel}){const {S}=c,rest=c.D.restToday,planned=rings.filter(r=>r.total>0),closed=planned.filter(r=>r.done>=r.total).length,all=planned.length>0&&closed===planned.length;
+function TodayHero({c,ini,rings}){const {S}=c,planned=rings.filter(r=>r.total>0),closed=planned.filter(r=>r.done>=r.total).length,all=planned.length>0&&closed===planned.length;
  return html`<section className="pt-3 relative" aria-label="Dein Tag">
  <span className="page-emblem" style=${{top:44}}><${Icon} n=${all?'laurel':'aspis'} s=${76} sw=${1}/></span>
  <div className="flex items-center justify-between gap-2"><div className="lbl truncate">${deDate(c.now,calendarZone(S))}</div><div className="flex shrink-0 -mr-2 relative"><button aria-label="Menü und Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0" style=${{color:'var(--ink)'}}><${Icon} n="dots" s=${20}/></button><button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0 p-0"><span className="w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold" style=${{background:'var(--card2)',color:'var(--ink)',boxShadow:'0 0 0 1px var(--line) inset'}}>${ini}</span></button></div></div>
  <h1 className="disp text-[40px] leading-none">Heute</h1>
- <button type="button" onClick=${()=>c.setTab('tasks')} className="bg-transparent border-0 p-0 mt-1 flex items-center gap-1 text-[13px]" style=${{minHeight:32,color:all?'var(--bronze)':'var(--mute)'}}>${rest?'Ruhetag. Erholung gehört zum Plan.':all?html`<${Icon} n="laurel" s=${15}/>Alle Schilde geschlossen`:closed+' von '+planned.length+' Schilden geschlossen'}<${Icon} n="chevR" s=${13}/></button>
- <div className="meander mt-2" aria-hidden="true"/>
+ <div className="meander mt-3" aria-hidden="true"/>
+ </section>`}
+/* Bereichsfilter bleiben erreichbar, ohne die wichtigste Handlung nach unten zu schieben. */
+function TodayAreas({c,rings,sel,onSel}){return html`<section aria-label="Bereiche heute">
  <div className="grid grid-cols-4 gap-1 mt-3" role="group" aria-label="Lebensbereiche heute">${rings.map(r=>{const a=r.area,has=r.total>0,full=has&&r.done>=r.total,on=sel===a.id;
   return html`<button key=${a.id} type="button" onClick=${()=>has?onSel(a.id):c.setTab('life')} aria-pressed=${on} aria-label=${a.de+': '+(has?r.done+' von '+r.total+' erledigt':'heute nichts geplant')} className="bg-transparent border-0 p-0 flex flex-col items-center gap-1.5" style=${{color:'var(--ink)',minHeight:44,opacity:has?1:.4}}>
   <span className="rounded-full" style=${{padding:2,boxShadow:on&&has?'0 0 0 1.5px var(--acc2)':'none',transition:'box-shadow .2s'}}><${AspisRing} area=${a} pct=${has?r.done/r.total:0} full=${full}/></span>
   <span className=${'text-[11px] leading-tight '+(on&&has?'font-semibold':'mute')}>${a.de}</span></button>`})}</div>
  </section>`}
-/* Jetzt-Karte einfarbig in gedämpftem Rost (Handeln): Fläche, Symbol und Knopf in Tönen derselben Farbe, auf die Karte gemischt. */
-function NowCard({c,item,ring}){const area=priorityArea(item),logs=item.kind==='mission'&&wantsLog(c.S,item.m),t=cleanTitle(item.title),open=ring&&ring.total-ring.done>0,closes=ring&&ring.total-ring.done===1;
- const rust=p=>`color-mix(in srgb,var(--acc) ${p}%,var(--card))`;
- return html`<section className="relative overflow-hidden mt-4 p-4" data-today-priority="primary" aria-label="Jetzt" style=${{borderRadius:16,background:rust(18),color:'var(--ink)',boxShadow:'0 0 0 1px '+rust(40)+' inset'}}>
- <div className="flex items-start justify-between gap-2"><div className="lbl pt-1" style=${{color:'var(--acc2)'}}>${area&&open?area.de+' fehlt noch':'Jetzt'}${item.when?' · '+item.when:''}</div>
- <button type="button" onClick=${()=>priorityDetail(c,item)} aria-label=${'Details: '+t} className="flex items-center justify-center border-0 bg-transparent -mt-2 -mr-2" style=${{width:44,height:44,color:'var(--mute)'}}><${Icon} n="info" s=${18}/></button></div>
+/* Hauptschlacht-Karte einfarbig in gedämpftem Rost (Handeln). Gewonnen: Bronze-Kontur, Schild, „Schlacht gewonnen“.
+   Sieg-Rückmeldung nur beim Wechsel offen → gewonnen, 700 ms, ohne Overlay, blockiert nichts; reduzierte Bewegung ohne Animation. */
+function BattleCard({c,b,ring}){const morning=nowMinOf(c)<720,ob=battleObstacle(c.S,b),obLine=ob&&html`<div className="text-[12.5px] mt-2 leading-snug" data-battle-obstacle><span className="mute">${ob.src==='evening'?'Von dir eingeplant: ':'Zuletzt genannt: '}</span><b>${ob.label}</b>${ob.src==='recent'&&!b.done?html`<span className="mute"> · zuletzt ${ob.n}× genannt</span>`:''}</div>`,area=priorityArea(b),logs=b.kind==='mission'&&wantsLog(c.S,b.m),t=cleanTitle(b.title),closes=ring&&ring.total-ring.done===1;
+ const rust=p=>`color-mix(in srgb,var(--acc) ${p}%,var(--card))`,was=useRef(b.done),[fx,setFx]=useState(false);
+ useEffect(()=>{const prev=was.current;was.current=b.done;if(!b.done){setFx(false);return}if(prev)return;setFx(true);const id=setTimeout(()=>setFx(false),800);return()=>clearTimeout(id)},[b.done]);
+ /* Gewonnen: gleicher Aufbau und gleiche Höhe wie offen, damit ein zweiter Tipp nichts Nachgerücktes trifft. */
+ if(b.done)return html`<section className=${'relative overflow-hidden mt-4 p-4'+(fx?' battle-fx':'')} data-today-battle="won" aria-label="Hauptschlacht" style=${{borderRadius:16,background:'var(--card)',color:'var(--ink)',boxShadow:'0 0 0 1px '+tint('var(--bronze)',60)+' inset'}}>
+ <div className="flex items-start justify-between gap-2"><div className="lbl pt-1 min-w-0" style=${{color:'var(--bronze)'}}>Hauptschlacht<span className="mute font-normal normal-case tracking-normal"> · ${b.source}</span></div><span aria-hidden="true" className="shrink-0 -mt-2" style=${{height:44}}/></div>
+ <div className="flex items-center gap-3"><span aria-hidden="true" className="battle-shield shrink-0 flex items-center justify-center" style=${{width:44,height:44,borderRadius:22,background:tint('var(--bronze)',16),color:'var(--bronze)',boxShadow:'0 0 0 1.5px var(--bronze) inset'}}><${Icon} n="aspis" s=${24}/></span>
+ <div className="text-[21px] font-bold leading-snug break-words min-w-0">${t}</div></div>
+ ${b.plan&&html`<div className="text-[12.5px] mute mt-2 leading-snug">${b.plan}</div>`}
+ ${obLine}
+ <div role="status" className="select-none mt-4 flex items-center justify-center gap-2 text-[15px] font-bold" style=${{minHeight:52,borderRadius:12,background:tint('var(--bronze)',14),color:'var(--bronze)'}}><${Icon} n=${b.min?'check':'laurel'} s=${18}/>${b.min?'Minimum gehalten':'Schlacht gewonnen'}</div></section>`;
+ return html`<section className="relative overflow-hidden mt-4 p-4" data-today-battle="open" data-today-priority="primary" aria-label="Hauptschlacht" style=${{borderRadius:16,background:rust(18),color:'var(--ink)',boxShadow:'0 0 0 1px '+rust(40)+' inset'}}>
+ <div className="flex items-start justify-between gap-2"><div className="lbl pt-1 min-w-0" style=${{color:'var(--acc2)'}}>${morning?'Morgen-Briefing · ':''}Hauptschlacht<span className="mute font-normal normal-case tracking-normal">${' · '+b.source}${b.when?' · '+b.when:''}</span></div>
+ <div className="flex shrink-0 -mt-2 -mr-2"><button type="button" onClick=${()=>chooseBattle(c,null)} className="border-0 bg-transparent text-[12.5px] px-2" style=${{minHeight:44,color:'var(--mute)'}}>Ändern</button><button type="button" onClick=${()=>priorityDetail(c,b)} aria-label=${'Details: '+t} className="flex items-center justify-center border-0 bg-transparent" style=${{width:44,height:44,color:'var(--mute)'}}><${Icon} n="info" s=${18}/></button></div></div>
  <div className="flex items-center gap-3">${area&&html`<span aria-hidden="true" className="shrink-0 flex items-center justify-center" style=${{width:44,height:44,borderRadius:14,background:rust(32),color:'var(--acc2)'}}><${Icon} n=${area.icon} s=${22}/></span>`}
  <div className="text-[21px] font-bold leading-snug break-words min-w-0">${t}</div></div>
+ ${b.plan&&html`<div className="text-[12.5px] mute mt-2 leading-snug">${b.plan}</div>`}
+ ${obLine}
  <div className="flex items-center gap-2 mt-4">
- <button type="button" onClick=${e=>completePriority(c,item,e)} aria-label=${'Erledigen: '+t} className="flex-1 inline-flex items-center justify-center gap-2 border-0 text-[15px] font-bold" style=${{minHeight:52,borderRadius:12,background:rust(72),color:'var(--on-acc)'}}><${Icon} n=${closes&&!logs?'aspis':'check'} s=${18} sw=${2.2}/>${logs?'Erfassen':closes?'Schild schließen':'Erledigt'}</button>
- ${item.kind==='standard'&&item.std.min&&html`<button type="button" onClick=${e=>completePriority(c,item,e,'min')} title=${item.std.min.text} className="border-0 px-4 text-[14px] font-semibold" style=${{minHeight:52,borderRadius:12,background:rust(32),color:'var(--ink)'}}>Minimum</button>`}
+ <button type="button" onClick=${e=>completePriority(c,b,e)} aria-label=${'Erledigen: '+t} className="flex-1 inline-flex items-center justify-center gap-2 border-0 text-[15px] font-bold" style=${{minHeight:52,borderRadius:12,background:rust(72),color:'var(--on-acc)'}}><${Icon} n=${logs?'check':'aspis'} s=${18} sw=${2.2}/>${logs?'Erfassen':closes?'Schild schließen':'Erledigt'}</button>
+ ${b.kind==='standard'&&b.std.min&&html`<button type="button" onClick=${e=>completePriority(c,b,e,'min')} title=${b.std.min.text} className="border-0 px-4 text-[14px] font-semibold" style=${{minHeight:52,borderRadius:12,background:rust(32),color:'var(--ink)'}}>Minimum</button>`}
  </div></section>`}
-function TodayPriorities({c,item,ring,mid}){
- if(c.D.restToday)return html`<section className="card p-5 mt-4 flex items-center gap-4"><${AreaBadge} area=${LC.AREA.health} size=${48}/><div><div className="text-[17px] font-bold">Ruhetag</div><div className="text-[13px] mute">Erholung gehört zum Plan.</div></div></section>${mid}`;
- if(!item)return html`<section className="card p-5 mt-3"><div className="text-[18px] font-bold">Nichts mehr offen.</div><div className="flex gap-2 mt-4"><button type="button" className="btn flex-1 py-3 text-[14px]" onClick=${()=>c.openSheet({t:'review'})}>Tag abschließen</button>${!mainGoal(c.S)&&html`<button type="button" className="chip" style=${{minHeight:48}} onClick=${()=>c.openSheet({t:'goal'})}>Ziel festlegen</button>`}</div></section>${mid}`;
- return html`<${NowCard} key=${item.key} c=${c} item=${item} ring=${ring}/>${mid}`}
+/* Noch keine Hauptschlacht: der Nutzer wählt mit einem Tipp. Der erste Eintrag ist nur als Vorschlag markiert. */
+function BattlePick({c,items}){
+ return html`<section className="card p-4 mt-4" data-today-battle="pick" aria-label="Hauptschlacht wählen">
+ <div className="lbl" style=${{color:'var(--acc2)'}}>Hauptschlacht</div><div className="text-[18px] font-bold leading-snug mt-1">Welche Handlung zählt heute am meisten?</div>
+ <div className="flex flex-col gap-2 mt-3">${items.map((x,i)=>{const a=priorityArea(x),why=x.source||(x.g?'Schritt zu deinem Ziel':x.kind==='standard'?'Dein Standard':'');return html`<button key=${x.key} type="button" onClick=${()=>chooseBattle(c,x.key)} aria-label=${'Als Hauptschlacht wählen: '+cleanTitle(x.title)} className="w-full text-left flex items-center gap-3 border-0 px-3 py-2" style=${{minHeight:52,borderRadius:12,background:i?'var(--card2)':tint('var(--acc)',14),boxShadow:'0 0 0 1px '+(i?'var(--line)':tint('var(--acc2)',40))+' inset',color:'var(--ink)'}}>
+ <${AreaBadge} area=${a} size=${32}/><span className="flex-1 min-w-0"><span className="block text-[14.5px] font-semibold truncate">${cleanTitle(x.title)}</span>${(i===0||why)&&html`<span className="block text-[11.5px] mute truncate">${i===0?'Vorschlag'+(why?' · '+why:''):why}</span>`}</span><${Icon} n="chevR" s=${15} cls="mute"/></button>`})}</div></section>`}
+/* Nebenmissionen: höchstens drei, kompakt, mit einem Tipp erledigt (gleiche Logik wie die Hauptschlacht). */
+function SideMissions({c,items}){if(!items.length)return null;
+ return html`<section aria-label="Nebenmissionen" className="mt-3"><div className="flex items-center justify-between px-1"><span className="lbl">Nebenmissionen</span><button type="button" onClick=${()=>c.setTab('tasks')} className="bg-transparent border-0 p-0 text-[12.5px] mute" style=${{minHeight:32}}>Alle Aufgaben</button></div>
+ <div className="card px-3 py-0.5 mt-1">${items.map((x,i)=>{const t=cleanTitle(x.title),a=priorityArea(x);return html`<div key=${x.key} className=${'flex items-center gap-3'+(i?' border-t ln':'')} style=${{minHeight:48}}>
+ <span aria-hidden="true" className="block rounded-full shrink-0" style=${{width:8,height:8,background:a?a.color:'var(--mute)'}}/>
+ <button type="button" onClick=${()=>priorityDetail(c,x)} className="flex-1 min-w-0 text-left bg-transparent border-0 p-0 text-[14.5px] font-medium truncate" style=${{minHeight:44,color:'var(--ink)'}}>${t}</button>
+ <button type="button" aria-label=${'Erledigen: '+t} onClick=${e=>completePriority(c,x,e)} className="chk"/></div>`})}</div></section>`}
+/* Fortschritt kompakt in vier Ebenen: Heute · Woche · Saison (endet nach SDAYS Tagen) · Dauerhaft (bleibt). Potenzial nur mit genannter Annahme. */
+function CompoundStrip({c,battle}){const {S}=c,C=compoundNow(S),hasPot=C.pace>0&&C.remDays>0,L=S.life||{},tp=L.temple?LC.templeState(S):null,dn=doneToday(S);
+ const row=(k,lbl,val,sub)=>html`<span key=${k} className="flex items-baseline gap-3 py-2 border-t ln first:border-t-0"><span className="lbl shrink-0" style=${{width:74}}>${lbl}</span><span className="flex-1 min-w-0"><span className="block num text-[15px] font-semibold leading-snug">${val}</span>${sub&&html`<span className="block text-[11.5px] mute leading-snug mt-0.5">${sub}</span>`}</span></span>`;
+ return html`<button type="button" onClick=${()=>c.setTab('stats')} aria-label="Fortschritt öffnen" data-today-compound className="w-full mt-3 text-left border-0 px-3.5 py-1.5 flex flex-col" style=${{borderRadius:16,background:'var(--card)',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}>
+ ${row('d','Heute',(battle?(battle.done?'Hauptschlacht gewonnen':'Hauptschlacht offen'):'Keine Hauptschlacht')+' · '+dn+' erledigt',null)}
+ ${row('w','Woche',C.week.planned?C.week.done+' von '+C.week.planned+' geplant':'Kein Wochenplan',C.week.planned?'Ziel-Handlungen und Standards dieser Woche':null)}
+ ${row('s','Saison',html`${C.season} Handlungen${hasPot?html`<span className="mute font-normal"> → ${C.possible} möglich</span>`:''}`,C.seasonLen+'-Tage-Saison · '+(hasPot?'Annahme: '+C.pace+'/Woche ('+(C.paceSrc==='recent'?'letzte 7 Tage':'dein Plan')+'), noch '+C.remDays+(C.remDays===1?' Tag':' Tage'):C.remDays>0?'Plane eine Handlung pro Woche, dann zeigt sich das Potenzial.':'Letzter Saisontag.'))}
+ ${row('a','Dauerhaft',C.total+' Handlungen',['bleiben auch nach Pausen','Rekord-Serie '+C.best+' Tage',tp?'Tempel: '+tp.phaseInfo.de:null].filter(Boolean).join(' · '))}</button>`}
 /* Im Blick: zwei Kacheln. Zeitblock (oder planen) und Reflexion; aktiv in Akzentfarbe. */
 function DayAhead({c}){const {S,D}=c,now=nowMinOf(c),b=nextTimeBlock(S,now),r=reviewToday(S),due=LC.reviewWeek(S.life),eve=!r&&now>=1080;
  const tile=(icon,big,small,hot,on,label)=>html`<button type="button" onClick=${on} aria-label=${label} className="text-left border-0 px-3 py-2 flex items-center gap-3 min-w-0" style=${{minHeight:58,borderRadius:16,background:hot?tint('var(--acc)',16):'var(--card-g)',boxShadow:'0 0 0 1px '+(hot?tint('var(--acc2)',45):'var(--line)')+' inset',color:'var(--ink)'}}>
@@ -1584,16 +1690,33 @@ function FutureSelfTile({c}){const {S}=c,p=FS.settings(S);if(!p.enabled)return n
  ${!fm&&!rest&&d.Y>0&&lead>0&&html`<span className="sr-only">${lead} Schritte Rückstand</span>`}
  </span><${Icon} n="chevR" s=${16} cls="mute"/></button>`}
 function Home({c}){const {S}=c;const [more,setMore]=useState(false),[pick,setPick]=useState(null),nm=((S.profile&&S.profile.name)||'').trim();
- const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fm=focusMode(S),items=todayPriorities(S,c.D),rings=areaDay(S,c.D);
- /* Gewählter Ring, sonst der Bereich der wichtigsten Priorität; ohne offene Handlung dort zurück zur wichtigsten. */
- const first=items[0]&&priorityArea(items[0]),chosen=rings.find(r=>r.area.id===pick),pickItem=chosen&&areaItem(S,items,chosen);
- const item=pickItem||items[0]||null,ia=item&&priorityArea(item),ring=ia&&rings.find(r=>r.area.id===ia.id),sel=pickItem?pick:first&&first.id;
+ const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fm=focusMode(S),items=todayPriorities(S,c.D,5),rings=areaDay(S,c.D),battle=todayBattle(S,c.D,items);
+ const reentry=reentryToday(S,c.D);
+ /* Ring antippen holt die nächste Handlung dieses Bereichs nach vorn: in die Nebenmissionen bzw. an den Anfang der Auswahl. Die Hauptschlacht bleibt. */
+ const chosen=rings.find(r=>r.area.id===pick),pickItem=chosen&&areaItem(S,items,chosen),uniq=a=>a.filter((x,i)=>x&&a.findIndex(y=>y&&y.key===x.key)===i);
+ const side=battle&&!reentry?uniq([pickItem,...items]).filter(x=>x.key!==battle.key).slice(0,2):[],choices=uniq([pickItem,...items]).slice(0,3);
+ const ba=battle&&priorityArea(battle),ring=ba&&rings.find(r=>r.area.id===ba.id),sel=pickItem?pick:ba&&ba.id;
+ const main=c.D.restToday?html`<section className="card p-5 mt-4 flex items-center gap-4"><${AreaBadge} area=${LC.AREA.health} size=${48}/><div><div className="text-[17px] font-bold">Ruhetag</div><div className="text-[13px] mute">Erholung gehört zum Plan.</div></div></section>`
+  :battle?html`<${BattleCard} key=${battle.key} c=${c} b=${battle} ring=${ring}/>`
+  :choices.length?reentry?html`<${ReentryPick} c=${c} items=${choices}/>`:html`<${BattlePick} c=${c} items=${choices}/>`
+  :html`<section className="card p-5 mt-3"><div className="text-[18px] font-bold">Nichts mehr offen.</div><div className="flex gap-2 mt-4"><button type="button" className="btn flex-1 py-3 text-[14px]" onClick=${()=>c.openSheet({t:'review'})}>Tag abschließen</button>${!mainGoal(S)&&html`<button type="button" className="chip" style=${{minHeight:48}} onClick=${()=>c.openSheet({t:'goal'})}>Ziel festlegen</button>`}</div></section>`;
  return html`<div className="screen px-4 pb-6">
- <${TodayHero} c=${c} ini=${ini} rings=${rings} sel=${sel} onSel=${id=>setPick(p=>p===id?null:id)}/>
- ${S.setup&&html`<button onClick=${()=>c.openSheet({t:'newseason'})} className="btn w-full py-3 mt-3 text-sm">Neue Saison einrichten</button>`}
- <${TodayPriorities} c=${c} item=${item} ring=${ring} mid=${html`<${FutureSelfTile} c=${c}/>`}/>
+ <${TodayHero} c=${c} ini=${ini} rings=${rings}/>
+ ${S.setup&&!reentry&&html`<button onClick=${()=>c.openSheet({t:'newseason'})} className="btn w-full py-3 mt-3 text-sm">Neue Saison einrichten</button>`}
+ ${main}
+ <${ReentrySupport} c=${c} b=${battle}/>
+ <${SideMissions} c=${c} items=${side}/>
  <${DayAhead} c=${c}/>
- <details className="mt-4" onToggle=${e=>setMore(e.currentTarget.open)}><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center'}}>Mehr: Standards und Impulse</summary>
+ <details className="mt-3"><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}><span>Bereiche heute</span><${Icon} n="chevD" s=${16}/></summary>
+ <${TodayAreas} c=${c} rings=${rings} sel=${sel} onSel=${id=>setPick(p=>p===id?null:id)}/>
+ <button type="button" className="ghost w-full py-3 mt-3 text-[13px]" onClick=${()=>c.setTab('tasks')}>Alle Aufgaben öffnen</button></details>
+ <details className="mt-1"><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}><span>Fortschritt und Zukunfts-Ich</span><${Icon} n="chevD" s=${16}/></summary>
+ <${CompoundStrip} c=${c} battle=${battle}/>
+ ${(()=>{const g=mainGoal(S);return g&&g.status==='active'&&PJ.typeOf(g)?html`<button type="button" onClick=${()=>c.openSheet({t:'impact',gid:g.id})} data-today-impact className="w-full flex items-center gap-2 text-left border-0 bg-transparent px-1 text-[12.5px] mute" style=${{minHeight:40}}><${Icon} n="trend" s=${14}/>Wohin führt das? Folgen für „${g.title}“<${Icon} n="chevR" s=${13} cls="ml-auto"/></button>`:null})()}
+ <${FutureSelfTile} c=${c}/>
+
+ </details>
+ <details className="mt-4" onToggle=${e=>setMore(e.currentTarget.open)}><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}><span>Standards und Impulse</span><${Icon} n="chevD" s=${16}/></summary>
  ${more&&html`<${StandardsToday} c=${c}/><button type="button" className="chip mt-3" onClick=${()=>c.openSheet({t:'loopinfo'})}>Wie dein Handeln wirkt</button><${InviteCard} c=${c}/><${CalmCard} c=${c}/><${WisdomSlot} c=${c} place="today"/>${!fm&&html`<div className="mt-3"><${DayScene} c=${c}/></div><${DuelPair} c=${c}/>`}`}</details>
  </div>`}
 /* Heute zuerst: Ziel, Ergebnis/Umsetzung, nächste Handlung, Loop-Phase */
@@ -2570,6 +2693,7 @@ function SheetHost({c}){
   case'newact':b=html`<${NewAct} c=${c}/>`;break;
   case'newcat':b=html`<${NewCat} c=${c}/>`;break;
   case'cat':b=html`<${CatSheet} key=${sh.id} c=${c} id=${sh.id}/>`;break;
+  case'impact':b=html`<${ImpactSheet} key=${sh.gid} c=${c} gid=${sh.gid}/>`;break;
   case'newgoal':case'goal':b=html`<${GoalSheet} key=${sh.gid||'new'} c=${c} gid=${sh.gid} area=${sh.area}/>`;break;
   case'trules':b=html`<${TempleRules} c=${c}/>`;break;
   case'tseason':b=html`<${TempleSeasonSheet} c=${c}/>`;break;
@@ -2769,7 +2893,7 @@ function EveningStep({c,cands,pre}){const {S}=c;const L=S.life;const [mid,setMid
  const [when,setWhen]=useState(()=>LC.EVE_WHEN.some(e=>e[0]===x.a.when)?x.a.when:'morgens'),[risk,setRisk]=useState(null);const st=useMemo(()=>LC.eveningStats(L),[]);
  return html`<${Sheet} sub="Abendritual · 2/2" title="Morgen vorbereiten" onClose=${c.closeSheet}>
  <div className="text-[13px] mute -mt-1 leading-snug">Heute Abend entscheiden, morgen nur noch anfangen.</div>
- <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Was ist morgen das Wichtigste?</div>
+ <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Deine Hauptschlacht für morgen</div>
  <div className="flex flex-col gap-1.5" role="radiogroup">${cands.map(y=>{const on=y.m.id===x.m.id;return html`<button key=${y.m.id} role="radio" aria-checked=${on} onClick=${()=>setMid(y.m.id)} className="card2 p-3 text-left flex items-center gap-2.5 border-0 w-full" style=${on?{boxShadow:'0 0 0 1.5px var(--acc2) inset'}:undefined}><span className=${'chk shrink-0'+(on?' on':'')} style=${{width:20,height:20,borderRadius:10}}>${on&&html`<${Icon} n="check" s=${12} sw=${3}/>`}</span><span className="flex-1 min-w-0"><span className="block text-[13.5px] font-medium truncate">${y.a.title}</span><span className="block text-[11.5px] mute truncate">${y.g.title}</span></span></button>`})}</div>
  <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Wann?</div>${dChips(LC.EVE_WHEN,when,setWhen)}
  <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Was könnte dazwischenkommen?</div>${dChips(LC.EVE_RISK,risk,setRisk)}
@@ -2782,16 +2906,21 @@ function Debrief({c}){const {S,D}=c;const L=S.life;const plan=useMemo(()=>debrie
  const prev=(L.daily||[]).find(e=>e.d===L.d)||{};const [mood,setMood]=useState(prev.mood||null),[ob,setOb]=useState((prev.obst||[])[0]||null),[ch,setCh]=useState(prev.change||(skipped.length?null:'keep'));
  const areas=[...new Set(done.map(m=>{const x=goalMs(S).find(y=>y.m.id===m.id);return x&&x.g.area}).filter(Boolean))];const st=LC.templeState(S);
  const chips=(opts,val,set)=>html`<div className="flex flex-wrap gap-1.5">${opts.map(([k,l])=>html`<button key=${k} aria-pressed=${val===k} onClick=${()=>set(val===k?null:k)} className=${`chip ${val===k?'on':''}`} style=${{minHeight:38,padding:'8px 14px',fontSize:13}}>${l}</button>`)}</div>`;
- const next=ch==='earlier'&&skipped[0]?skipped[0].id:null;
- const save=()=>{c.saveDebrief({mood,obst:ob?[ob]:[],change:ch,done:done.map(m=>m.id),skipped:skipped.map(m=>m.id),next},{stay:cands.length>0});if(cands.length)setEve({pre:next})};
+ /* Ruhe oder Krankheit: kein Hindernis, nichts gilt als ausgelassen; der Tag wird als bewusste Pause vermerkt. */
+ const [rec,setRec]=useState(prev.recover||(D.restToday?'rest':null)),bt=todayBattle(S,D);
+ const next=!rec&&ch==='earlier'&&skipped[0]?skipped[0].id:null;
+ const save=()=>{c.saveDebrief({mood,obst:!rec&&ob?[ob]:[],change:rec?null:ch,done:done.map(m=>m.id),skipped:rec?[]:skipped.map(m=>m.id),next,recover:rec},{stay:cands.length>0});if(cands.length)setEve({pre:next})};
  if(eve)return html`<${EveningStep} c=${c} cands=${cands} pre=${eve.pre}/>`;
  return html`<${Sheet} sub=${'Daily Debrief · '+DAYS_L[D.di]+(cands.length?' · 1/2':'')} title="Dein Tag" onClose=${c.closeSheet}>
- <div className="card2 p-3.5 -mt-1"><div className="flex items-baseline justify-between"><span className="lbl">Automatisch ausgewertet</span><span className="num text-[14px] font-bold">${done.length} von ${plan.length}</span></div>
-  <div className="mt-2 flex flex-col gap-1.5">${plan.map(m=>{const ok=!!S.done[m.id];return html`<div key=${m.id} className="flex items-center gap-2.5 text-[13.5px]"><span className=${'chk'+(ok?' on':'')} style=${{width:20,height:20,borderRadius:6}}>${ok&&html`<${Icon} n="check" s=${12} sw=${3}/>`}</span><span className=${'flex-1 truncate '+(ok?'':'mute')}>${m.title}</span>${!ok&&html`<span className="text-[11.5px] mute">ausgelassen</span>`}</div>`})}${!plan.length&&html`<div className="text-[13px] mute">Heute war nichts geplant.</div>`}</div></div>
+ ${bt&&html`<div className="card2 p-3.5 -mt-1 mb-3 flex items-center gap-3" data-debrief-battle><span className="shrink-0" style=${{color:bt.done?'var(--bronze)':'var(--mute)'}}><${Icon} n="aspis" s=${22}/></span><span className="flex-1 min-w-0"><span className="block lbl">Hauptschlacht</span><span className="block text-[14px] font-semibold truncate">${cleanTitle(bt.title)}</span></span><span className="text-[12.5px] font-semibold shrink-0" style=${{color:bt.done?'var(--bronze)':'var(--mute)'}}>${bt.done?(bt.min?'Minimum gehalten':'Gewonnen'):'Offen'}</span></div>`}
+ <div className="card2 p-3.5 -mt-1"><div className="flex items-baseline justify-between"><span className="lbl">Was du erreicht hast</span><span className="num text-[14px] font-bold">${done.length} von ${plan.length}</span></div>
+  <div className="mt-2 flex flex-col gap-1.5">${plan.map(m=>{const ok=!!S.done[m.id];return html`<div key=${m.id} className="flex items-center gap-2.5 text-[13.5px]"><span className=${'chk'+(ok?' on':'')} style=${{width:20,height:20,borderRadius:6}}>${ok&&html`<${Icon} n="check" s=${12} sw=${3}/>`}</span><span className=${'flex-1 truncate '+(ok?'':'mute')}>${m.title}</span>${!ok&&html`<span className="text-[11.5px] mute">${rec?'pausiert':'offen'}</span>`}</div>`})}${!plan.length&&html`<div className="text-[13px] mute">Heute war nichts geplant.</div>`}</div></div>
  ${areas.length>0&&html`<div className="flex items-center gap-3 mt-3"><span style=${{width:70}} className="shrink-0"><${TempleSVG} st=${st} sel=${areas[0]} mini=${true} anim=${false}/></span><div className="text-[13px] leading-snug">Heute gebaut an: <b>${areas.map(a=>LC.AREA[a].de).join(', ')}</b>. Jede umgesetzte Ziel-Handlung zählt für die konstante Woche deiner Säule.</div></div>`}
  <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Wie lief dein Tag?</div>${chips(LC.MOODS,mood,setMood)}
- ${skipped.length?html`<div className="text-[13.5px] font-semibold mt-4 mb-1.5">Was hat dich aufgehalten?</div>${chips(LC.DEBRIEF_OBST,ob,setOb)}
-  <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Was möchtest du ändern?</div>${chips(LC.CHANGES,ch,setCh)}
+ <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Ging es heute um Erholung?</div>${chips([['rest','Bewusste Ruhe'],['sick','Krank']],rec,setRec)}
+ ${rec?html`<div className="card2 p-3 mt-3 text-[13.5px] leading-snug" data-debrief-recover><b>Erholung gehört zum Plan.</b> Nichts wird als ausgelassen gezählt, deine Serie bleibt.</div>`
+ :skipped.length?html`<div className="text-[13.5px] font-semibold mt-4 mb-1.5">Was hat Widerstand erzeugt?</div>${chips(LC.DEBRIEF_OBST,ob,setOb)}
+  <div className="text-[13.5px] font-semibold mt-4 mb-1.5">Nächste Anpassung?</div>${chips(LC.CHANGES,ch,setCh)}
   ${ch==='earlier'&&html`<div className="text-[12px] mute mt-1.5">„${skipped[0].title}“ steht morgen an erster Stelle.</div>`}${ch==='smaller'&&html`<div className="text-[12px] mute mt-1.5">${skipped.length===1?'Notiert. Im Wochenrückblick bekommst du eine kleinere Version als Experiment vorgeschlagen.':'Notiert. Wiederholt es sich, schlägt der Wochenrückblick eine kleinere Version vor.'} Dein Plan ändert sich nicht ungefragt.</div>`}`
  :plan.length?html`<div className="card2 p-3 mt-4 text-[13.5px] leading-snug"><b>Der Plan funktioniert.</b> Behalte ihn bei.</div>`:null}
  <button onClick=${save} disabled=${!mood} className="btn w-full py-3.5 mt-5 text-sm">${cands.length?'Weiter: Morgen vorbereiten':'Debrief abschließen'}</button>
@@ -2959,13 +3088,26 @@ const emptyDraft=area=>({area:area||'health',tpl:null,title:'',metric:{name:'',u
 const PROC_RX=/training|einheit|lauf(?!zeit)|läufe|minute|stunde|tage|sessions?|mal\b|anzahl/i;
 const draftOk=d=>d.title.trim().length>=3&&d.metric.name.trim().length>=2&&LC.parseV(d.metric,d.targetStr)!=null;
 const planOk=d=>d.actions.some(a=>a.title.trim().length>=2);
-function draftOut(d){return{area:d.area,tpl:d.tpl,title:d.title.trim(),metric:{...d.metric,name:d.metric.name.trim(),target:LC.parseV(d.metric,d.targetStr)},start:LC.parseV(d.metric,d.startStr),weeks:d.weeks,method:d.method,actions:d.actions.filter(a=>a.title.trim().length>=2).map(a=>({...a,title:a.title.trim()}))}}
+function draftOut(d){return{area:d.area,tpl:d.tpl,title:d.title.trim(),metric:{...d.metric,name:d.metric.name.trim(),target:LC.parseV(d.metric,d.targetStr)},start:LC.parseV(d.metric,d.startStr),weeks:d.weeks,method:d.method,actions:d.actions.filter(a=>a.title.trim().length>=2).map(a=>({...a,title:a.title.trim()})),capacity:d.capacity||null,limits:(d.limits||'').trim()||null,steps:Array.isArray(d.steps)&&d.steps.length?[...d.steps]:null}}
+/* Phase 2: Etappen eines Entwurfs – eigene, sonst automatisch aus Start- und Zielwert vorgeschlagen. */
+const draftSteps=d=>Array.isArray(d.steps)?d.steps:PJ.suggestSteps(LC.parseV(d.metric,d.startStr),LC.parseV(d.metric,d.targetStr));
+const CAP_OPTS=[[0,'Offen'],[60,'1 Std.'],[120,'2 Std.'],[180,'3 Std.'],[300,'5 Std.']];
+function StepsEdit({metric,steps,onChange,sugg}){const [v,setV]=useState(''),nv=LC.parseV(metric,v);
+ return html`<div data-goal-steps><div className="flex flex-wrap gap-1.5">${steps.map(s=>html`<button key=${s} type="button" onClick=${()=>onChange(steps.filter(x=>x!==s))} aria-label=${'Etappe entfernen: '+LC.fmtV(metric,s)} className="chip on" style=${{minHeight:36}}>${LC.fmtV(metric,s)}<span aria-hidden="true" className="ml-1.5 opacity-60">×</span></button>`)}${!steps.length&&html`<span className="text-[12.5px] mute">Keine Etappen.</span>`}</div>
+ <div className="flex gap-2 mt-2"><input className="inp flex-1" aria-label="Eigene Etappe" inputMode=${metric.fmt==='time'?'text':'decimal'} value=${v} onChange=${e=>setV(e.target.value)} placeholder=${metric.fmt==='time'?'Etappe, z. B. 26:00':'Eigene Etappe'}/><button type="button" disabled=${nv==null} onClick=${()=>{const dn=metric.dir==='down';onChange([...new Set([...steps,nv])].sort((a,b)=>dn?b-a:a-b));setV('')}} className="ghost px-4 text-[13px] font-semibold">Hinzufügen</button></div>
+ ${sugg&&sugg.length>0&&JSON.stringify(sugg)!==JSON.stringify(steps)&&html`<button type="button" className="bg-transparent border-0 p-0 mt-2 text-[12.5px] acc font-semibold" style=${{minHeight:32}} onClick=${()=>onChange(sugg)}>Vorschlag wiederherstellen</button>`}</div>`}
+function AdaptList({c,g}){const list=PJ.adapt(c.S,g.id);if(!list.length)return null;
+ const apply=ch=>{if(ch.type==='perWeek'){c.setActPerWeek(ch.aid,ch.to);c.toast('Plan angepasst. Gilt ab dieser Woche.','good')}else if(ch.type==='weeks')c.updLifeGoal(g.id,{weeks:ch.to});else if(ch.type==='rate'){c.upd(n=>{PJ.setPlan(n,g.id,{rate:ch.to,interest:(g.proj||{}).interest})});c.toast('Sparrate angepasst.','good')}else if(ch.type==='measure')c.openSheet({t:'measure',gid:g.id});else{c.closeSheet();c.setTab('reflect')}};
+ return html`<section className="mt-5" data-goal-adapt aria-label="Plan anpassen"><div className="lbl mb-2">Plan anpassen?</div>${list.map(x=>html`<div key=${x.code} className="card2 p-3.5 mb-2"><div className="text-[14px] font-semibold leading-snug">${x.title}</div><div className="text-[12.5px] mute mt-1 leading-snug">${x.text}</div>
+ <button type="button" className="chip on mt-2.5" onClick=${()=>apply(x.change)}>${x.label}</button>${x.alt&&html`<button type="button" className="chip mt-2.5 ml-1.5" onClick=${()=>apply(x.alt)}>${x.altLabel}</button>`}</div>`)}
+ <div className="text-[11.5px] mute">Vorschläge aus deinen echten Daten. Nichts ändert sich, bevor du tippst.</div></section>`}
 function GoalForm({d,set,part}){const m=d.metric;const up=p=>set({...d,...p}),um=p=>set({...d,metric:{...m,...p}});
  if(part==='plan'){const load=d.actions.reduce((s,a)=>s+(+a.perWeek||0),0);
   return html`<div><div className="card2 p-3 text-[12.5px] leading-relaxed mb-3"><b>Handlungen sind dein Prozess:</b> was du jede Woche tust. Ob sie wirken, zeigt das Ergebnis „${m.name||'deine Messgröße'}“.</div>
   <div className="flex flex-col gap-2.5">${d.actions.map((a,i)=>html`<div key=${i} className="card p-3"><div className="flex gap-2"><input className="inp flex-1" aria-label=${'Handlung '+(i+1)} maxLength=${60} value=${a.title} onChange=${e=>up({actions:d.actions.map((x,j)=>j===i?{...x,title:e.target.value}:x)})} placeholder="z. B. Lauftraining"/>${d.actions.length>1&&html`<button aria-label="Handlung entfernen" onClick=${()=>up({actions:d.actions.filter((_,j)=>j!==i)})} className="ghost w-11 flex items-center justify-center shrink-0"><${Icon} n="x" s=${16}/></button>`}</div>
    <div className="flex items-center justify-between mt-2.5"><span className="text-[13px] mute">Pro Woche</span><div className="flex items-center gap-2"><button aria-label="weniger" onClick=${()=>up({actions:d.actions.map((x,j)=>j===i?{...x,perWeek:Math.max(1,(+x.perWeek||1)-1)}:x)})} className="ghost w-9 h-9 flex items-center justify-center text-[18px]">−</button><span className="num font-bold w-10 text-center">${a.perWeek}×</span><button aria-label="mehr" onClick=${()=>up({actions:d.actions.map((x,j)=>j===i?{...x,perWeek:Math.min(7,(+x.perWeek||1)+1)}:x)})} className="ghost w-9 h-9 flex items-center justify-center text-[18px]">+</button></div></div></div>`)}</div>
   ${d.actions.length<3&&html`<button onClick=${()=>up({actions:[...d.actions,{title:'',perWeek:1,minutes:null}]})} className="ghost w-full py-3 mt-2.5 text-[13px] font-semibold flex items-center justify-center gap-1.5"><${Icon} n="plus" s=${14}/>Handlung hinzufügen</button>`}
+  ${d.capacity>0&&(()=>{const f=PJ.fitActions(d.actions,d.capacity);return html`<div className="card2 p-3 mt-3 text-[12.5px] leading-snug" data-goal-capacity>Deine Zeit: <b>${d.capacity} Min. pro Woche</b> · Plan: <b>${f.before} Min.</b>${f.before>d.capacity?html`<button type="button" className="chip on mt-2" onClick=${()=>up({actions:f.actions})}>An meine Zeit anpassen${f.over?' (so weit wie möglich)':''}</button>`:html`<span className="good"> · passt</span>`}</div>`})()}
   <div className="text-[12.5px] mt-3 px-1" style=${{color:load>10?'var(--gold)':'var(--mute)'}}>${load} Einheiten pro Woche. ${load>10?'Viel für den Anfang. Weniger, aber sicher, gewinnt; steigern kannst du nach dem ersten Rückblick.':'Realistisch ist besser als ehrgeizig: Der Wochenrückblick passt den Plan an.'}</div></div>`}
  const tpls=LC.GOAL_TPL.filter(t=>t.area===d.area);const proc=PROC_RX.test(m.name);
  return html`<div>
@@ -2979,10 +3121,15 @@ function GoalForm({d,set,part}){const m=d.metric;const up=p=>set({...d,...p}),um
   <div className="grid grid-cols-2 gap-2 mt-2"><label className="block"><span className="text-[12px] mute">Heute (optional)</span><input className="inp mt-1" inputMode=${m.fmt==='time'?'text':'decimal'} value=${d.startStr} onChange=${e=>up({startStr:e.target.value})} placeholder=${m.fmt==='time'?'27:30':'Startwert'}/></label><label className="block"><span className="text-[12px] mute">Zielwert</span><input className="inp mt-1" inputMode=${m.fmt==='time'?'text':'decimal'} value=${d.targetStr} onChange=${e=>up({targetStr:e.target.value})} placeholder=${m.fmt==='time'?'24:59':'Ziel'}/></label></div>
   ${d.targetStr&&LC.parseV(m,d.targetStr)==null&&html`<div className="text-[12px] bad mt-1.5">${m.fmt==='time'?'Bitte im Format mm:ss eingeben.':'Bitte eine Zahl eingeben.'}</div>`}
   <div className="flex gap-1.5 mt-2.5">${[['measured','Gemessen'],['self','Selbsteinschätzung']].map(([k,l])=>html`<button key=${k} onClick=${()=>um({src:k})} className=${`chip ${m.src===k?'on':''}`}>${l}</button>`)}</div></div>
- <div className="lbl mt-4 mb-1.5">Zeitraum</div><${Seg} opts=${[[4,'4 Wo.'],[8,'8 Wo.'],[12,'12 Wo.'],[24,'24 Wo.'],[52,'1 Jahr']]} val=${d.weeks} on=${v=>up({weeks:v})}/></div>`}
+ <div className="lbl mt-4 mb-1.5">Zeitraum</div><${Seg} opts=${[[4,'4 Wo.'],[8,'8 Wo.'],[12,'12 Wo.'],[24,'24 Wo.'],[52,'1 Jahr']]} val=${d.weeks} on=${v=>up({weeks:v})}/>
+ <div className="lbl mt-4 mb-1.5">Zeit pro Woche (optional)</div><${Seg} opts=${CAP_OPTS} val=${d.capacity||0} on=${v=>up({capacity:v||null})}/>
+ <label className="lbl block mt-4 mb-1.5" htmlFor="gf-l">Einschränkungen (optional)</label><input id="gf-l" className="inp" maxLength=${120} value=${d.limits||''} onChange=${e=>up({limits:e.target.value})} placeholder="z. B. Knie schonen, nur abends Zeit"/>
+ <div className="card p-3.5 mt-3"><div className="lbl acc mb-2">Etappen</div>${LC.parseV(m,d.startStr)==null?html`<div className="text-[12.5px] mute">Mit einem Startwert („Heute“) schlägt die App Etappen vor.</div>`:html`<${StepsEdit} metric=${m} steps=${draftSteps(d)} sugg=${PJ.suggestSteps(LC.parseV(m,d.startStr),LC.parseV(m,d.targetStr))} onChange=${s=>up({steps:s})}/>`}
+ ${d.area==='health'&&html`<div className="text-[11.5px] mute mt-2">Körperliche Fortschritte verlaufen nicht nach Kalender. Etappen haben deshalb kein Datum.</div>`}</div></div>`}
 
 function GoalSheet({c,gid,area}){const {S}=c;const L=S.life;const g=gid&&LC.goalById(L,gid);
  const [d,setD]=useState(()=>{const ar=area||L.focus||'health',t=LC.GOAL_TPL.find(x=>x.area===ar);return t?draftFromTpl(t):emptyDraft(ar)});const [st,setSt]=useState(0);
+ const [cap,setCap]=useState(g&&g.capacity||0),[lim,setLim]=useState(g&&g.limits||'');
  const [title,setTitle]=useState(g?g.title:''),[tgt,setTgt]=useState(g?rawV(g.metric,g.metric.target):''),[wks,setWks]=useState(g?g.weeks:12),[na,setNa]=useState('');
  if(g){const acts=LC.actionsOf(L,g.id);const tv=LC.parseV(g.metric,tgt);
   return html`<${Sheet} sub=${LC.AREA[g.area].de+' · Ziel bearbeiten'} title=${g.title} onClose=${c.closeSheet}>
@@ -2993,11 +3140,17 @@ function GoalSheet({c,gid,area}){const {S}=c;const L=S.life;const g=gid&&LC.goal
   <div className="flex flex-col gap-2">${acts.map(a=>html`<div key=${a.id} className="card2 p-3 flex items-center gap-2"><span className="flex-1 min-w-0 text-[13px] truncate">${LC.missionTitle(a)}</span><button aria-label="weniger" onClick=${()=>c.setActPerWeek(a.id,Math.max(1,a.perWeek-1))} className="ghost w-8 h-8 flex items-center justify-center">−</button><span className="num font-bold w-7 text-center">${a.perWeek}×</span><button aria-label="mehr" onClick=${()=>c.setActPerWeek(a.id,Math.min(7,a.perWeek+1))} className="ghost w-8 h-8 flex items-center justify-center">+</button><button aria-label="Handlung entfernen" onClick=${()=>c.removeAction(a.id)} className="bg-transparent border-0 mute p-1"><${Icon} n="x" s=${15}/></button></div>`)}</div>
   <div className="flex gap-2 mt-2"><input className="inp flex-1" aria-label="Neue Handlung" value=${na} maxLength=${60} onChange=${e=>setNa(e.target.value)} placeholder="Neue Handlung"/><button disabled=${na.trim().length<2} onClick=${()=>{c.addActionTo(g.id,{title:na.trim(),perWeek:2});setNa('')}} className="btn px-4 text-sm">Hinzufügen</button></div>
   <div className="text-[11.5px] mute mt-2">Planänderungen gelten ab sofort; frühere Wochen bleiben, wie sie waren.</div>
+  ${PJ.typeOf(g)&&html`<button type="button" className="chip mt-3" onClick=${()=>c.openSheet({t:'impact',gid:g.id})}>Was ist mit meinem Plan möglich?</button>`}
+  <${AdaptList} c=${c} g=${g}/>
+  <div className="lbl mt-5 mb-1.5">Rahmen</div><div className="text-[12px] mute mb-1.5">Zeit pro Woche</div><${Seg} opts=${CAP_OPTS} val=${cap} on=${setCap}/>
+  <input className="inp mt-2" aria-label="Einschränkungen" maxLength=${120} value=${lim} onChange=${e=>setLim(e.target.value)} placeholder="Einschränkungen (optional)"/>
+  <button type="button" className="ghost w-full py-2.5 mt-2 text-[13px] font-semibold" onClick=${()=>{c.upd(n=>{PJ.setFrame(n,g.id,{capacity:cap||'',limits:lim})});c.toast('Rahmen gespeichert.','good')}}>Rahmen speichern</button>
+  ${(()=>{const st=LC.goalStart(L,g),sug=PJ.suggestSteps(st,g.metric.target),cur=Array.isArray(g.steps)?g.steps:sug;return st==null?null:html`<div className="lbl mt-5 mb-1.5">Etappen${Array.isArray(g.steps)?'':' (Vorschlag)'}</div><${StepsEdit} metric=${g.metric} steps=${cur} sugg=${sug} onChange=${s=>c.upd(n=>{PJ.setFrame(n,g.id,{steps:s})})}/>`})()}
   ${(g.changes||[]).length>0&&html`<div className="lbl mt-5 mb-1.5">Änderungsverlauf</div>${g.changes.slice().reverse().map((x,i)=>html`<div key=${i} className="text-[12px] mute">Woche ${x.wk+1}: ${x.ch.map(([k,a,b])=>`${k} ${a??'–'} → ${b}`).join(', ')}</div>`)}`}
   <div className="grid grid-cols-2 gap-2 mt-5">${L.main!==g.id&&g.status==='active'&&html`<button onClick=${()=>c.setMainGoal(g.id)} className="ghost py-3 text-[13px] font-semibold col-span-2">Als Hauptziel setzen</button>`}${g.status==='active'?html`<button onClick=${()=>c.setLifeGoalStatus(g.id,'achieved')} className="ghost py-3 text-[13px] font-semibold good">Als erreicht markieren</button><button onClick=${()=>c.setLifeGoalStatus(g.id,'archived')} className="ghost py-3 text-[13px] font-semibold mute">Archivieren</button>`:html`<button onClick=${()=>c.setLifeGoalStatus(g.id,'active')} className="ghost py-3 text-[13px] font-semibold col-span-2">Wieder aktivieren</button>`}</div><//>`}
  return html`<${Sheet} sub=${`Neues Ziel · ${st+1}/2`} title=${st===0?'Was willst du erreichen?':'Was tust du dafür?'} onClose=${c.closeSheet}>
  ${st===0?html`<${GoalForm} d=${d} set=${setD} part="goal"/><button disabled=${!draftOk(d)} onClick=${()=>setSt(1)} className="btn w-full py-3.5 mt-4 text-sm">Weiter zum Plan</button>`
- :html`<${GoalForm} d=${d} set=${setD} part="plan"/><div className="flex gap-2 mt-4"><button onClick=${()=>setSt(0)} className="ghost flex-1 py-3.5 text-sm font-semibold">Zurück</button><button disabled=${!planOk(d)} onClick=${()=>c.addLifeGoal(draftOut(d))} className="btn flex-[1.6] py-3.5 text-sm">Ziel anlegen</button></div>`}<//>`}
+ :html`<${GoalForm} d=${d} set=${setD} part="plan"/><div className="flex gap-2 mt-4"><button onClick=${()=>setSt(0)} className="ghost flex-1 py-3.5 text-sm font-semibold">Zurück</button><button disabled=${!planOk(d)} onClick=${()=>c.addLifeGoal(draftOut({...d,steps:draftSteps(d)}))} className="btn flex-[1.6] py-3.5 text-sm">Ziel anlegen</button></div>`}<//>`}
 
 function MChart({g,ms,h=96}){const vs=ms.map(x=>x.v),t=g.metric.target;const all=t!=null?[...vs,t]:vs;let lo=Math.min(...all),hi=Math.max(...all);if(hi===lo){hi+=1;lo-=1}const pad=(hi-lo)*.12;lo-=pad;hi+=pad;
  const W=300,X=i=>vs.length<2?W/2:8+i*(W-16)/(vs.length-1),Y=v=>h-6-(v-lo)/(hi-lo)*(h-12);const pts=vs.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
@@ -3038,7 +3191,57 @@ function GoalCard({c,g}){const {S}=c;const L=S.life,wk=LC.curWk(L),now=LC.goalNo
  <div className="text-[16px] font-bold leading-tight">${g.title}</div>
  <div className="flex items-end justify-between gap-2 mt-2.5"><div className="min-w-0"><div className="text-[11.5px] mute truncate">${g.metric.name} · ${SRC_L[g.metric.src]||'Selbst'}</div><div className="num text-[18px] font-bold">${LC.fmtV(g.metric,now)} <span className="mute text-[13px] font-medium">→ ${LC.fmtV(g.metric,g.metric.target)}</span></div></div><button onClick=${()=>c.openSheet({t:'measure',gid:g.id})} className="chip shrink-0">Messen</button></div>
  ${p!=null&&html`<div className="mt-2"><${Bar} pct=${p} h=${5} color="var(--good)"/></div>`}
- ${!ach&&html`<div className="border-t ln mt-3 pt-2.5 flex flex-col gap-1.5">${acts.map(a=>html`<div key=${a.id} className="flex items-center gap-2 text-[13px]"><span className="flex-1 min-w-0 truncate">${LC.missionTitle(a)}</span><span className="num mute shrink-0">${LC.doneIn(L,a.id,wk)}/${LC.plannedAt(a,wk)} Woche</span></div>`)}${!acts.length&&html`<div className="text-[12.5px] mute">Noch keine Handlung. Über den Stift fügst du eine hinzu.</div>`}</div>`}</div>`}
+ ${!ach&&html`<div className="border-t ln mt-3 pt-2.5 flex flex-col gap-1.5">${acts.map(a=>html`<div key=${a.id} className="flex items-center gap-2 text-[13px]"><span className="flex-1 min-w-0 truncate">${LC.missionTitle(a)}</span><span className="num mute shrink-0">${LC.doneIn(L,a.id,wk)}/${LC.plannedAt(a,wk)} Woche</span></div>`)}${!acts.length&&html`<div className="text-[12.5px] mute">Noch keine Handlung. Über den Stift fügst du eine hinzu.</div>`}</div>`}
+ ${!ach&&PJ.adapt(S,g.id).length>0&&html`<button type="button" onClick=${()=>c.openSheet({t:'goal',gid:g.id})} data-goal-adapt-hint className="w-full mt-2.5 flex items-center gap-2 text-left border-0 p-0 bg-transparent text-[13px]" style=${{minHeight:40,color:'var(--gold)'}}><${Icon} n="flask" s=${15}/>Anpassung vorgeschlagen<${Icon} n="chevR" s=${14} cls="ml-auto mute"/></button>`}
+ ${!ach&&PJ.typeOf(g)&&html`<button type="button" onClick=${()=>c.openSheet({t:'impact',gid:g.id})} className="w-full mt-2.5 flex items-center gap-2 text-left border-0 bg-transparent p-0 text-[13px] font-semibold acc" style=${{minHeight:40}}><${Icon} n="trend" s=${15}/>Was ist mit meinem Plan möglich?<${Icon} n="chevR" s=${14} cls="ml-auto mute"/></button>`}</div>`}
+/* ───── Decision Impact: „Was ist mit meinem Plan möglich?“ ─────
+   Rechnet nur über projection-core.js (window.PJ). Sichtbar sind höchstens 90 Tage; der Vergleich nennt seine Datenbasis. */
+const einh=n=>n+(n===1?' Einheit':' Einheiten');
+const PJ_FMT={finance:v=>eur(v),fitness:v=>String(Math.round(v)),learning:v=>n1(v)+' h'};
+/* Kurzer Planungshorizont; Zeitachse proportional, keine erfundene Wirkungskurve. */
+function ImpactChart({p,mode,start,fmt,compare}){const W=320,H=150,pl=8,pr=8,pt=14,pb=26,pts=[{d:0,l:'Heute',follow:start,drift:start},...p.series.filter(x=>x.d<=90)],max=Math.max(1,...pts.map(x=>Math.max(x.follow,x.drift))),f=fmt||PJ_FMT[p.type];
+ const X=i=>pl+pts[i].d/90*(W-pl-pr),Y=v=>pt+(1-v/max)*(H-pt-pb),line=k=>pts.map((x,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(x[k]).toFixed(1)).join(' ');
+ const other=mode==='follow'?'drift':'follow',last=pts[pts.length-1];
+ return html`<svg viewBox=${'0 0 '+W+' '+H} width="100%" role="img" aria-label=${'Rechenbeispiel für 90 Tage: Dein Plan '+f(last.follow)+', '+compare+' '+f(last.drift)} data-impact-chart>
+ <line x1=${pl} x2=${W-pr} y1=${H-pb} y2=${H-pb} style=${{stroke:'var(--line)'}} strokeWidth="1"/>
+ <path d=${line(other)} fill="none" style=${{stroke:other==='follow'?'var(--acc)':'var(--nem)'}} strokeWidth="1.5" strokeDasharray="4 4" opacity=".45"/>
+ <path d=${line(mode)} fill="none" style=${{stroke:mode==='follow'?'var(--acc)':'var(--nem)'}} strokeWidth="2.6" strokeLinejoin="round" strokeLinecap="round"/>
+ ${pts.map((x,i)=>html`<g key=${i}><circle cx=${X(i)} cy=${Y(x[mode])} r="2.6" style=${{fill:mode==='follow'?'var(--acc)':'var(--nem)'}}/>${x.d!==7&&html`<text x=${X(i)} y=${H-8} textAnchor=${i===0?'start':i===pts.length-1?'end':'middle'} style=${{fill:'var(--mute)',fontSize:10}}>${x.l}</text>`}</g>`)}
+ <text x=${W-pr} y=${Math.max(10,Y(last[mode])-6)} textAnchor="end" style=${{fill:'var(--ink)',fontSize:11,fontWeight:700}}>${f(last[mode])}</text></svg>`}
+function ImpactSheet({c,gid}){const {S}=c,L=S.life,g=LC.goalById(L,gid);const [mode,setMode]=useState('follow'),[rate,setRate]=useState(()=>g&&g.proj?String(g.proj.rate):''),[intr,setIntr]=useState(()=>g&&g.proj&&g.proj.interest?String(g.proj.interest).replace('.',','):'');
+ if(!g)return null;const type=PJ.typeOf(g),p=PJ.project(S,gid),t=PJ.today(S,gid),pct=x=>Math.round(x*100)+' %',fmt=type==='learning'&&p&&!p.timed?PJ_FMT.fitness:PJ_FMT[type]||String;
+ const inMonths=m=>{if(m==null)return null;const d=new Date(c.now);d.setMonth(d.getMonth()+m);return d.toLocaleDateString('de-DE',{month:'long',year:'numeric'})};
+ const fact=(k,v,sub)=>html`<div key=${k} className="flex items-baseline justify-between gap-3 py-2 border-t ln first:border-t-0"><span className="text-[13px] mute">${k}</span><span className="text-right"><span className="num text-[14px] font-semibold">${v}</span>${sub&&html`<span className="block text-[11.5px] mute">${sub}</span>`}</span></div>`;
+ const saveRate=()=>{c.upd(n=>{PJ.setPlan(n,gid,{rate:rate.replace(',','.'),interest:intr.replace(',','.')})});c.toast(rate.trim()?'Sparrate gespeichert.':'Sparrate entfernt.','good')};
+ const compare=p&&p.drift&&p.drift.src==='observed'?'Bisheriges Tempo':'Halber Plan';
+ const drift=p&&p.drift?(p.drift.src==='observed'?(type==='finance'?'Vergleich aus deinen bisherigen Messwerten.':'Vergleich aus deinen letzten bis zu vier abgeschlossenen Wochen.'):'Vergleichsannahme: die Hälfte deines Plans. Das ist keine Aussage über dein Verhalten.'):null;
+ const MISS={stand:['Aktueller Stand fehlt','Messen',()=>c.openSheet({t:'measure',gid})],ziel:['Zielwert fehlt','Ziel bearbeiten',()=>c.openSheet({t:'goal',gid})],rate:['Sparrate pro Monat fehlt',null,null],handlung:['Keine Handlung geplant','Ziel bearbeiten',()=>c.openSheet({t:'goal',gid})],typ:['Für diese Art Ziel gibt es noch keine Projektion',null,null]};
+ return html`<${Sheet} sub=${LC.AREA[g.area].de+' · Plan und gemessene Wirkung'} title="Was ist mit meinem Plan möglich?" onClose=${c.closeSheet}>
+ <div className="text-[15px] font-bold -mt-1">${g.title}</div>
+ ${t&&t.planned>0&&html`<div className="card2 p-3.5 mt-3" data-impact-today><div className="lbl">Heute</div><div className="text-[13.5px] mt-1 leading-snug">Diese Woche <b className="num">${t.done} von ${t.planned}</b> umgesetzt.${t.doneToday?' Heute schon erledigt.':html` Heute erledigt: <b className="num">${pct(t.ifDone)}</b> der Woche, ausgelassen: <b className="num">${pct(t.ifSkip)}</b>.`}</div>${!t.doneToday&&html`<div className="text-[12px] mute mt-1">${t.stillPossible?'Ein ausgelassener Tag ändert wenig: die Woche ist noch zu schaffen.':'Die Woche wird knapp. Ein kleiner Schritt zählt trotzdem.'}</div>`}</div>`}
+ ${type==='finance'&&html`<div className="card2 p-3.5 mt-3"><div className="lbl mb-2">Dein Plan</div><div className="grid grid-cols-2 gap-2"><label className="block"><span className="text-[12px] mute">Sparrate pro Monat (€)</span><input className="inp mt-1" inputMode="decimal" value=${rate} onChange=${e=>setRate(e.target.value)} placeholder="z. B. 250"/></label><label className="block"><span className="text-[12px] mute">Zinsen pro Jahr (%)</span><input className="inp mt-1" inputMode="decimal" value=${intr} onChange=${e=>setIntr(e.target.value)} placeholder="0"/></label></div><button type="button" className="btn w-full py-2.5 mt-2.5 text-[13.5px]" onClick=${saveRate}>Plan speichern</button><div className="text-[11.5px] mute mt-1.5">Zinsen nur, wenn du sie ausdrücklich annimmst. Ohne Angabe: 0 %.</div></div>`}
+ ${p&&!p.complete?html`<div className="card2 p-3.5 mt-3" data-impact-missing><div className="text-[13.5px] font-semibold">Noch nicht berechenbar</div>${p.missing.map(k=>{const m=MISS[k]||[k];return html`<div key=${k} className="flex items-center justify-between gap-2 mt-2 text-[13px]"><span className="mute">${m[0]}</span>${m[1]&&html`<button type="button" className="chip" onClick=${m[2]}>${m[1]}</button>`}</div>`})}<div className="text-[11.5px] mute mt-2">Die App zeigt keine Zahlen, die nicht aus deinen Angaben folgen.</div></div>`
+ :p&&html`<div className="mt-3"><div className="lbl mb-2">Nächste 90 Tage · Rechenbeispiel</div><${Seg} opts=${[['follow','Dein Plan'],['drift',compare]]} val=${mode} on=${setMode}/></div>
+ <div className="card2 p-3 mt-2"><${ImpactChart} p=${p} mode=${mode} fmt=${fmt} compare=${compare} start=${type==='finance'?p.now:type==='fitness'||!p.timed?(p.done??p.sessions):p.hours}/><div className="text-[12px] mute mt-1 leading-snug">${type==='finance'?'Rechnerischer Stand bei unveränderter Rate und Zinsannahme.':type==='fitness'?'Geplante Trainingseinheiten, keine Vorhersage deiner Fitness.':p.timed?'Lernzeit aus Einheiten und geplanter Dauer, keine gemessene Lernwirkung.':'Geplante Lerneinheiten, keine Vorhersage deines Könnens.'} ${drift}</div></div>
+ <div className="card2 px-3.5 py-1 mt-2" data-impact-facts>
+ ${type==='finance'&&html`${fact('Ziel '+fmt(p.target),p.months==null?'mit dieser Rate nicht':p.months===0?'erreicht':'in '+p.months+' Monaten',p.months?inMonths(p.months):null)}
+  ${p.unrealistic&&fact('Dein Zeitraum',p.deadlineM+' Monate','reicht mit dieser Rate nicht – Rate erhöhen oder Zeitraum verlängern')}
+  ${fact('Rechnerisch nach 3 Monaten',fmt(p.at3))}
+  ${fact('Zwischenziele',p.milestones.map(m=>fmt(m.value)+(m.months!=null?' ('+m.months+' M.)':'')).join(' · '))}
+  ${p.alt.map(x=>fact('Mit '+fmt(x.rate)+' pro Monat',x.months==null?'rechnerisch nicht erreichbar':x.months+' Monate','bei unveränderten Annahmen'))}`}
+ ${type==='fitness'&&html`${fact('Plan',einh(p.plan)+' pro Woche')}
+  ${fact('Absolviert',einh(p.done),p.plannedPast?'abgeschlossene Wochen: '+p.doneInPast+' von '+p.plannedPast+' geplant':null)}
+  ${p.consistency!=null&&fact('Konstanz',pct(p.consistency)+' der Wochen erfüllt','Ruhe- und Krankheitstage senken den Plan, sie zählen nicht als verpasst')}
+  ${fact('Meilensteine (aus Messwerten)',p.milestones.length?p.milestones.filter(m=>m.reached).length+' von '+p.milestones.length:'noch keine Messwerte')}
+  ${fact('Plan in 90 Tagen',einh(Math.round(p.series.find(x=>x.d===90).follow)),'einschließlich bisheriger Einheiten')}`}
+ ${type==='learning'&&html`${fact('Erledigte Lerneinheiten',einh(p.sessions))}
+  ${fact('Zeit nach geplanter Dauer',p.timed?n1(p.hours)+' h':'Dauer pro Einheit fehlt','keine gemessene Lernzeit')}
+  ${p.freq.map(x=>fact(x.perWeek+'× pro Woche',p.timed?n1(x.hoursPerMonth)+' h pro Monat':einh(Math.round(x.perWeek*PJ.MONTH/7))+' pro Monat','bei geplanter Dauer und Häufigkeit'))}`}
+ </div>
+ ${type!=='finance'&&html`<section className="card2 p-3.5 mt-3" aria-label="Gemessene Wirkung"><div className="lbl">Gemessene Wirkung</div><div className="text-[13px] mt-1">${p.type==='fitness'&&p.latest!=null||p.type==='learning'&&p.milestones.length?html`${g.metric.name}: <b>${LC.fmtV(g.metric,LC.goalNow(L,g))}</b>`:'Noch kein Messwert für dieses Ziel.'}</div><div className="text-[12px] mute mt-1">Ob dein Plan wirkt, prüfst du an deinen Messwerten.</div><button type="button" className="chip mt-2" onClick=${()=>c.openSheet({t:'measure',gid})}>Messwert eintragen</button></section>`}
+ ${type==='fitness'&&html`<div className="text-[11.5px] mute mt-2">${p.uncertain[0]}</div>`}
+ <div className="text-[11.5px] mute mt-2 leading-snug" data-impact-assumptions>Annahmen: ${p.assumptions.join(' · ')}</div>`}
+ <//>`}
 /* Mein Leben: Tempel als Kopf (Dach = Warum, Fundament = Werte), darunter eine Zeile je Säule; Tippen klappt Ziele und Details auf. */
 function TempleHead({c,st,sel}){const {S}=c,T=S.life.temple,W=S.life.why||{},P=S.principles||[];
  const chip=(icon,label,value,empty,on)=>html`<button type="button" onClick=${on} className="flex-1 min-w-0 text-left border-0 px-3 py-2" style=${{minHeight:52,borderRadius:12,background:'var(--card2)',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}>
@@ -4068,7 +4271,7 @@ function App({init,auth,skey='war_within_v5'}){
  const [S,setS]=useState(()=>{const s=syncCalendar(LC.ensureLife(init||loadState(skey)));WC.ensure(s);FS.ensure(s);LC.syncTemple(s);return s});
  const [tSel,setTSel]=useState(null),[tFlash,setTFlash]=useState(null);
  const [tab,setTab]=useState(()=>{try{return !focusMode(S)&&new URLSearchParams(location.search).has('arena')?'league':'home'}catch(e){return'home'}}),[statTab,setStatTab]=useState('out'),[sheet,setSheet]=useState(null),[sel,setSel]=useState(null),[coreSel,setCoreSel]=useState(null),[freq,setFreq]=useState('all');
- const [toasts,setToasts]=useState([]),[floats,setFloats]=useState([]),[flash,setFlash]=useState({}),[sparks,setSparks]=useState([]),[undo,setUndo]=useState(null);
+ const [toasts,setToasts]=useState([]),[flash,setFlash]=useState({}),[undo,setUndo]=useState(null);
  useEffect(()=>{if(!undo)return;const t=setTimeout(()=>setUndo(u=>u&&u.id===undo.id?null:u),5000);return()=>clearTimeout(t)},[undo&&undo.id]);
  const now=useNow(1000);const scrollRef=useRef(null);const [scrolled,setScrolled]=useState(false);const [fabOff,setFabOff]=useState(false);const lastY=useRef(0);const lock=useRef({});
  const upd=useCallback(fn=>setS(p=>{const n=structuredClone(p);syncCalendar(n);fn(n);if(n.life)LC.syncTemple(n);return n}),[]);
@@ -4079,21 +4282,16 @@ function App({init,auth,skey='war_within_v5'}){
  const D=useMemo(()=>derive(S),[S]);
  useEffect(()=>{try{localStorage.setItem(skey,JSON.stringify(S))}catch(e){}},[S]);
  useEffect(()=>{if(scrollRef.current)scrollRef.current.scrollTop=0;setScrolled(false)},[tab,statTab]);
- const toast=useCallback((msg,kind,o)=>{const id=uid();setToasts(t=>[...t.slice(-2),{id,msg,kind,undo:o&&o.undo}]);setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)),o&&o.undo?5500:3300)},[]);
- const burst=(pos,col)=>{const p=pos&&pos.currentTarget?pos.currentTarget.getBoundingClientRect():pos&&pos.left!=null?pos:null;const x=p?p.left+(p.width||0)/2:innerWidth/2,y=p?p.top+(p.height||0)/2:innerHeight*.45;const id=uid();const parts=Array.from({length:16},(_,i)=>{const a=i/16*Math.PI*2+Math.random()*.4,r=46+Math.random()*58;return{dx:Math.cos(a)*r,dy:Math.sin(a)*r,s:4+Math.random()*5,rot:Math.round(Math.random()*360)+'deg',c:i%3===0?'#fff':col,sq:i%2===0}});setSparks(v=>[...v,{id,x,y,parts}]);setTimeout(()=>setSparks(v=>v.filter(z=>z.id!==id)),900)};
- const fx=(pos,text)=>{const id=uid();const p=pos&&pos.currentTarget?pos.currentTarget.getBoundingClientRect():pos&&pos.left!=null?pos:{left:200,top:420,width:0};setFloats(f=>[...f,{id,x:p.left+(p.width||0)/2,y:p.top,text}]);setTimeout(()=>setFloats(f=>f.filter(x=>x.id!==id)),1200)};
+ const toast=useCallback((msg,kind,o)=>{const id=uid();if(o&&o.undo){setUndo({id,msg,detail:o.detail,restore:o.undo});setToasts(t=>t.filter(x=>x.kind==='warn'));return}setToasts(t=>[...t.slice(-2),{id,msg,kind}]);setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)),3300)},[]);
  const [simMin,setSimMin]=useState(null);
  const openSheet=o=>setSheet(o),closeSheet=()=>setSheet(null);
  useEffect(()=>{if(focusMode(S)&&['solo','league'].includes(tab))setTab('home')},[S.life&&S.life.focusMode,tab]);
- /* Rang-Toasts */
- const pr=useRef(D.me.rank);
- useEffect(()=>{const p=pr.current;if(focusMode(S)||D.standings.every(x=>!x.pts)){pr.current=D.me.rank;return}if(D.me.rank>p)toast(`${D.standings[D.me.rank-2].name} hat dich überholt: jetzt Platz ${D.me.rank}`,'warn');else if(D.me.rank<p)toast(`Du bist auf Platz ${D.me.rank} aufgestiegen!`,'good');pr.current=D.me.rank},[D.me.rank]);
+ /* Rang und Saisonfortschritt bleiben in ihren Ansichten; keine konkurrierenden Erfolgs-Toasts. */
  useEffect(()=>{if(pathLevel(S)>(S.sLevel||0))upd(n=>{applyPath(n,n.sLevel||0,pathLevel(n))})},[]);
- useEffect(()=>{const u=S.pathUp;if(u&&u.ts>Date.now()-4000)toast(`Saison-Pfad: ${u.got.join(', ')}`,'good')},[S.pathUp&&S.pathUp.ts]);
  /* Automatisch öffnende Berichte */
  useEffect(()=>{if(S.aar&&!(sheet&&(sheet.t==='aar'||sheet.t==='season'))){if(focusMode(S)){upd(n=>{n.aar=null});setSheet({t:'weekly'})}else setSheet({t:'aar'})}},[S.aar]);
  useEffect(()=>{if(S.sreport&&!S.aar&&!(sheet&&sheet.t==='season'))setSheet({t:'season'})},[S.sreport,S.aar]);
- useEffect(()=>{if(S.setup&&!S.sreport&&!S.aar)setSheet({t:'newseason'})},[S.setup,S.sreport,S.aar]);
+ useEffect(()=>{if(S.setup&&!S.sreport&&!S.aar&&!reentryToday(S,D))setSheet({t:'newseason'})},[S.setup,S.sreport,S.aar]);
  /* Missionen */
  const cref=useRef(),lref=useRef(),sref=useRef();
  /* Pünktlichkeit: im geplanten Fenster (früher zählt auch) +20 %, 30 Min. Kulanz, keine Strafe bei Verspätung */
@@ -4104,7 +4302,7 @@ function App({init,auth,skey='war_within_v5'}){
  const curIds=new Set(nemPlanNow.filter(p=>!p.virtual&&p.kind!=='sleep'&&nowM>=p.start&&nowM<=(p.fixed?p.start:p.end)+GRACE).map(p=>p.id));
  /* Arena sharing requires explicit opt-in; only qualified completed actions count. */
  const arenaRef=useRef(null);
- if(!arenaRef.current&&window.ArenaSync)arenaRef.current=ArenaSync.bridge({api:window.arenaApi,userId:auth?.session?.id,onSaved:slot=>toast('Auch in der Arena gezählt: '+ArenaCore.SLOTS.find(x=>x.id===slot).name,'good'),onError:()=>toast('Arena konnte nicht vollständig aktualisiert werden. Bitte den Stand in der Arena prüfen.','warn')});
+ if(!arenaRef.current&&window.ArenaSync)arenaRef.current=ArenaSync.bridge({api:window.arenaApi,userId:auth?.session?.id,onError:()=>toast('Arena konnte nicht vollständig aktualisiert werden. Bitte den Stand in der Arena prüfen.','warn')});
  useEffect(()=>()=>arenaRef.current?.dispose(),[]);
  const arenaAuto=(m,extra)=>{if(auth?.session?.mode!=='supabase'||S.arenaAuto!==true||extra.auto||!window.ArenaCore)return;
   const slot=ArenaCore.contribution(S,m,extra);if(!slot)return;
@@ -4116,7 +4314,7 @@ function App({init,auth,skey='war_within_v5'}){
   const a=S.acts[m.act];const room=Math.max(0,a.cap-(S.weekPts[m.act]||0));
   const sb=m.freq==='daily'?streakBonus(S.streak):0;
   const pu=extra.onTime||punctOf(mid),calcA=b=>Math.min(Math.max(1,Math.round(m.pts*(1+(b+sb)/100)*(ptsMult(S,m)))),room);
-  const award=calcA((extra.bonus||0)+(pu?PUNCT:0)),plus=pu?award-calcA(extra.bonus||0):0;
+  const award=calcA((extra.bonus||0)+(pu?PUNCT:0));
   upd(n=>{if(isDone(n,m))return;n.done[mid]=true;if(m.freq==='multi'){n.counts=n.counts||{};n.counts[mid]=(n.counts[mid]||0)+1}n.weekPts[m.act]=(n.weekPts[m.act]||0)+award;n.todayPts[m.act]=(n.todayPts[m.act]||0)+award;n.seasonPts+=award;if(m.act===n.sTheme)n.sThemePts=(n.sThemePts||0)+award;n.sAreaPts=n.sAreaPts||{};n.sAreaPts[m.act]=(n.sAreaPts[m.act]||0)+award;
    n.acts[m.act].rating=Math.min(99,n.acts[m.act].rating+m.pts*.04);const ct=m.cat||n.acts[m.act].cat;n.catScore[ct]=Math.min(100,(n.catScore[ct]??40)+m.pts*.12);
    n.autoDone=n.autoDone||{};n.autoDone[mid]=!!extra.auto;
@@ -4130,10 +4328,9 @@ function App({init,auth,skey='war_within_v5'}){
    n.feed.unshift({id:uid(),who:'me',pts:award,text:`${n.acts[m.act].short} erledigt`,t:Date.now()});n.feed=n.feed.slice(0,12);
    LC.onComplete(n,mid);if(extra.apply)extra.apply(n);checkAch(n)});
   arenaAuto(m,extra);
-  const fm=focusMode(S),la=(S.life.actions||[]).find(x=>x.missionId===mid&&!x.off),lwk=LC.curWk(S.life),limp=la?`Umsetzung ${LC.doneIn(S.life,la.id,lwk)+1}/${LC.plannedAt(la,lwk)} diese Woche`:null;
-  if(!fm){fx(pos,award>0?`+${award}`:'Limit');if(award>0)burst(pos,ACOL[m.act]||'var(--acc2)')}try{navigator.vibrate&&navigator.vibrate(award>0?[12,40,18]:8)}catch(e){}
-  {const b=briefToday(S);if(b&&b.ids.includes(mid)&&b.ids.filter(id=>{const x=S.missions.find(y=>y.id===id);return x&&!isDone(S,x)}).length===1)setTimeout(()=>toast('Alle Prioritäten erledigt. Tag gewonnen.','good'),900)}
-  toast(fm?`Erledigt · ${limp||impactOf(S,m)}`:award>0&&room>0?`+${award} Pkt.${plus>0?' · pünktlich +'+plus:''} · ${limp||impactOf(S,m)}${extra.msg?' · '+extra.msg:''}`:`${a.short} hat das Wochenlimit erreicht. Punkte nicht, aber die Umsetzung zählt.`,award>0&&room>0||fm?'good':undefined,{undo:()=>setS(S)});
+  const la=(S.life.actions||[]).find(x=>x.missionId===mid&&!x.off),lwk=LC.curWk(S.life),limp=la?`Umsetzung ${LC.doneIn(S.life,la.id,lwk)+1}/${LC.plannedAt(la,lwk)} diese Woche`:null;
+  try{navigator.vibrate&&navigator.vibrate(award>0?[12,40,18]:8)}catch(e){}
+  toast('Erledigt: '+cleanTitle(m.title),'good',{detail:limp||impactOf(S,m),undo:()=>setS(S)});
   if(!extra.keep)setSheet(null)};
  const start=(mid,ev,opt={})=>{const m=S.missions.find(x=>x.id===mid);if(isDone(S,m)){toast(m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
   if(!isActive(S,m.act)){toast(`${S.acts[m.act].name} sitzt auf der Bank. Wechsle sie im Squad ein.`,'warn');return}
@@ -4141,8 +4338,8 @@ function App({init,auth,skey='war_within_v5'}){
   if(opt.detail&&S.ui!=='adv'){openSheet({t:'medit',mid});return}
   if(wantsLog(S,m)){openSheet({t:'log',kind:m.log,mid});return}
   if(opt.detail){openSheet({t:'rate',mid});return}
-  setUndo({prev:S,title:m.title,id:uid()});complete(mid,ev,{keep:true});
-  if(!S.tipHold&&!opt.noHint){upd(n=>{n.tipHold=true});setTimeout(()=>toast(S.ui==='adv'?'Tipp: Lange drücken, um Erfolgsgrad und Details anzugeben.':'Tipp: Lange drücken, um eine Mission zu bearbeiten.'),1600)}};
+  complete(mid,ev,{keep:true});
+ };
  /* Rückfrage am Ende eines Zeitfensters: Ja (innerhalb von 30 Min. = pünktlich), Später (+30 Min.), Heute nicht. Nie automatisch abhaken. */
  /* Erinnerungen: Blockstart, Rückfrage am Ende, Abendbericht um 21 Uhr; ruhig 21–6 Uhr. System-Benachrichtigung nur mit Erlaubnis, sonst in der App. */
  const pushRef=useRef({prev:null,sent:{}}),askRef=useRef(null);
@@ -4233,9 +4430,9 @@ function App({init,auth,skey='war_within_v5'}){
  /* Life OS */
  const lifeUpd=fn=>upd(n=>{LC.ensureLife(n);fn(n);checkAch(n)});
  const msN=((S.life&&S.life.temple&&S.life.temple.cur.ms)||[]).length,msRef=useRef(msN);
- useEffect(()=>{const p=msRef.current;msRef.current=msN;if(msN>p){const m=S.life.temple.cur.ms[msN-1];toast('Neuer Baustein · '+LC.AREA[m.area].de+'-Säule: '+m.label,'good');setTFlash(m.area);const t=setTimeout(()=>setTFlash(null),1800);return()=>clearTimeout(t)}},[msN]);
+ useEffect(()=>{const p=msRef.current;msRef.current=msN;if(msN>p){const m=S.life.temple.cur.ms[msN-1];setTFlash(m.area);const t=setTimeout(()=>setTFlash(null),1800);return()=>clearTimeout(t)}},[msN]);
  const saveEvening=x=>{upd(n=>{LC.ensureLife(n);const sx=String(x.mid||'').startsWith('std:')?{std:x.mid.slice(4),when:x.when,risk:x.risk}:x;const e=LC.onEvening(n,sx);if(e&&e.mid)n.nextPrio={k:n.season+'-'+(n.day+1),mid:e.mid}});setSheet(null);toast('Morgen steht. Der Tag ist abgeschlossen.','good')};
- const saveDebrief=(x,o)=>{const doneN=x.done.length;upd(n=>{LC.ensureLife(n);LC.onDebrief(n,x);const k=dayKey(n);n.reviews=[{k,done:doneN,block:x.obst,mood:x.mood,next:x.next,t:Date.now()},...(n.reviews||[]).filter(r=>r.k!==k)].slice(0,30);n.wlog=n.wlog||{};n.wlog[k]={...(n.wlog[k]||{}),r:1};if(x.next)n.nextPrio={k:n.season+'-'+(n.day+1),mid:x.next}});if(!(o&&o.stay))setSheet(null);
+ const saveDebrief=(x,o)=>{const doneN=x.done.length;upd(n=>{LC.ensureLife(n);LC.onDebrief(n,x);if(x.recover&&!n.rest.includes(n.day))n.rest=[...n.rest,n.day];const k=dayKey(n);n.reviews=[{k,done:doneN,block:x.obst,mood:x.mood,next:x.next,t:Date.now()},...(n.reviews||[]).filter(r=>r.k!==k)].slice(0,30);n.wlog=n.wlog||{};n.wlog[k]={...(n.wlog[k]||{}),r:1};if(x.next)n.nextPrio={k:n.season+'-'+(n.day+1),mid:x.next}});if(!(o&&o.stay))setSheet(null);
   const rm=S.missions.find(m=>m.id==='m_ref');if(rm&&!isDone(S,rm))setTimeout(()=>cref.current('m_ref',null,{keep:true,msg:'über den Debrief'}),400);
   if(o&&o.stay)return;toast(!x.skipped.length?'Debrief gespeichert. Der Plan funktioniert.':x.next?'Debrief gespeichert. Morgen zuerst: das Ausgelassene.':'Debrief gespeichert. Muster wertet der Wochenrückblick aus.','good')};
  const saveMonthly=(m,dec)=>{lifeUpd(n=>LC.saveMonthly(n,m,dec));setSheet(null);const adj=Object.entries(dec).find(([,d])=>d==='adjust');if(adj)setTimeout(()=>setSheet({t:'goal',gid:adj[0]}),250);toast('Monats-Check gespeichert.','good')};
@@ -4246,7 +4443,7 @@ function App({init,auth,skey='war_within_v5'}){
  const wisDismiss=place=>{upd(n=>{WC.dismiss(n,place)});toast('Für heute ausgeblendet. Ganz abschalten kannst du die Impulse in den Optionen.')};
  const wisToggle=()=>{const on=WC.enabled(S);upd(n=>{WC.setOn(n,!on)});toast(on?'Impulse aus. Der Codex bleibt in den Optionen erreichbar.':'Impulse an: höchstens einer pro Stelle und Tag.','good')};
  const closeTempleSeason=len=>{lifeUpd(n=>{LC.closeTempleSeason(n,len)});setSheet(null);toast('Neue Saison begonnen. Dein bisheriger Tempel steht in der Galerie.','good')};
- const addLifeGoal=x=>{lifeUpd(n=>{LC.addGoal(n,x)});setSheet(null);setTab('home');toast('Ziel angelegt. Deine Handlungen stehen ab heute im Plan.','good')};
+ const addLifeGoal=x=>{lifeUpd(n=>{const g=LC.addGoal(n,x);PJ.setFrame(n,g.id,{capacity:x.capacity,limits:x.limits,steps:x.steps})});setSheet(null);setTab('home');toast('Ziel angelegt. Deine Handlungen stehen ab heute im Plan.','good')};
  const updLifeGoal=(gid,p)=>{lifeUpd(n=>LC.updateGoal(n,gid,p));toast('Ziel aktualisiert. Die Änderung steht im Verlauf.','good')};
  const setLifeGoalStatus=(gid,st)=>{lifeUpd(n=>{LC.setGoalStatus(n,gid,st);if(st==='achieved')n.life.flags={...(n.life.flags||{}),goal:true}});setSheet(null);toast(st==='achieved'?'Ziel erreicht. Stark. Zeit für das nächste.':st==='archived'?'Ziel archiviert. Verlauf und Messwerte bleiben.':'Ziel wieder aktiv.','good')};
  const addMeas=(gid,v)=>{const g=LC.goalById(S.life,gid),hit=g&&g.status==='active'&&LC.reached(g,v);lifeUpd(n=>{LC.addMeasurement(n,gid,v)});setSheet(null);toast(hit?'Zielwert erreicht! Das ist echter Fortschritt.':'Messwert gespeichert. Er fließt in den Wochenrückblick ein.','good')};
@@ -4299,19 +4496,17 @@ function App({init,auth,skey='war_within_v5'}){
  
  <div className="absolute bottom-0 inset-x-0 z-30" style=${{paddingBottom:'env(safe-area-inset-bottom)',background:'var(--bg)',borderTop:'1px solid var(--line)'}}>
   ${tab!=='home'&&html`<${FutureSelfDock} c=${c}/>`}
-  <nav aria-label="Hauptnavigation" className="flex px-1 pt-1.5 pb-2">${nav.map(([k,l,i])=>{const on=navKey===k;return html`<button key=${k} aria-label=${l+(k==='home'&&revDue?', Wochenrückblick bereit':'')} aria-current=${on?'page':undefined} onClick=${()=>{setTab(k);setSel(null);try{navigator.vibrate&&navigator.vibrate(6)}catch(e){}}} className="relative flex-1 flex flex-col items-center justify-center gap-1 border-0 bg-transparent" style=${{minHeight:52,color:on?'var(--acc2)':'var(--mute)',transition:'color .14s'}}><${Icon} n=${i} s=${24} sw=${2}/>${k==='home'&&revDue&&html`<span aria-hidden="true" className="absolute rounded-full" style=${{top:4,right:'calc(50% - 17px)',width:7,height:7,background:'var(--acc)'}}/>`}<span className="text-[12px] font-medium">${l}</span>${on&&html`<span aria-hidden="true" className="absolute" style=${{bottom:-4,left:'25%',right:'25%',height:2,borderRadius:2,background:'var(--acc)'}}/>`}</button>`})}</nav></div>
+  <nav aria-label="Hauptnavigation" className="flex px-1 pt-1.5 pb-2">${nav.map(([k,l,i])=>{const on=navKey===k;return html`<button key=${k} title=${l} aria-label=${l+(k==='home'&&revDue?', Wochenrückblick bereit':'')} aria-current=${on?'page':undefined} onClick=${()=>{setTab(k);setSel(null);try{navigator.vibrate&&navigator.vibrate(6)}catch(e){}}} className="relative flex-1 flex flex-col items-center justify-center gap-1 border-0 bg-transparent" style=${{minHeight:52,color:on?'var(--acc2)':'var(--mute)',transition:'color .14s'}}><${Icon} n=${i} s=${26} sw=${2}/>${k==='home'&&revDue&&html`<span aria-hidden="true" className="absolute rounded-full" style=${{top:4,right:'calc(50% - 17px)',width:7,height:7,background:'var(--acc)'}}/>`}${on&&html`<span aria-hidden="true" className="absolute" style=${{bottom:-4,left:'25%',right:'25%',height:2,borderRadius:2,background:'var(--acc)'}}/>`}</button>`})}</nav></div>
  ${tab==='home'&&S.push&&!undo&&!sheet&&dueAsk&&html`<div key=${'ask'+dueAsk.id} role="status" className="absolute z-40 left-3 right-3 rounded-[22px] p-3" style=${{bottom:dockOffset,background:'var(--glass)',backdropFilter:'blur(14px)',WebkitBackdropFilter:'blur(14px)',border:'1px solid rgba(var(--acc2-rgb),.4)',boxShadow:'0 14px 34px -12px rgba(0,0,0,.6)',animation:'toastIn .3s ease-out'}}>
   <div className="flex items-center gap-3"><span className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style=${{background:'rgba(var(--acc-rgb),.18)',color:'var(--acc2)'}}><${Icon} n=${dueAsk.icon} s=${18}/></span><div className="flex-1 min-w-0"><div className="text-[13.5px] font-semibold truncate">${dueAsk.name} erledigt?</div><div className="text-[11.5px] mute">Geplant ${fmtHM(dueAsk.start)}–${fmtHM(dueAsk.end)}${nowM<=dueAsk.end+GRACE?' · jetzt bestätigt = pünktlich':''}</div></div><button aria-label="Heute nicht mehr fragen" onClick=${()=>answerAsk(dueAsk,'no')} className="bg-transparent border-0 mute p-1 shrink-0"><${Icon} n="x" s=${16}/></button></div>
   <div className="flex gap-2 mt-2.5"><button onClick=${()=>answerAsk(dueAsk,'later')} className="ghost flex-1 py-2.5 text-[13px] font-semibold">Später</button><button onClick=${()=>answerAsk(dueAsk,'yes')} className="btn flex-[1.6] py-2.5 text-[13px]">Ja, erledigt</button></div></div>`}
- ${undo&&!sheet&&html`<div key=${undo.id} className="absolute z-40 left-4 flex items-center gap-3 pl-4 pr-1.5 py-1.5 rounded-full" style=${{bottom:dockOffset,background:'var(--glass)',backdropFilter:'blur(14px)',WebkitBackdropFilter:'blur(14px)',border:'1px solid var(--line)',boxShadow:'0 12px 30px -10px rgba(0,0,0,.6)',animation:'toastIn .25s ease-out',maxWidth:'calc(100% - 104px)'}}><span className="text-[12.5px] font-medium truncate">Erledigt: ${undo.title}</span><button onClick=${()=>{setS(undo.prev);setUndo(null);toast('Rückgängig gemacht')}} className="chip on shrink-0" style=${{padding:'6px 12px'}}>Rückgängig</button></div>`}
+ ${undo&&html`<div key=${undo.id} role="status" aria-live="polite" className="absolute z-[70] left-4 right-4 flex items-center gap-3 p-3 rounded-2xl" style=${{bottom:sheet?'calc(16px + env(safe-area-inset-bottom))':dockOffset,background:'var(--glass)',border:'1px solid var(--line)',animation:'toastIn .25s ease-out'}}><span className="flex-1 min-w-0"><span className="block text-[13px] font-semibold truncate">${undo.msg}</span>${undo.detail&&html`<span className="block text-[12px] mute leading-snug mt-0.5">${undo.detail}</span>`}</span><button onClick=${()=>{undo.restore();setUndo(null);toast('Rückgängig gemacht')}} className="chip on shrink-0" style=${{minHeight:44,padding:'6px 12px'}}>Rückgängig</button></div>`}
  <${SheetHost} c=${c}/>
- ${ach&&html`<div key=${newA} className="absolute inset-0 z-[60] flex items-center justify-center" style=${{background:'rgba(5,5,10,.82)',animation:'fadeIn .25s'}} onClick=${()=>upd(n=>{n.newAch=n.newAch.slice(1)})}>
+ ${ach&&!undo&&html`<div key=${newA} className="absolute inset-0 z-[60] flex items-center justify-center" style=${{background:'rgba(5,5,10,.82)',animation:'fadeIn .25s'}} onClick=${()=>upd(n=>{n.newAch=n.newAch.slice(1)})}>
   ${Array.from({length:18}).map((_,i)=>{const ang=i/18*Math.PI*2,r=110+(i%3)*40;return html`<span key=${i} className="absolute w-2 h-2 rounded-full" style=${{background:i%2?'var(--acc)':'var(--acc3)','--dx':Math.cos(ang)*r+'px','--dy':Math.sin(ang)*r+'px',animation:`burst 1.4s ease-out ${i*.03}s both`}}/>`})}
   <div className="text-center relative px-8" style=${{animation:'pop .6s ease-out'}}><div className="flex justify-center mb-4"><${ShieldBadge} icon=${ach.i} s=${84}/></div><div className="flex justify-center mb-2" style=${{color:'var(--gold)'}}><${Icon} n="laurel" s=${34} sw=${1.4}/></div><div className="text-[11px] tracking-[.22em] font-semibold" style=${{color:'var(--gold)'}}>ERFOLG FREIGESCHALTET</div><div className="text-3xl font-bold mt-2 text-white">${ach.n}</div><div className="mt-2 text-sm" style=${{color:'#B9B7CC'}}>${ach.d}</div></div></div>`}
- <div className="absolute top-3 inset-x-3 z-[70] flex flex-col gap-2 pointer-events-none">${toasts.map(t=>html`<div key=${t.id} className="px-4 py-3 rounded-2xl text-[13px] font-medium border" style=${{animation:'toastIn .25s ease-out',background:'var(--glass)',backdropFilter:'blur(10px)',borderColor:t.kind==='good'?'rgba(var(--good-rgb),.45)':t.kind==='warn'?'rgba(var(--acc-rgb),.55)':'var(--line)'}}>${t.msg}${t.undo&&html`<button type="button" onClick=${()=>{t.undo();setToasts(x=>x.filter(y=>y.id!==t.id))}} className="bg-transparent border-0 p-0 ml-3 font-bold acc pointer-events-auto" style=${{minHeight:28}}>Rückgängig</button>`}</div>`)}</div>
- ${sparks.map(b=>html`<div key=${b.id} aria-hidden="true" className="fixed z-[79] pointer-events-none" style=${{left:b.x,top:b.y}}>${b.parts.map((q,i)=>html`<span key=${i} className="absolute" style=${{left:0,top:0,width:q.s,height:q.s,borderRadius:q.sq?2:999,background:q.c,boxShadow:`0 0 8px ${q.c}`,'--dx':q.dx+'px','--dy':q.dy+'px','--rot':q.rot,animation:'spark .8s cubic-bezier(.2,.8,.3,1) forwards'}}/>`)}</div>`)}
- ${S.perfectShow&&html`<${PerfectDay} S=${S} onClose=${()=>upd(n=>{n.perfectShow=false})}/>`}
- ${floats.map(f=>html`<div key=${f.id} className="num fixed z-[80] pointer-events-none font-bold text-2xl" style=${{left:f.x,top:f.y,color:'var(--acc3)',animation:'floatUp 1.1s ease-out forwards',textShadow:'0 0 16px rgba(var(--acc-rgb),.9)'}}>${f.text}</div>`)}
+ <div className="absolute top-3 inset-x-3 z-[70] flex flex-col gap-2 pointer-events-none">${toasts.map(t=>html`<div key=${t.id} className="px-4 py-3 rounded-2xl text-[13px] font-medium border" style=${{animation:'toastIn .25s ease-out',background:'var(--glass)',backdropFilter:'blur(10px)',borderColor:t.kind==='good'?'rgba(var(--good-rgb),.45)':t.kind==='warn'?'rgba(var(--acc-rgb),.55)':'var(--line)'}}>${t.msg}</div>`)}</div>
+ ${S.perfectShow&&!undo&&html`<${PerfectDay} S=${S} onClose=${()=>upd(n=>{n.perfectShow=false})}/>`}
  </div>`}
 ReactDOM.createRoot(document.getElementById('root')).render(html`<${Root}/>`);
 </script>
