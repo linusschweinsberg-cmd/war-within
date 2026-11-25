@@ -18,15 +18,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v84"></script>
-<script src="auth.js?v=ww-v84"></script>
-<script src="life-core.js?v=ww-v84"></script>
-<script src="wisdom-core.js?v=ww-v84"></script>
-<script src="future-self-core.js?v=ww-v84"></script>
-<script src="projection-core.js?v=ww-v84"></script>
-<script src="arena-core.js?v=ww-v84"></script>
-<script src="arena-api.js?v=ww-v84"></script>
-<script src="arena-ui.js?v=ww-v84"></script>
+<script src="supabase-config.js?v=ww-v85"></script>
+<script src="auth.js?v=ww-v85"></script>
+<script src="life-core.js?v=ww-v85"></script>
+<script src="wisdom-core.js?v=ww-v85"></script>
+<script src="future-self-core.js?v=ww-v85"></script>
+<script src="projection-core.js?v=ww-v85"></script>
+<script src="arena-core.js?v=ww-v85"></script>
+<script src="arena-api.js?v=ww-v85"></script>
+<script src="arena-ui.js?v=ww-v85"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -1539,8 +1539,12 @@ function ReentryPick({c,items}){return html`<section className="card p-4 mt-4" a
  <p className="text-[13px] mute mt-2 leading-snug">Du musst nichts nachholen. Dein bisheriger Fortschritt bleibt. Wähle eine Handlung, die heute für dich passt.</p>
  <div className="flex flex-col gap-2 mt-3">${items.map(x=>html`<button key=${x.key} type="button" className="ghost p-3 text-left text-[14px] font-semibold" style=${{minHeight:52}} onClick=${()=>chooseReentry(c,x.key)}>${cleanTitle(x.title)}</button>`)}</div>
  <button type="button" className="w-full bg-transparent border-0 text-[13px] mute mt-2" style=${{minHeight:44}} onClick=${()=>c.upd(n=>{if(n.life.reentry)n.life.reentry.dismissed=true})}>Meinen Tag wie gewohnt anzeigen</button></section>`}
-function ReentrySupport({c,b}){const r=reentryToday(c.S,c.D);if(!r||!b)return null;const a=reentryAction(c.S,b),from=a&&LC.plannedAt(a,LC.curWk(c.S.life)),to=from>1?Math.ceil(from/2):null;
- return html`<section className="mt-3 px-1" aria-label="Dein Wiedereinstieg"><p className="text-[13px] mute leading-snug">${b.done?'Du hast wieder angefangen. Für heute darf das reichen.':'Für heute kannst du bei diesem einen Schritt bleiben.'}</p>
+function saveSmallStep(c,key,text){const value=String(text||'').trim().slice(0,80);if(!value)return;c.upd(n=>{const r=reentryToday(n,derive(n)),b=battleItem(n,key);if(r&&b&&!b.done)r.small={key,text:value,done:false}})}
+function finishSmallStep(c,key){const before=c.S,r=reentryToday(before,c.D);if(!r||!r.small||r.small.key!==key||r.small.done)return;c.upd(n=>{const x=reentryToday(n,derive(n));if(x&&x.small&&x.small.key===key)x.small.done=true});c.toast('Kleinen Schritt erledigt.','good',{undo:()=>c.restore(before)})}
+function SmallStepCard({c,b}){const x=c.S.life.reentry.small;return html`<section className="card p-4 mt-4" aria-label="Dein kleiner Schritt"><div className="lbl acc">Nur für heute</div><h2 className="text-[21px] font-bold mt-2">${x.text}</h2><p className="text-[13px] mute mt-2">Kleine Variante von: ${cleanTitle(b.title)}</p>${x.done?html`<p role="status" className="mt-4 font-semibold good">Kleinen Schritt geschafft. Für heute darf das reichen.</p>`:html`<button type="button" className="btn w-full mt-4 py-3" onClick=${()=>finishSmallStep(c,b.key)}>Kleinen Schritt erledigt</button>`}<p className="text-[12px] mute mt-3">Dein Wochenplan bleibt gleich. Dieser kleine Schritt zählt nicht als volle Erledigung.</p></section>`}
+function ReentrySupport({c,b}){const [smallText,setSmallText]=useState('');const r=reentryToday(c.S,c.D);if(!r||!b)return null;const a=reentryAction(c.S,b),from=a&&LC.plannedAt(a,LC.curWk(c.S.life)),to=from>1?Math.ceil(from/2):null;
+ return html`<section className="mt-3 px-1" aria-label="Dein Wiedereinstieg"><p className="text-[13px] mute leading-snug">${r.small&&r.small.key===b.key?'Du bestimmst, wie groß der Schritt heute ist.':b.done?'Du hast wieder angefangen. Für heute darf das reichen.':'Für heute kannst du bei diesem einen Schritt bleiben.'}</p>
+ ${!b.done&&!(r.small&&r.small.key===b.key)&&html`<details className="mt-2"><summary className="text-[13px] acc cursor-pointer" style=${{minHeight:44}}>Heute kleiner anfangen</summary><div className="card p-3"><label className="text-[13px] block" htmlFor="small-step">Was ist heute machbar?</label><input id="small-step" className="inp mt-2" maxLength=${80} value=${smallText} onChange=${e=>setSmallText(e.target.value)} placeholder="z. B. fünf Minuten Spanisch üben"/><p className="text-[12px] mute mt-2">Nur für heute. Du legst die kleine Variante selbst fest.</p><button type="button" className="chip mt-3" style=${{minHeight:44}} disabled=${!smallText.trim()} onClick=${()=>saveSmallStep(c,b.key,smallText)}>Kleine Variante für heute wählen</button></div></details>`}
  ${to&&!r.planAdjusted&&html`<details className="mt-2"><summary className="text-[13px] acc cursor-pointer" style=${{minHeight:44}}>Wochenplan kleiner machen</summary><div className="card p-3 text-[13px] leading-snug"><p><b>${a.title}</b>: ${from} → ${to} Mal pro Woche.</p><p className="mute mt-2">Gilt ab dieser Woche, bis du den Plan wieder änderst. Vergangene Wochen und erledigte Handlungen bleiben erhalten.</p><button type="button" className="chip mt-3" style=${{minHeight:44}} onClick=${()=>{const before=c.S;c.setActPerWeek(a.id,to);c.upd(n=>{if(n.life.reentry)n.life.reentry.planAdjusted=true});c.toast('Wochenplan auf '+to+' Mal reduziert.','good',{detail:'Gilt ab dieser Woche.',undo:()=>c.restore(before)})}}>Auf ${to} Mal pro Woche reduzieren</button></div></details>`}
  ${r.planAdjusted&&html`<p className="text-[12px] mute mt-2">Dein kleinerer Wochenplan ist gespeichert.</p>`}
  <button type="button" className="bg-transparent border-0 text-[13px] mute mt-1 p-0" style=${{minHeight:44}} onClick=${()=>c.upd(n=>{if(n.life.reentry)n.life.reentry.dismissed=true})}>Weitere Aufgaben für heute anzeigen</button></section>`}
@@ -1642,7 +1646,7 @@ function BattleCard({c,b,ring}){const morning=nowMinOf(c)<720,ob=battleObstacle(
  ${b.plan&&html`<div className="text-[12.5px] mute mt-2 leading-snug">${b.plan}</div>`}
  ${obLine}
  <div className="flex items-center gap-2 mt-4">
- <button type="button" onClick=${e=>completePriority(c,b,e)} aria-label=${'Erledigen: '+t} className="flex-1 inline-flex items-center justify-center gap-2 border-0 text-[15px] font-bold" style=${{minHeight:52,borderRadius:12,background:rust(72),color:'var(--on-acc)'}}><${Icon} n=${logs?'check':'aspis'} s=${18} sw=${2.2}/>${logs?'Erfassen':closes?'Schild schließen':'Erledigt'}</button>
+ <button type="button" onClick=${e=>completePriority(c,b,e)} aria-label=${'Erledigen: '+t} className="flex-1 inline-flex items-center justify-center gap-2 border-0 text-[15px] font-bold" style=${{minHeight:52,borderRadius:12,background:rust(72),color:'var(--on-acc)'}}><${Icon} n=${logs?'check':'aspis'} s=${18} sw=${2.2}/>${logs?'Erfassen':'Erledigt'}</button>
  ${b.kind==='standard'&&b.std.min&&html`<button type="button" onClick=${e=>completePriority(c,b,e,'min')} title=${b.std.min.text} className="border-0 px-4 text-[14px] font-semibold" style=${{minHeight:52,borderRadius:12,background:rust(32),color:'var(--ink)'}}>Minimum</button>`}
  </div></section>`}
 /* Noch keine Hauptschlacht: der Nutzer wählt mit einem Tipp. Der erste Eintrag ist nur als Vorschlag markiert. */
@@ -1697,6 +1701,7 @@ function Home({c}){const {S}=c;const [more,setMore]=useState(false),[pick,setPic
  const side=battle&&!reentry?uniq([pickItem,...items]).filter(x=>x.key!==battle.key).slice(0,2):[],choices=uniq([pickItem,...items]).slice(0,3);
  const ba=battle&&priorityArea(battle),ring=ba&&rings.find(r=>r.area.id===ba.id),sel=pickItem?pick:ba&&ba.id;
  const main=c.D.restToday?html`<section className="card p-5 mt-4 flex items-center gap-4"><${AreaBadge} area=${LC.AREA.health} size=${48}/><div><div className="text-[17px] font-bold">Ruhetag</div><div className="text-[13px] mute">Erholung gehört zum Plan.</div></div></section>`
+  :battle&&reentry&&reentry.small&&reentry.small.key===battle.key?html`<${SmallStepCard} c=${c} b=${battle}/>`
   :battle?html`<${BattleCard} key=${battle.key} c=${c} b=${battle} ring=${ring}/>`
   :choices.length?reentry?html`<${ReentryPick} c=${c} items=${choices}/>`:html`<${BattlePick} c=${c} items=${choices}/>`
   :html`<section className="card p-5 mt-3"><div className="text-[18px] font-bold">Nichts mehr offen.</div><div className="flex gap-2 mt-4"><button type="button" className="btn flex-1 py-3 text-[14px]" onClick=${()=>c.openSheet({t:'review'})}>Tag abschließen</button>${!mainGoal(S)&&html`<button type="button" className="chip" style=${{minHeight:48}} onClick=${()=>c.openSheet({t:'goal'})}>Ziel festlegen</button>`}</div></section>`;
