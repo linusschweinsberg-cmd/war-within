@@ -69,7 +69,13 @@ Aktuell laufendes Zeitfenster hat Vorrang, danach das früheste künftige. Wenn 
 
 Der zugrunde liegende Tagesplan gilt weiterhin täglich. Individuelle Wochentage, verfügbare Kapazität, Termine und Puffer gehören zu Schritt 3; Timer und Umplanung bei Unterbrechung zu Schritt 4. Diese Funktionen werden hier nicht vorgetäuscht.
 
-## Prüfung
+## Gesamtprüfung ww-v83
+
+Alle 24 Testsuiten bestanden (Life OS, Wisdom, Release/Auth/FTUE/Kalender, Zukunfts-Ich, Service Worker, Heute/Hauptschlacht/Tagesablauf, Projektion/Zielzerlegung, Arena-Core/API/SQL/Sync/V3/Taktik/Live/Ruhmeshalle, Rückmeldungen und Wiedereinstieg). SQL/RLS-Prüfungen laufen lokal mit PGlite; kein produktiver Datenbankzugriff.
+
+Mobile Browserprüfung 375/390 px: bestehender Testspielstand, leerer neuer Spielstand, Rückkehr nach fünftägiger Öffnungslücke, bewusster Ruhetag, Wahl und Erledigung mit Rückgängig, Reload, freiwillige Wochenplanreduktion und Zusatzbereiche. Keine Konsolenfehler. Konto-Wiederaufnahme und Isolation automatisiert geprüft; vollständiger E-Mail-Login und Arena mit echten Konten bleiben offen. Claude-Gegenreview vor Merge erforderlich.
+
+## Frühere Prüfung
 
 Alle neun Skripte bestehen: today-focus, calendar, life-core, release-smoke, auth-contract, wisdom-core, ftue-flows, auth-resume und service-worker. today-focus prüft Maximalzahl und Eindeutigkeit der Prioritäten, Abendvorrang, Nachrücken, Wochenquoten, Standards/Minimum, Erstschritt, Ruhetag, leeren Tag, Undo, unveränderte Punkte sowie aktuelle, künftige, vergangene und ungültige Zeitfenster.
 
