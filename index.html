@@ -280,6 +280,7 @@ html:has([data-skin=antik]),body:has([data-skin=antik]){background:#050404}
 .wis-hd{display:flex;align-items:center;gap:4px;margin:-6px -8px 0}
 .wis-k{flex:1;min-width:0;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wis-band{height:12px;margin:8px 0;opacity:.4}
+.wis-sm{padding:10px 12px 12px}.wis-sm .wis-band{display:none}.wis-sm .wis-t{font-size:15px;line-height:22px;margin:2px}
 .wis-t{margin:4px 2px;font-family:'Cinzel',serif;font-weight:500;font-size:17px;line-height:26px;letter-spacing:.05em;color:var(--ink);text-shadow:0 1px 0 var(--eng1,transparent),0 -1px 0 var(--eng2,transparent)}
 .wis-x{margin:2px 4px 0;font-size:13px;line-height:19px;color:var(--mute)}
 .wis-more{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;background:none;border:0;font-size:13px;font-weight:600;color:var(--acc2)}
@@ -1676,10 +1677,10 @@ function DayAhead({c}){const {S,D}=c,now=nowMinOf(c),b=nextTimeBlock(S,now),r=re
  const tile=(icon,big,small,hot,on,label)=>html`<button type="button" onClick=${on} aria-label=${label} className="text-left border-0 px-3 py-2 flex items-center gap-3 min-w-0" style=${{minHeight:58,borderRadius:16,background:hot?tint('var(--acc)',16):'var(--card-g)',boxShadow:'0 0 0 1px '+(hot?tint('var(--acc2)',45):'var(--line)')+' inset',color:'var(--ink)'}}>
  <span className=${'shrink-0 '+(hot?'acc':'mute')}><${Icon} n=${icon} s=${20}/></span><span className="min-w-0"><span className="block num text-[17px] font-bold leading-none">${big}</span><span className="block text-[12px] mute mt-1 truncate">${small}</span></span></button>`;
  const plan=b?tile('calendar',fmtHM(b.start),b.state==='past'?'vorbei · anpassen':cleanTitle(b.m.title),b.state==='active',()=>c.openSheet({t:'dayplan'}),'Tagesplan: '+fmtHM(b.start)+' '+cleanTitle(b.m.title))
-  :tile('calendar','Planen','feste Zeit',false,()=>c.openSheet({t:'dayplan'}),'Tagesplan öffnen');
+  :tile('calendar','Tagesplan','Uhrzeit festlegen',false,()=>c.openSheet({t:'dayplan'}),'Tagesplan öffnen: einer Handlung eine feste Uhrzeit geben');
  const refl=due!=null?tile('owl','Woche','Rückblick bereit',true,()=>c.openSheet({t:'weekly'}),'Wochenrückblick öffnen')
   :eve?tile('owl','1 Min.','Tag abschließen',true,()=>c.openSheet({t:'review'}),'Daily Debrief öffnen')
-  :tile('owl',r?'Erledigt':'18:00',r?'Debrief':'Debrief',false,()=>c.setTab('reflect'),'Reflexion öffnen');
+  :tile('owl',r?'Erledigt':'ab 18:00',r?'Tagesrückblick':'Tagesrückblick',false,()=>c.setTab('reflect'),'Reflexion öffnen');
  return html`<section aria-label="Im Blick" className="mt-3"><div className="lbl">Im Blick</div><div className="grid grid-cols-2 gap-2 mt-2">${plan}${refl}</div></section>`}
 /* Zukunfts-Ich als Kachel auf Heute: Figur, was es laut deinem Plan gerade tut, Er gegen Du. Ersetzt dort die untere Leiste. */
 function FutureSelfTile({c}){const {S}=c,p=FS.settings(S);if(!p.enabled)return null;
@@ -2407,7 +2408,7 @@ function Stats({c}){
  <${SeasonFresco} c=${c}/>
  <${StatsCompass} c=${c}/>
  <div className="meander mt-4" aria-hidden="true"/><div className="lbl mt-3 px-1">Details</div><div className="mt-2 mb-3"><${Seg} opts=${opts} val=${t} on=${set}/></div>
- <${WisdomSlot} c=${c} place="milestone" cls="mb-3"/>
+ <${WisdomSlot} c=${c} place="milestone" cls="mb-3 wis-sm"/>
  ${t==='out'&&html`<${OutcomeView} c=${c}/>`}${t==='temple'&&html`<${TempleProgress} c=${c}/>`}${t==='proc'&&html`<${ProcessView} c=${c}/>`}${t==='exp'&&html`<${ExpView} c=${c}/>`}
  ${t==='compound'&&html`<div className="text-[11.5px] mute mb-3 px-1">Spielwelt: Punkte und Mengen. Echte Ergebnisse findest du unter „Ergebnisse“.</div>`}
  ${t==='compound'&&html`<${Compound} c=${c}/>`}${t==='matrix'&&html`<${LifeMatrix} c=${c}/>`}${t==='gen'&&html`<${Gen} c=${c}/>`}${t==='over'&&html`<${Over} c=${c}/>`}${t==='rec'&&html`<${Recs} c=${c}/>`}${t==='calc'&&html`<${Calc} c=${c}/>`}${t==='proj'&&html`<${Proj} c=${c}/>`}
@@ -3345,7 +3346,7 @@ function MyLife({c}){const {S}=c;const L=S.life;const st=LC.templeState(S),sel=c
  <div className="flex items-center justify-between mt-5"><div className="lbl">Deine Säulen</div><button type="button" onClick=${()=>c.openSheet({t:'goal'})} className="bg-transparent border-0 acc text-[12.5px] font-semibold flex items-center gap-1 px-1" style=${{minHeight:44}}><${Icon} n="plus" s=${13}/>Ziel</button></div>
  ${LC.AREAS.map(a=>html`<${PillarRow} key=${a.id} c=${c} area=${a.id} st=${st} open=${sel===a.id} onToggle=${()=>c.setTSel(sel===a.id?null:a.id)}/>`)}
  <div className="grid grid-cols-2 gap-2 mt-5">${tile('column','Fundament',fn+' von '+fs.length+' Teilen',()=>c.openSheet({t:'fundament'}))}${WC.enabled(S)?tile('scroll','Wisdom Codex',wn?wn+' gemerkt':'Lebensweisheiten',()=>c.openSheet({t:'codex',f:wn?'fav':'all'})):html`<span/>`}${tile('helmet','Charakter',chs.traits.length?chs.traits.map(id=>CH.BY[id].name).join(' · '):'Stärken und Herausforderungen',()=>c.openSheet({t:'character'}))}</div>
- <${WisdomSlot} c=${c} place="season"/>
+ <${WisdomSlot} c=${c} place="season" cls="mt-3 wis-sm"/>
  ${ach.length>0&&html`<details className="mt-3"><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center'}}>Erreichte Ziele (${ach.length})</summary><div className="flex flex-col gap-2">${ach.map(g=>html`<${GoalCard} key=${g.id} c=${c} g=${g}/>`)}</div></details>`}
  </div>`}
 
