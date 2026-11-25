@@ -27,6 +27,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
+- Codex · `codex/release-v100` · Livegang auf Nutzerauftrag; Migrationskorrekturen für Altstände an Tag 1 und dauerhafte Rangfreischaltungen. Release ww-v100, Tests und unabhängiges Gegenreview vor Veröffentlichung.
 - Claude · `claude/game-concept` · Spielkonzept (`docs/SPIELKONZEPT.md`), Schritt 2 (Saisonrang, Tageslimit, Nebenplätze; `rank-core.js`, `tests/rank-core.cjs`, Release `ww-v95`), Schritt 3 (Zukunftscharakter; `persona-core.js`, `tests/persona-core.cjs`, Release `ww-v96`), Schritt 4 (Fähigkeiten, Release `ww-v97`), Schritt 5 (Zukunftscharakter und Routinenvorschläge im Einstieg, Release `ww-v98`), Schritt 6 (Aussehen, Release `ww-v99`) und Schritt 1: „Kapitel“ statt Tempelsaison, „Erfahrung“ (Lehrling … Weiser) statt Lebensrang. Nur Oberflächentexte, Daten unverändert. Dateien: index.html, life-core.js (Text), sw.js, docs, Tests (Versionen). Release `ww-v93`. Gegenreview offen; kein Merge/Deployment.
 - Codex im angeforderten `claude/routine-loop`-Branch · Auf PR #38/#39 und lokalem Integrationsstand aufgebaut: Reviewkorrekturen, Versuch → Standard/Zielhandlung → Ausführung/Minimum → Rückblick → belegte Tempelbausteine. Dateien: life-core.js, character-core.js, index.html, sw.js, docs und Tests. Release ww-v92. 28 Testsuiten plus beendbares Seed-Modul bestanden; beide Preview-Server separat gestartet. Browser 375/390 px: Versuch, Standardübernahme, volle/kleine Ausführung, Rückgängig, Pause und Reload geprüft, keine Konsolenfehler im geprüften Ablauf. Kein Merge/Deployment; erneutes unabhängiges Codex-Gegenreview erforderlich.
 - Codex · `codex/claude-changes-integration` · Übernahme von `claude/character-traits` (`70254a5`) und `claude/ux-pass-2` (`ae6e6fd`) auf aktuellem main; enthält auch die bisherigen Today-Follow-ups bis `b330a67`. Release `ww-v91`. Erste lokale Prüfung: alle 27 Testsuiten bestanden. Das später verlinkte Gegenreview von PR #38 nennt zwei P2-Befunde (Einmalversuch und kleine Ausführung), Korrektur in claude/routine-loop. Die damaligen Tests enthielten lokale Arena-SQL/RLS-Prüfungen. Browserprüfung des integrierten Stands offen: Testbrowser erreicht den lokalen Server auf Port 5188 nicht. Ältere Statue-/Sparta-Experimente nicht Bestandteil dieser Integration. Kein Merge nach main/Deployment.
@@ -45,7 +46,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v99` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v100` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`, `node tests/ftue-flows.cjs` (Abläufe: neu, vollständig, übersprungen, zurückkehrend). Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Produktprinzip (verbindlich)

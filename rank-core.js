@@ -14,8 +14,11 @@
  /* Bestehende Spielstände: alles, was sie heute haben (2 Nebenplätze), Tageslimit erst ab nächster Saison. */
  function ensure(S){if(!S)return null;const p=S.prog;
   if(p&&p.v===V&&Number.isInteger(p.slots)&&Number.isInteger(p.capFrom))return p;
-  const used=(S.seasonPts||0)>0||(S.day||0)>0||(S.season||1)>1;
-  S.prog={v:V,slots:used?2:1,capFrom:(S.season||1)+(used?1:0),day:null,n:0,up:null};return S.prog}
+  // Neue Spielstände erhalten prog bereits in buildState. Ohne prog ist es ein Altstand,
+  // auch an Tag 1 ohne Punkte. Sichtbare Freischaltungen bei der Migration festhalten.
+  const r=rank(S),unlocked=RANKS.slice(0,r.i+1);
+  S.prog={v:V,slots:Math.max(2,RANKS[r.i].slots),capFrom:(S.season||1)+1,day:null,n:0,up:null};
+  unlocked.forEach(x=>{if(x.look)S.prog[x.look]=true});return S.prog}
 
  function rank(S){const pts=Math.max(0,S.seasonPts||0);let i=RANKS.length-1;while(i>0&&pts<RANKS[i].min)i--;
   const r=RANKS[i],nx=RANKS[i+1]||null;return{i,name:r.name,pts,min:r.min,next:nx,pct:nx?(pts-r.min)/(nx.min-r.min):1}}
