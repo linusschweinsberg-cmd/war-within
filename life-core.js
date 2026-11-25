@@ -360,7 +360,7 @@ function changeRoutine(S,key,x){const L=S.life,wk=curWk(L),text=String(x.text||'
  a.changes=[...(a.changes||[]),{wk,before,after:{title:a.title,perWeek:per,minutes:a.minutes||null,anchor:a.anchor,mini:a.mini,paused}}];syncMission(S,a);
  Object.values(L.standards||{}).filter(s=>s.aid===a.id).forEach(s=>setStandard(L,s.area,{std:{...s.std,text:a.title,perWeek:per,minutes:a.minutes,anchor:a.anchor},min:a.mini?{text:a.mini}:null,status:paused?'paused':'active'},'Verknüpfte Zielhandlung angepasst'));return true}
 function milestoneEvidence(L,m){const rule=TEMPLE_RULES[m.kind];if(!rule)return'Baustein aus einer früheren Fassung.';const ev=m.evidence;if(!ev)return rule.why+' · Für diesen älteren Baustein ist keine genaue Herkunft gespeichert.';
- if(ev.type==='action'){return'Grundstein: '+(ev.label?'„'+ev.label+'“ erstmals in dieser Tempelsaison umgesetzt.':'Eine gespeicherte Ziel-Handlung erstmals umgesetzt.')+' Spieltag '+(ev.d+1)+'.'}
+ if(ev.type==='action'){return'Grundstein: '+(ev.label?'„'+ev.label+'“ erstmals in diesem Kapitel umgesetzt.':'Eine gespeicherte Ziel-Handlung erstmals umgesetzt.')+' Spieltag '+(ev.d+1)+'.'}
  if(ev.type==='standard')return'Grundstein: deinen Standard erstmals vollständig umgesetzt. Spieltag '+(ev.d+1)+'.';
  if(ev.type==='week')return rule.why+' · Gespeichert: '+ev.done+' von '+ev.planned+' Einheiten in Woche '+(m.wk+1)+'.';
  if(ev.type==='experiment'){const e=(L.exps||[]).find(e=>e.id===ev.id);return e&&e.result?'Geprüft: '+e.result.done+' von mindestens '+e.result.need+' Einheiten'+(e.criterion.outcome?', Ergebnis-Trend: '+e.result.outcome:'; kein Ergebnis-Kriterium')+'. Zeitraum: Woche '+(e.startWk+1)+'–'+(e.endWk+1)+'. Das belegt keine Ursache.':rule.why}return rule.why}

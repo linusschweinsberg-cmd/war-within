@@ -18,16 +18,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v92"></script>
-<script src="auth.js?v=ww-v92"></script>
-<script src="life-core.js?v=ww-v92"></script>
-<script src="wisdom-core.js?v=ww-v92"></script>
-<script src="future-self-core.js?v=ww-v92"></script>
-<script src="projection-core.js?v=ww-v92"></script>
-<script src="character-core.js?v=ww-v92"></script>
-<script src="arena-core.js?v=ww-v92"></script>
-<script src="arena-api.js?v=ww-v92"></script>
-<script src="arena-ui.js?v=ww-v92"></script>
+<script src="supabase-config.js?v=ww-v93"></script>
+<script src="auth.js?v=ww-v93"></script>
+<script src="life-core.js?v=ww-v93"></script>
+<script src="wisdom-core.js?v=ww-v93"></script>
+<script src="future-self-core.js?v=ww-v93"></script>
+<script src="projection-core.js?v=ww-v93"></script>
+<script src="character-core.js?v=ww-v93"></script>
+<script src="arena-core.js?v=ww-v93"></script>
+<script src="arena-api.js?v=ww-v93"></script>
+<script src="arena-ui.js?v=ww-v93"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -2060,7 +2060,7 @@ function StatsCompass({c}){const {S}=c;const C=LC.compassState(S),ma=C.area&&LC.
 /* Duell nach Prototyp: Zukunfts-Ich heute oder Schatten über die Saison */
 function Solo({c}){const {S}=c;const [mode,setMode]=useState('nem');const r=rankOf(S);
  return html`<div className="screen px-4 pb-6">
- <div className="pt-5"><div className="lbl truncate">Saison ${S.season} · ${r.name}</div><h1 className="disp text-[32px] mt-1 leading-none">Duell</h1></div>
+ <div className="pt-5"><div className="lbl truncate">Saison ${S.season} · Erfahrung: ${r.name}</div><h1 className="disp text-[32px] mt-1 leading-none">Duell</h1></div>
  <div className="mt-3"><${Seg} opts=${[['nem','Zukunfts-Ich · heute'],['season','Schatten · Saison']]} val=${mode} on=${setMode}/></div>
  ${mode==='nem'?html`<${NemDuel} c=${c}/>`:html`<${SoloSeason} c=${c}/>`}</div>`}
 function SoloSeason({c}){
@@ -2663,7 +2663,7 @@ function Settings({c}){const {S}=c;
  <button onClick=${()=>c.openSheet({t:'achs'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="award" s=${18} cls="acc"/>Erfolge ansehen</button>
  <button onClick=${()=>c.openSheet({t:'integ'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="plug" s=${18} cls="acc"/>Integrationen</button>
  <div className="lbl mt-3">${isDemoState(S)?'Demo-Steuerung':'Saison und Auswertung'}</div>
- <button onClick=${()=>c.openSheet({t:'tseason'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="temple" s=${18} cls="acc"/><div>Tempel-Saison abschließen<div className="text-[11px] mute font-normal">Bilanz ansehen und neue Saison beginnen</div></div></button>
+ <button onClick=${()=>c.openSheet({t:'tseason'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="temple" s=${18} cls="acc"/><div>Kapitel abschließen<div className="text-[11px] mute font-normal">Bilanz ansehen und neues Kapitel beginnen</div></div></button>
  ${isDemoState(S)&&html`<${TimeDebug} c=${c}/>
  <button onClick=${()=>{c.closeSheet();c.advance()}} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="ff" s=${18} cls="acc"/><div>Zum nächsten Tag vorspulen<div className="text-[11px] mute font-normal">Sonntag löst den Wochenrückblick aus, Woche 4 den Saisonbericht</div></div></button>`}
  <button onClick=${()=>c.openSheet({t:'eval'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="check" s=${18} cls="acc"/><div>Wochen-Evaluation öffnen<div className="text-[11px] mute font-normal">Der Code: Standards prüfen, Zeugnis, Protokolle</div></div></button>
@@ -2805,14 +2805,14 @@ function SpartaBanner(){return html`<svg viewBox="0 0 360 150" preserveAspectRat
   <circle cx="33" cy="56" r="15" style=${{fill:'var(--gold)',stroke:'var(--card)'}} strokeWidth="2"/><path d="M27 63 L33 49 L39 63" fill="none" style=${{stroke:'var(--card)'}} strokeWidth="2.4"/>
   <path d="M17 22 C17 13 33 12 34 22 L34 30 L29 31 L29 26 L22 26 L22 32 L17 30 Z" style=${{fill:'var(--ink)'}}/>
   <path d="M13 19 C15 6 32 1 41 14 C33 10 24 11 19 21 Z" style=${{fill:'var(--acc)'}}/></g></svg>`}
-const RANKS=[[0,'Rekrut'],[10,'Hoplit'],[30,'Veteran'],[60,'Lochagos'],[100,'Polemarch'],[160,'Strategos']];
+const RANKS=[[0,'Lehrling'],[10,'Geselle'],[30,'Kenner'],[60,'Meister'],[100,'Mentor'],[160,'Weiser']];
 function rankOf(S){const I=LC.insights(S);const xp=I.sessions+I.reviews*3+I.won*5+I.achieved*10;let i=RANKS.length-1;while(i>0&&xp<RANKS[i][0])i--;const nx=RANKS[i+1];return{xp,name:RANKS[i][1],next:nx,pct:nx?(xp-RANKS[i][0])/(nx[0]-RANKS[i][0]):1}}
 function RankBar({S}){const r=rankOf(S);
  return html`<div className="flex items-center gap-2.5 mb-3 px-0.5" title="Erfahrung: umgesetzte Einheiten, Wochenrückblicke ×3, bestätigte Experimente ×5, erreichte Ziele ×10">
  <span className="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style=${{background:'var(--card2)',border:'1.5px solid var(--gold)',color:'var(--gold)'}}><${Icon} n="helmet" s=${22} sw=${1.6}/></span>
  <div className="flex-1 min-w-0"><div className="flex justify-between items-baseline gap-2"><span className="text-[13px] brand truncate">${r.name}</span><span className="num text-[11.5px] mute shrink-0">${r.next?r.xp+' / '+r.next[0]+' EP':r.xp+' EP'}</span></div>
  <div className="h-2.5 rounded-full mt-1.5 overflow-hidden" style=${{background:'var(--ghost)',boxShadow:'0 0 0 1px var(--line) inset'}}><div className="h-full rounded-full" style=${{width:Math.max(4,r.pct*100)+'%',background:'linear-gradient(90deg,var(--acc-d),var(--acc2))',transition:'width .6s'}}/></div>
- <div className="text-[11.5px] mute mt-1">${r.next?'Nächster Rang: '+r.next[1]+' · Rückblicke und bestätigte Experimente zählen mehr':'Höchster Rang erreicht'}</div></div>
+ <div className="text-[11.5px] mute mt-1">${r.next?'Erfahrung · nächste Stufe: '+r.next[1]+' · Rückblicke und bestätigte Experimente zählen mehr':'Höchste Erfahrungsstufe erreicht'}</div></div>
  <span style=${{color:'var(--gold)'}} className="shrink-0"><${Icon} n="laurel" s=${26} sw=${1.4}/></span></div>`}
 function ShieldBadge({icon,ok=true,s=52}){return html`<svg width=${s} height=${Math.round(s*1.1)} viewBox="0 0 48 53" aria-hidden="true"><path d="M24 2 L44 8 V24 C44 37 35 46 24 51 C13 46 4 37 4 24 V8 Z" style=${{fill:ok?'color-mix(in srgb,var(--gold) 14%,var(--card2))':'var(--ghost)',stroke:ok?'var(--gold)':'var(--line)'}} strokeWidth="1.6"/><g transform="translate(13 13)" style=${{color:ok?'var(--gold)':'var(--mute)'}}><${Icon} n=${ok?icon:'lock'} s=${22} sw=${1.6}/></g></svg>`}
 
@@ -2890,7 +2890,7 @@ const AREA_TILE={health:'Gesund\u00ADheit',relationships:'Bezie\u00ADhungen',wea
 function AreaTiles({c,st,sel}){return html`<div className="area-tiles mt-3" role="group" aria-label="Lebensbereiche">${LC.AREAS.map(a=>{const col=st.cols.find(x=>x.area===a.id)||{stage:1,pts:0},on=sel===a.id,f=c.S.life.focus===a.id;return html`<button key=${a.id} aria-pressed=${on} aria-label=${AREA_TILE[a.id].replace(/\u00AD/g,'')+', Stufe '+col.stage+(f?', Priorität':'')} onClick=${()=>c.setTSel(a.id)} className="area-tile"><span className="flex items-center justify-between w-full"><${Icon} n=${a.icon} s=${22} sw=${2}/>${f&&html`<span aria-hidden="true" className="rounded-full" style=${{width:6,height:6,background:'var(--acc)'}}/>`}</span><b lang="de">${AREA_TILE[a.id]}</b><span className="w-full mt-auto"><${Bar} pct=${Math.min(1,col.pts/17)} h=${4}/><small>Stufe ${col.stage}</small></span></button>`})}</div>`}
 function TempleView({c}){const {S}=c;const st=LC.templeState(S);const T=S.life.temple;const sel=c.tSel||S.life.focus||(mainGoal(S)||{}).area||'health';
  return html`<div className="card p-4 mt-4" style=${{background:'var(--hero)'}}>
- <div className="flex items-start justify-between gap-2"><div><div className="lbl acc">Tempelsaison ${st.n} · Woche ${st.week} von ${st.len}</div><div className="disp-serif text-[20px] mt-1">${st.phaseInfo.de}</div></div>
+ <div className="flex items-start justify-between gap-2"><div><div className="lbl acc">Kapitel ${st.n} · Woche ${st.week} von ${st.len}</div><div className="disp-serif text-[20px] mt-1">${st.phaseInfo.de}</div></div>
   <button onClick=${()=>c.openSheet({t:'trules'})} className="chip shrink-0" aria-label="Bauregeln">Bauregeln</button></div>
  ${st.due&&html`<button onClick=${()=>c.openSheet({t:'tseason'})} className="btn w-full py-2.5 mt-3 text-[13px]">Saison abgeschlossen · Bilanz ansehen</button>`}
  <div className=${'mt-2 '+(T.anim?'':'no-anim')}><${TempleSVG} st=${st} sel=${sel} onSel=${a=>c.setTSel(a)} flash=${c.tFlash} anim=${T.anim}/></div>
@@ -2910,27 +2910,27 @@ function TempleSeasonSheet({c}){const {S}=c;const st=LC.templeState(S),T=S.life.
  const start={cols:st.cols.map(x=>({...x,stage:1,engravings:0,emblems:0,weathered:false})),phase:1,foundation:0};
  const ach=(L.goals||[]).filter(g=>g.status==='achieved'&&g.achievedWk!=null&&g.achievedWk>=T.cur.startWk),won=(L.exps||[]).filter(e=>e.status==='success'&&(e.closed??e.endWk)>=T.cur.startWk),open=(L.goals||[]).filter(g=>g.status==='active');
  const lastRev=(L.reviews||[]).slice().reverse().find(r=>r.worked||r.notWorked);
- return html`<${Sheet} sub=${`Saison ${st.n} · ${st.due?'abgeschlossen':'Woche '+st.week+' von '+st.len}`} title="Saisonbilanz" onClose=${c.closeSheet}>
+ return html`<${Sheet} sub=${`Kapitel ${st.n} · ${st.due?'abgeschlossen':'Woche '+st.week+' von '+st.len}`} title="Kapitelbilanz" onClose=${c.closeSheet}>
  <div className="grid grid-cols-2 gap-2"><div className="card2 p-2"><div className="lbl text-center mb-1">Ausgangszustand</div><${TempleSVG} st=${start} mini=${true} anim=${false}/></div><div className="card2 p-2"><div className="lbl text-center mb-1 acc">Jetzt · ${st.phaseInfo.name}</div><${TempleSVG} st=${st} mini=${true} anim=${false}/></div></div>
  <div className="grid grid-cols-3 gap-2 mt-3 text-center">${[[st.total,'Bausteine'],[ach.length,'Ziele erreicht'],[won.length,'bewährte Änderungen']].map(([v,l])=>html`<div key=${l} className="card2 p-2.5"><div className="disp text-[24px]">${v}</div><div className="text-[11px] mute">${l}</div></div>`)}</div>
  ${ach.length>0&&html`<div className="lbl mt-4 mb-1">Erreicht</div>${ach.map(g=>html`<div key=${g.id} className="text-[13px]">✓ ${g.title}</div>`)}`}
  ${won.length>0&&html`<div className="lbl mt-3 mb-1">Was bei dir wirkt</div>${won.map(e=>html`<div key=${e.id} className="text-[13px]">· ${e.label}</div>`)}`}
  ${lastRev&&html`<div className="lbl mt-3 mb-1">Deine Erkenntnis</div><div className="text-[13px]">${lastRev.worked?'Lief: '+lastRev.worked:''} ${lastRev.notWorked?'· Hakte: '+lastRev.notWorked:''}</div>`}
  ${open.length>0&&html`<div className="lbl mt-3 mb-1">Offene Herausforderungen</div>${open.map(g=>html`<div key=${g.id} className="text-[13px] mute">· ${g.title}</div>`)}`}
- <div className="card2 p-3 mt-4 text-[12.5px] leading-relaxed">${st.phase<5?'Ein unvollständiger Tempel ist ein gültiges Ergebnis. Er zeigt, wo du gebaut hast.':'Meisterschaft: ein außergewöhnlicher Saisonfortschritt.'} Dein Tempel bleibt in der Galerie. Ziele, Messwerte, Handlungen und Erkenntnisse bleiben erhalten.</div>
+ <div className="card2 p-3 mt-4 text-[12.5px] leading-relaxed">${st.phase<5?'Ein unvollständiger Tempel ist ein gültiges Ergebnis. Er zeigt, wo du gebaut hast.':'Meisterschaft: ein außergewöhnlicher Kapitelfortschritt.'} Dein Tempel bleibt in der Galerie. Ziele, Messwerte, Handlungen und Erkenntnisse bleiben erhalten.</div>
  <div className="lbl mt-4 mb-1.5">Nächste Saison</div><${Seg} opts=${[[8,'8 Wochen'],[12,'12 Wochen'],[16,'16 Wochen']]} val=${len} on=${setLen}/>
- ${st.due||sure?html`<button onClick=${()=>c.closeTempleSeason(len)} className="btn w-full py-3.5 mt-4 text-sm">${st.due?'Neue Saison beginnen':'Ja, Saison vorzeitig abschließen'}</button>`:html`<div className="text-[12.5px] mute mt-4">Die Saison endet regulär nach Woche ${st.len}.</div><button onClick=${()=>setSure(true)} className="ghost w-full py-3 mt-2 text-[13px] font-semibold">Vorzeitig abschließen …</button>`}<//>`}
+ ${st.due||sure?html`<button onClick=${()=>c.closeTempleSeason(len)} className="btn w-full py-3.5 mt-4 text-sm">${st.due?'Neues Kapitel beginnen':'Ja, Kapitel vorzeitig abschließen'}</button>`:html`<div className="text-[12.5px] mute mt-4">Das Kapitel endet regulär nach Woche ${st.len}.</div><button onClick=${()=>setSure(true)} className="ghost w-full py-3 mt-2 text-[13px] font-semibold">Vorzeitig abschließen …</button>`}<//>`}
 
 function TempleProgress({c}){const {S}=c;const st=LC.templeState(S),T=S.life.temple;const all=T.cur.ms.slice().reverse();
  return html`<div className="flex flex-col gap-3">
- <div className="card p-4"><div className="flex items-baseline justify-between"><div className="lbl acc">Saison ${st.n}</div><div className="num text-[12.5px] mute">Woche ${st.week} von ${st.len}</div></div><div className="mt-2"><${Bar} pct=${st.week/st.len} h=${5} color="var(--bronze)"/></div>
+ <div className="card p-4"><div className="flex items-baseline justify-between"><div className="lbl acc">Kapitel ${st.n}</div><div className="num text-[12.5px] mute">Woche ${st.week} von ${st.len}</div></div><div className="mt-2"><${Bar} pct=${st.week/st.len} h=${5} color="var(--bronze)"/></div>
   <div className="disp-serif text-[18px] mt-3">${st.phaseInfo.name}</div><div className="text-[12.5px] mute">${st.phaseInfo.de} · ${st.total} Bausteine</div>
   <button onClick=${()=>c.openSheet({t:'tseason'})} className="chip mt-3">${st.due?'Saison abschließen':'Zwischenbilanz'}</button></div>
  <div className="card p-4"><div className="lbl mb-2">Säulen</div>${st.cols.map(col=>{const a=LC.AREA[col.area];return html`<div key=${col.area} className="mb-2.5"><div className="flex justify-between text-[13px]"><span className="flex items-center gap-1.5"><span style=${{color:a.color}}><${Icon} n=${a.icon} s=${14}/></span>${a.de}${col.weathered?html`<span className="mute text-[11.5px]">· verwittert</span>`:null}</span><span className="num mute">Stufe ${col.stage} · ${col.pts} P.</span></div>
   <div className="relative h-2 rounded-full mt-1.5" style=${{background:'var(--ghost)'}}><div className="absolute inset-y-0 left-0 rounded-full" style=${{width:Math.min(100,col.pts/17*100)+'%',background:'var(--bronze)'}}/>${LC.STAGES.slice(1).map(s=>html`<span key=${s.n} className="absolute top-0 bottom-0" style=${{left:s.min/17*100+'%',width:1.5,background:'var(--bg)'}}/>`)}</div></div>`})}
   <div className="text-[11.5px] mute">Tempelpunkte sind symbolisch. Echte Ergebnisse siehst du unter „Ergebnisse“, deine Umsetzung unter „Umsetzung“.</div></div>
  <div className="card p-4"><div className="lbl mb-2">Baumeilensteine</div>${all.length?all.slice(0,12).map(m=>html`<div key=${m.id} className="flex items-center gap-2 text-[12.5px] py-1 border-b ln"><span style=${{color:'var(--bronze)'}}><${Icon} n=${MS_IC[m.kind]||'check'} s=${14}/></span><span className="mute shrink-0 w-[74px]">${LC.AREA[m.area].de}</span><span className="flex-1 min-w-0"><span className="block">${m.label}</span><span className="block mute text-[12px]">${LC.milestoneEvidence(L,m)}</span></span><span className="num mute">Wo. ${m.wk+1}</span></div>`):html`<div className="text-[13px] mute">Noch keine. Der erste kommt mit der ersten umgesetzten Ziel-Handlung.</div>`}</div>
- <div className="card p-4"><div className="lbl mb-2">Galerie früherer Saisons</div>${(T.hist||[]).length?html`<div className="grid grid-cols-2 gap-2">${T.hist.slice().reverse().map(h=>html`<div key=${h.n} className="card2 p-2"><${TempleSVG} st=${snapState(h)} mini=${true} anim=${false} label=${'Tempel Saison '+h.n}/><div className="text-[12px] font-semibold mt-1">Saison ${h.n} · ${(LC.PHASES[h.phase-1]||{}).name}</div><div className="text-[11px] mute">${h.ms.length} Bausteine · ${h.achieved.length} Ziele erreicht</div></div>`)}</div>`:html`<div className="text-[13px] mute">Nach dem ersten Saisonabschluss steht hier dein erster Tempel.</div>`}</div></div>`}
+ <div className="card p-4"><div className="lbl mb-2">Galerie früherer Kapitel</div>${(T.hist||[]).length?html`<div className="grid grid-cols-2 gap-2">${T.hist.slice().reverse().map(h=>html`<div key=${h.n} className="card2 p-2"><${TempleSVG} st=${snapState(h)} mini=${true} anim=${false} label=${'Tempel Kapitel '+h.n}/><div className="text-[12px] font-semibold mt-1">Kapitel ${h.n} · ${(LC.PHASES[h.phase-1]||{}).name}</div><div className="text-[11px] mute">${h.ms.length} Bausteine · ${h.achieved.length} Ziele erreicht</div></div>`)}</div>`:html`<div className="text-[13px] mute">Nach dem ersten Kapitelabschluss steht hier dein erster Tempel.</div>`}</div></div>`}
 function TempleMini({c,area}){const {S}=c;const st=LC.templeState(S);const col=st.cols.find(x=>x.area===area);if(!col)return null;
  return html`<button onClick=${()=>{c.setTSel(area);c.setTab('life')}} className="w-full flex items-center gap-3 mt-3 bg-transparent border-0 p-0 text-left" aria-label=${'Lebenstempel, '+LC.AREA[area].de+'-Säule öffnen'}>
  <span className="shrink-0" style=${{width:64}}><${TempleSVG} st=${st} sel=${area} mini=${true} anim=${false}/></span>
@@ -3302,7 +3302,7 @@ function TempleHead({c,st,sel}){const {S}=c,T=S.life.temple,W=S.life.why||{},P=S
  const chip=(icon,label,value,empty,on)=>html`<button type="button" onClick=${on} className="flex-1 min-w-0 text-left border-0 px-3 py-2" style=${{minHeight:52,borderRadius:12,background:'var(--card2)',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}>
   <span className="flex items-center gap-1.5 lbl" style=${{color:'var(--bronze)'}}><${Icon} n=${icon} s=${12}/>${label}</span><span className=${'block text-[13px] truncate mt-0.5 '+(value?'font-semibold':'mute')}>${value||empty}</span></button>`;
  return html`<section className="card p-4 mt-4" style=${{background:'var(--hero)'}} aria-label="Dein Tempel">
- <div className="flex items-start justify-between gap-2"><div className="min-w-0"><div className="lbl acc">Tempelsaison ${st.n} · Woche ${st.week}/${st.len}</div><div className="disp-serif text-[20px] mt-1 truncate">${st.phaseInfo.de}</div></div>
+ <div className="flex items-start justify-between gap-2"><div className="min-w-0"><div className="lbl acc">Kapitel ${st.n} · Woche ${st.week}/${st.len}</div><div className="disp-serif text-[20px] mt-1 truncate">${st.phaseInfo.de}</div></div>
  <button type="button" onClick=${()=>c.openSheet({t:'trules'})} aria-label="Bauregeln" className="flex items-center justify-center border-0 bg-transparent -mt-1 -mr-2" style=${{width:44,height:44,color:'var(--mute)'}}><${Icon} n="info" s=${18}/></button></div>
  ${st.due&&html`<button onClick=${()=>c.openSheet({t:'tseason'})} className="btn w-full py-2.5 mt-3 text-[13px]">Saison abgeschlossen · Bilanz ansehen</button>`}
  <div className="flex gap-2 mt-3">${chip('temple','Dach · Warum',W.text?'„'+W.text+'“':'','Noch offen · antippen zum Festlegen',()=>c.openSheet({t:'why'}))}</div>
@@ -3334,14 +3334,14 @@ function TraitBtn({t,on,onTap}){const s=t.kind==='strength';
  <b className="num text-[13px] shrink-0" style=${{color:'var(--gold)'}} aria-hidden="true">${s?'−':'+'}${t.cost}</b></button>`}
 function CharacterSheet({c,invite}){const {S}=c;const st=CH.state(S);const [sel,setSel]=useState(()=>st.traits),[review,setReview]=useState(false);
  const b=CH.budget(sel),ok=b>=0,fx=CH.effects(sel),col=k=>CH.TRAITS.filter(t=>t.kind===k);
- const head=invite?'Saison '+st.cur+' · Saisonbeginn':'Saison '+st.cur+' · freiwillig';
+ const head=invite?'Kapitel '+st.cur+' · Kapitelbeginn':'Kapitel '+st.cur+' · freiwillig';
  if(review)return html`<${Sheet} sub=${head} title="Das bedeutet deine Auswahl" onClose=${c.closeSheet}>
  ${fx.length?html`<ul className="flex flex-col gap-2.5 text-[13.5px] leading-snug" aria-label="Folgen deiner Auswahl">${fx.map(x=>html`<li key=${x.id} className="flex gap-2"><span className="shrink-0 mt-0.5" style=${{color:x.kind==='strength'?'var(--gold)':'var(--acc)'}}><${Icon} n=${x.kind==='strength'?'shield':'flag'} s=${15}/></span><span><b>${x.name}:</b> ${x.text}</span></li>`)}</ul>`
   :html`<div className="text-[13.5px] leading-snug">Du startest ohne Eigenschaften. Es erscheinen keine Charakterhinweise. Du kannst später unter „Mein Leben“ welche wählen.</div>`}
  <div className="card2 p-3 mt-4 text-[12.5px] leading-relaxed">Vorschläge erscheinen höchstens einzeln und werden erst zum Plan, wenn du sie ausdrücklich übernimmst. Handlungspunkte, Arena-Wertung, Tempel-Bauregeln und deine Messwerte bleiben für alle gleich. Du kannst die Auswahl jederzeit ändern.</div>
  <button type="button" onClick=${()=>c.chooseCharacter(sel)} className="btn w-full py-3.5 mt-4 text-sm">Mit diesem Charakter starten</button>
  <button type="button" onClick=${()=>setReview(false)} className="ghost w-full py-3 mt-2 text-[13px] font-semibold">Zurück zur Auswahl</button><//>`;
- return html`<${Sheet} sub=${head} title="Mit wem gehst du in diese Saison?" onClose=${c.closeSheet}>
+ return html`<${Sheet} sub=${head} title="Mit wem gehst du in dieses Kapitel?" onClose=${c.closeSheet}>
  <div className="text-[13px] mute leading-snug -mt-1">Schätze deine Ausgangslage selbst ein. Stärken kosten Charakterpunkte, Herausforderungen geben welche zurück. Keine Diagnose, keine Wertung.</div>
  <div className="flex items-center justify-between gap-3 mt-3 card2 px-3 py-2.5"><div><div className="lbl">Charakterpunkte übrig</div><div className="text-[11px] mute mt-0.5">${CH.START} Startpunkte · Rest darf ungenutzt bleiben</div></div><b className="disp num text-[28px]" style=${{color:ok?'var(--gold)':'var(--bad)'}} aria-live="polite" aria-label=${'Charakterpunkte übrig: '+b} data-char-budget>${b}</b></div>
  <div className="grid grid-cols-2 gap-2 mt-3">
@@ -3351,8 +3351,8 @@ function CharacterSheet({c,invite}){const {S}=c;const st=CH.state(S);const [sel,
  <button type="button" disabled=${!ok} onClick=${()=>setReview(true)} className="btn w-full py-3.5 mt-3 text-sm" style=${ok?undefined:{opacity:.45}}>Weiter: Folgen ansehen</button>
  ${invite&&html`<button type="button" onClick=${c.skipCharacter} className="ghost w-full py-3 mt-2 text-[13px] font-semibold">${st.traits.length?'Bisherige Auswahl behalten':'Überspringen'}</button>`}<//>`}
 function CharacterInvite({c}){const st=CH.state(c.S);if(!st||!st.invite)return null;const carry=st.traits.length>0;
- return html`<section className="card p-4 mt-4" aria-label="Charakter für diese Saison" data-char-invite>
- <div className="lbl acc">Saison ${st.cur} · optional</div><div className="text-[16px] font-bold mt-1 leading-snug">${carry?'Passt dein Charakter noch zur neuen Saison?':'Mit wem gehst du in diese Saison?'}</div>
+ return html`<section className="card p-4 mt-4" aria-label="Charakter für dieses Kapitel" data-char-invite>
+ <div className="lbl acc">Kapitel ${st.cur} · optional</div><div className="text-[16px] font-bold mt-1 leading-snug">${carry?'Passt dein Charakter noch zum neuen Kapitel?':'Mit wem gehst du in dieses Kapitel?'}</div>
  <div className="text-[12.5px] mute mt-1 leading-snug">${carry?'Deine Eigenschaften bleiben, bis du sie änderst.':'Wähle Stärken und Herausforderungen. Daraus entstehen einzelne, freiwillige Vorschläge.'}</div>
  <div className="flex gap-2 mt-3"><button type="button" onClick=${()=>c.openSheet({t:'character',invite:true})} className="btn flex-1 py-2.5 text-[13px]">${carry?'Ansehen':'Charakter wählen'}</button><button type="button" onClick=${c.skipCharacter} className="ghost flex-1 py-2.5 text-[13px] font-semibold">${carry?'Behalten':'Überspringen'}</button></div></section>`}
 /* Höchstens ein Charakterhinweis, nur an seiner Stelle; erst „Übernehmen“ ändert den Plan */
@@ -4543,7 +4543,7 @@ function App({init,auth,skey='war_within_v5'}){
  const wisFav=id=>{const on=WC.isFav(S,id);upd(n=>{WC.toggleFav(n,id)});toast(on?'Aus dem Wisdom Codex entfernt.':'Im Wisdom Codex gespeichert.','good')};
  const wisDismiss=place=>{upd(n=>{WC.dismiss(n,place)});toast('Für heute ausgeblendet. Ganz abschalten kannst du die Impulse in den Optionen.')};
  const wisToggle=()=>{const on=WC.enabled(S);upd(n=>{WC.setOn(n,!on)});toast(on?'Impulse aus. Der Codex bleibt in den Optionen erreichbar.':'Impulse an: höchstens einer pro Stelle und Tag.','good')};
- const closeTempleSeason=len=>{lifeUpd(n=>{LC.closeTempleSeason(n,len)});setSheet({t:'character',invite:true});toast('Neue Saison begonnen. Dein bisheriger Tempel steht in der Galerie.','good')};
+ const closeTempleSeason=len=>{lifeUpd(n=>{LC.closeTempleSeason(n,len)});setSheet({t:'character',invite:true});toast('Neues Kapitel begonnen. Dein bisheriger Tempel steht in der Galerie.','good')};
  const chooseCharacter=ids=>{if(!CH.check(ids).ok)return;lifeUpd(n=>{CH.choose(n,ids)});setSheet(null);toast(ids.length?'Charakter gespeichert. Du kannst ihn jederzeit ändern.':'Ohne Eigenschaften gestartet. Später änderbar.','good')};
  const skipCharacter=()=>{lifeUpd(n=>{CH.skip(n)});setSheet(null)};
  const applyTrait=(id,ch)=>{const snap=structuredClone(S),n=structuredClone(S);LC.ensureLife(n);const r=CH.apply(n,id,ch,{d:n.life.d,battleSet:!!(n.battle&&n.battle.k===dayKey(n)&&n.battle.key),restToday:derive(n).restToday});if(!r.ok){toast('Bitte zuerst eine Auswahl treffen.');return}if(r.battle)n.battle={k:dayKey(n),key:r.battle};setS(n);toast('In deinen Plan übernommen.','good',{undo:()=>setS(syncCalendar(structuredClone(snap)))})};

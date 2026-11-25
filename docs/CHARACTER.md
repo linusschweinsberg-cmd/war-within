@@ -63,3 +63,5 @@ Abwärtskompatibel: fehlt das Objekt, wird es leer angelegt; unbekannte IDs fall
 ## Tests
 
 `node tests/character-core.cjs`: Budget, keine Doppelten, Bestätigung nur bei gültigem Budget, leere/übersprungene Auswahl, alte Spielstände, Persistenz und Änderung, Saisonwechsel, Vorschläge ohne automatische Planänderung, keine Überschreibung, unveränderte Arena-Wertung, Tempellogik und Punktevergabe.
+
+> Oberfläche ab `ww-v93`: Die Tempelsaison heißt „Kapitel“. Daten (`S.life.temple.cur.n`) und Regeln bleiben gleich.

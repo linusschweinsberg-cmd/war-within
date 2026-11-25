@@ -1,6 +1,6 @@
 # Spielkonzept: Vom Heute zum Zukunfts-Ich
 
-Stand: 25.11.2026 · Status: Konzept, noch kein Code · Gilt für THE WAR WITHIN ab Release nach `ww-v92`.
+Stand: 25.11.2026 · Status: Konzept; Schritt 1 (Begriffe) umgesetzt in `ww-v93` · Gilt für THE WAR WITHIN ab Release nach `ww-v92`.
 
 Prüffrage für jede Entscheidung: **Versteht ein neuer Nutzer sofort, was er heute tun kann, und hat er Lust darauf?**
 
