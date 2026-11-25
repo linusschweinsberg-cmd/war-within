@@ -18,15 +18,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v86"></script>
-<script src="auth.js?v=ww-v86"></script>
-<script src="life-core.js?v=ww-v86"></script>
-<script src="wisdom-core.js?v=ww-v86"></script>
-<script src="future-self-core.js?v=ww-v86"></script>
-<script src="projection-core.js?v=ww-v86"></script>
-<script src="arena-core.js?v=ww-v86"></script>
-<script src="arena-api.js?v=ww-v86"></script>
-<script src="arena-ui.js?v=ww-v86"></script>
+<script src="supabase-config.js?v=ww-v87"></script>
+<script src="auth.js?v=ww-v87"></script>
+<script src="life-core.js?v=ww-v87"></script>
+<script src="wisdom-core.js?v=ww-v87"></script>
+<script src="future-self-core.js?v=ww-v87"></script>
+<script src="projection-core.js?v=ww-v87"></script>
+<script src="arena-core.js?v=ww-v87"></script>
+<script src="arena-api.js?v=ww-v87"></script>
+<script src="arena-ui.js?v=ww-v87"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -1693,10 +1693,18 @@ function FutureSelfTile({c}){const {S}=c,p=FS.settings(S);if(!p.enabled)return n
  ${!fm&&!rest&&d.Y>0?html`<span className="block mt-2 space-y-1">${bar('Er',d.Z,'var(--nem)')}${bar('Du',d.X,'var(--acc)')}</span>`:html`<span className="block text-[12px] mute mt-0.5">Tippen für Rat oder Tagesurteil</span>`}
  ${!fm&&!rest&&d.Y>0&&lead>0&&html`<span className="sr-only">${lead} Schritte Rückstand</span>`}
  </span><${Icon} n="chevR" s=${16} cls="mute"/></button>`}
-function trialToday(S){const t=S.life&&S.life.trial;return t&&t.d===S.life.d?t:null}
+function trialToday(S){const L=S.life||{};return [L.trial,L.trialNext].find(t=>t&&t.d===L.d)||null}
 function startTrial(c,text){const value=String(text||'').trim().slice(0,80);if(!value||c.D.restToday||trialToday(c.S))return;c.upd(n=>{n.life.trial={d:n.life.d,text:value,done:false}})}
 function finishTrial(c){const before=c.S,t=trialToday(before);if(!t||t.done||c.D.restToday)return;c.upd(n=>{const x=trialToday(n);if(x)x.done=true});c.toast('Deine Handlung ist erledigt.','good',{undo:()=>c.restore(before)})}
-function TrialStart({c}){const [text,setText]=useState(''),t=trialToday(c.S);return html`<section className="card p-4 mt-4" aria-label="Eine Handlung ausprobieren"><div className="lbl acc">Nur für heute</div><h2 className="text-[21px] font-bold mt-2">${t?t.text:'Was möchtest du heute für dich tun?'}</h2>${t?t.done?html`<p role="status" className="mt-4 font-semibold good">Geschafft. Ein Anfang zählt.</p>`:html`<button type="button" className="btn w-full mt-4 py-3" onClick=${()=>finishTrial(c)}>Erledigt</button>`:html`<p className="text-[13px] mute mt-2">Wähle etwas Kleines, das dir wichtig ist. Ein Ziel kannst du später daraus machen.</p><label className="text-[13px] block mt-4" htmlFor="today-trial">Meine Handlung für heute</label><input id="today-trial" className="inp mt-2" maxLength=${80} value=${text} onChange=${e=>setText(e.target.value)} placeholder="z. B. zehn Minuten draußen gehen"/><button type="button" className="btn w-full mt-3 py-3" disabled=${!text.trim()} onClick=${()=>startTrial(c,text)}>Für heute wählen</button>`}<p className="text-[12px] mute mt-3">Keine Wiederholung, kein Wochenplan. Dieser Versuch bringt keine Punkte.</p></section>`}
+function changeTrial(c,text){const t=trialToday(c.S),value=String(text||'').trim().slice(0,80);if(!t||t.done||!value||c.D.restToday)return;const before=c.S;c.upd(n=>{trialToday(n).text=value});c.toast('Handlung geändert.','good',{undo:()=>c.restore(before)})}
+function removeTrial(c){if(!trialToday(c.S))return;const before=c.S;c.upd(n=>{if(n.life.trial&&n.life.trial.d===n.life.d)delete n.life.trial;if(n.life.trialNext&&n.life.trialNext.d===n.life.d)delete n.life.trialNext});c.toast('Handlung entfernt.','good',{undo:()=>c.restore(before)})}
+function reviewTrial(c,value){const t=trialToday(c.S);if(!t||!t.done||!['yes','partly','no'].includes(value))return;c.upd(n=>{trialToday(n).helped=value})}
+function repeatTrial(c){const t=trialToday(c.S);if(!t||!t.done)return;const next=c.S.life.trialNext;if(next&&next.d===c.S.life.d+1)return;const before=c.S;c.upd(n=>{n.life.trialNext={d:n.life.d+1,text:t.text,done:false}});c.toast('Für morgen vorgemerkt.','good',{undo:()=>c.restore(before)})}
+function TrialStart({c}){const [text,setText]=useState(''),[editing,setEditing]=useState(false),t=trialToday(c.S),next=c.S.life.trialNext,again=!!(next&&next.d===c.S.life.d+1);return html`<section className="card p-4 mt-4" aria-label="Eine Handlung ausprobieren"><div className="lbl acc">Nur für heute</div><h2 className="text-[21px] font-bold mt-2">${t?t.text:'Was möchtest du heute für dich tun?'}</h2>
+${t&&t.done?html`<p role="status" className="mt-4 font-semibold good">Geschafft. Ein Anfang zählt.</p><fieldset className="mt-4"><legend className="text-[14px] font-semibold">Hat dir das geholfen?</legend><div className="flex gap-2 flex-wrap mt-2">${[['yes','Ja'],['partly','Teilweise'],['no','Nein']].map(([value,label])=>html`<button type="button" className=${'chip '+(t.helped===value?'on':'')} style=${{minHeight:44}} aria-pressed=${t.helped===value} onClick=${()=>reviewTrial(c,value)}>${label}</button>`)}</div></fieldset><p className="text-[12px] mute mt-2">Deine Antwort ist freiwillig. Du kannst sie ändern.</p><button type="button" className="btn w-full mt-4 py-3" disabled=${again} onClick=${()=>repeatTrial(c)}>${again?'Für morgen vorgemerkt':'Morgen noch einmal ausprobieren'}</button><p className="text-[12px] mute mt-2">Einmal für morgen. Daraus entsteht kein Dauerplan.</p>`
+:t&&!editing?html`<button type="button" className="btn w-full mt-4 py-3" onClick=${()=>finishTrial(c)}>Erledigt</button><button type="button" className="ghost mt-2 px-3 py-3" onClick=${()=>{setText(t.text);setEditing(true)}}>Bearbeiten</button>`
+:html`${!t&&html`<p className="text-[13px] mute mt-2">Wähle etwas Kleines, das dir wichtig ist. Ein Ziel kannst du später daraus machen.</p>`}<label className="text-[13px] block mt-4" htmlFor="today-trial">Meine Handlung für heute</label><input id="today-trial" className="inp mt-2" maxLength=${80} value=${text} onChange=${e=>setText(e.target.value)} placeholder="z. B. zehn Minuten draußen gehen"/><button type="button" className="btn w-full mt-3 py-3" disabled=${!text.trim()} onClick=${()=>{if(t)changeTrial(c,text);else startTrial(c,text);setEditing(false)}}>${t?'Änderung speichern':'Für heute wählen'}</button>${t&&html`<button type="button" className="ghost px-3 py-3" onClick=${()=>setEditing(false)}>Abbrechen</button><button type="button" className="ghost px-3 py-3" onClick=${()=>{removeTrial(c);setText('');setEditing(false)}}>Handlung entfernen</button>`}`}
+<p className="text-[12px] mute mt-3">Deine Handlung wird hier bestätigt. Punkte und Wochenplan bleiben unverändert.</p></section>`}
 function Home({c}){const {S}=c;const [more,setMore]=useState(false),[pick,setPick]=useState(null),nm=((S.profile&&S.profile.name)||'').trim();
  const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fm=focusMode(S),items=todayPriorities(S,c.D,5),rings=areaDay(S,c.D),battle=todayBattle(S,c.D,items);
  const reentry=reentryToday(S,c.D);

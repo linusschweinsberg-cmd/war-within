@@ -89,3 +89,8 @@ Im Wiedereinstieg bietet „Heute kleiner anfangen“ ein Freitextfeld für eine
 ## Direkter Versuch ohne Ziel (ww-v86)
 
 Wenn kein Hauptziel und keine persönlich gewählte Handlung offen ist (nur die allgemeine Abendreflexion), zeigt Heute eine Eingabe für eine eigene Handlung. Maximal 80 Zeichen, bewusst nur heute, ohne Wiederholung oder Punkte. `life.trial={d,text,done}` bleibt nach Neuladen erhalten; die Bestätigung bietet fünf Sekunden Rückgängig. Ziele, Missionen, Onboarding und Wochenpläne bleiben unverändert. Ruhetage haben Vorrang.
+
+
+## Versuch bearbeiten und weiterführen (ww-v87)
+
+Offene Tagesversuche lassen sich bearbeiten oder entfernen; beide Änderungen bieten Rückgängig. Nach dem Erledigen ist die freiwillige, änderbare Rückmeldung „Hat dir das geholfen?“ (Ja/Teilweise/Nein) möglich. Ein eigener Knopf merkt dieselbe Handlung einmal für morgen vor (`life.trialNext`, absoluter Spieltag); kein automatisches Wiederholen oder Nachholen nach längerer Pause. Rückmeldung und Vormerkung verändern weder Punkte noch Ziele oder Wochenpläne. Auch die Vormerkung ist rückgängig machbar.
