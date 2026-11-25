@@ -43,6 +43,14 @@ Ersetzt die Jetzt-Karte. Aufbau Heute von oben: Kopf mit Datum, kompakt **Saison
 - Spielstand bleibt `v:5`; `battle` ist ein optionales Feld, alte Stände und Export/Import funktionieren unverändert.
 - Tests: `node tests/today-battle.cjs` (keine Automatik, Wahl/Ändern, frühere Festlegung, Mehrfachtippen, Rückgängig, Minimum, Wochenmission, Compound-Zahlen, Konstanz mit Ruhetag, Laden alter Stände, Animationsdauer und reduzierte Bewegung). Browser 375×812: Wahl, Doppeltipp (Punkte einmal, kein Fehltreffer), Rückgängig, hell/dunkel.
 
+## Rückmeldungen nach Handlungen (ww-v82)
+
+Eine gemeinsame Meldung über der Navigation nennt die erledigte Handlung und, falls vorhanden, ihren Wochenstand. „Rückgängig“ ist fünf Sekunden lang erreichbar. Standards, erster Schritt und Import verwenden denselben Weg; die Meldung bleibt auch über einem offenen Sheet bedienbar. Eine neue Handlung ersetzt die vorherige Meldung, ein älterer Timer kann sie nicht versehentlich schließen.
+
+Keine zusätzlichen Punkte-Floats, Partikel, Rang-, Saisonpfad-, Prioritäten- oder Tempel-Baustein-Toasts nach dem Abhaken. Die Punkteberechnung und Fortschrittsdaten bleiben erhalten; der kurze Zustandswechsel der Hauptschlacht bleibt. Auszeichnungen und perfekter Tag überdecken das Rückgängig-Fenster nicht und erscheinen gegebenenfalls erst danach. Arena-Synchronisationsfehler bleiben sichtbar; erfolgreiche Synchronisation erzeugt keinen weiteren Toast.
+
+Prüfung: `action-feedback`, `today-focus`, `today-battle`, `today-dayflow`, `release-smoke`, `auth-contract`, `service-worker`, `arena-sync`, `future-self` und `wisdom-core` bestanden. Browser 375 × 812: genau eine Rückgängig-Schaltfläche, Erledigen und Wiederherstellen, keine Konsolenfehler.
+
 ## Zeitblock
 
 Ein Zeitblock braucht eine tatsächlich gespeicherte numerische Startzeit und Dauer im bestehenden Tagesplan. Reine Tageszeitwünsche (morgens/abends) und der automatisch verteilte Nemesis-Plan gelten nicht als feste Buchung. Erledigte Aufgaben, Schlaf und ungültige Intervalle werden nicht als nächster Handlungsblock gezeigt.

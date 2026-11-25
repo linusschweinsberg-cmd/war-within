@@ -27,7 +27,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
-- Codex · `codex/today-clarity` · Ruhigere Heute-Seite: Handlung zuerst, zwei Nebenmissionen, optionale Bereiche und Fortschritt. Navigation auf Nutzerwunsch nur mit Icons (deutsche aria-labels und Tooltips, aktive Seite und 52-px-Tippflächen bleiben). Zusätzlich: sichtbare Zielprojektionen auf 90 Tage begrenzt, neutraler Vergleich, gemessene Wirkung getrennt. Dateien: index.html, docs/TODAY.md, docs/IMPACT.md, sw.js und Release-Tests. Release `ww-v81`, baut auf PR #36 auf; neun Testsuiten bestanden. Browser 375/390 px: Wahl, Erledigen, Rückgängig, Reload und Zusatzbereiche geprüft, keine Konsolenfehler. Zielvorschau zusätzlich mobil bei 375 px geprüft: fehlende Daten, Sparrate speichern, Vergleich wechseln, Lernziel und Messwert-Eingabe; keine Konsolenfehler. Sieben passende Testsuiten für diese Ergänzung bestanden. Lokal, kein Merge/Deployment.
+- Codex · `codex/today-clarity` · Ruhigere Heute-Seite: Handlung zuerst, zwei Nebenmissionen, optionale Bereiche und Fortschritt. Zusätzlich: eine gemeinsame Rückgängig-Meldung für Handlungen, Standards, ersten Schritt und Import; keine Rang-/Baustein-/Saisonpfad-Toasts nach dem Abhaken, Auszeichnungs-Overlays erst nach dem Undo-Fenster. Navigation auf Nutzerwunsch nur mit Icons (deutsche aria-labels und Tooltips, aktive Seite und 52-px-Tippflächen bleiben). Zusätzlich: sichtbare Zielprojektionen auf 90 Tage begrenzt, neutraler Vergleich, gemessene Wirkung getrennt. Dateien: index.html, docs/TODAY.md, docs/IMPACT.md, sw.js und Release-Tests. Release `ww-v82`, baut auf PR #36 auf; neun Testsuiten bestanden. Browser 375/390 px: Wahl, Erledigen, Rückgängig, Reload und Zusatzbereiche geprüft, keine Konsolenfehler. Zielvorschau zusätzlich mobil bei 375 px geprüft: fehlende Daten, Sparrate speichern, Vergleich wechseln, Lernziel und Messwert-Eingabe; keine Konsolenfehler. Sieben passende Testsuiten für diese Ergänzung bestanden. Lokal, kein Merge/Deployment.
 - Codex · `codex/claude-arena-integration` · Integration von Claude arena-3 (`408383a`) und hauptschlacht (`cf3b42c`); Dateien: Arena, Heute, Zielplanung, Tests und Release-Versionen. Release `ww-v78`; alle 22 Testsuiten bestanden (einschließlich lokaler SQL-/RLS-Tests und 180 SQL/JS-Vergleiche). Konflikte bei Versionsnummern und Dokumentation aufgelöst. PR/Claude-Gegenreview noch offen; keine produktive Migration.
 
 ### Letzte Integration
@@ -40,7 +40,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v81` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v82` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`, `node tests/ftue-flows.cjs` (Abläufe: neu, vollständig, übersprungen, zurückkehrend). Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Produktprinzip (verbindlich)
