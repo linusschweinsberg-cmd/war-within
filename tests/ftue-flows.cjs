@@ -78,3 +78,5 @@ t2('Routinenvorschläge: höchstens drei, mit kleiner Variante, nie für Bereich
  const ob=a.newOb('Test');ob.persona=['runner'];const n=finish(ob);assert.equal(Object.keys(n.life.standards||{}).length,0,'kein automatischer Standard');
  const L={d:0,standards:{}};const x=PC.routineSuggestions(['runner'],L.standards)[0];LC.setStandard(L,x.area,{std:x.std,min:x.min},'Vorschlag');const ob2=a.newOb('Test');ob2.standards=L.standards;const n2=finish(ob2);
  assert.equal(n2.life.standards.health.std.text,'20 Minuten Bewegung');assert.equal(n2.life.standards.health.min.text,'5 Minuten gehen')});}
+
+t('Fresh onboarding starts with one side slot and immediate cap',()=>{const n=finish(a.newOb('Neu'));assert.equal(n.prog.slots,1);assert.equal(n.prog.capFrom,1);assert.equal(n.prog.n,0)});
