@@ -110,6 +110,6 @@ Stufen: Ruine 0 · Wiederaufbau 2 · Stabil 6 · Stark 11 · Meisterschaft 17 Pu
 - Tempel: Der Debrief zeigt, an welcher Säule heute gebaut wurde; Bausteine entstehen weiter nur nach den Bauregeln.
 
 
-## Standards tragen den Tempel (ww-v90)
+## Standards tragen den Tempel (ww-v88)
 
 Eigenständige aktive Standards können den Grundstein legen. Für Wochen- und Comeback-Bausteine nutzt `templeWeek` den gemeinsamen Plan aus Zielen und eigenständigem Standard, weiterhin 80 % und dieselben Obergrenzen. Pro Standard zählt höchstens eine volle Erledigung je Tag; Minimum bleibt separat. Verknüpfte Standards zählen nur über ihre Ziel-Handlung. Bestehende Tempel starten die Erweiterung ab dem ersten Update-Aufruf (`routineFrom`, `stdLogFrom`), ohne rückwirkende Standard-Bausteine; volle Wochen ab dieser Grenze. Saisonwechsel grenzt auch Standardlogs ab. Pausierte Standards liefern keine neuen Bausteine; vorhandene bleiben. Säulendetails erklären Regel, Wochenstand und Zugang zum Standard. Ziel-Wochenstatistiken bleiben unverändert.
