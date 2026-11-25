@@ -18,15 +18,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v76"></script>
-<script src="auth.js?v=ww-v76"></script>
-<script src="life-core.js?v=ww-v76"></script>
-<script src="wisdom-core.js?v=ww-v76"></script>
-<script src="future-self-core.js?v=ww-v76"></script>
-<script src="projection-core.js?v=ww-v76"></script>
-<script src="arena-core.js?v=ww-v76"></script>
-<script src="arena-api.js?v=ww-v76"></script>
-<script src="arena-ui.js?v=ww-v76"></script>
+<script src="supabase-config.js?v=ww-v77"></script>
+<script src="auth.js?v=ww-v77"></script>
+<script src="life-core.js?v=ww-v77"></script>
+<script src="wisdom-core.js?v=ww-v77"></script>
+<script src="future-self-core.js?v=ww-v77"></script>
+<script src="projection-core.js?v=ww-v77"></script>
+<script src="arena-core.js?v=ww-v77"></script>
+<script src="arena-api.js?v=ww-v77"></script>
+<script src="arena-ui.js?v=ww-v77"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -3059,12 +3059,25 @@ const PROC_RX=/training|einheit|lauf(?!zeit)|läufe|minute|stunde|tage|sessions?
 const draftOk=d=>d.title.trim().length>=3&&d.metric.name.trim().length>=2&&LC.parseV(d.metric,d.targetStr)!=null;
 const planOk=d=>d.actions.some(a=>a.title.trim().length>=2);
 function draftOut(d){return{area:d.area,tpl:d.tpl,title:d.title.trim(),metric:{...d.metric,name:d.metric.name.trim(),target:LC.parseV(d.metric,d.targetStr)},start:LC.parseV(d.metric,d.startStr),weeks:d.weeks,method:d.method,actions:d.actions.filter(a=>a.title.trim().length>=2).map(a=>({...a,title:a.title.trim()})),capacity:d.capacity||null,limits:(d.limits||'').trim()||null,steps:Array.isArray(d.steps)&&d.steps.length?[...d.steps]:null}}
+/* Phase 2: Etappen eines Entwurfs – eigene, sonst automatisch aus Start- und Zielwert vorgeschlagen. */
+const draftSteps=d=>Array.isArray(d.steps)?d.steps:PJ.suggestSteps(LC.parseV(d.metric,d.startStr),LC.parseV(d.metric,d.targetStr));
+const CAP_OPTS=[[0,'Offen'],[60,'1 Std.'],[120,'2 Std.'],[180,'3 Std.'],[300,'5 Std.']];
+function StepsEdit({metric,steps,onChange,sugg}){const [v,setV]=useState(''),nv=LC.parseV(metric,v);
+ return html`<div data-goal-steps><div className="flex flex-wrap gap-1.5">${steps.map(s=>html`<button key=${s} type="button" onClick=${()=>onChange(steps.filter(x=>x!==s))} aria-label=${'Etappe entfernen: '+LC.fmtV(metric,s)} className="chip on" style=${{minHeight:36}}>${LC.fmtV(metric,s)}<span aria-hidden="true" className="ml-1.5 opacity-60">×</span></button>`)}${!steps.length&&html`<span className="text-[12.5px] mute">Keine Etappen.</span>`}</div>
+ <div className="flex gap-2 mt-2"><input className="inp flex-1" aria-label="Eigene Etappe" inputMode=${metric.fmt==='time'?'text':'decimal'} value=${v} onChange=${e=>setV(e.target.value)} placeholder=${metric.fmt==='time'?'Etappe, z. B. 26:00':'Eigene Etappe'}/><button type="button" disabled=${nv==null} onClick=${()=>{const dn=metric.dir==='down';onChange([...new Set([...steps,nv])].sort((a,b)=>dn?b-a:a-b));setV('')}} className="ghost px-4 text-[13px] font-semibold">Hinzufügen</button></div>
+ ${sugg&&sugg.length>0&&JSON.stringify(sugg)!==JSON.stringify(steps)&&html`<button type="button" className="bg-transparent border-0 p-0 mt-2 text-[12.5px] acc font-semibold" style=${{minHeight:32}} onClick=${()=>onChange(sugg)}>Vorschlag wiederherstellen</button>`}</div>`}
+function AdaptList({c,g}){const list=PJ.adapt(c.S,g.id);if(!list.length)return null;
+ const apply=ch=>{if(ch.type==='perWeek'){c.setActPerWeek(ch.aid,ch.to);c.toast('Plan angepasst. Gilt ab dieser Woche.','good')}else if(ch.type==='weeks')c.updLifeGoal(g.id,{weeks:ch.to});else if(ch.type==='rate'){c.upd(n=>{PJ.setPlan(n,g.id,{rate:ch.to,interest:(g.proj||{}).interest})});c.toast('Sparrate angepasst.','good')}else if(ch.type==='measure')c.openSheet({t:'measure',gid:g.id});else{c.closeSheet();c.setTab('reflect')}};
+ return html`<section className="mt-5" data-goal-adapt aria-label="Plan anpassen"><div className="lbl mb-2">Plan anpassen?</div>${list.map(x=>html`<div key=${x.code} className="card2 p-3.5 mb-2"><div className="text-[14px] font-semibold leading-snug">${x.title}</div><div className="text-[12.5px] mute mt-1 leading-snug">${x.text}</div>
+ <button type="button" className="chip on mt-2.5" onClick=${()=>apply(x.change)}>${x.label}</button>${x.alt&&html`<button type="button" className="chip mt-2.5 ml-1.5" onClick=${()=>apply(x.alt)}>${x.altLabel}</button>`}</div>`)}
+ <div className="text-[11.5px] mute">Vorschläge aus deinen echten Daten. Nichts ändert sich, bevor du tippst.</div></section>`}
 function GoalForm({d,set,part}){const m=d.metric;const up=p=>set({...d,...p}),um=p=>set({...d,metric:{...m,...p}});
  if(part==='plan'){const load=d.actions.reduce((s,a)=>s+(+a.perWeek||0),0);
   return html`<div><div className="card2 p-3 text-[12.5px] leading-relaxed mb-3"><b>Handlungen sind dein Prozess:</b> was du jede Woche tust. Ob sie wirken, zeigt das Ergebnis „${m.name||'deine Messgröße'}“.</div>
   <div className="flex flex-col gap-2.5">${d.actions.map((a,i)=>html`<div key=${i} className="card p-3"><div className="flex gap-2"><input className="inp flex-1" aria-label=${'Handlung '+(i+1)} maxLength=${60} value=${a.title} onChange=${e=>up({actions:d.actions.map((x,j)=>j===i?{...x,title:e.target.value}:x)})} placeholder="z. B. Lauftraining"/>${d.actions.length>1&&html`<button aria-label="Handlung entfernen" onClick=${()=>up({actions:d.actions.filter((_,j)=>j!==i)})} className="ghost w-11 flex items-center justify-center shrink-0"><${Icon} n="x" s=${16}/></button>`}</div>
    <div className="flex items-center justify-between mt-2.5"><span className="text-[13px] mute">Pro Woche</span><div className="flex items-center gap-2"><button aria-label="weniger" onClick=${()=>up({actions:d.actions.map((x,j)=>j===i?{...x,perWeek:Math.max(1,(+x.perWeek||1)-1)}:x)})} className="ghost w-9 h-9 flex items-center justify-center text-[18px]">−</button><span className="num font-bold w-10 text-center">${a.perWeek}×</span><button aria-label="mehr" onClick=${()=>up({actions:d.actions.map((x,j)=>j===i?{...x,perWeek:Math.min(7,(+x.perWeek||1)+1)}:x)})} className="ghost w-9 h-9 flex items-center justify-center text-[18px]">+</button></div></div></div>`)}</div>
   ${d.actions.length<3&&html`<button onClick=${()=>up({actions:[...d.actions,{title:'',perWeek:1,minutes:null}]})} className="ghost w-full py-3 mt-2.5 text-[13px] font-semibold flex items-center justify-center gap-1.5"><${Icon} n="plus" s=${14}/>Handlung hinzufügen</button>`}
+  ${d.capacity>0&&(()=>{const f=PJ.fitActions(d.actions,d.capacity);return html`<div className="card2 p-3 mt-3 text-[12.5px] leading-snug" data-goal-capacity>Deine Zeit: <b>${d.capacity} Min. pro Woche</b> · Plan: <b>${f.before} Min.</b>${f.before>d.capacity?html`<button type="button" className="chip on mt-2" onClick=${()=>up({actions:f.actions})}>An meine Zeit anpassen${f.over?' (so weit wie möglich)':''}</button>`:html`<span className="good"> · passt</span>`}</div>`})()}
   <div className="text-[12.5px] mt-3 px-1" style=${{color:load>10?'var(--gold)':'var(--mute)'}}>${load} Einheiten pro Woche. ${load>10?'Viel für den Anfang. Weniger, aber sicher, gewinnt; steigern kannst du nach dem ersten Rückblick.':'Realistisch ist besser als ehrgeizig: Der Wochenrückblick passt den Plan an.'}</div></div>`}
  const tpls=LC.GOAL_TPL.filter(t=>t.area===d.area);const proc=PROC_RX.test(m.name);
  return html`<div>
@@ -3078,10 +3091,15 @@ function GoalForm({d,set,part}){const m=d.metric;const up=p=>set({...d,...p}),um
   <div className="grid grid-cols-2 gap-2 mt-2"><label className="block"><span className="text-[12px] mute">Heute (optional)</span><input className="inp mt-1" inputMode=${m.fmt==='time'?'text':'decimal'} value=${d.startStr} onChange=${e=>up({startStr:e.target.value})} placeholder=${m.fmt==='time'?'27:30':'Startwert'}/></label><label className="block"><span className="text-[12px] mute">Zielwert</span><input className="inp mt-1" inputMode=${m.fmt==='time'?'text':'decimal'} value=${d.targetStr} onChange=${e=>up({targetStr:e.target.value})} placeholder=${m.fmt==='time'?'24:59':'Ziel'}/></label></div>
   ${d.targetStr&&LC.parseV(m,d.targetStr)==null&&html`<div className="text-[12px] bad mt-1.5">${m.fmt==='time'?'Bitte im Format mm:ss eingeben.':'Bitte eine Zahl eingeben.'}</div>`}
   <div className="flex gap-1.5 mt-2.5">${[['measured','Gemessen'],['self','Selbsteinschätzung']].map(([k,l])=>html`<button key=${k} onClick=${()=>um({src:k})} className=${`chip ${m.src===k?'on':''}`}>${l}</button>`)}</div></div>
- <div className="lbl mt-4 mb-1.5">Zeitraum</div><${Seg} opts=${[[4,'4 Wo.'],[8,'8 Wo.'],[12,'12 Wo.'],[24,'24 Wo.'],[52,'1 Jahr']]} val=${d.weeks} on=${v=>up({weeks:v})}/></div>`}
+ <div className="lbl mt-4 mb-1.5">Zeitraum</div><${Seg} opts=${[[4,'4 Wo.'],[8,'8 Wo.'],[12,'12 Wo.'],[24,'24 Wo.'],[52,'1 Jahr']]} val=${d.weeks} on=${v=>up({weeks:v})}/>
+ <div className="lbl mt-4 mb-1.5">Zeit pro Woche (optional)</div><${Seg} opts=${CAP_OPTS} val=${d.capacity||0} on=${v=>up({capacity:v||null})}/>
+ <label className="lbl block mt-4 mb-1.5" htmlFor="gf-l">Einschränkungen (optional)</label><input id="gf-l" className="inp" maxLength=${120} value=${d.limits||''} onChange=${e=>up({limits:e.target.value})} placeholder="z. B. Knie schonen, nur abends Zeit"/>
+ <div className="card p-3.5 mt-3"><div className="lbl acc mb-2">Etappen</div>${LC.parseV(m,d.startStr)==null?html`<div className="text-[12.5px] mute">Mit einem Startwert („Heute“) schlägt die App Etappen vor.</div>`:html`<${StepsEdit} metric=${m} steps=${draftSteps(d)} sugg=${PJ.suggestSteps(LC.parseV(m,d.startStr),LC.parseV(m,d.targetStr))} onChange=${s=>up({steps:s})}/>`}
+ ${d.area==='health'&&html`<div className="text-[11.5px] mute mt-2">Körperliche Fortschritte verlaufen nicht nach Kalender. Etappen haben deshalb kein Datum.</div>`}</div></div>`}
 
 function GoalSheet({c,gid,area}){const {S}=c;const L=S.life;const g=gid&&LC.goalById(L,gid);
  const [d,setD]=useState(()=>{const ar=area||L.focus||'health',t=LC.GOAL_TPL.find(x=>x.area===ar);return t?draftFromTpl(t):emptyDraft(ar)});const [st,setSt]=useState(0);
+ const [cap,setCap]=useState(g&&g.capacity||0),[lim,setLim]=useState(g&&g.limits||'');
  const [title,setTitle]=useState(g?g.title:''),[tgt,setTgt]=useState(g?rawV(g.metric,g.metric.target):''),[wks,setWks]=useState(g?g.weeks:12),[na,setNa]=useState('');
  if(g){const acts=LC.actionsOf(L,g.id);const tv=LC.parseV(g.metric,tgt);
   return html`<${Sheet} sub=${LC.AREA[g.area].de+' · Ziel bearbeiten'} title=${g.title} onClose=${c.closeSheet}>
@@ -3093,11 +3111,16 @@ function GoalSheet({c,gid,area}){const {S}=c;const L=S.life;const g=gid&&LC.goal
   <div className="flex gap-2 mt-2"><input className="inp flex-1" aria-label="Neue Handlung" value=${na} maxLength=${60} onChange=${e=>setNa(e.target.value)} placeholder="Neue Handlung"/><button disabled=${na.trim().length<2} onClick=${()=>{c.addActionTo(g.id,{title:na.trim(),perWeek:2});setNa('')}} className="btn px-4 text-sm">Hinzufügen</button></div>
   <div className="text-[11.5px] mute mt-2">Planänderungen gelten ab sofort; frühere Wochen bleiben, wie sie waren.</div>
   ${PJ.typeOf(g)&&html`<button type="button" className="chip mt-3" onClick=${()=>c.openSheet({t:'impact',gid:g.id})}>Was passiert, wenn ich dranbleibe?</button>`}
+  <${AdaptList} c=${c} g=${g}/>
+  <div className="lbl mt-5 mb-1.5">Rahmen</div><div className="text-[12px] mute mb-1.5">Zeit pro Woche</div><${Seg} opts=${CAP_OPTS} val=${cap} on=${setCap}/>
+  <input className="inp mt-2" aria-label="Einschränkungen" maxLength=${120} value=${lim} onChange=${e=>setLim(e.target.value)} placeholder="Einschränkungen (optional)"/>
+  <button type="button" className="ghost w-full py-2.5 mt-2 text-[13px] font-semibold" onClick=${()=>{c.upd(n=>{PJ.setFrame(n,g.id,{capacity:cap||'',limits:lim})});c.toast('Rahmen gespeichert.','good')}}>Rahmen speichern</button>
+  ${(()=>{const st=LC.goalStart(L,g),sug=PJ.suggestSteps(st,g.metric.target),cur=Array.isArray(g.steps)?g.steps:sug;return st==null?null:html`<div className="lbl mt-5 mb-1.5">Etappen${Array.isArray(g.steps)?'':' (Vorschlag)'}</div><${StepsEdit} metric=${g.metric} steps=${cur} sugg=${sug} onChange=${s=>c.upd(n=>{PJ.setFrame(n,g.id,{steps:s})})}/>`})()}
   ${(g.changes||[]).length>0&&html`<div className="lbl mt-5 mb-1.5">Änderungsverlauf</div>${g.changes.slice().reverse().map((x,i)=>html`<div key=${i} className="text-[12px] mute">Woche ${x.wk+1}: ${x.ch.map(([k,a,b])=>`${k} ${a??'–'} → ${b}`).join(', ')}</div>`)}`}
   <div className="grid grid-cols-2 gap-2 mt-5">${L.main!==g.id&&g.status==='active'&&html`<button onClick=${()=>c.setMainGoal(g.id)} className="ghost py-3 text-[13px] font-semibold col-span-2">Als Hauptziel setzen</button>`}${g.status==='active'?html`<button onClick=${()=>c.setLifeGoalStatus(g.id,'achieved')} className="ghost py-3 text-[13px] font-semibold good">Als erreicht markieren</button><button onClick=${()=>c.setLifeGoalStatus(g.id,'archived')} className="ghost py-3 text-[13px] font-semibold mute">Archivieren</button>`:html`<button onClick=${()=>c.setLifeGoalStatus(g.id,'active')} className="ghost py-3 text-[13px] font-semibold col-span-2">Wieder aktivieren</button>`}</div><//>`}
  return html`<${Sheet} sub=${`Neues Ziel · ${st+1}/2`} title=${st===0?'Was willst du erreichen?':'Was tust du dafür?'} onClose=${c.closeSheet}>
  ${st===0?html`<${GoalForm} d=${d} set=${setD} part="goal"/><button disabled=${!draftOk(d)} onClick=${()=>setSt(1)} className="btn w-full py-3.5 mt-4 text-sm">Weiter zum Plan</button>`
- :html`<${GoalForm} d=${d} set=${setD} part="plan"/><div className="flex gap-2 mt-4"><button onClick=${()=>setSt(0)} className="ghost flex-1 py-3.5 text-sm font-semibold">Zurück</button><button disabled=${!planOk(d)} onClick=${()=>c.addLifeGoal(draftOut(d))} className="btn flex-[1.6] py-3.5 text-sm">Ziel anlegen</button></div>`}<//>`}
+ :html`<${GoalForm} d=${d} set=${setD} part="plan"/><div className="flex gap-2 mt-4"><button onClick=${()=>setSt(0)} className="ghost flex-1 py-3.5 text-sm font-semibold">Zurück</button><button disabled=${!planOk(d)} onClick=${()=>c.addLifeGoal(draftOut({...d,steps:draftSteps(d)}))} className="btn flex-[1.6] py-3.5 text-sm">Ziel anlegen</button></div>`}<//>`}
 
 function MChart({g,ms,h=96}){const vs=ms.map(x=>x.v),t=g.metric.target;const all=t!=null?[...vs,t]:vs;let lo=Math.min(...all),hi=Math.max(...all);if(hi===lo){hi+=1;lo-=1}const pad=(hi-lo)*.12;lo-=pad;hi+=pad;
  const W=300,X=i=>vs.length<2?W/2:8+i*(W-16)/(vs.length-1),Y=v=>h-6-(v-lo)/(hi-lo)*(h-12);const pts=vs.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
@@ -3139,6 +3162,7 @@ function GoalCard({c,g}){const {S}=c;const L=S.life,wk=LC.curWk(L),now=LC.goalNo
  <div className="flex items-end justify-between gap-2 mt-2.5"><div className="min-w-0"><div className="text-[11.5px] mute truncate">${g.metric.name} · ${SRC_L[g.metric.src]||'Selbst'}</div><div className="num text-[18px] font-bold">${LC.fmtV(g.metric,now)} <span className="mute text-[13px] font-medium">→ ${LC.fmtV(g.metric,g.metric.target)}</span></div></div><button onClick=${()=>c.openSheet({t:'measure',gid:g.id})} className="chip shrink-0">Messen</button></div>
  ${p!=null&&html`<div className="mt-2"><${Bar} pct=${p} h=${5} color="var(--good)"/></div>`}
  ${!ach&&html`<div className="border-t ln mt-3 pt-2.5 flex flex-col gap-1.5">${acts.map(a=>html`<div key=${a.id} className="flex items-center gap-2 text-[13px]"><span className="flex-1 min-w-0 truncate">${LC.missionTitle(a)}</span><span className="num mute shrink-0">${LC.doneIn(L,a.id,wk)}/${LC.plannedAt(a,wk)} Woche</span></div>`)}${!acts.length&&html`<div className="text-[12.5px] mute">Noch keine Handlung. Über den Stift fügst du eine hinzu.</div>`}</div>`}
+ ${!ach&&PJ.adapt(S,g.id).length>0&&html`<button type="button" onClick=${()=>c.openSheet({t:'goal',gid:g.id})} data-goal-adapt-hint className="w-full mt-2.5 flex items-center gap-2 text-left border-0 p-0 bg-transparent text-[13px]" style=${{minHeight:40,color:'var(--gold)'}}><${Icon} n="flask" s=${15}/>Anpassung vorgeschlagen<${Icon} n="chevR" s=${14} cls="ml-auto mute"/></button>`}
  ${!ach&&PJ.typeOf(g)&&html`<button type="button" onClick=${()=>c.openSheet({t:'impact',gid:g.id})} className="w-full mt-2.5 flex items-center gap-2 text-left border-0 bg-transparent p-0 text-[13px] font-semibold acc" style=${{minHeight:40}}><${Icon} n="trend" s=${15}/>Was passiert, wenn ich dranbleibe?<${Icon} n="chevR" s=${14} cls="ml-auto mute"/></button>`}</div>`}
 /* ───── Decision Impact: „Was passiert, wenn ich dranbleibe?“ ─────
    Rechnet nur über projection-core.js (window.PJ). Durchziehen = dein Plan; Abdriften = dein Tempo der letzten Wochen, wenn es darunter liegt, sonst ausdrücklich „halber Plan“. */
@@ -4395,7 +4419,7 @@ function App({init,auth,skey='war_within_v5'}){
  const wisDismiss=place=>{upd(n=>{WC.dismiss(n,place)});toast('Für heute ausgeblendet. Ganz abschalten kannst du die Impulse in den Optionen.')};
  const wisToggle=()=>{const on=WC.enabled(S);upd(n=>{WC.setOn(n,!on)});toast(on?'Impulse aus. Der Codex bleibt in den Optionen erreichbar.':'Impulse an: höchstens einer pro Stelle und Tag.','good')};
  const closeTempleSeason=len=>{lifeUpd(n=>{LC.closeTempleSeason(n,len)});setSheet(null);toast('Neue Saison begonnen. Dein bisheriger Tempel steht in der Galerie.','good')};
- const addLifeGoal=x=>{lifeUpd(n=>{LC.addGoal(n,x)});setSheet(null);setTab('home');toast('Ziel angelegt. Deine Handlungen stehen ab heute im Plan.','good')};
+ const addLifeGoal=x=>{lifeUpd(n=>{const g=LC.addGoal(n,x);PJ.setFrame(n,g.id,{capacity:x.capacity,limits:x.limits,steps:x.steps})});setSheet(null);setTab('home');toast('Ziel angelegt. Deine Handlungen stehen ab heute im Plan.','good')};
  const updLifeGoal=(gid,p)=>{lifeUpd(n=>LC.updateGoal(n,gid,p));toast('Ziel aktualisiert. Die Änderung steht im Verlauf.','good')};
  const setLifeGoalStatus=(gid,st)=>{lifeUpd(n=>{LC.setGoalStatus(n,gid,st);if(st==='achieved')n.life.flags={...(n.life.flags||{}),goal:true}});setSheet(null);toast(st==='achieved'?'Ziel erreicht. Stark. Zeit für das nächste.':st==='archived'?'Ziel archiviert. Verlauf und Messwerte bleiben.':'Ziel wieder aktiv.','good')};
  const addMeas=(gid,v)=>{const g=LC.goalById(S.life,gid),hit=g&&g.status==='active'&&LC.reached(g,v);lifeUpd(n=>{LC.addMeasurement(n,gid,v)});setSheet(null);toast(hit?'Zielwert erreicht! Das ist echter Fortschritt.':'Messwert gespeichert. Er fließt in den Wochenrückblick ein.','good')};

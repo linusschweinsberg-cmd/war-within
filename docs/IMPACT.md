@@ -27,3 +27,18 @@ Sheet `impact` (`ImpactSheet`). Erreichbar aus Mein Leben (Zielkarte in der aufg
 ## Tests
 
 `node tests/projection-core.cjs`: Sparziel mit konstanter und veränderter Rate, Zinsannahme, unrealistische Frist, fehlende oder unvollständige Daten, Fitness mit geplanten und ausgefallenen Einheiten, Meilensteine nur aus Messwerten, Ruhe/Krankheit, Änderung eines bestehenden Ziels, Lernen mit und ohne Dauer, Heute-Wirkung, Migration/Speichern/Laden, Einbindung und Offline.
+
+
+## Phase 2 – Ziel zerlegen und adaptive Planung (ww-v77)
+
+- **Ziel anlegen** (bestehender Dialog „Neues Ziel“): neu sind *Zeit pro Woche* (optional) und *Einschränkungen* (optional, kurzer Text, bleibt lokal). Ausgangswert („Heute“), Zielwert und Zeitraum gab es schon. Die neuen optionalen Felder heißen `goal.capacity` (Minuten/Woche), `goal.limits` und `goal.steps`. Keine Formatänderung.
+- **Etappen** (`PJ.suggestSteps`): runde Zwischenwerte zwischen Start und Ziel, höchstens sechs, Ziel zuletzt, ganze Zahlen bleiben ganz (z. B. 50 → 60 → … → 100 kg, 3.000 → 5.000 → 10.000 → 15.000 → 20.000 €). Ohne Startwert gibt es keine Etappen. Sie lassen sich entfernen und ergänzen und werden beim Anlegen gespeichert. Termine gibt es nur bei Finanzen mit Rate, bei Gesundheitszielen ausdrücklich keine.
+- **Handlungen nach verfügbarer Zeit** (`PJ.fitActions`): Im Plan-Schritt zeigt die Karte geplante gegenüber verfügbaren Minuten. „An meine Zeit anpassen“ senkt die Häufigkeit, nie unter einmal pro Woche; was trotzdem nicht passt, wird genannt.
+- **Adaptive Planung** (`PJ.adapt`, Abschnitt „Plan anpassen?“ in „Ziel bearbeiten“, Hinweis „Anpassung vorgeschlagen“ auf der Zielkarte):
+  - (a) Plan gehalten (≥ 80 % über 3 Wochen), Ergebnis flach oder schlechter → Methode per Experiment ändern; ohne Messwert zuerst messen.
+  - (b) Konstanz unter 60 % in mindestens 2 abgeschlossenen Wochen → Häufigkeit auf das echte Tempo senken. Ruhe- und Krankheitstage zählen nicht dagegen.
+  - (c) Ziel oder Zeitraum unrealistisch. Finanzen: Zeitraum verlängern oder nötige Rate. Sonst: Zeitraum verlängern, ohne Datumsversprechen bei Körperzielen.
+  - (d) Der Plan braucht mehr Zeit als angegeben → Häufigkeit anpassen.
+
+  Jeder Vorschlag nennt seine Zahlen und ändert erst nach einem Tipp etwas, über die bestehenden Wege (`setActPerWeek`, `updateGoal`, `PJ.setPlan`).
+- Tests: `node tests/goal-breakdown.cjs`. Browser 375×812: Ziel mit Startwert, Etappe entfernt, Zeit pro Woche gespeichert; Vorschlag „Rate erhöhen“ übernommen.
