@@ -1,19 +1,19 @@
 /* THE WAR WITHIN – Service Worker
    Bei Änderungen an index.html o. ä. die Versionsnummer erhöhen,
    damit installierte Apps das Update laden. */
-const VERSION = 'ww-v87';
+const VERSION = 'ww-v88';
 const APP_SHELL = [
   './',
   './index.html',
-  './auth.js?v=ww-v87',
-  './life-core.js?v=ww-v87',
-  './wisdom-core.js?v=ww-v87',
-  './future-self-core.js?v=ww-v87',
-  './projection-core.js?v=ww-v87',
-  './arena-core.js?v=ww-v87',
-  './arena-api.js?v=ww-v87',
-  './arena-ui.js?v=ww-v87',
-  './supabase-config.js?v=ww-v87',
+  './auth.js?v=ww-v88',
+  './life-core.js?v=ww-v88',
+  './wisdom-core.js?v=ww-v88',
+  './future-self-core.js?v=ww-v88',
+  './projection-core.js?v=ww-v88',
+  './arena-core.js?v=ww-v88',
+  './arena-api.js?v=ww-v88',
+  './arena-ui.js?v=ww-v88',
+  './supabase-config.js?v=ww-v88',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',

@@ -18,15 +18,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v87"></script>
-<script src="auth.js?v=ww-v87"></script>
-<script src="life-core.js?v=ww-v87"></script>
-<script src="wisdom-core.js?v=ww-v87"></script>
-<script src="future-self-core.js?v=ww-v87"></script>
-<script src="projection-core.js?v=ww-v87"></script>
-<script src="arena-core.js?v=ww-v87"></script>
-<script src="arena-api.js?v=ww-v87"></script>
-<script src="arena-ui.js?v=ww-v87"></script>
+<script src="supabase-config.js?v=ww-v88"></script>
+<script src="auth.js?v=ww-v88"></script>
+<script src="life-core.js?v=ww-v88"></script>
+<script src="wisdom-core.js?v=ww-v88"></script>
+<script src="future-self-core.js?v=ww-v88"></script>
+<script src="projection-core.js?v=ww-v88"></script>
+<script src="arena-core.js?v=ww-v88"></script>
+<script src="arena-api.js?v=ww-v88"></script>
+<script src="arena-ui.js?v=ww-v88"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -2831,17 +2831,19 @@ function ColumnDetails({c,area,st}){const {S}=c;const L=S.life,a=LC.AREA[area],c
  const rev=(L.reviews||[]).slice().reverse().find(r=>(r.rows||[]).some(x=>(LC.goalById(L,x.goalId)||{}).area===area)&&(r.worked||r.notWorked));
  const worse=col.weathered&&goals.map(g=>({g,t:LC.trend(L,g,wk,2)})).find(x=>x.t.state==='worse');
  const sat=LC.areaRating(L,area),f=L.focus===area;
+ const routine=(L.standards||{})[area],tw=LC.templeWeek(L,area,wk);
  const Sec=({t,children})=>html`<div className="mt-3.5"><div className="lbl mb-1.5">${t}</div>${children}</div>`;
  return html`<div className="card p-4 mt-3" key=${area} style=${{animation:'fadeIn .3s ease-out'}}>
  <div className="flex items-center gap-3"><span className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style=${{background:'var(--card2)',color:a.color,border:'1px solid var(--line)'}}><${Icon} n=${a.icon} s=${20}/></span>
   <div className="flex-1 min-w-0"><div className="text-[17px] font-bold leading-tight">${a.de}<span className="hidden mute font-normal text-[13px]">· ${a.de}</span></div><div className="text-[12.5px]"><span className="acc font-semibold">Stufe ${col.stage} · ${col.stageName}</span><span className="mute">${col.next?` · noch ${col.next.need} ${col.next.need===1?'Punkt':'Punkte'} bis ${col.next.name}`:' · höchste Stufe'}</span></div></div>
   <button aria-pressed=${f} onClick=${()=>c.setFocusArea(area)} className=${`chip shrink-0 ${f?'on':''}`} style=${{minHeight:30}}>${f?'Priorität':'Priorisieren'}</button></div>
+ <${Sec} t="So wächst diese Säule"><p className="text-[13px] mute">Ziel-Handlungen und eigenständige Standards legen den Grundstein. Eine abgeschlossene Woche mit mindestens 80 % deines gemeinsamen Plans bringt einen Baustein. Ergebnisse und bewährte Anpassungen ergänzen den Bau.</p><p className="text-[13px] mt-2">${tw.planned?`Diese Woche: ${tw.done} von ${tw.planned} · Baustein ab ${Math.ceil(tw.planned*.8)} Erledigungen, nach Wochenende.`:'Noch kein Wochenplan. Ein kleiner Standard reicht zum Anfangen.'}</p>${routine&&routine.std&&!routine.aid&&wk*7<L.temple.cur.routineFrom&&html`<p className="text-[12px] mute mt-2">Dein Standard zählt ab der nächsten vollständigen Woche zum Wochenbaustein. Der Grundstein ist schon vorher möglich.</p>`}${routine&&routine.std&&html`<p className="text-[13px] mute mt-2">Dein Standard: ${routine.std.text}${routine.status==='paused'?' · pausiert':routine.aid?' · zählt über die verknüpfte Ziel-Handlung':''}</p>`}<button type="button" className="chip mt-3" style=${{minHeight:44}} onClick=${()=>c.openSheet({t:'standards',area})}>${routine&&routine.std?'Standard ansehen und anpassen':'Kleinen Standard festlegen'}</button><p className="text-[12px] mute mt-2">Minimum hält den Einstieg offen; es ersetzt keine volle Erledigung. Kein verpasster Tag nimmt Bausteine weg.</p><//>
  ${worse&&html`<div className="card2 p-3 mt-3 text-[12.5px] leading-snug"><b>Leichte Verwitterung.</b> „${worse.g.title}“: ${LC.fmtV(worse.g.metric,worse.t.prev)} → ${LC.fmtV(worse.g.metric,worse.t.last)}. Das ist kein Urteil über dich, nur ein Signal. Verbessert sich der Wert wieder, wird die Säule restauriert und erhält einen Baustein.<button onClick=${c.toggleWeather} className="block bg-transparent border-0 p-0 mt-1 acc font-semibold text-[12px]">Verwitterung ausblenden</button></div>`}
  <${Sec} t="Handlung · diese Woche">${acts.length?html`<div className="flex items-center gap-2"><div className="flex-1"><${Bar} pct=${aw.planned?aw.done/aw.planned:0} h=${4}/></div><span className="num text-[13px] font-semibold">${aw.done}/${aw.planned}</span></div>${acts.map(x=>html`<div key=${x.id} className="flex justify-between text-[12.5px] mt-1.5"><span className="truncate pr-2">${LC.missionTitle(x)}</span><span className="num mute shrink-0">${LC.doneIn(L,x.id,wk)}/${LC.plannedAt(x,wk)}</span></div>`)}`:html`<div className="text-[13px] mute">Noch keine geplanten Handlungen.</div>`}<//>
  <${Sec} t="Ergebnis">${goals.length?goals.map(g=>{const t=LC.trend(L,g,wk,2),[ar,tc]=TRD[t.state]||TRD.none;return html`<div key=${g.id} className="flex items-center gap-2 py-1"><div className="flex-1 min-w-0"><div className="text-[13.5px] font-medium truncate">${g.title}${g.status==='achieved'?' ✓':''}</div><div className="text-[12px] mute num">${g.metric.name}: ${LC.fmtV(g.metric,LC.goalNow(L,g))} → ${LC.fmtV(g.metric,g.metric.target)} <span style=${{color:tc}}>${ar}</span></div></div><button onClick=${()=>c.openSheet({t:'measure',gid:g.id})} className="chip shrink-0">Messen</button></div>`})
-  :html`<div className="text-[13px] mute leading-snug">Kein Ziel in diesem Bereich. Ohne Ziel bleibt die Säule eine Baustelle, und das ist in Ordnung, wenn du bewusst anderswo baust.</div><button onClick=${()=>c.openSheet({t:'goal',area})} className="chip mt-2">Ziel für ${a.de}</button>`}
+  :html`<div className="text-[13px] mute leading-snug">Kein Ziel in diesem Bereich. Auch ohne Ergebnisziel kann ein persönlicher Standard diese Säule tragen.</div><button onClick=${()=>c.openSheet({t:'goal',area})} className="chip mt-2">Ziel für ${a.de}</button>`}
   ${goals.length>0&&a.id==='relationships'&&html`<div className="text-[11.5px] mute mt-1">Beziehungen lassen sich nicht objektiv messen; hier zählen deine gewählten Handlungen und deine ehrliche Einschätzung.</div>`}<//>
- <${Sec} t=${`Tempel · ${col.pts} Punkte aus ${col.ms.length} Bausteinen`}>${col.ms.length?col.ms.slice().reverse().slice(0,4).map(m=>html`<div key=${m.id} className="flex items-center gap-2 text-[12.5px] py-0.5"><span style=${{color:'var(--bronze)'}}><${Icon} n=${MS_IC[m.kind]||'check'} s=${14}/></span><span className="flex-1 truncate">${m.label}</span><span className="num mute shrink-0">+${m.pts} · Wo. ${m.wk+1}</span></div>`):html`<div className="text-[13px] mute">Der erste Baustein kommt mit der ersten umgesetzten Ziel-Handlung.</div>`}
+ <${Sec} t=${`Tempel · ${col.pts} Punkte aus ${col.ms.length} Bausteinen`}>${col.ms.length?col.ms.slice().reverse().slice(0,4).map(m=>html`<div key=${m.id} className="flex items-center gap-2 text-[12.5px] py-0.5"><span style=${{color:'var(--bronze)'}}><${Icon} n=${MS_IC[m.kind]||'check'} s=${14}/></span><span className="flex-1 truncate">${m.label}</span><span className="num mute shrink-0">+${m.pts} · Wo. ${m.wk+1}</span></div>`):html`<div className="text-[13px] mute">Der erste Baustein kommt mit der ersten umgesetzten Ziel-Handlung oder einem eigenständigen Standard.</div>`}
   <button onClick=${()=>c.openSheet({t:'trules'})} className="bg-transparent border-0 p-0 mt-1.5 acc font-semibold text-[12.5px]">Bauregeln ansehen</button><//>
  ${(exp||rev)&&html`<${Sec} t="Letzte Erkenntnis"><div className="text-[13px] leading-snug">${exp?html`<span className="acc"><${Icon} n="flask" s=${13}/></span> ${exp.label} · <span className="mute">${(EXP_ST[exp.status]||EXP_ST.running)[0]}</span>`:html`${rev.worked?'Lief: '+rev.worked:''}${rev.worked&&rev.notWorked?' · ':''}${rev.notWorked?'Hakte: '+rev.notWorked:''}`}</div><//>`}
  ${na&&html`<${Sec} t="Nächste Handlung"><${MRow} m=${na.m} c=${c}/><//>`}
