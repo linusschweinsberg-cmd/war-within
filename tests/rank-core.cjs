@@ -37,3 +37,6 @@ t('App wiring: capped completions award zero, record the day, side slots follow 
  assert.match(html,/<script src="rank-core\.js\?v=ww-v\d+"><\/script>/)});
 console.log('PASS rank-core');
 t('Task rows say "Ohne Punkte" once the daily limit is reached',()=>{assert.match(html,/dayFull=!done&&!RK\.canEarn\(S,dayKey\(S\)\)/);assert.match(html,/dayFull\?'Ohne Punkte \(Tageslimit\) · '/)});
+t('Look unlocks: palette at Lochagos, engraving at Strategos, kept after the season resets',()=>{const S={season:1,day:0,seasonPts:0};RK.ensure(S);
+ assert.deepEqual({...RK.looks(S)},{palette:false,engrave:false});S.seasonPts=300;const up=RK.afterAward(S,'1-0',true);assert.match(up.text,/Farben/);assert.equal(RK.looks(S).palette,true);
+ S.seasonPts=480;assert.match(RK.afterAward(S,'1-1',true).text,/Gravur/);S.season=2;S.seasonPts=0;assert.deepEqual({...RK.looks(S)},{palette:true,engrave:true})});

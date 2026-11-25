@@ -53,3 +53,12 @@ t('Skills survive season change data and JSON; broken data is repaired without l
 t('App wiring: skills row on Mein Leben, sheet, undo on remove',()=>{assert.ok(html.includes('<${PersonaCard} c=${c}/><${SkillsRow} c=${c}/>'));assert.ok(html.includes("case'skills':b=html`<${SkillsSheet} c=${c}/>`"));
  assert.ok(html.includes("const removeSkill=id=>{const before=S"))});
 console.log('PASS skills');
+t('Look: defaults from persona, locked colours and engraving refused until unlocked, invalid data falls back',()=>{const S=life({});PC.choose(S,['owl'],[],false);
+ assert.equal(PC.look(S,{}).emb,'owl');assert.equal(PC.look(S,{}).set,false);
+ assert.equal(PC.setLook(S,{fig:'helmet',col:'gold',emb:'star'},{}),false,'gold locked');assert.equal(PC.setLook(S,{fig:'helmet',col:'bronze',emb:'star',engrave:true},{}),true);
+ assert.equal(S.life.persona.look.engrave,false,'engraving needs unlock');assert.equal(PC.look(S,{}).fig,'helmet');assert.equal(PC.look(S,{}).set,true);
+ assert.equal(PC.setLook(S,{fig:'helmet',col:'gold',emb:'star',engrave:true},{palette:true,engrave:true}),true);assert.equal(PC.look(S,{}).col,'acc','locked colour hidden if unlock missing');
+ PC.choose(S,['runner'],[],false);assert.equal(S.life.persona.look.fig,'helmet','changing persona keeps look');
+ const B=life({persona:{v:1,ids:[],values:[],status:'later',look:{fig:'x',col:'y',emb:'z'}}});assert.deepEqual({...PC.look(B,{})},{fig:'aspis',col:'acc',emb:'star',engrave:false,set:true});
+ const N=life({});assert.equal(PC.setLook(N,{fig:'column',col:'nem',emb:'spear'},{}),true);assert.equal(N.life.persona.status,'later','look alone does not count as chosen persona');assert.equal(PC.invite(N),false)});
+t('App wiring: look sheet, avatar in header and persona row, undo',()=>{assert.ok(html.includes("case'look':b=html`<${LookSheet} c=${c}/>`"));assert.ok(html.includes('lk&&lk.set?html`<${CharAvatar} lk=${lk} size=${32}/>`'));assert.ok(html.includes("const saveLook=lk=>{const before=S;"))});

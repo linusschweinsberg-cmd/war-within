@@ -21,7 +21,7 @@
   if(p.v!==V||!Array.isArray(p.ids)){L.persona={v:V,ids:[],values:[],status:'later',t:p.t||0};return L.persona}
   p.ids=p.ids.filter((id,i,a)=>byId(id)&&a.indexOf(id)===i).slice(0,MAX);
   p.values=(Array.isArray(p.values)?p.values:[]).filter(v=>typeof v==='string'&&v.trim()).map(v=>v.trim().slice(0,30)).slice(0,6);
-  if(!['set','later'].includes(p.status))p.status=p.ids.length?'set':'later';return p}
+  if(!['set','later'].includes(p.status))p.status=p.ids.length?'set':'later';if(p.look&&typeof p.look!=='object')delete p.look;return p}
  const state=S=>ensure(S);
  const chosen=S=>{const p=state(S);return p&&p.status==='set'?p.ids.map(byId):[]};
  /* Einladung: nur solange nichts gewählt und nicht bewusst verschoben */
@@ -42,13 +42,26 @@
  function choose(S,ids,values,addValues,current,t=Date.now()){const L=S.life;if(!L)return null;
   const clean=(ids||[]).filter((id,i,a)=>byId(id)&&a.indexOf(id)===i).slice(0,MAX);
   const vals=(values||[]).filter(v=>typeof v==='string'&&v.trim()).map(v=>v.trim().slice(0,30)).slice(0,6);
-  L.persona={v:V,ids:clean,values:vals,status:clean.length?'set':'later',t};
+  L.persona={v:V,ids:clean,values:vals,status:clean.length?'set':'later',t,...(L.persona&&L.persona.look?{look:L.persona.look}:{})};
   const added=addValues?valuesToAdd(current||L.values,vals):[];return {added}}
  function later(S,t=Date.now()){const L=S.life;if(!L)return;if(L.persona){L.persona.status=L.persona.ids.length?'set':'later';return}L.persona={v:V,ids:[],values:[],status:'later',t}}
  /* Routinenvorschläge aus dem Zukunftscharakter: höchstens drei, ein Bereich nur einmal, nie für Bereiche mit vorhandenem Standard.
     Jeder Vorschlag hat eine kleine Variante für schwierige Tage. Übernommen wird nur durch ausdrückliches Tippen. */
  function routineSuggestions(ids,standards){const has=standards||{},out=[];(ids||[]).map(byId).filter(p=>p&&p.routine&&p.area).forEach(p=>{
   if(out.length<3&&!has[p.area]&&!out.some(x=>x.area===p.area))out.push({from:p.id,area:p.area,std:{text:p.routine.text,perWeek:p.routine.perWeek,...(p.routine.minutes?{minutes:p.routine.minutes}:{})},min:{text:p.routine.mini}})});return out}
+ /* ── Aussehen: wenige Entscheidungen, schnell fertig. Zusätzliche Farben/Gravur erst nach Freischaltung (rank-core.js). ── */
+ const LOOK={
+  fig:[{id:'aspis',name:'Schild',icon:'aspis'},{id:'helmet',name:'Helm',icon:'helmet'},{id:'column',name:'Säule',icon:'column'}],
+  col:[{id:'acc',name:'Terrakotta',v:'var(--acc)'},{id:'bronze',name:'Bronze',v:'var(--bronze)'},{id:'nem',name:'Stahl',v:'var(--nem)'},{id:'gold',name:'Gold',v:'var(--gold)',lock:'palette'},{id:'good',name:'Oliv',v:'var(--good)',lock:'palette'}],
+  emb:[{id:'star',name:'Stern',icon:'star'},{id:'flame',name:'Flamme',icon:'flame'},{id:'owl',name:'Eule',icon:'owl'},{id:'spear',name:'Speer',icon:'spear'}]};
+ const lookDefault=S=>{const p=chosen(S)[0];return{fig:'aspis',col:'acc',emb:p&&LOOK.emb.some(e=>e.id===p.icon)?p.icon:'star',engrave:false}};
+ /* Gespeichertes Aussehen; ungültige oder (noch) gesperrte Teile fallen auf den Standard zurück */
+ function look(S,un){const L=S&&S.life;if(!L)return null;const d=lookDefault(S),x=(L.persona&&L.persona.look)||{},u=un||{};
+  const ok=(k,id)=>{const o=LOOK[k].find(y=>y.id===id);return o&&(!o.lock||u[o.lock])};
+  return{fig:ok('fig',x.fig)?x.fig:d.fig,col:ok('col',x.col)?x.col:d.col,emb:ok('emb',x.emb)?x.emb:d.emb,engrave:!!(x.engrave&&u.engrave),set:!!(L.persona&&L.persona.look)}}
+ function setLook(S,x,un){const L=S.life;if(!L)return false;const u=un||{};const ok=(k,id)=>{const o=LOOK[k].find(y=>y.id===id);return o&&(!o.lock||u[o.lock])};
+  if(!ok('fig',x.fig)||!ok('col',x.col)||!ok('emb',x.emb))return false;if(!L.persona)L.persona={v:V,ids:[],values:[],status:'later',t:Date.now()};
+  L.persona.look={fig:x.fig,col:x.col,emb:x.emb,engrave:!!(x.engrave&&u.engrave)};return true}
  /* Für einen späteren Sync: nur Codes */
  const forSync=S=>{const p=state(S);return p?{v:p.v,ids:p.ids.slice(),status:p.status}:null};
 
@@ -75,6 +88,6 @@
  function declineHint(S,src){const k=skills(S);if(k&&src&&!k.no.includes(src))k.no=[...k.no,src].slice(-100)}
  const skillsForSync=S=>{const k=skills(S);return k?{v:k.v,n:k.list.length}:null};
 
- G.PC={V,MAX,MAX_VALUES,PERSONAS,byId,ensure,state,chosen,invite,toggle,suggestValues,valuesToAdd,goalHint,routineSuggestions,choose,later,forSync,
+ G.PC={V,MAX,MAX_VALUES,PERSONAS,byId,ensure,state,chosen,invite,toggle,suggestValues,valuesToAdd,goalHint,routineSuggestions,choose,later,forSync,LOOK,look,setLook,
   SKILL_MAX,SKILL_LEN,SKILL_PRESETS,skills,skillList,addSkill,removeSkill,skillHints,declineHint,skillsForSync};
 })(typeof window!=='undefined'?window:globalThis);
