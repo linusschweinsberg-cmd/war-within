@@ -62,7 +62,7 @@ const actionsOf=(L,gid)=>(L.actions||[]).filter(a=>a.goalId===gid&&!a.off);
 const minSuffix=a=>a.minutes&&!/\d\s*Min/i.test(a.title||'')?` (${a.minutes} Min.)`:'';
 const actLabel=a=>a.title+(a.when?' · '+a.when:'')+minSuffix(a);
 /* geplante Einheiten einer Handlung in Woche wk (Planänderungen bleiben nachvollziehbar) */
-function plannedAt(a,wk){if(wk<(a.since??0))return 0;const h=(a.hist||[]).slice().sort((x,y)=>x.wk-y.wk);if(!h.length)return a.perWeek;
+function plannedAt(a,wk){if(wk<(a.since??0)||actionPausedAt(a,wk))return 0;const h=(a.hist||[]).slice().sort((x,y)=>x.wk-y.wk);if(!h.length)return a.perWeek;
  const past=h.filter(x=>x.wk<=wk);return past.length?past[past.length-1].perWeek:(h[0].from??a.perWeek)}
 const doneIn=(L,aid,wk)=>(L.log||[]).filter(x=>x.aid===aid&&x.wk===wk).length;
 function goalWeek(L,g,wk){const acts=actionsOf(L,g.id).map(a=>({a,planned:plannedAt(a,wk),done:doneIn(L,a.id,wk)}));
@@ -286,26 +286,26 @@ function suggestStandard(x){const area=AREA[x.area]?x.area:'health',lv=STD_TPL[a
  if(x.sat!=null&&x.sat>=7&&lv!=='new'&&std.perWeek<7){std={...std,perWeek:std.perWeek+1};why.push('Du stehst hier schon gut da: ein Schritt anspruchsvoller.')}
  else if(x.sat!=null&&x.sat<=3){if(!x.action&&std.perWeek>2)std={...std,perWeek:std.perWeek-1}; /* nie unter 2×: realistisch, aber nicht beliebig */why.push('Der Bereich fühlt sich gerade schwer an: lieber klein und sicher starten.')}
  return{std,min,level:lv,why}}
-function cleanStd(s,isMin){if(!s||!String(s.text||'').trim())return null;const o={text:String(s.text).slice(0,90)}; /* nicht trimmen: wird beim Tippen live gespeichert */if(!isMin)o.perWeek=clamp(Math.round(+s.perWeek)||1,1,7);const m=Math.round(+s.minutes);if(m>0)o.minutes=clamp(m,1,240);return o}
+function cleanStd(s,isMin){if(!s||!String(s.text||'').trim())return null;const o={text:String(s.text).slice(0,90)}; /* nicht trimmen: wird beim Tippen live gespeichert */if(!isMin){o.perWeek=clamp(Math.round(+s.perWeek)||1,1,7);if(s.anchor)o.anchor=String(s.anchor).slice(0,80)}const m=Math.round(+s.minutes);if(m>0)o.minutes=clamp(m,1,240);return o}
 function setStandard(L,area,p,why){if(!L||!AREA[area])return null;L.standards=L.standards||{};const cur=L.standards[area],wk=curWk(L);p=p||{};
  const n=cur?{...cur}:{area,level:'new',created:Date.now(),base:{wk,sat:null},hist:[],status:'active'};
  if(p.level&&STD_TPL[area][p.level])n.level=p.level;
  if(p.desired!==undefined)n.desired=String(p.desired||'').slice(0,140);
  if(p.current!==undefined){const s=p.current&&p.current.sat!=null&&p.current.sat!==''?clamp(Math.round(+p.current.sat),1,10):null;n.current={sat:s,note:String((p.current&&p.current.note)||'').slice(0,140)};if(!cur&&n.base.sat==null)n.base={...n.base,sat:s}}
  const s=p.std!==undefined?cleanStd(p.std):n.std,m=p.min!==undefined?cleanStd(p.min,true):n.min;
- if(cur&&(JSON.stringify(s)!==JSON.stringify(cur.std)||JSON.stringify(m)!==JSON.stringify(cur.min)))n.hist=[...(cur.hist||[]),{wk,std:cur.std||null,min:cur.min||null,why:why||''}].slice(-30);
+ if(cur&&(JSON.stringify(s)!==JSON.stringify(cur.std)||JSON.stringify(m)!==JSON.stringify(cur.min)||p.status&&p.status!==cur.status||p.aid!==undefined&&p.aid!==cur.aid))n.hist=[...(cur.hist||[]),{wk,std:cur.std||null,min:cur.min||null,status:cur.status||'active',aid:cur.aid||null,why:why||''}];
  n.std=s||null;n.min=m||null;if(p.aid!==undefined)n.aid=p.aid||null;if(p.status==='active'||p.status==='paused')n.status=p.status;n.updated=Date.now();
  const empty=!n.std&&!n.min&&!(n.desired||'').trim()&&!(n.current&&(n.current.note||n.current.sat!=null));
  if(empty){delete L.standards[area];return null}L.standards[area]=n;return n}
 function rerateStandard(L,area,sat){const s=(L.standards||{})[area];if(!s)return null;const v=sat==null||sat===''?null:clamp(Math.round(+sat),1,10);s.current={...(s.current||{note:''}),sat:v};s.rated=[...(s.rated||[]),{wk:curWk(L),sat:v}].slice(-24);s.updated=Date.now();if(s.base&&s.base.sat==null&&v!=null)s.base={...s.base,sat:v};return s}
 function removeStandard(L,area){if(L&&L.standards)delete L.standards[area];if(L&&L.stdLog)L.stdLog=L.stdLog.filter(x=>x.area!==area)}
-function logStandard(L,area,kind){const s=(L.standards||{})[area];if(!s)return null;const e={area,d:L.d||0,wk:curWk(L),kind:kind==='min'?'min':'std',t:Date.now()};const all=[...(L.stdLog||[]),e],cut=Math.max(0,all.length-1000);L.stdLog=all.slice(-1000);if(cut&&L.temple&&L.temple.cur&&L.temple.cur.stdLogFrom!=null)L.temple.cur.stdLogFrom=Math.max(0,L.temple.cur.stdLogFrom-cut);return e}
+function logStandard(L,area,kind){const s=(L.standards||{})[area];if(!s)return null;const existing=(L.stdLog||[]).find(e=>e.area===area&&e.d===(L.d||0)&&e.kind===(kind==='min'?'min':'std'));if(existing)return existing;const e={area,d:L.d||0,wk:curWk(L),kind:kind==='min'?'min':'std',t:Date.now()};const all=[...(L.stdLog||[]),e],cut=Math.max(0,all.length-1000);L.stdLog=all.slice(-1000);if(cut&&L.temple&&L.temple.cur&&L.temple.cur.stdLogFrom!=null)L.temple.cur.stdLogFrom=Math.max(0,L.temple.cur.stdLogFrom-cut);return e}
 /* Soll in Woche wk: Änderungen gelten ab ihrer Woche (wie plannedAt) */
 function stdPerWeekAt(s,wk){const h=(s.hist||[]).find(x=>x.wk>wk&&x.std);return h?h.std.perWeek:(s.std?s.std.perWeek:null)}
-function standardWeek(L,area,wk){const s=(L.standards||{})[area];if(!s||!s.std)return null;const since=(s.base&&s.base.wk)??0;if(wk<since)return null;
- const per=stdPerWeekAt(s,wk)||1,lg=(L.stdLog||[]).filter(x=>x.area===area&&x.wk===wk),act=s.aid?doneIn(L,s.aid,wk):0;
- const done=act+lg.filter(x=>x.kind==='std').length,min=lg.filter(x=>x.kind==='min').length;
- return{wk,per,done,min,state:done>=per?'met':done>0?'partial':min>0?'min':'nodata'}}
+function standardWeek(L,area,wk){const s=standardAt((L.standards||{})[area],wk);if(!s||!s.std)return null;const since=(s.base&&s.base.wk)??0;if(wk<since)return null;
+ const per=s.status==='paused'?0:s.std.perWeek||1,lg=(L.stdLog||[]).filter(x=>x.area===area&&x.wk===wk),act=s.aid?doneIn(L,s.aid,wk):0;
+ const done=s.aid?act:lg.filter(x=>x.kind==='std').length,min=lg.filter(x=>x.kind==='min').length;
+ return{wk,per,done,min,state:s.status==='paused'?'paused':done>=per?'met':done>0?'partial':min>0?'min':'nodata'}}
 /* Rückmeldung entlang des Success Loops; Anpassung nur als Vorschlag */
 function standardFeedback(L,area){const s=(L.standards||{})[area];if(!s||!s.std)return null;const w=curWk(L),cur=standardWeek(L,area,w);
  const past=[1,2,3].map(k=>standardWeek(L,area,w-k)).filter(Boolean);
@@ -320,13 +320,50 @@ function standardFeedback(L,area){const s=(L.standards||{})[area];if(!s||!s.std)
 function adaptOptions(s,kind){if(!s||!s.std)return[];const o=[],p=s.std.perWeek,m=s.std.minutes;
  if(kind==='raise'){if(p<7)o.push({label:(p+1)+'× pro Woche',std:{...s.std,perWeek:p+1}});if(m)o.push({label:Math.round(m*1.25/5)*5+' Minuten',std:{...s.std,minutes:Math.round(m*1.25/5)*5}});return o}
  if(p>1)o.push({label:(p-1)+'× pro Woche',std:{...s.std,perWeek:p-1}});if(m&&m>10)o.push({label:'Kürzer: '+Math.max(5,Math.round(m*.6/5)*5)+' Minuten',std:{...s.std,minutes:Math.max(5,Math.round(m*.6/5)*5)}});
- o.push({label:'Zwei Wochen ruhen lassen',status:'paused'});return o}
+ o.push({label:'Pausieren, bis du wieder aufnimmst',status:'paused'});return o}
 /* Fortschritt relativ zur eigenen Ausgangslage */
 function standardProgress(L,area){const s=(L.standards||{})[area];if(!s||!s.std)return null;const w=curWk(L),from=(s.base&&s.base.wk)??0,weeks=[];
  for(let k=from;k<w;k++){const x=standardWeek(L,area,k);if(x)weeks.push(x)}
- const rate=a=>{const v=a.filter(x=>x.state!=='nodata');return v.length?Math.round(v.reduce((t,x)=>t+Math.min(1,x.done/x.per),0)/v.length*100)/100:null};
+ const rate=a=>{const v=a.filter(x=>x.per>0&&x.state!=='nodata');return v.length?Math.round(v.reduce((t,x)=>t+Math.min(1,x.done/x.per),0)/v.length*100)/100:null};
  return{weeks:weeks.length,kept:weeks.filter(x=>x.state==='met').length,held:weeks.filter(x=>x.state!=='nodata').length,first:rate(weeks.slice(0,4)),last:weeks.length>=6?rate(weeks.slice(-4)):null,baseSat:(s.base&&s.base.sat)??null,nowSat:(s.current&&s.current.sat)??null}}
 function standardsForSync(L){return Object.fromEntries(Object.entries((L&&L.standards)||{}).map(([a,s])=>[a,{level:s.level,perWeek:s.std&&s.std.perWeek||null,hasMin:!!s.min,status:s.status}]))}
+
+/* Versuch → vorhandener Standard / vorhandene Zielhandlung. Nur lokale Daten, keine neue Fortschrittsrechnung. */
+function standardAt(s,wk){if(!s)return null;const h=(s.hist||[]).filter(h=>h.wk>wk).sort((a,b)=>a.wk-b.wk)[0];return h?{...s,std:h.std,min:h.min,status:h.status||'active',aid:h.aid===undefined?s.aid:h.aid}:s}
+function actionPausedAt(a,wk){const h=(a.pauseHist||[]).filter(x=>x.wk<=wk).sort((a,b)=>a.wk-b.wk).at(-1);return h?!!h.paused:(a.pauseHist||[]).length?!!a.pauseHist[0].from:!!a.paused}
+function trialByDay(L,d){return[L.trial,L.trialNext,...(L.trialHist||[])].find(t=>t&&t.d===d)||null}
+function createTrial(S,x){const L=S.life,d=x.d??L.d,text=String(x.text||'').trim().slice(0,80);if(!text||![L.d,L.d+1].includes(d)||trialByDay(L,d))return false;
+ const slot=d===L.d?'trial':'trialNext',prev=L[slot];if(prev&&prev.done)L.trialHist=[...(L.trialHist||[]).filter(t=>t.d!==prev.d),prev].slice(-30);
+ L[slot]={d,text,done:false,...(AREA[x.area]?{area:x.area}:{}),...(x.goalId?{goalId:x.goalId}:{}),...(x.src?{src:x.src}:{})};return true}
+function promoteTrial(S,d,x){const L=S.life,t=trialByDay(L,d),text=String(x.text||'').trim().slice(0,90),area=x.area,per=+x.perWeek;
+ if(!t||!t.done||t.routine||!text||!AREA[area]||!Number.isInteger(per)||per<1||per>7)return{ok:false};
+ const existing=(L.standards||{})[area];if(existing)return{ok:false,conflict:area};
+ let a=null;if(x.aid){a=actById(L,x.aid);const g=a&&goalById(L,a.goalId);if(!a||a.off||a.paused||!g||g.status!=='active'||g.area!==area)return{ok:false};
+  /* Verknüpfen heißt bestehende Handlung nutzen, nicht nebenbei deren Text/Plan überschreiben. */
+  if(text!==a.title||per!==a.perWeek)return{ok:false};}
+ const s=setStandard(L,area,{std:{text,perWeek:per,minutes:a?a.minutes:x.minutes,anchor:a?a.anchor||a.when||'':String(x.anchor||'').trim().slice(0,80)},min:(a?a.mini:x.mini)?{text:a?a.mini:String(x.mini).trim().slice(0,80)}:null,aid:a?a.id:null},'Nach bewusst bestätigtem Tagesversuch');
+ if(!s)return{ok:false};t.routine={area,aid:a?a.id:null,wk:curWk(L)};return{ok:true,area}}
+function smallFor(S,key){const L=S.life,r=L.reentry;if(r&&r.d===L.d&&!r.dismissed&&r.small&&r.small.key===key)return{...r.small,source:'reentry'};
+ if(key&&key.startsWith('m:')){const a=(L.actions||[]).find(a=>!a.off&&!a.paused&&a.missionId===key.slice(2));if(a&&a.mini){const e=(L.smallLog||[]).find(e=>e.d===L.d&&e.key===key);return{key,text:a.mini,done:!!e,source:'action',aid:a.id}}}return null}
+function completeSmall(S,key){const L=S.life,x=smallFor(S,key);if(!x||x.done)return false;
+ if(x.source==='reentry')L.reentry.small.done=true;else L.smallLog=[...(L.smallLog||[]),{d:L.d,wk:curWk(L),key,aid:x.aid,text:x.text,t:Date.now()}].slice(-500);return true}
+/* Entscheidungen im Rückblick: vorhandene Historien und applyChange nutzen. Keine rückwirkenden Änderungen. */
+function changeRoutine(S,key,x){const L=S.life,wk=curWk(L),text=String(x.text||'').trim().slice(0,90),per=+x.perWeek;
+ if(!text||!Number.isInteger(per)||per<1||per>7)return false;
+ if(key.startsWith('std:')){const area=key.slice(4),s=(L.standards||{})[area];if(!s||!s.std)return false;
+  if(s.aid)return changeRoutine(S,'m:'+((actById(L,s.aid)||{}).missionId||''),x);
+  setStandard(L,area,{std:{...s.std,text,perWeek:per,minutes:x.minutes===undefined?s.std.minutes:x.minutes,anchor:String(x.anchor||'').trim().slice(0,80)},min:x.mini?{text:String(x.mini).trim().slice(0,80)}:null,status:x.paused?'paused':'active'},'Bewusste Anpassung im Rückblick');L.standards[area].decisions=[...(s.decisions||[]),{wk,kind:'confirmed',t:Date.now()}];return true}
+ const a=(L.actions||[]).find(a=>!a.off&&a.missionId===key.slice(2));if(!a)return false;
+ const before={title:a.title,perWeek:a.perWeek,minutes:a.minutes||null,anchor:a.anchor||a.when||'',mini:a.mini||'',paused:!!a.paused};
+ applyChange(S,L,a,{perWeek:per,anchor:String(x.anchor||'').trim().slice(0,80),when:''},wk);a.title=text;if(x.minutes!==undefined)a.minutes=x.minutes===''?null:clamp(Math.round(+x.minutes)||1,1,240);a.mini=String(x.mini||'').trim().slice(0,80);
+ const paused=!!x.paused;if(paused!==!!a.paused)a.pauseHist=[...(a.pauseHist||[]),{wk,paused,from:!!a.paused}];a.paused=paused;
+ a.changes=[...(a.changes||[]),{wk,before,after:{title:a.title,perWeek:per,minutes:a.minutes||null,anchor:a.anchor,mini:a.mini,paused}}];syncMission(S,a);
+ Object.values(L.standards||{}).filter(s=>s.aid===a.id).forEach(s=>setStandard(L,s.area,{std:{...s.std,text:a.title,perWeek:per,minutes:a.minutes,anchor:a.anchor},min:a.mini?{text:a.mini}:null,status:paused?'paused':'active'},'Verknüpfte Zielhandlung angepasst'));return true}
+function milestoneEvidence(L,m){const rule=TEMPLE_RULES[m.kind];if(!rule)return'Baustein aus einer früheren Fassung.';const ev=m.evidence;if(!ev)return rule.why+' · Für diesen älteren Baustein ist keine genaue Herkunft gespeichert.';
+ if(ev.type==='action'){return'Grundstein: '+(ev.label?'„'+ev.label+'“ erstmals in dieser Tempelsaison umgesetzt.':'Eine gespeicherte Ziel-Handlung erstmals umgesetzt.')+' Spieltag '+(ev.d+1)+'.'}
+ if(ev.type==='standard')return'Grundstein: deinen Standard erstmals vollständig umgesetzt. Spieltag '+(ev.d+1)+'.';
+ if(ev.type==='week')return rule.why+' · Gespeichert: '+ev.done+' von '+ev.planned+' Einheiten in Woche '+(m.wk+1)+'.';
+ if(ev.type==='experiment'){const e=(L.exps||[]).find(e=>e.id===ev.id);return e&&e.result?'Geprüft: '+e.result.done+' von mindestens '+e.result.need+' Einheiten'+(e.criterion.outcome?', Ergebnis-Trend: '+e.result.outcome:'; kein Ergebnis-Kriterium')+'. Zeitraum: Woche '+(e.startWk+1)+'–'+(e.endWk+1)+'. Das belegt keine Ursache.':rule.why}return rule.why}
 
 /* ───── Dein persönliches Fundament: Abschnitte, Zustände, Einladungen ───── */
 /* Produktprinzip: Selbsterkenntnis → Eigenverantwortung → Standards → Handeln. Abschnitte sind den Stufen zugeordnet. */
@@ -418,26 +455,26 @@ const inSeason=(T,wk)=>wk>=T.cur.startWk&&wk<T.cur.startWk+T.cur.len;
 function areaWeek(L,area,wk){let p=0,d=0;(L.goals||[]).filter(g=>g.area===area&&g.status!=='archived').forEach(g=>{const w=goalWeek(L,g,wk);p+=w.planned;d+=w.done});return{planned:p,done:d,rate:p?d/p:null}}
 /* Eigenständige Standards zählen einmal; verknüpfte Handlungen bleiben in goalWeek.
    Bestehende Tempel nehmen Standards ab dem Update auf, ohne rückwirkende Bausteine. */
-function templeWeek(L,area,wk){const a=areaWeek(L,area,wk),s=(L.standards||{})[area],from=L.temple&&L.temple.cur.routineFrom;
+function templeWeek(L,area,wk){const a=areaWeek(L,area,wk),s=standardAt((L.standards||{})[area],wk),from=L.temple&&L.temple.cur.routineFrom;
  if(s&&s.std&&!s.aid&&s.status!=='paused'&&from!=null&&wk*7>=from){const x=standardWeek(L,area,wk);if(x){a.planned+=x.per;const days=new Set((L.stdLog||[]).filter(e=>e.area===area&&e.wk===wk&&e.kind==='std'&&e.d>=from).map(e=>e.d));a.done+=Math.min(x.per,days.size)}}
  a.rate=a.planned?a.done/a.planned:null;return a}
 /* Bausteine aus Daten ableiten und neue dauerhaft speichern; gibt neu freigeschaltete zurück */
 function syncTemple(S){const L=S.life;if(!L)return[];if(!L.temple)L.temple=newTemple(curWk(L),L.d||0);const T=L.temple,C=T.cur,w=curWk(L),fresh=[];
  if(C.routineFrom==null){C.routineFrom=L.d||0;C.stdLogFrom=(L.stdLog||[]).length}
  const has=id=>C.ms.some(m=>m.id===id);
- const add=(area,kind,id,wk,extra)=>{if(has(id))return;const r=TEMPLE_RULES[kind];if(C.ms.filter(m=>m.area===area&&m.kind===kind).length>=r.cap)return;const m={id,area,kind,pts:r.pts,label:(extra&&extra.label)||r.label,wk,t:Date.now()};C.ms=[...C.ms,m];fresh.push(m)};
+ const add=(area,kind,id,wk,extra)=>{if(has(id))return;const r=TEMPLE_RULES[kind];if(C.ms.filter(m=>m.area===area&&m.kind===kind).length>=r.cap)return;const m={id,area,kind,pts:r.pts,label:(extra&&extra.label)||r.label,wk,t:Date.now(),...(extra&&extra.evidence?{evidence:extra.evidence}:{})};C.ms=[...C.ms,m];fresh.push(m)};
  const end=Math.min(w,C.startWk+C.len-1);
  AREAS.forEach(({id:area})=>{
   /* Grundstein: erste erledigte Ziel-Handlung der Saison */
   const aids=new Set((L.actions||[]).filter(a=>areaOf(L,a.goalId)===area).map(a=>a.id));
-  const d0=C.d0??C.startWk*7;const lf=C.logFrom||0;const firstLog=(L.log||[]).find((x,i)=>i>=lf&&aids.has(x.aid)&&inSeason(T,x.wk)&&x.d>=d0);const std=(L.standards||{})[area],stdFirst=std&&std.std&&!std.aid&&std.status!=='paused'&&(L.stdLog||[]).find((x,i)=>i>=(C.stdLogFrom||0)&&x.area===area&&x.kind==='std'&&x.d>=Math.max(d0,C.routineFrom)&&inSeason(T,x.wk));if(firstLog||stdFirst)add(area,'first','first-'+area+'-'+C.n,(firstLog||stdFirst).wk);
+  const d0=C.d0??C.startWk*7;const lf=C.logFrom||0;const firstLog=(L.log||[]).find((x,i)=>i>=lf&&aids.has(x.aid)&&inSeason(T,x.wk)&&x.d>=d0);const std=(L.standards||{})[area],stdFirst=std&&std.std&&!std.aid&&std.status!=='paused'&&(L.stdLog||[]).find((x,i)=>i>=(C.stdLogFrom||0)&&x.area===area&&x.kind==='std'&&x.d>=Math.max(d0,C.routineFrom)&&inSeason(T,x.wk));if(firstLog||stdFirst)add(area,'first','first-'+area+'-'+C.n,(firstLog||stdFirst).wk,{evidence:firstLog?{type:'action',aid:firstLog.aid,d:firstLog.d,label:(actById(L,firstLog.aid)||{}).title||null}:{type:'standard',area,d:stdFirst.d}});
   /* Konstante Wochen (nur abgeschlossene Wochen) und Wiederaufnahme */
-  for(let k=C.startWk;k<Math.min(w,C.startWk+C.len);k++){if(k*7<d0)continue;const a=templeWeek(L,area,k);if(a.planned&&a.rate>=.8){add(area,'week','week-'+area+'-'+k,k);const prev=templeWeek(L,area,k-1);if(k>C.startWk&&prev.planned&&prev.done===0)add(area,'comeback','cb-'+area+'-'+k,k)}}
+  for(let k=C.startWk;k<Math.min(w,C.startWk+C.len);k++){if(k*7<d0)continue;const a=templeWeek(L,area,k);if(a.planned&&a.rate>=.8){add(area,'week','week-'+area+'-'+k,k,{evidence:{type:'week',done:a.done,planned:a.planned}});const prev=templeWeek(L,area,k-1);if(k>C.startWk&&prev.planned&&prev.done===0)add(area,'comeback','cb-'+area+'-'+k,k,{evidence:{type:'week',done:a.done,planned:a.planned}})}}
   (L.goals||[]).filter(g=>g.area===area).forEach(g=>{
    /* Ergebnis-Viertel: nur durch Messwerte nach der Startwoche des Ziels */
    const s=goalStart(L,g),t=g.metric.target;if(s!=null&&t!=null&&t!==s){measOf(L,g.id).filter(m=>wkOf(m.d,L)>g.startWk&&inSeason(T,wkOf(m.d,L))).forEach(m=>{const p=(m.v-s)/(t-s);[.25,.5,.75].forEach(q=>{if(p>=q)add(area,'quarter','q-'+g.id+'-'+q,wkOf(m.d,L),{label:'Ergebnis '+Math.round(q*100)+' %: '+g.title})})})}
    if(g.status==='achieved'&&g.achievedWk!=null&&g.achievedWk>g.startWk&&inSeason(T,g.achievedWk))add(area,'goal','goal-'+g.id,g.achievedWk,{label:'Ziel erreicht: '+g.title})});
-  (L.exps||[]).filter(e=>e.status==='success'&&areaOf(L,e.goalId)===area&&inSeason(T,e.closed??e.endWk)).forEach(e=>add(area,'exp','exp-'+e.id,e.closed??e.endWk,{label:'Bewährt: '+e.label}));
+  (L.exps||[]).filter(e=>e.status==='success'&&areaOf(L,e.goalId)===area&&inSeason(T,e.closed??e.endWk)).forEach(e=>add(area,'exp','exp-'+e.id,e.closed??e.endWk,{label:'Bewährt: '+e.label,evidence:{type:'experiment',id:e.id}}));
   /* Verwitterung nur bei dokumentierter Verschlechterung; Restaurierung bei Verbesserung */
   const worse=(L.goals||[]).some(g=>g.area===area&&g.status==='active'&&trend(L,g,w,2).state==='worse');
   const was=!!C.wx[area];if(worse&&!was)C.wx={...C.wx,[area]:{since:w}};
@@ -495,7 +532,7 @@ function fmtV(metric,v){if(v==null||v===''||!isFinite(v))return'–';if(metric.f
  const n=Math.round(v*10)/10;const t=n.toLocaleString('de-DE');return metric.unit==='€'?t+' €':t+(metric.unit?(metric.unit.startsWith('/')?'':' ')+metric.unit:'')}
 function parseV(metric,s){if(s==null)return null;s=String(s).trim();if(!s)return null;if(metric.fmt==='time'){const m=/^(\d{1,3}):([0-5]\d)$/.exec(s);return m?(+m[1])*60+(+m[2]):null}const n=parseFloat(s.replace(/\./g,'').replace(',','.'));return isFinite(n)?n:null}
 
-G.LC={LIFE_V,AREAS,AREA,LINKS,ACT_AREA,areaAct,VALUES,WHY_Q,GOAL_TPL,OBSTACLES,OBST,BLOCK_MAP,RULES,LOOP,
+G.LC={standardAt,actionPausedAt,trialByDay,createTrial,promoteTrial,smallFor,completeSmall,changeRoutine,milestoneEvidence,LIFE_V,AREAS,AREA,LINKS,ACT_AREA,areaAct,VALUES,WHY_Q,GOAL_TPL,OBSTACLES,OBST,BLOCK_MAP,RULES,LOOP,
  areaRating,compassState,wkOf,curWk,actById,goalById,actionsOf,actLabel,missionTitle,plannedAt,doneIn,goalWeek,weekRate,measOf,goalNow,goalStart,better,reached,goalProgress,trend,diagnose,suggest,
  startExperiment,evalExperiment,decideExperiment,reviewWeek,weekSummary,obstacleCounts,saveWeeklyReview,onComplete,onAdvance,onDailyReview,addMeasurement,addAction,addGoal,updateGoal,setGoalStatus,insights,loopStage,newLife,ensureLife,MOODS,DEBRIEF_OBST,CHANGES,onDebrief,debriefPatterns,monthlyDue,saveMonthly,STD_LEVELS,STD_LV,STD_TPL,areaSatFrom,suggestStandard,setStandard,rerateStandard,removeStandard,logStandard,standardWeek,standardFeedback,adaptOptions,standardProgress,standardsForSync,FUND,FUND_STAGES,inviteCandidates,fundState,fundSections,setFundSkip,markSeen,nextInvite,showInvite,answerInvite,clearFoundation,FUTURE_SUCCESS,FUTURE_TXT,cleanFuture,futureSuccess,futureForSync,AUDIT_AREAS,AUDIT,AUDIT_MAX,setAudit,auditState,auditSummary,auditForSync,EVE_WHEN,EVE_RISK,ifThen,onEvening,eveningFor,eveningStats,TEMPLE_LEN,STAGES,PHASES,TEMPLE_RULES,newTemple,syncTemple,columnState,foundationLevel,templeState,closeTempleSeason,areaWeek,templeWeek,fmtV,parseV,syncMission};
 })(typeof window!=='undefined'?window:globalThis);
