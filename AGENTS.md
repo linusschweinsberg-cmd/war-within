@@ -27,6 +27,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
+- Codex · `codex/today-clarity` · Ruhigere Heute-Seite: Handlung zuerst, zwei Nebenmissionen, optionale Bereiche und Fortschritt. Dateien: index.html, docs/TODAY.md, sw.js und Release-Tests. Release `ww-v79`, baut auf PR #36 auf; neun Testsuiten bestanden. Browser 375/390 px: Wahl, Erledigen, Rückgängig, Reload und Zusatzbereiche geprüft, keine Konsolenfehler. Lokal, kein Merge/Deployment.
 - Codex · `codex/claude-arena-integration` · Integration von Claude arena-3 (`408383a`) und hauptschlacht (`cf3b42c`); Dateien: Arena, Heute, Zielplanung, Tests und Release-Versionen. Release `ww-v78`; alle 22 Testsuiten bestanden (einschließlich lokaler SQL-/RLS-Tests und 180 SQL/JS-Vergleiche). Konflikte bei Versionsnummern und Dokumentation aufgelöst. PR/Claude-Gegenreview noch offen; keine produktive Migration.
 
 ### Letzte Integration
@@ -39,7 +40,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v78` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v79` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`, `node tests/ftue-flows.cjs` (Abläufe: neu, vollständig, übersprungen, zurückkehrend). Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Produktprinzip (verbindlich)

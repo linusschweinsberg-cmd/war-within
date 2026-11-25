@@ -18,15 +18,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v78"></script>
-<script src="auth.js?v=ww-v78"></script>
-<script src="life-core.js?v=ww-v78"></script>
-<script src="wisdom-core.js?v=ww-v78"></script>
-<script src="future-self-core.js?v=ww-v78"></script>
-<script src="projection-core.js?v=ww-v78"></script>
-<script src="arena-core.js?v=ww-v78"></script>
-<script src="arena-api.js?v=ww-v78"></script>
-<script src="arena-ui.js?v=ww-v78"></script>
+<script src="supabase-config.js?v=ww-v79"></script>
+<script src="auth.js?v=ww-v79"></script>
+<script src="life-core.js?v=ww-v79"></script>
+<script src="wisdom-core.js?v=ww-v79"></script>
+<script src="future-self-core.js?v=ww-v79"></script>
+<script src="projection-core.js?v=ww-v79"></script>
+<script src="arena-core.js?v=ww-v79"></script>
+<script src="arena-api.js?v=ww-v79"></script>
+<script src="arena-ui.js?v=ww-v79"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -380,7 +380,7 @@ book:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 
 languages:'<path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/>',
 code:'<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
 check:'<polyline points="20 6 9 17 4 12"/>',
-chevR:'<path d="m9 18 6-6-6-6"/>',chevL:'<path d="m15 18-6-6 6-6"/>',
+chevR:'<path d="m9 18 6-6-6-6"/>',chevL:'<path d="m15 18-6-6 6-6"/>',chevD:'<path d="m6 9 6 6 6-6"/>',
 lock:'<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
 up:'<path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>',down:'<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
 x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
@@ -1593,14 +1593,15 @@ function AspisRing({area,pct,full,size=62}){const r=size/2-5,cc=2*Math.PI*r,h=si
  <circle cx=${h} cy=${h} r=${r} fill="none" stroke=${area.color} strokeWidth="4" strokeLinecap="round" opacity=${pct>0?1:0} strokeDasharray=${(cc*pct)+' '+cc} transform=${'rotate(-90 '+h+' '+h+')'} style=${{transition:'stroke-dasharray .6s cubic-bezier(.16,1,.3,1)'}}/>
  <circle cx=${h} cy=${h} r=${r-6} fill="none" stroke="var(--bronze)" strokeWidth=".75" opacity=".55"/>
  </svg><span className="absolute inset-0 flex items-center justify-center" style=${{color:full?'var(--bronze)':area.color}}>${full?html`<${Icon} n="check" s=${20} sw=${2.6}/>`:html`<${Icon} n=${area.icon} s=${19}/>`}</span></span>`}
-function TodayHero({c,ini,rings,sel,onSel}){const {S}=c,rest=c.D.restToday,planned=rings.filter(r=>r.total>0),closed=planned.filter(r=>r.done>=r.total).length,all=planned.length>0&&closed===planned.length;
+function TodayHero({c,ini,rings}){const {S}=c,planned=rings.filter(r=>r.total>0),closed=planned.filter(r=>r.done>=r.total).length,all=planned.length>0&&closed===planned.length;
  return html`<section className="pt-3 relative" aria-label="Dein Tag">
  <span className="page-emblem" style=${{top:44}}><${Icon} n=${all?'laurel':'aspis'} s=${76} sw=${1}/></span>
  <div className="flex items-center justify-between gap-2"><div className="lbl truncate">${deDate(c.now,calendarZone(S))}</div><div className="flex shrink-0 -mr-2 relative"><button aria-label="Menü und Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0" style=${{color:'var(--ink)'}}><${Icon} n="dots" s=${20}/></button><button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0 p-0"><span className="w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold" style=${{background:'var(--card2)',color:'var(--ink)',boxShadow:'0 0 0 1px var(--line) inset'}}>${ini}</span></button></div></div>
  <h1 className="disp text-[40px] leading-none">Heute</h1>
- ${(()=>{const C=compoundNow(S),m=C.momentum;return html`<div className="num text-[12.5px] mt-1.5" data-today-season style=${{color:'var(--ink)'}}>Saison ${S.season} · Tag ${Math.min(C.seasonDay,C.seasonLen)} von ${C.seasonLen}<span className="mute"> · Konstanz ${m.of?m.active+'/'+m.of+' Tage':'startet heute'}${m.rest?' · '+m.rest+' Ruhetag'+(m.rest>1?'e':'')+' fair':''}</span></div>`})()}
- <button type="button" onClick=${()=>c.setTab('tasks')} className="bg-transparent border-0 p-0 mt-1 flex items-center gap-1 text-[13px]" style=${{minHeight:32,color:all?'var(--bronze)':'var(--mute)'}}>${rest?'Ruhetag. Erholung gehört zum Plan.':all?html`<${Icon} n="laurel" s=${15}/>Alle Schilde geschlossen`:closed+' von '+planned.length+' Schilden geschlossen'}<${Icon} n="chevR" s=${13}/></button>
- <div className="meander mt-2" aria-hidden="true"/>
+ <div className="meander mt-3" aria-hidden="true"/>
+ </section>`}
+/* Bereichsfilter bleiben erreichbar, ohne die wichtigste Handlung nach unten zu schieben. */
+function TodayAreas({c,rings,sel,onSel}){return html`<section aria-label="Bereiche heute">
  <div className="grid grid-cols-4 gap-1 mt-3" role="group" aria-label="Lebensbereiche heute">${rings.map(r=>{const a=r.area,has=r.total>0,full=has&&r.done>=r.total,on=sel===a.id;
   return html`<button key=${a.id} type="button" onClick=${()=>has?onSel(a.id):c.setTab('life')} aria-pressed=${on} aria-label=${a.de+': '+(has?r.done+' von '+r.total+' erledigt':'heute nichts geplant')} className="bg-transparent border-0 p-0 flex flex-col items-center gap-1.5" style=${{color:'var(--ink)',minHeight:44,opacity:has?1:.4}}>
   <span className="rounded-full" style=${{padding:2,boxShadow:on&&has?'0 0 0 1.5px var(--acc2)':'none',transition:'box-shadow .2s'}}><${AspisRing} area=${a} pct=${has?r.done/r.total:0} full=${full}/></span>
@@ -1608,7 +1609,7 @@ function TodayHero({c,ini,rings,sel,onSel}){const {S}=c,rest=c.D.restToday,plann
  </section>`}
 /* Hauptschlacht-Karte einfarbig in gedämpftem Rost (Handeln). Gewonnen: Bronze-Kontur, Schild, „Schlacht gewonnen“.
    Sieg-Rückmeldung nur beim Wechsel offen → gewonnen, 700 ms, ohne Overlay, blockiert nichts; reduzierte Bewegung ohne Animation. */
-function BattleCard({c,b,ring}){const morning=nowMinOf(c)<720,ob=battleObstacle(c.S,b),obLine=ob&&html`<div className="text-[12.5px] mt-2 leading-snug" data-battle-obstacle><span className="mute">${b.done?'Hindernis überwunden: ':'Hindernis: '}</span><b>${ob.label}</b>${ob.src==='recent'&&!b.done?html`<span className="mute"> · zuletzt ${ob.n}× genannt</span>`:''}</div>`,area=priorityArea(b),logs=b.kind==='mission'&&wantsLog(c.S,b.m),t=cleanTitle(b.title),closes=ring&&ring.total-ring.done===1;
+function BattleCard({c,b,ring}){const morning=nowMinOf(c)<720,ob=battleObstacle(c.S,b),obLine=ob&&html`<div className="text-[12.5px] mt-2 leading-snug" data-battle-obstacle><span className="mute">${ob.src==='evening'?'Von dir eingeplant: ':'Zuletzt genannt: '}</span><b>${ob.label}</b>${ob.src==='recent'&&!b.done?html`<span className="mute"> · zuletzt ${ob.n}× genannt</span>`:''}</div>`,area=priorityArea(b),logs=b.kind==='mission'&&wantsLog(c.S,b.m),t=cleanTitle(b.title),closes=ring&&ring.total-ring.done===1;
  const rust=p=>`color-mix(in srgb,var(--acc) ${p}%,var(--card))`,was=useRef(b.done),[fx,setFx]=useState(false);
  useEffect(()=>{const prev=was.current;was.current=b.done;if(!b.done){setFx(false);return}if(prev)return;setFx(true);const id=setTimeout(()=>setFx(false),800);return()=>clearTimeout(id)},[b.done]);
  /* Gewonnen: gleicher Aufbau und gleiche Höhe wie offen, damit ein zweiter Tipp nichts Nachgerücktes trifft. */
@@ -1678,22 +1679,28 @@ function Home({c}){const {S}=c;const [more,setMore]=useState(false),[pick,setPic
  const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fm=focusMode(S),items=todayPriorities(S,c.D,5),rings=areaDay(S,c.D),battle=todayBattle(S,c.D,items);
  /* Ring antippen holt die nächste Handlung dieses Bereichs nach vorn: in die Nebenmissionen bzw. an den Anfang der Auswahl. Die Hauptschlacht bleibt. */
  const chosen=rings.find(r=>r.area.id===pick),pickItem=chosen&&areaItem(S,items,chosen),uniq=a=>a.filter((x,i)=>x&&a.findIndex(y=>y&&y.key===x.key)===i);
- const side=battle?uniq([pickItem,...items]).filter(x=>x.key!==battle.key).slice(0,nowMinOf(c)<720?2:3):[],choices=uniq([pickItem,...items]).slice(0,3);
+ const side=battle?uniq([pickItem,...items]).filter(x=>x.key!==battle.key).slice(0,2):[],choices=uniq([pickItem,...items]).slice(0,3);
  const ba=battle&&priorityArea(battle),ring=ba&&rings.find(r=>r.area.id===ba.id),sel=pickItem?pick:ba&&ba.id;
  const main=c.D.restToday?html`<section className="card p-5 mt-4 flex items-center gap-4"><${AreaBadge} area=${LC.AREA.health} size=${48}/><div><div className="text-[17px] font-bold">Ruhetag</div><div className="text-[13px] mute">Erholung gehört zum Plan.</div></div></section>`
   :battle?html`<${BattleCard} key=${battle.key} c=${c} b=${battle} ring=${ring}/>`
   :choices.length?html`<${BattlePick} c=${c} items=${choices}/>`
   :html`<section className="card p-5 mt-3"><div className="text-[18px] font-bold">Nichts mehr offen.</div><div className="flex gap-2 mt-4"><button type="button" className="btn flex-1 py-3 text-[14px]" onClick=${()=>c.openSheet({t:'review'})}>Tag abschließen</button>${!mainGoal(S)&&html`<button type="button" className="chip" style=${{minHeight:48}} onClick=${()=>c.openSheet({t:'goal'})}>Ziel festlegen</button>`}</div></section>`;
  return html`<div className="screen px-4 pb-6">
- <${TodayHero} c=${c} ini=${ini} rings=${rings} sel=${sel} onSel=${id=>setPick(p=>p===id?null:id)}/>
+ <${TodayHero} c=${c} ini=${ini} rings=${rings}/>
  ${S.setup&&html`<button onClick=${()=>c.openSheet({t:'newseason'})} className="btn w-full py-3 mt-3 text-sm">Neue Saison einrichten</button>`}
  ${main}
  <${SideMissions} c=${c} items=${side}/>
+ <${DayAhead} c=${c}/>
+ <details className="mt-3"><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}><span>Bereiche heute</span><${Icon} n="chevD" s=${16}/></summary>
+ <${TodayAreas} c=${c} rings=${rings} sel=${sel} onSel=${id=>setPick(p=>p===id?null:id)}/>
+ <button type="button" className="ghost w-full py-3 mt-3 text-[13px]" onClick=${()=>c.setTab('tasks')}>Alle Aufgaben öffnen</button></details>
+ <details className="mt-1"><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}><span>Fortschritt und Zukunfts-Ich</span><${Icon} n="chevD" s=${16}/></summary>
  <${CompoundStrip} c=${c} battle=${battle}/>
  ${(()=>{const g=mainGoal(S);return g&&g.status==='active'&&PJ.typeOf(g)?html`<button type="button" onClick=${()=>c.openSheet({t:'impact',gid:g.id})} data-today-impact className="w-full flex items-center gap-2 text-left border-0 bg-transparent px-1 text-[12.5px] mute" style=${{minHeight:40}}><${Icon} n="trend" s=${14}/>Wohin führt das? Folgen für „${g.title}“<${Icon} n="chevR" s=${13} cls="ml-auto"/></button>`:null})()}
  <${FutureSelfTile} c=${c}/>
- <${DayAhead} c=${c}/>
- <details className="mt-4" onToggle=${e=>setMore(e.currentTarget.open)}><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center'}}>Mehr: Standards und Impulse</summary>
+
+ </details>
+ <details className="mt-4" onToggle=${e=>setMore(e.currentTarget.open)}><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}><span>Standards und Impulse</span><${Icon} n="chevD" s=${16}/></summary>
  ${more&&html`<${StandardsToday} c=${c}/><button type="button" className="chip mt-3" onClick=${()=>c.openSheet({t:'loopinfo'})}>Wie dein Handeln wirkt</button><${InviteCard} c=${c}/><${CalmCard} c=${c}/><${WisdomSlot} c=${c} place="today"/>${!fm&&html`<div className="mt-3"><${DayScene} c=${c}/></div><${DuelPair} c=${c}/>`}`}</details>
  </div>`}
 /* Heute zuerst: Ziel, Ergebnis/Umsetzung, nächste Handlung, Loop-Phase */

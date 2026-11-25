@@ -1,5 +1,15 @@
 # Heute: wichtigste Handlung und nächster Zeitblock
 
+## Aktueller Aufbau (ww-v79)
+
+Dieser Abschnitt ersetzt die unten beschriebenen früheren Reihenfolgen. Standardmäßig sichtbar: Datum und Heute-Titel, Hauptschlacht (oder bewusste Wahl/Ruhetag/Leerzustand), höchstens zwei Nebenmissionen und einmal „Im Blick“ mit Tagesplan und Reflexion. Saison- und Konstanzzahlen stehen nicht mehr im Kopf.
+
+Drei geschlossene Zusatzbereiche: „Bereiche heute“ mit den bestehenden Schildfiltern und Zugang zu allen Aufgaben; „Fortschritt und Zukunfts-Ich“ mit den vier Fortschrittsebenen, Zielprojektion und Begleitung; „Standards und Impulse“ mit den bisherigen Zusatzinhalten. Die Schilde filtern weiterhin Vorschläge, ohne die gewählte Hauptschlacht zu ersetzen. Die Auswahl und Rückgängig-Logik bleiben gleich.
+
+Ein genanntes Hindernis wird als „Von dir eingeplant“ bzw. „Zuletzt genannt“ beschriftet. Aus einer erledigten Handlung wird nicht behauptet, das Hindernis sei überwunden.
+
+Prüfung: mobile Ansichten 390 × 844 und 375 × 812, Wahl, Erledigen, Rückgängig und Reload; optionale Inhalte aufklappbar, „Im Blick“ erscheint einmal, keine Konsolenfehler. Neun passende Testsuiten bestanden. Release-Skripte und Cache verwenden ww-v79.
+
 Schritt 2 des Nutzungsplans, auf dem Kalender-PR #20 aufgebaut. Branch codex/today-focus; Claude reviewt vor der Übernahme.
 
 ## Startseite
