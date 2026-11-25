@@ -18,16 +18,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v93"></script>
-<script src="auth.js?v=ww-v93"></script>
-<script src="life-core.js?v=ww-v93"></script>
-<script src="wisdom-core.js?v=ww-v93"></script>
-<script src="future-self-core.js?v=ww-v93"></script>
-<script src="projection-core.js?v=ww-v93"></script>
-<script src="character-core.js?v=ww-v93"></script>
-<script src="arena-core.js?v=ww-v93"></script>
-<script src="arena-api.js?v=ww-v93"></script>
-<script src="arena-ui.js?v=ww-v93"></script>
+<script src="supabase-config.js?v=ww-v94"></script>
+<script src="auth.js?v=ww-v94"></script>
+<script src="life-core.js?v=ww-v94"></script>
+<script src="wisdom-core.js?v=ww-v94"></script>
+<script src="future-self-core.js?v=ww-v94"></script>
+<script src="projection-core.js?v=ww-v94"></script>
+<script src="rank-core.js?v=ww-v94"></script>
+<script src="character-core.js?v=ww-v94"></script>
+<script src="arena-core.js?v=ww-v94"></script>
+<script src="arena-api.js?v=ww-v94"></script>
+<script src="arena-ui.js?v=ww-v94"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -1645,6 +1646,7 @@ function TodayHero({c,ini,rings}){const {S}=c,planned=rings.filter(r=>r.total>0)
  <span className="page-emblem" style=${{top:44}}><${Icon} n=${all?'laurel':'aspis'} s=${76} sw=${1}/></span>
  <div className="flex items-center justify-between gap-2"><div className="lbl truncate">${deDate(c.now,calendarZone(S))}</div><div className="flex shrink-0 -mr-2 relative"><button aria-label="Menü und Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0" style=${{color:'var(--ink)'}}><${Icon} n="dots" s=${20}/></button><button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0 p-0"><span className="w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold" style=${{background:'var(--card2)',color:'var(--ink)',boxShadow:'0 0 0 1px var(--line) inset'}}>${ini}</span></button></div></div>
  <h1 className="disp text-[40px] leading-none">Heute</h1>
+ ${!focusMode(S)&&(()=>{const r=RK.rank(S);return html`<button type="button" onClick=${()=>c.setTab('stats')} data-season-rank className="w-full mt-2 text-left bg-transparent border-0 p-0" style=${{minHeight:44,color:'var(--ink)'}} aria-label=${'Saison '+S.season+', Rang '+r.name+(r.next?', '+r.pts+' von '+r.next.min+' Saisonpunkten bis '+r.next.name:', höchster Saisonrang')}><span className="flex items-baseline justify-between gap-2 text-[12.5px]"><span className="truncate"><span className="mute">Saison ${S.season} · </span><b>${r.name}</b></span><span className="num mute shrink-0">${r.next?r.pts+' / '+r.next.min:r.pts+' Pkt.'}</span></span><span className="block h-1.5 rounded-full mt-1.5 overflow-hidden" style=${{background:'var(--ghost)'}}><span className="block h-full rounded-full" style=${{width:Math.max(3,r.pct*100)+'%',background:r.next?'var(--acc)':'var(--gold)',transition:'width .6s'}}/></span></button>`})()}
  <div className="meander mt-3" aria-hidden="true"/>
  </section>`}
 /* Bereichsfilter bleiben erreichbar, ohne die wichtigste Handlung nach unten zu schieben. */
@@ -1739,7 +1741,7 @@ function Home({c}){const {S}=c;const [more,setMore]=useState(false),[pick,setPic
  const reentry=reentryToday(S,c.D);
  /* Ring antippen holt die nächste Handlung dieses Bereichs nach vorn: in die Nebenmissionen bzw. an den Anfang der Auswahl. Die Hauptschlacht bleibt. */
  const chosen=rings.find(r=>r.area.id===pick),pickItem=chosen&&areaItem(S,items,chosen),uniq=a=>a.filter((x,i)=>x&&a.findIndex(y=>y&&y.key===x.key)===i);
- const side=battle&&!reentry?uniq([pickItem,...items]).filter(x=>x.key!==battle.key).slice(0,2):[],choices=uniq([pickItem,...items]).slice(0,3);
+ const side=battle&&!reentry?uniq([pickItem,...items]).filter(x=>x.key!==battle.key).slice(0,RK.slots(S)):[],choices=uniq([pickItem,...items]).slice(0,3);
  const ba=battle&&priorityArea(battle),ring=ba&&rings.find(r=>r.area.id===ba.id),sel=pickItem?pick:ba&&ba.id;
  const main=c.D.restToday?html`<section className="card p-5 mt-4 flex items-center gap-4"><${AreaBadge} area=${LC.AREA.health} size=${48}/><div><div className="text-[17px] font-bold">Ruhetag</div><div className="text-[13px] mute">Erholung gehört zum Plan.</div></div></section>`
   :!mainGoal(S)&&!battle&&!trialToday(S)&&(!items.some(x=>x.kind!=='mission'||x.g||x.m.id!=='m_ref'))?html`<${TrialStart} c=${c}/>`
@@ -2436,6 +2438,7 @@ function Stats({c}){
  const adv=c.S.ui==='adv',base=[['out','Ergebnisse'],['proc','Umsetzung'],['temple','Tempel'],['exp','Experimente'],['compound','Wirkung']],opts=adv?[...base,['matrix','Lebensmatrix'],['gen','Gesamt'],['over','Verlauf'],['rec','Rekorde'],['calc','Rechner'],['proj','Prognose']]:base;
  const t=opts.some(o=>o[0]===c.statTab)?c.statTab:'out',set=c.setStatTab;
  return html`<div className="screen px-4 pb-6"><div className="pt-5 flex items-end justify-between gap-2"><div><div className="lbl flex items-center gap-1.5"><span style=${{color:'var(--gold)'}}><${Icon} n="laurel" s=${15} sw=${1.5}/></span>Dein Weg</div><h1 className="disp text-[32px] mt-1 leading-none">Fortschritt</h1></div><div className="pb-1"><${ModeToggle} c=${c}/></div></div>
+ <div className="mt-3"><${RankBar} S=${c.S}/></div>
  <${SeasonFresco} c=${c}/>
  <${StatsCompass} c=${c}/>
  <div className="meander mt-4" aria-hidden="true"/><div className="lbl mt-3 px-1">Details</div><div className="mt-2 mb-3"><${Seg} opts=${opts} val=${t} on=${set}/></div>
@@ -4369,7 +4372,7 @@ function PerfectDay({S,onClose}){
 const useNow=ms=>{const [n,setN]=useState(Date.now());useEffect(()=>{const t=setInterval(()=>setN(Date.now()),ms);return()=>clearInterval(t)},[ms]);return n};
 const METRICS={'5-km-Lauf':[true,S=>S.stats.run5k.last,fmtT],'Bankdrücken (Verbesserung)':[false,S=>S.stats.bench.ver,x=>n1(x)+' kg'],'100 m Schwimmen':[true,S=>S.stats.swim.pr,fmtT],'Lese-Konstanz':[false,()=>120,x=>Math.round(x)+' Min.'],'Fokus-Stunden':[false,()=>18,x=>n1(x)+' h'],'Spar-Konstanz':[false,()=>5,x=>Math.round(x)+' Tage']};
 function App({init,auth,skey='war_within_v5'}){
- const [S,setS]=useState(()=>{const s=syncCalendar(LC.ensureLife(init||loadState(skey)));WC.ensure(s);FS.ensure(s);LC.syncTemple(s);return s});
+ const [S,setS]=useState(()=>{const s=syncCalendar(LC.ensureLife(init||loadState(skey)));WC.ensure(s);FS.ensure(s);RK.ensure(s);LC.syncTemple(s);return s});
  const [tSel,setTSel]=useState(null),[tFlash,setTFlash]=useState(null);
  const [tab,setTab]=useState(()=>{try{return !focusMode(S)&&new URLSearchParams(location.search).has('arena')?'league':'home'}catch(e){return'home'}}),[statTab,setStatTab]=useState('out'),[sheet,setSheet]=useState(null),[sel,setSel]=useState(null),[coreSel,setCoreSel]=useState(null),[freq,setFreq]=useState('all');
  const [toasts,setToasts]=useState([]),[flash,setFlash]=useState({}),[undo,setUndo]=useState(null);
@@ -4388,6 +4391,7 @@ function App({init,auth,skey='war_within_v5'}){
  const openSheet=o=>setSheet(o),closeSheet=()=>setSheet(null);
  useEffect(()=>{if(focusMode(S)&&['solo','league'].includes(tab))setTab('home')},[S.life&&S.life.focusMode,tab]);
  /* Rang und Saisonfortschritt bleiben in ihren Ansichten; keine konkurrierenden Erfolgs-Toasts. */
+ useEffect(()=>{const u=S.prog&&S.prog.up;if(!u||u.t<Date.now()-5000||focusMode(S))return;const t=setTimeout(()=>toast(u.rank+' erreicht. Neu verfügbar: '+u.text+'. Du kannst ihn nutzen oder freilassen.','good'),5600);return()=>clearTimeout(t)},[S.prog&&S.prog.up&&S.prog.up.t]);
  useEffect(()=>{if(pathLevel(S)>(S.sLevel||0))upd(n=>{applyPath(n,n.sLevel||0,pathLevel(n))})},[]);
  /* Automatisch öffnende Berichte */
  useEffect(()=>{if(S.aar&&!(sheet&&(sheet.t==='aar'||sheet.t==='season'))){if(focusMode(S)){upd(n=>{n.aar=null});setSheet({t:'weekly'})}else setSheet({t:'aar'})}},[S.aar]);
@@ -4415,7 +4419,7 @@ function App({init,auth,skey='war_within_v5'}){
   const a=S.acts[m.act];const room=Math.max(0,a.cap-(S.weekPts[m.act]||0));
   const sb=m.freq==='daily'?streakBonus(S.streak):0;
   const pu=extra.onTime||punctOf(mid),calcA=b=>Math.min(Math.max(1,Math.round(m.pts*(1+(b+sb)/100)*(ptsMult(S,m)))),room);
-  const award=calcA((extra.bonus||0)+(pu?PUNCT:0));
+  const capped=!RK.canEarn(S,dayKey(S)),award=capped?0:calcA((extra.bonus||0)+(pu?PUNCT:0));
   upd(n=>{if(isDone(n,m))return;n.done[mid]=true;if(m.freq==='multi'){n.counts=n.counts||{};n.counts[mid]=(n.counts[mid]||0)+1}n.weekPts[m.act]=(n.weekPts[m.act]||0)+award;n.todayPts[m.act]=(n.todayPts[m.act]||0)+award;n.seasonPts+=award;if(m.act===n.sTheme)n.sThemePts=(n.sThemePts||0)+award;n.sAreaPts=n.sAreaPts||{};n.sAreaPts[m.act]=(n.sAreaPts[m.act]||0)+award;
    n.acts[m.act].rating=Math.min(99,n.acts[m.act].rating+m.pts*.04);const ct=m.cat||n.acts[m.act].cat;n.catScore[ct]=Math.min(100,(n.catScore[ct]??40)+m.pts*.12);
    n.autoDone=n.autoDone||{};n.autoDone[mid]=!!extra.auto;
@@ -4427,11 +4431,11 @@ function App({init,auth,skey='war_within_v5'}){
    if(!isPerfect(n)&&dailyAllDone(n)){n.perfect={k:dayKey(n),ts:Date.now()};n.perfectDays=(n.perfectDays||0)+1;n.perfectShow=true}
    n.events.unshift({id:uid(),text:m.title+(extra.msg?' · '+extra.msg:''),pts:award,t:Date.now()});n.events=n.events.slice(0,12);
    n.feed.unshift({id:uid(),who:'me',pts:award,text:`${n.acts[m.act].short} erledigt`,t:Date.now()});n.feed=n.feed.slice(0,12);
-   LC.onComplete(n,mid);if(extra.apply)extra.apply(n);checkAch(n)});
+   RK.afterAward(n,dayKey(n),!capped);LC.onComplete(n,mid);if(extra.apply)extra.apply(n);checkAch(n)});
   arenaAuto(m,extra);
   const la=(S.life.actions||[]).find(x=>x.missionId===mid&&!x.off),lwk=LC.curWk(S.life),limp=la?`Umsetzung ${LC.doneIn(S.life,la.id,lwk)+1}/${LC.plannedAt(la,lwk)} diese Woche`:null;
   try{navigator.vibrate&&navigator.vibrate(award>0?[12,40,18]:8)}catch(e){}
-  toast('Erledigt: '+cleanTitle(m.title),'good',{detail:limp||impactOf(S,m),undo:()=>setS(S)});
+  toast('Erledigt: '+cleanTitle(m.title),'good',{detail:capped?'Dein Punkte-Soll für heute ist voll. Das zählt trotzdem für dich und deine Ziele.':limp||impactOf(S,m),undo:()=>setS(S)});
   if(!extra.keep)setSheet(null)};
  const start=(mid,ev,opt={})=>{const m=S.missions.find(x=>x.id===mid);if(isDone(S,m)){toast(m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
   if(!isActive(S,m.act)){toast(`${S.acts[m.act].name} sitzt auf der Bank. Wechsle sie im Squad ein.`,'warn');return}
