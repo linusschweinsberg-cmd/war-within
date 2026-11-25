@@ -27,7 +27,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
-- Codex · `codex/today-clarity` · Auf PR #36 aufgebaut: ruhigere Heute-Seite, Icon-Navigation auf Nutzerwunsch, 90-Tage-Zielvorschau mit getrennter Wirkungsmessung, gemeinsame Rückgängig-Meldung und freiwilliger Wiedereinstieg nach Öffnungslücke. Dateien: index.html, docs/TODAY.md, docs/IMPACT.md, sw.js und Tests. Release `ww-v83`. Gesamtprüfung: alle 24 Testsuiten bestanden, einschließlich lokaler Arena-SQL/RLS-Tests. Browser 375/390 px: leerer und bestehender Testspielstand, Öffnungslücke, Ruhetag, Auswahl, Planreduktion, Erledigen/Rückgängig und Reload geprüft; keine Konsolenfehler. Echte Konto-/E-Mail-Prüfung und Claude-Gegenreview offen. Kein Merge/Deployment.
+- Codex · `codex/today-clarity` · Auf PR #36 aufgebaut: ruhigere Heute-Seite, Icon-Navigation auf Nutzerwunsch, 90-Tage-Zielvorschau mit getrennter Wirkungsmessung, gemeinsame Rückgängig-Meldung und freiwilliger Wiedereinstieg nach Öffnungslücke. Dateien: index.html, docs/TODAY.md, docs/IMPACT.md, sw.js und Tests. Release `ww-v84`. Gesamtprüfung: alle 24 Testsuiten bestanden, einschließlich lokaler Arena-SQL/RLS-Tests. Browser 375/390 px: leerer und bestehender Testspielstand, Öffnungslücke, Ruhetag, Auswahl, Planreduktion, Erledigen/Rückgängig und Reload geprüft; keine Konsolenfehler. Echte Konto-/E-Mail-Prüfung und Claude-Gegenreview offen. Kein Merge/Deployment.
 - Codex · `codex/claude-arena-integration` · Integration von Claude arena-3 (`408383a`) und hauptschlacht (`cf3b42c`); Dateien: Arena, Heute, Zielplanung, Tests und Release-Versionen. Release `ww-v78`; alle 22 Testsuiten bestanden (einschließlich lokaler SQL-/RLS-Tests und 180 SQL/JS-Vergleiche). Konflikte bei Versionsnummern und Dokumentation aufgelöst. PR/Claude-Gegenreview noch offen; keine produktive Migration.
 
 ### Letzte Integration
@@ -40,7 +40,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v83` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v84` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`, `node tests/ftue-flows.cjs` (Abläufe: neu, vollständig, übersprungen, zurückkehrend). Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Produktprinzip (verbindlich)
