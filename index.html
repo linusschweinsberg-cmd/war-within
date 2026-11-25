@@ -18,15 +18,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v80"></script>
-<script src="auth.js?v=ww-v80"></script>
-<script src="life-core.js?v=ww-v80"></script>
-<script src="wisdom-core.js?v=ww-v80"></script>
-<script src="future-self-core.js?v=ww-v80"></script>
-<script src="projection-core.js?v=ww-v80"></script>
-<script src="arena-core.js?v=ww-v80"></script>
-<script src="arena-api.js?v=ww-v80"></script>
-<script src="arena-ui.js?v=ww-v80"></script>
+<script src="supabase-config.js?v=ww-v81"></script>
+<script src="auth.js?v=ww-v81"></script>
+<script src="life-core.js?v=ww-v81"></script>
+<script src="wisdom-core.js?v=ww-v81"></script>
+<script src="future-self-core.js?v=ww-v81"></script>
+<script src="projection-core.js?v=ww-v81"></script>
+<script src="arena-core.js?v=ww-v81"></script>
+<script src="arena-api.js?v=ww-v81"></script>
+<script src="arena-ui.js?v=ww-v81"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -4486,7 +4486,7 @@ function App({init,auth,skey='war_within_v5'}){
  
  <div className="absolute bottom-0 inset-x-0 z-30" style=${{paddingBottom:'env(safe-area-inset-bottom)',background:'var(--bg)',borderTop:'1px solid var(--line)'}}>
   ${tab!=='home'&&html`<${FutureSelfDock} c=${c}/>`}
-  <nav aria-label="Hauptnavigation" className="flex px-1 pt-1.5 pb-2">${nav.map(([k,l,i])=>{const on=navKey===k;return html`<button key=${k} aria-label=${l+(k==='home'&&revDue?', Wochenrückblick bereit':'')} aria-current=${on?'page':undefined} onClick=${()=>{setTab(k);setSel(null);try{navigator.vibrate&&navigator.vibrate(6)}catch(e){}}} className="relative flex-1 flex flex-col items-center justify-center gap-1 border-0 bg-transparent" style=${{minHeight:52,color:on?'var(--acc2)':'var(--mute)',transition:'color .14s'}}><${Icon} n=${i} s=${24} sw=${2}/>${k==='home'&&revDue&&html`<span aria-hidden="true" className="absolute rounded-full" style=${{top:4,right:'calc(50% - 17px)',width:7,height:7,background:'var(--acc)'}}/>`}<span className="text-[12px] font-medium">${l}</span>${on&&html`<span aria-hidden="true" className="absolute" style=${{bottom:-4,left:'25%',right:'25%',height:2,borderRadius:2,background:'var(--acc)'}}/>`}</button>`})}</nav></div>
+  <nav aria-label="Hauptnavigation" className="flex px-1 pt-1.5 pb-2">${nav.map(([k,l,i])=>{const on=navKey===k;return html`<button key=${k} title=${l} aria-label=${l+(k==='home'&&revDue?', Wochenrückblick bereit':'')} aria-current=${on?'page':undefined} onClick=${()=>{setTab(k);setSel(null);try{navigator.vibrate&&navigator.vibrate(6)}catch(e){}}} className="relative flex-1 flex flex-col items-center justify-center gap-1 border-0 bg-transparent" style=${{minHeight:52,color:on?'var(--acc2)':'var(--mute)',transition:'color .14s'}}><${Icon} n=${i} s=${26} sw=${2}/>${k==='home'&&revDue&&html`<span aria-hidden="true" className="absolute rounded-full" style=${{top:4,right:'calc(50% - 17px)',width:7,height:7,background:'var(--acc)'}}/>`}${on&&html`<span aria-hidden="true" className="absolute" style=${{bottom:-4,left:'25%',right:'25%',height:2,borderRadius:2,background:'var(--acc)'}}/>`}</button>`})}</nav></div>
  ${tab==='home'&&S.push&&!undo&&!sheet&&dueAsk&&html`<div key=${'ask'+dueAsk.id} role="status" className="absolute z-40 left-3 right-3 rounded-[22px] p-3" style=${{bottom:dockOffset,background:'var(--glass)',backdropFilter:'blur(14px)',WebkitBackdropFilter:'blur(14px)',border:'1px solid rgba(var(--acc2-rgb),.4)',boxShadow:'0 14px 34px -12px rgba(0,0,0,.6)',animation:'toastIn .3s ease-out'}}>
   <div className="flex items-center gap-3"><span className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style=${{background:'rgba(var(--acc-rgb),.18)',color:'var(--acc2)'}}><${Icon} n=${dueAsk.icon} s=${18}/></span><div className="flex-1 min-w-0"><div className="text-[13.5px] font-semibold truncate">${dueAsk.name} erledigt?</div><div className="text-[11.5px] mute">Geplant ${fmtHM(dueAsk.start)}–${fmtHM(dueAsk.end)}${nowM<=dueAsk.end+GRACE?' · jetzt bestätigt = pünktlich':''}</div></div><button aria-label="Heute nicht mehr fragen" onClick=${()=>answerAsk(dueAsk,'no')} className="bg-transparent border-0 mute p-1 shrink-0"><${Icon} n="x" s=${16}/></button></div>
   <div className="flex gap-2 mt-2.5"><button onClick=${()=>answerAsk(dueAsk,'later')} className="ghost flex-1 py-2.5 text-[13px] font-semibold">Später</button><button onClick=${()=>answerAsk(dueAsk,'yes')} className="btn flex-[1.6] py-2.5 text-[13px]">Ja, erledigt</button></div></div>`}

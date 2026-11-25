@@ -1,6 +1,8 @@
 # Heute: wichtigste Handlung und nächster Zeitblock
 
-## Aktueller Aufbau (ww-v79)
+## Aktueller Aufbau (ab ww-v79)
+
+Seit ww-v81 zeigt die untere Navigation auf Nutzerwunsch nur Icons. Deutsche zugängliche Namen und Tooltips, `aria-current`, aktiver Unterstrich und mindestens 52 px hohe Tippflächen bleiben erhalten.
 
 Dieser Abschnitt ersetzt die unten beschriebenen früheren Reihenfolgen. Standardmäßig sichtbar: Datum und Heute-Titel, Hauptschlacht (oder bewusste Wahl/Ruhetag/Leerzustand), höchstens zwei Nebenmissionen und einmal „Im Blick“ mit Tagesplan und Reflexion. Saison- und Konstanzzahlen stehen nicht mehr im Kopf.
 
