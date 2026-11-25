@@ -1,5 +1,7 @@
 # THE WAR WITHIN – Life OS
 
+Ergänzung ww-v92: [Vom Versuch zur Routine](ROUTINES.md) beschreibt bewusste Standardübernahme, kleine Ausführung, historische Pausen/Änderungen und belegte Tempelbausteine. Bauregeln und Obergrenzen bleiben unverändert.
+
 Stand: Branch `claude/life-os`. Die App bleibt eine statische Seite (GitHub Pages). Neu ist ein eigenständig testbarer Logik-Kern.
 
 ## Architektur
