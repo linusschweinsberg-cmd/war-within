@@ -18,16 +18,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v90"></script>
-<script src="auth.js?v=ww-v90"></script>
-<script src="life-core.js?v=ww-v90"></script>
-<script src="wisdom-core.js?v=ww-v90"></script>
-<script src="future-self-core.js?v=ww-v90"></script>
-<script src="projection-core.js?v=ww-v90"></script>
-<script src="character-core.js?v=ww-v90"></script>
-<script src="arena-core.js?v=ww-v90"></script>
-<script src="arena-api.js?v=ww-v90"></script>
-<script src="arena-ui.js?v=ww-v90"></script>
+<script src="supabase-config.js?v=ww-v91"></script>
+<script src="auth.js?v=ww-v91"></script>
+<script src="life-core.js?v=ww-v91"></script>
+<script src="wisdom-core.js?v=ww-v91"></script>
+<script src="future-self-core.js?v=ww-v91"></script>
+<script src="projection-core.js?v=ww-v91"></script>
+<script src="character-core.js?v=ww-v91"></script>
+<script src="arena-core.js?v=ww-v91"></script>
+<script src="arena-api.js?v=ww-v91"></script>
+<script src="arena-ui.js?v=ww-v91"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -1928,8 +1928,8 @@ function Tasks({c}){
   ${done.length>0&&html`<button type="button" aria-expanded=${showDone} onClick=${()=>setShowDone(!showDone)} className="bg-transparent border-0 w-full py-2.5 mt-2 text-[12.5px] mute flex items-center justify-center gap-1.5">Erledigt (${done.length})<${Icon} n="chevR" s=${13} style=${{transform:showDone?'rotate(90deg)':'none',transition:'transform .2s'}}/></button>`}
   ${showDone&&html`<div className="flex flex-col gap-2">${done.map(m=>html`<${MRow} key=${m.id} m=${m} c=${c}/>`)}</div>`}`})()}
  ${fm.length===0&&html`<div className="card p-4 text-center"><div className="text-[15px] mute">Keine Mission in dieser Auswahl.</div><button onClick=${()=>c.openSheet({t:'add'})} className="chip mt-3">Mission hinzufügen</button></div>`}
- <div className="text-[12px] mute text-center mt-3 leading-snug">Antippen = erledigt · nach rechts wischen = erledigt · lange drücken = Details</div>
- <div className="text-center text-[13px] mute mt-3">${nd} von ${fm.length} erledigt${avgQ(S)?` · Ø Erfolgsgrad ${avgQ(S).avg}`:''}<button onClick=${()=>c.openSheet({t:'catalog'})} className="acc font-semibold bg-transparent border-0 text-[13px] block mx-auto mt-1" style=${{minHeight:44}}>Punkte-Katalog</button></div>`}</div>`}
+ <div className="text-[12px] mute text-center mt-3 leading-snug">Antippen oder nach rechts wischen: erledigt · lange drücken: Details${avgQ(S)?` · Ø Erfolgsgrad ${avgQ(S).avg}`:''}</div>
+ <div className="text-center"><button onClick=${()=>c.openSheet({t:'catalog'})} className="acc font-semibold bg-transparent border-0 text-[13px] block mx-auto mt-1" style=${{minHeight:44}}>Punkte-Katalog</button></div>`}</div>`}
 function SelfCompare({c}){
  const {S,D}=c;const cats=allCats(S);const [tp,setTp]=useState(0);
  const now=cats.map(x=>Math.round(S.catScore[x.id]??40)),old=cats.map(x=>Math.round((S.baseCat&&S.baseCat[x.id])??CAT_INIT[x.id]??40));
@@ -2015,7 +2015,7 @@ function NemDuel({c}){const {S}=c;const now=nowMinOf(c);const d=duelNow(S,now),{
 /* Stats: Saison-Fresko (jeder Tag eine Kachel) und Kompass (Richtung des größten Bedarfs) */
 function SeasonFresco({c}){const {S,D}=c;const N=SDAYS(S),L=SL(S),wk=Math.min(L,seasonWeek(S)+1),tp=dayProg(S,D),tr=tp.t?tp.n/tp.t:0;
  const ratio=i=>{const w=(S.wlog||{})[S.season+'-'+i];if(!w)return null;return w.ps?w.pd/w.ps:(w.g?1:0)};
- return html`<div className="card p-4 mt-3"><div className="flex justify-between items-baseline gap-2"><span className="lbl truncate">Saison ${S.season}${S.acts[S.sTheme]?' · '+S.acts[S.sTheme].name:''}</span><b className="num text-[15px] shrink-0">Woche ${wk} von ${L}</b></div>
+ return html`<div className="card p-4 mt-3"><div className="flex justify-between items-baseline gap-2"><span className="lbl truncate">Spielsaison ${S.season}${S.acts[S.sTheme]?' · '+S.acts[S.sTheme].name:''}</span><b className="num text-[15px] shrink-0">Woche ${wk} von ${L}</b></div>
  <div className="fresco" role="img" aria-label=${'Saison-Fresko: Tag '+(S.day+1)+' von '+N}>${Array.from({length:N},(_,i)=>{let st;if(i<S.day){const r=ratio(i);st=r==null||r<=0?{background:'var(--line)',borderColor:'transparent'}:{background:'var(--acc)',opacity:.35+.65*Math.min(1,r),borderColor:'transparent'}}else if(i===S.day)st={background:`linear-gradient(to top,var(--acc) ${Math.round(tr*100)}%,transparent ${Math.round(tr*100)}%)`,borderColor:'var(--ink)'};else st={opacity:.5};return html`<i key=${i} style=${st}/>`})}</div>
  <div className="text-[12px] mute text-center mt-2.5">Saison-Fresko · jeder Tag ist eine Kachel · Tag ${S.day+1} von ${N}</div></div>`}
 const COMPASS_DE={health:'Gesundheit',relationships:'Beziehungen',wealth:'Finanzen',growth:'Entwicklung'};
@@ -2857,7 +2857,7 @@ const AREA_TILE={health:'Gesund\u00ADheit',relationships:'Bezie\u00ADhungen',wea
 function AreaTiles({c,st,sel}){return html`<div className="area-tiles mt-3" role="group" aria-label="Lebensbereiche">${LC.AREAS.map(a=>{const col=st.cols.find(x=>x.area===a.id)||{stage:1,pts:0},on=sel===a.id,f=c.S.life.focus===a.id;return html`<button key=${a.id} aria-pressed=${on} aria-label=${AREA_TILE[a.id].replace(/\u00AD/g,'')+', Stufe '+col.stage+(f?', Priorität':'')} onClick=${()=>c.setTSel(a.id)} className="area-tile"><span className="flex items-center justify-between w-full"><${Icon} n=${a.icon} s=${22} sw=${2}/>${f&&html`<span aria-hidden="true" className="rounded-full" style=${{width:6,height:6,background:'var(--acc)'}}/>`}</span><b lang="de">${AREA_TILE[a.id]}</b><span className="w-full mt-auto"><${Bar} pct=${Math.min(1,col.pts/17)} h=${4}/><small>Stufe ${col.stage}</small></span></button>`})}</div>`}
 function TempleView({c}){const {S}=c;const st=LC.templeState(S);const T=S.life.temple;const sel=c.tSel||S.life.focus||(mainGoal(S)||{}).area||'health';
  return html`<div className="card p-4 mt-4" style=${{background:'var(--hero)'}}>
- <div className="flex items-start justify-between gap-2"><div><div className="lbl acc">Saison ${st.n} · Woche ${st.week} von ${st.len}</div><div className="disp-serif text-[20px] mt-1">${st.phaseInfo.name}</div><div className="text-[12.5px] mute">${st.phaseInfo.de}</div></div>
+ <div className="flex items-start justify-between gap-2"><div><div className="lbl acc">Tempelsaison ${st.n} · Woche ${st.week} von ${st.len}</div><div className="disp-serif text-[20px] mt-1">${st.phaseInfo.de}</div></div>
   <button onClick=${()=>c.openSheet({t:'trules'})} className="chip shrink-0" aria-label="Bauregeln">Bauregeln</button></div>
  ${st.due&&html`<button onClick=${()=>c.openSheet({t:'tseason'})} className="btn w-full py-2.5 mt-3 text-[13px]">Saison abgeschlossen · Bilanz ansehen</button>`}
  <div className=${'mt-2 '+(T.anim?'':'no-anim')}><${TempleSVG} st=${st} sel=${sel} onSel=${a=>c.setTSel(a)} flash=${c.tFlash} anim=${T.anim}/></div>
@@ -3269,10 +3269,10 @@ function TempleHead({c,st,sel}){const {S}=c,T=S.life.temple,W=S.life.why||{},P=S
  const chip=(icon,label,value,empty,on)=>html`<button type="button" onClick=${on} className="flex-1 min-w-0 text-left border-0 px-3 py-2" style=${{minHeight:52,borderRadius:12,background:'var(--card2)',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}>
   <span className="flex items-center gap-1.5 lbl" style=${{color:'var(--bronze)'}}><${Icon} n=${icon} s=${12}/>${label}</span><span className=${'block text-[13px] truncate mt-0.5 '+(value?'font-semibold':'mute')}>${value||empty}</span></button>`;
  return html`<section className="card p-4 mt-4" style=${{background:'var(--hero)'}} aria-label="Dein Tempel">
- <div className="flex items-start justify-between gap-2"><div className="min-w-0"><div className="lbl acc">Saison ${st.n} · Woche ${st.week}/${st.len}</div><div className="disp-serif text-[20px] mt-1 truncate">${st.phaseInfo.name}</div></div>
+ <div className="flex items-start justify-between gap-2"><div className="min-w-0"><div className="lbl acc">Tempelsaison ${st.n} · Woche ${st.week}/${st.len}</div><div className="disp-serif text-[20px] mt-1 truncate">${st.phaseInfo.de}</div></div>
  <button type="button" onClick=${()=>c.openSheet({t:'trules'})} aria-label="Bauregeln" className="flex items-center justify-center border-0 bg-transparent -mt-1 -mr-2" style=${{width:44,height:44,color:'var(--mute)'}}><${Icon} n="info" s=${18}/></button></div>
  ${st.due&&html`<button onClick=${()=>c.openSheet({t:'tseason'})} className="btn w-full py-2.5 mt-3 text-[13px]">Saison abgeschlossen · Bilanz ansehen</button>`}
- <div className="flex gap-2 mt-3">${chip('temple','Dach · Warum',W.text?'„'+W.text+'“':'','festlegen',()=>c.openSheet({t:'why'}))}</div>
+ <div className="flex gap-2 mt-3">${chip('temple','Dach · Warum',W.text?'„'+W.text+'“':'','Noch offen · antippen zum Festlegen',()=>c.openSheet({t:'why'}))}</div>
  <div className=${'mt-1 mx-auto '+(T.anim?'':'no-anim')} style=${{maxWidth:280}}><${TempleSVG} st=${st} sel=${sel} onSel=${a=>c.setTSel(sel===a?null:a)} flash=${c.tFlash} anim=${T.anim}/></div>
  <div className="flex gap-2">${chip('column','Fundament · Werte',P.map(p=>p.n).join(' · '),'wählen',()=>c.openSheet({t:'values'}))}</div>
  ${P.length>0&&html`<div className="flex flex-wrap gap-1.5 mt-2" role="group" aria-label="Heute nach einem Wert gehandelt">${P.map(p=>html`<button key=${p.id} type="button" onClick=${()=>c.actPrinciple(p.id)} className="chip" style=${{minHeight:36}} aria-label=${p.n+': heute danach gehandelt'}><${Icon} n="check" s=${12}/> ${p.n}${p.acts?html`<span className="num mute ml-1">${p.acts}</span>`:null}</button>`)}</div>`}
