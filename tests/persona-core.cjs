@@ -33,7 +33,23 @@ t('Choose, change, remove and later; persists through JSON and repairs bad data'
 
 t('App wiring: script, ensure on load, sheet, card on Mein Leben, undo snapshot',()=>{
  assert.match(html,/<script src="persona-core\.js\?v=ww-v\d+"><\/script>/);assert.match(html,/PC\.ensure\(s\)/);
- assert.match(html,/case'persona':b=html`<\$\{PersonaSheet\}/);assert.match(html,/<\$\{PersonaCard\} c=\$\{c\}\/><\$\{CharacterInvite\}/);
+ assert.match(html,/case'persona':b=html`<\$\{PersonaSheet\}/);assert.ok(html.includes('<${PersonaCard} c=${c}/><${SkillsRow} c=${c}/><${CharacterInvite}'));
  assert.ok(html.includes('mine=(S.principles||[]).map(p=>p.n),add=PC.valuesToAdd(mine,v)'));assert.ok(html.includes('r=PC.choose(n,ids,vals,addV,cur)'));
  assert.match(html,/const choosePersona=\(ids,vals,addV,goalArea\)=>\{const before=S;/);assert.match(html,/undo:\(\)=>setS\(syncCalendar\(structuredClone\(before\)\)\)/)});
 console.log('PASS persona-core');
+t('Skills: add, no duplicates (case-insensitive), max twelve, trimmed, removable',()=>{const S=life({});
+ assert.ok(PC.addSkill(S,'  Laufen  ',null,1));assert.equal(PC.addSkill(S,'laufen'),null);assert.equal(PC.skillList(S)[0].name,'Laufen');
+ for(let i=0;i<20;i++)PC.addSkill(S,'F'+i,null,i+2);assert.equal(PC.skillList(S).length,12);
+ assert.equal(PC.addSkill(S,'x'.repeat(40)),null);const id=PC.skillList(S)[0].id;assert.equal(PC.removeSkill(S,id),true);assert.equal(PC.skillList(S).length,11);
+ assert.equal(PC.addSkill(S,'y'.repeat(40)).name.length,PC.SKILL_LEN)});
+t('Skill hints from achieved goals and successful experiments, only until added or declined; reading never mutates',()=>{
+ const S=life({goals:[{id:'g1',title:'5 km laufen',status:'achieved'},{id:'g2',title:'Sparen',status:'active'}],exps:[{id:'e1',label:'Früh aufstehen',status:'success'},{id:'e2',label:'Kalt duschen',status:'failed'}]});
+ const snap=JSON.stringify(S);const h=PC.skillHints(S);assert.equal(JSON.stringify(S),snap,'render-safe');assert.deepEqual(Array.from(h,x=>x.src),['g:g1','e:e1']);
+ PC.addSkill(S,h[0].name,h[0].src);PC.declineHint(S,'e:e1');assert.equal(PC.skillHints(S).length,0);
+ const T=life({goals:[{id:'g',title:'Kochen',status:'achieved'}]});PC.addSkill(T,'kochen');assert.equal(PC.skillHints(T).length,0,'same name already owned')});
+t('Skills survive season change data and JSON; broken data is repaired without loss',()=>{const S=life({skills:{v:0,list:[{name:'Musik',t:1},{name:'musik'},{name:''}]}});
+ PC.skills(S);assert.deepEqual(Array.from(PC.skillList(S),x=>x.name),['Musik']);const back=JSON.parse(JSON.stringify(S));back.season=5;back.seasonPts=0;assert.equal(PC.skillList(back).length,1);
+ assert.deepEqual(JSON.parse(JSON.stringify(PC.skillsForSync(S))),{v:1,n:1},'sync carries no names')});
+t('App wiring: skills row on Mein Leben, sheet, undo on remove',()=>{assert.ok(html.includes('<${PersonaCard} c=${c}/><${SkillsRow} c=${c}/>'));assert.ok(html.includes("case'skills':b=html`<${SkillsSheet} c=${c}/>`"));
+ assert.ok(html.includes("const removeSkill=id=>{const before=S"))});
+console.log('PASS skills');

@@ -48,5 +48,29 @@
  /* Für einen späteren Sync: nur Codes */
  const forSync=S=>{const p=state(S);return p?{v:p.v,ids:p.ids.slice(),status:p.status}:null};
 
- G.PC={V,MAX,MAX_VALUES,PERSONAS,byId,ensure,state,chosen,invite,toggle,suggestValues,valuesToAdd,goalHint,choose,later,forSync};
+ /* ── Fähigkeiten: was du mitbringst. Bleiben über Saisons und Kapitel erhalten, nichts setzt sie zurück. ──
+    Daten: S.life.skills = {v, list:[{id,name,src,t}], no:[src]}. Neue entstehen nur durch ausdrückliches Hinzufügen;
+    erreichte Ziele und bewährte Experimente werden als Vorschlag angeboten. */
+ const SKILL_MAX=12,SKILL_LEN=24;
+ const SKILL_PRESETS=['Laufen','Kochen','Sprachen','Organisieren','Zuhören','Schreiben','Programmieren','Handwerk','Musik','Sparen','Führen','Lernen'];
+ const norm=s=>String(s||'').replace(/\s+/g,' ').trim().slice(0,SKILL_LEN);
+ const same=(a,b)=>a.toLocaleLowerCase('de')===b.toLocaleLowerCase('de');
+ function skills(S){const L=S&&S.life;if(!L)return null;const k=L.skills;
+  if(!k||k.v!==V||!Array.isArray(k.list)){const list=k&&Array.isArray(k.list)?k.list:[];L.skills={v:V,list:[],no:[]};list.forEach(x=>x&&addSkill(S,x.name,x.src,x.t));return L.skills}
+  if(!Array.isArray(k.no))k.no=[];return k}
+ function addSkill(S,name,src=null,t=Date.now()){const k=skills(S),n=norm(name);if(!k||!n||k.list.length>=SKILL_MAX||k.list.some(x=>same(x.name,n)))return null;
+  const x={id:'sk'+t.toString(36)+k.list.length,name:n,src:src||null,t};k.list=[...k.list,x];return x}
+ function removeSkill(S,id){const k=skills(S);if(!k)return false;const n=k.list.length;k.list=k.list.filter(x=>x.id!==id);return k.list.length<n}
+ /* Vorschläge aus erreichten Zielen und bewährten Experimenten, die weder übernommen noch abgelehnt sind */
+ /* Nur lesend (sicher in der Darstellung) */
+ const skillList=S=>{const k=S&&S.life&&S.life.skills;return k&&Array.isArray(k.list)?k.list:[]};
+ function skillHints(S){const L=S.life;if(!L)return[];const k={list:skillList(S),no:(L.skills&&Array.isArray(L.skills.no))?L.skills.no:[]};const taken=new Set([...k.list.map(x=>x.src).filter(Boolean),...k.no]);const out=[];
+  (L.goals||[]).filter(g=>g.status==='achieved').forEach(g=>out.push({src:'g:'+g.id,name:norm(g.title),why:'Ziel erreicht'}));
+  (L.exps||[]).filter(e=>e.status==='success').forEach(e=>out.push({src:'e:'+e.id,name:norm(e.label),why:'Experiment bewährt'}));
+  return out.filter(h=>h.name&&!taken.has(h.src)&&!k.list.some(x=>same(x.name,h.name)))}
+ function declineHint(S,src){const k=skills(S);if(k&&src&&!k.no.includes(src))k.no=[...k.no,src].slice(-100)}
+ const skillsForSync=S=>{const k=skills(S);return k?{v:k.v,n:k.list.length}:null};
+
+ G.PC={V,MAX,MAX_VALUES,PERSONAS,byId,ensure,state,chosen,invite,toggle,suggestValues,valuesToAdd,goalHint,choose,later,forSync,
+  SKILL_MAX,SKILL_LEN,SKILL_PRESETS,skills,skillList,addSkill,removeSkill,skillHints,declineHint,skillsForSync};
 })(typeof window!=='undefined'?window:globalThis);

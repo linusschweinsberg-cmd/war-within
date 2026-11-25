@@ -18,18 +18,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v96"></script>
-<script src="auth.js?v=ww-v96"></script>
-<script src="life-core.js?v=ww-v96"></script>
-<script src="wisdom-core.js?v=ww-v96"></script>
-<script src="future-self-core.js?v=ww-v96"></script>
-<script src="projection-core.js?v=ww-v96"></script>
-<script src="rank-core.js?v=ww-v96"></script>
-<script src="persona-core.js?v=ww-v96"></script>
-<script src="character-core.js?v=ww-v96"></script>
-<script src="arena-core.js?v=ww-v96"></script>
-<script src="arena-api.js?v=ww-v96"></script>
-<script src="arena-ui.js?v=ww-v96"></script>
+<script src="supabase-config.js?v=ww-v97"></script>
+<script src="auth.js?v=ww-v97"></script>
+<script src="life-core.js?v=ww-v97"></script>
+<script src="wisdom-core.js?v=ww-v97"></script>
+<script src="future-self-core.js?v=ww-v97"></script>
+<script src="projection-core.js?v=ww-v97"></script>
+<script src="rank-core.js?v=ww-v97"></script>
+<script src="persona-core.js?v=ww-v97"></script>
+<script src="character-core.js?v=ww-v97"></script>
+<script src="arena-core.js?v=ww-v97"></script>
+<script src="arena-api.js?v=ww-v97"></script>
+<script src="arena-ui.js?v=ww-v97"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -2753,6 +2753,7 @@ function SheetHost({c}){
   case'trules':b=html`<${TempleRules} c=${c}/>`;break;
   case'tseason':b=html`<${TempleSeasonSheet} c=${c}/>`;break;
   case'routine':b=html`<${RoutineSheet} key=${sh.key||sh.day} c=${c} sh=${sh}/>`;break;
+  case'skills':b=html`<${SkillsSheet} c=${c}/>`;break;
   case'persona':b=html`<${PersonaSheet} c=${c}/>`;break;
   case'character':b=html`<${CharacterSheet} c=${c} invite=${!!sh.invite}/>`;break;
   case'measure':b=html`<${MeasureSheet} key=${sh.gid} c=${c} gid=${sh.gid}/>`;break;
@@ -3384,6 +3385,24 @@ function PersonaCard({c}){const {S}=c,p=PC.state(S),list=PC.chosen(S);
  return html`<button type="button" onClick=${()=>c.openSheet({t:'persona'})} data-persona-row className="card w-full p-3.5 mt-4 flex items-center gap-3 text-left" style=${{color:'var(--ink)',minHeight:56}} aria-label=${list.length?'Zukunftscharakter: '+list.map(x=>x.name).join(' und ')+'. Ändern':'Zukunftscharakter wählen'}>
  <span className="flex shrink-0" style=${{color:'var(--bronze)'}}>${list.length?list.map(x=>html`<${Icon} key=${x.id} n=${x.icon} s=${22}/>`):html`<${Icon} n="star" s=${22}/>`}</span>
  <span className="flex-1 min-w-0"><span className="lbl block">Zukunftscharakter</span><span className="block text-[14px] font-semibold truncate">${list.length?list.map(x=>x.name).join(' · '):'Noch nicht gewählt'}</span>${p&&p.values.length>0&&list.length>0&&html`<span className="block text-[12px] mute truncate">${p.values.join(' · ')}</span>`}</span><${Icon} n="chevR" s=${16} cls="mute"/></button>`}
+/* ───── Fähigkeiten: was du mitbringst, bleibt über Saisons erhalten (persona-core.js) ───── */
+function SkillsSheet({c}){const {S}=c,list=PC.skillList(S),hints=PC.skillHints(S),[txt,setTxt]=useState(''),full=list.length>=PC.SKILL_MAX;
+ const has=n=>list.find(x=>x.name.toLocaleLowerCase('de')===n.toLocaleLowerCase('de'));
+ const addOwn=()=>{if(txt.trim()){c.addSkill(txt);setTxt('')}};
+ return html`<${Sheet} sub="Ausgangslage · bleibt dir" title="Was kannst du schon?" onClose=${c.closeSheet}>
+ <div className="text-[13px] mute leading-snug -mt-1">Fähigkeiten bleiben dir, auch wenn eine neue Saison beginnt. Sie bringen keine Punkte, sie zeigen, worauf du bauen kannst.</div>
+ ${hints.length>0&&html`<section className="card2 p-3 mt-3" aria-label="Vorschläge"><div className="lbl" style=${{color:'var(--gold)'}}>Neue Fähigkeit?</div>${hints.slice(0,3).map(h=>html`<div key=${h.src} className="flex items-center gap-2 mt-2"><span className="flex-1 min-w-0 text-[13.5px] leading-snug"><b>${h.name}</b><span className="block text-[11.5px] mute">${h.why}</span></span><button type="button" disabled=${full} onClick=${()=>c.addSkill(h.name,h.src)} className="chip on shrink-0" style=${{minHeight:44}}>Hinzufügen</button><button type="button" aria-label=${'Vorschlag '+h.name+' ablehnen'} onClick=${()=>c.declineSkill(h.src)} className="bg-transparent border-0 mute shrink-0 w-11 h-11 flex items-center justify-center"><${Icon} n="x" s=${15}/></button></div>`)}</section>`}
+ <div className="lbl mt-4 mb-2">Deine Fähigkeiten · ${list.length}/${PC.SKILL_MAX}</div>
+ ${list.length?html`<div className="flex flex-wrap gap-2" role="list">${list.map(x=>html`<span key=${x.id} role="listitem" className="chip on flex items-center gap-1" style=${{minHeight:36,paddingRight:4}}>${x.name}<button type="button" aria-label=${x.name+' entfernen'} onClick=${()=>c.removeSkill(x.id)} className="bg-transparent border-0 w-8 h-8 flex items-center justify-center" style=${{color:'inherit'}}><${Icon} n="x" s=${13}/></button></span>`)}</div>`:html`<div className="text-[13px] mute">Noch keine. Wähle unten oder schreib eigene.</div>`}
+ <div className="lbl mt-4 mb-2">Häufige</div>
+ <div className="flex flex-wrap gap-2">${PC.SKILL_PRESETS.filter(n=>!has(n)).map(n=>html`<button key=${n} type="button" disabled=${full} onClick=${()=>c.addSkill(n)} className="chip" style=${{minHeight:44,opacity:full?.45:1}}>+ ${n}</button>`)}</div>
+ <div className="flex gap-2 mt-3"><input className="inp flex-1" aria-label="Eigene Fähigkeit" maxLength=${PC.SKILL_LEN} value=${txt} onChange=${e=>setTxt(e.target.value)} onKeyDown=${e=>{if(e.key==='Enter')addOwn()}} placeholder="Eigene Fähigkeit"/><button type="button" disabled=${full||!txt.trim()} onClick=${addOwn} className="btn px-4 text-sm">Hinzufügen</button></div>
+ ${full&&html`<div className="text-[12px] mute mt-2">Zwölf Fähigkeiten sind das Maximum. Entferne eine, um Platz zu schaffen.</div>`}<//>`}
+function SkillsRow({c}){const {S}=c,list=PC.skillList(S),hints=PC.skillHints(S);
+ return html`<button type="button" onClick=${()=>c.openSheet({t:'skills'})} data-skills-row className="card w-full p-3.5 mt-2 flex items-center gap-3 text-left" style=${{color:'var(--ink)',minHeight:56}} aria-label=${'Fähigkeiten: '+(list.length?list.map(x=>x.name).join(', '):'noch keine')+(hints.length?'. '+hints.length+' Vorschlag':'')}>
+ <span className="shrink-0" style=${{color:'var(--bronze)'}}><${Icon} n="award" s=${22}/></span>
+ <span className="flex-1 min-w-0"><span className="lbl block">Fähigkeiten</span><span className=${'block text-[14px] truncate '+(list.length?'font-semibold':'mute')}>${list.length?list.map(x=>x.name).join(' · '):'Was kannst du schon?'}</span></span>
+ ${hints.length>0&&html`<span className="text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0" style=${{background:'color-mix(in srgb,var(--gold) 18%,transparent)',color:'var(--gold)'}}>Neu</span>`}<${Icon} n="chevR" s=${16} cls="mute"/></button>`}
 function CharacterInvite({c}){const st=CH.state(c.S);if(!st||!st.invite)return null;const carry=st.traits.length>0;
  return html`<section className="card p-4 mt-4" aria-label="Charakter für dieses Kapitel" data-char-invite>
  <div className="lbl acc">Kapitel ${st.cur} · optional</div><div className="text-[16px] font-bold mt-1 leading-snug">${carry?'Passt dein Charakter noch zum neuen Kapitel?':'Mit wem gehst du in dieses Kapitel?'}</div>
@@ -3408,7 +3427,7 @@ function MyLife({c}){const {S}=c;const L=S.life;const st=LC.templeState(S),sel=c
  const tile=(icon,title,sub,on)=>html`<button type="button" onClick=${on} className="text-left border-0 px-3 py-2 flex items-center gap-3 min-w-0" style=${{minHeight:58,borderRadius:16,background:'var(--card-g)',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}><span className="shrink-0" style=${{color:'var(--bronze)'}}><${Icon} n=${icon} s=${20}/></span><span className="min-w-0"><span className="block text-[14px] font-semibold truncate">${title}</span><span className="block text-[11.5px] mute truncate">${sub}</span></span></button>`;
  return html`<div className="screen px-4 pb-6"><div className="pt-5 relative"><span className="page-emblem"><${Icon} n="compass" s=${76} sw=${1}/></span><div className="lbl">Dein Kompass</div><h1 className="disp text-[40px] mt-1">Mein Leben</h1><div className="meander mt-3" aria-hidden="true"/></div>
  <${TempleHead} c=${c} st=${st} sel=${sel}/>
- <${PersonaCard} c=${c}/><${CharacterInvite} c=${c}/><${CharacterHint} c=${c} place="life"/>
+ <${PersonaCard} c=${c}/><${SkillsRow} c=${c}/><${CharacterInvite} c=${c}/><${CharacterHint} c=${c} place="life"/>
  <div className="flex items-center justify-between mt-5"><div className="lbl">Deine Säulen</div><button type="button" onClick=${()=>c.openSheet({t:'goal'})} className="bg-transparent border-0 acc text-[12.5px] font-semibold flex items-center gap-1 px-1" style=${{minHeight:44}}><${Icon} n="plus" s=${13}/>Ziel</button></div>
  ${LC.AREAS.map(a=>html`<${PillarRow} key=${a.id} c=${c} area=${a.id} st=${st} open=${sel===a.id} onToggle=${()=>c.setTSel(sel===a.id?null:a.id)}/>`)}
  <div className="grid grid-cols-2 gap-2 mt-5">${tile('column','Fundament',fn+' von '+fs.length+' Teilen',()=>c.openSheet({t:'fundament'}))}${WC.enabled(S)?tile('scroll','Wisdom Codex',wn?wn+' gemerkt':'Lebensweisheiten',()=>c.openSheet({t:'codex',f:wn?'fav':'all'})):html`<span/>`}${tile('helmet','Charakter',chs.traits.length?chs.traits.map(id=>CH.BY[id].name).join(' · '):'Stärken und Herausforderungen',()=>c.openSheet({t:'character'}))}</div>
@@ -4583,6 +4602,9 @@ function App({init,auth,skey='war_within_v5'}){
  const skipCharacter=()=>{lifeUpd(n=>{CH.skip(n)});setSheet(null)};
  const choosePersona=(ids,vals,addV,goalArea)=>{const before=S;lifeUpd(n=>{const old=n.principles||[],cur=old.map(p=>p.n),r=PC.choose(n,ids,vals,addV,cur);if(r&&r.added.length){const list=[...cur,...r.added];n.principles=list.map(v=>old.find(p=>p.n===v)||{id:'p'+uid(),n:v,acts:0});n.life.values=[...list]}});setSheet(goalArea?{t:'goal',area:goalArea}:null);toast(ids.length?'Zukunftscharakter gespeichert.':'Zukunftscharakter entfernt.','good',{detail:'Jederzeit unter „Mein Leben“ änderbar.',undo:()=>setS(syncCalendar(structuredClone(before)))})};
  const laterPersona=()=>{lifeUpd(n=>{PC.later(n)});setSheet(null)};
+ const addSkill=(name,src)=>{lifeUpd(n=>{PC.addSkill(n,name,src)});if(src)toast('Neue Fähigkeit: '+String(name).trim(),'good')};
+ const removeSkill=id=>{const before=S,x=PC.skillList(S).find(y=>y.id===id);lifeUpd(n=>{PC.removeSkill(n,id)});if(x)toast(x.name+' entfernt.','good',{undo:()=>setS(syncCalendar(structuredClone(before)))})};
+ const declineSkill=src=>lifeUpd(n=>{PC.declineHint(n,src)});
  const applyTrait=(id,ch)=>{const snap=structuredClone(S),n=structuredClone(S);LC.ensureLife(n);const r=CH.apply(n,id,ch,{d:n.life.d,battleSet:!!(n.battle&&n.battle.k===dayKey(n)&&n.battle.key),restToday:derive(n).restToday});if(!r.ok){toast('Bitte zuerst eine Auswahl treffen.');return}if(r.battle)n.battle={k:dayKey(n),key:r.battle};setS(n);toast('In deinen Plan übernommen.','good',{undo:()=>setS(syncCalendar(structuredClone(snap)))})};
  const dismissTrait=id=>upd(n=>{LC.ensureLife(n);CH.dismiss(n,id,n.life.d)});
  const addLifeGoal=x=>{lifeUpd(n=>{const g=LC.addGoal(n,x);PJ.setFrame(n,g.id,{capacity:x.capacity,limits:x.limits,steps:x.steps})});setSheet(null);setTab('home');toast('Ziel angelegt. Deine Handlungen stehen ab heute im Plan.','good')};
@@ -4626,7 +4648,7 @@ function App({init,auth,skey='war_within_v5'}){
  /* Erfolge */
  const newA=S.newAch[0];
  useEffect(()=>{if(!newA)return;const t=setTimeout(()=>upd(n=>{n.newAch=n.newAch.slice(1)}),2600);return()=>clearTimeout(t)},[newA]);
- const c={auth,upd,choosePersona,laterPersona,restore:x=>setS(syncCalendar(structuredClone(x))),wisFav,wisDismiss,wisToggle,saveDebrief,saveEvening,saveMonthly,tSel,setTSel,tFlash,toggleWeather,toggleTempleAnim,closeTempleSeason,chooseCharacter,skipCharacter,applyTrait,dismissTrait,setSkin,addLifeGoal,updLifeGoal,setLifeGoalStatus,addMeas,saveWeekly,toggleFocusMode,setAreaSat,setFocusArea,setMainGoal,saveValues,saveWhy,setActPerWeek,removeAction,addActionTo,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,togglePush,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
+ const c={auth,upd,choosePersona,laterPersona,addSkill,removeSkill,declineSkill,restore:x=>setS(syncCalendar(structuredClone(x))),wisFav,wisDismiss,wisToggle,saveDebrief,saveEvening,saveMonthly,tSel,setTSel,tFlash,toggleWeather,toggleTempleAnim,closeTempleSeason,chooseCharacter,skipCharacter,applyTrait,dismissTrait,setSkin,addLifeGoal,updLifeGoal,setLifeGoalStatus,addMeas,saveWeekly,toggleFocusMode,setAreaSat,setFocusArea,setMainGoal,saveValues,saveWhy,setActPerWeek,removeAction,addActionTo,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,togglePush,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
  const nav=[['home','Heute','home'],['tasks','Aufgaben','target'],['life','Mein Leben','grid'],['stats','Fortschritt','bars'],...(focusMode(S)?[]:[['league','Arena','swords']])];const navKey={solo:'league',reflect:'home'}[tab]||tab;const revDue=LC.reviewWeek(S.life)!=null;
  const ach=newA&&ACHS.find(a=>a.id===newA);
  const fp=FS.settings(S),dockOffset=fp.enabled&&tab!=='home'?(fp.hints&&!fp.minimized?240:180):104;
