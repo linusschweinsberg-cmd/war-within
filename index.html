@@ -18,16 +18,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v92"></script>
-<script src="auth.js?v=ww-v92"></script>
-<script src="life-core.js?v=ww-v92"></script>
-<script src="wisdom-core.js?v=ww-v92"></script>
-<script src="future-self-core.js?v=ww-v92"></script>
-<script src="projection-core.js?v=ww-v92"></script>
-<script src="character-core.js?v=ww-v92"></script>
-<script src="arena-core.js?v=ww-v92"></script>
-<script src="arena-api.js?v=ww-v92"></script>
-<script src="arena-ui.js?v=ww-v92"></script>
+<script src="supabase-config.js?v=ww-v100"></script>
+<script src="auth.js?v=ww-v100"></script>
+<script src="life-core.js?v=ww-v100"></script>
+<script src="wisdom-core.js?v=ww-v100"></script>
+<script src="future-self-core.js?v=ww-v100"></script>
+<script src="projection-core.js?v=ww-v100"></script>
+<script src="rank-core.js?v=ww-v100"></script>
+<script src="persona-core.js?v=ww-v100"></script>
+<script src="character-core.js?v=ww-v100"></script>
+<script src="arena-core.js?v=ww-v100"></script>
+<script src="arena-api.js?v=ww-v100"></script>
+<script src="arena-ui.js?v=ww-v100"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -917,7 +919,7 @@ const ESS=['m_morn','m_train','m_cal','m_read','m_sleep','m_walk','m_focus'];
 /* ───── Missions-Zeile: ganze Zeile tippbar, nach rechts wischen ───── */
 const ACOL={body:'#9AAE6B',fin:'#D4A94F',rel:'#D0806A',disc:'#D9774F',rec:'#7FA7AD',deep:'#B59A7A',lang:'#8FB3B0',run:'#E0925A'};
 function MRow({m,c,big}){
- const {S}=c,a=S.acts[m.act],done=isDone(S,m),cnt=(S.counts&&S.counts[m.id])||0,room=a.cap-(S.weekPts[m.act]||0),capped=!done&&room<=0;
+ const {S}=c,a=S.acts[m.act],done=isDone(S,m),cnt=(S.counts&&S.counts[m.id])||0,room=a.cap-(S.weekPts[m.act]||0),capped=!done&&room<=0,dayFull=!done&&!RK.canEarn(S,dayKey(S));
  const col=ACOL[m.act]||'var(--acc)';
  const [dx,setDx]=useState(0),[hold,setHold]=useState(false);const st=useRef(null),moved=useRef(false),lp=useRef(false),tm=useRef(null);
  const clr=()=>{clearTimeout(tm.current);setHold(false)};
@@ -934,7 +936,7 @@ function MRow({m,c,big}){
   ${hold&&html`<span aria-hidden="true" className="absolute left-0 bottom-0 h-[3px]" style=${{background:'var(--acc)',animation:'holdBar .48s linear forwards'}}/>`}
   <button aria-label="Aktivität öffnen" onClick=${e=>{e.stopPropagation();c.openSheet({t:'act',id:a.id})}} className="bg-transparent border-0 p-0 shrink-0 flex items-center justify-center" style=${{color:'var(--ink)',width:32,height:44,opacity:done?.6:1}}><${Icon} n=${a.icon} s=${big?28:24} sw=${2}/></button>
   <div className="flex-1 min-w-0" style=${{opacity:done?.6:1}}><div className=${`${big?'text-[17px]':'text-[15px]'} font-semibold leading-tight`}>${m.title}</div>
-  <div className="text-[13px] mt-0.5 mute">${focusMode(S)?'':capped?'Limit · ':m.pts+' Punkte · '}${m.desc?m.desc+' · ':''}${m.freq==='multi'?`${cnt} von ${m.times} diese Woche`:freqLabel(m)}${wantsLog(S,m)&&!done?' · mit Eingabe':''}${!done&&c.curIds&&c.curIds.has(m.id)?' · jetzt dran: +20 %':''}${done&&S.punct&&S.punct.k===dayKey(S)&&S.punct.ids.includes(m.id)?' · pünktlich':''}${done&&S.autoDone&&S.autoDone[m.id]?' · Auto (Demo)':''}</div></div>
+  <div className="text-[13px] mt-0.5 mute">${focusMode(S)?'':dayFull?'Ohne Punkte (Tageslimit) · ':capped?'Limit · ':m.pts+' Punkte · '}${m.desc?m.desc+' · ':''}${m.freq==='multi'?`${cnt} von ${m.times} diese Woche`:freqLabel(m)}${wantsLog(S,m)&&!done?' · mit Eingabe':''}${!done&&c.curIds&&c.curIds.has(m.id)?' · jetzt dran: +20 %':''}${done&&S.punct&&S.punct.k===dayKey(S)&&S.punct.ids.includes(m.id)?' · pünktlich':''}${done&&S.autoDone&&S.autoDone[m.id]?' · Auto (Demo)':''}</div></div>
   ${!done&&html`<button aria-label=${m.title+' bearbeiten'} onClick=${e=>{e.stopPropagation();c.openSheet({t:'medit',mid:m.id})}} onPointerDown=${e=>e.stopPropagation()} className="bg-transparent border-0 p-1.5 -mr-1 shrink-0 rounded-full" style=${{color:'inherit',opacity:.5}}><${Icon} n="dots" s=${18} sw=${2.6}/></button>`}
   <div aria-hidden="true" className=${'chk'+(done?' on':'')} style=${{width:big?32:28,height:big?32:28}}>
    ${done?html`<${Icon} n="check" s=${big?18:16} sw=${3}/>`:wantsLog(S,m)?html`<${Icon} n="chevR" s=${16} sw=${2.4} style=${{color:'var(--mute)'}}/>`:null}</div></div></div>`}
@@ -1643,8 +1645,9 @@ function AspisRing({area,pct,full,size=62}){const r=size/2-5,cc=2*Math.PI*r,h=si
 function TodayHero({c,ini,rings}){const {S}=c,planned=rings.filter(r=>r.total>0),closed=planned.filter(r=>r.done>=r.total).length,all=planned.length>0&&closed===planned.length;
  return html`<section className="pt-3 relative" aria-label="Dein Tag">
  <span className="page-emblem" style=${{top:44}}><${Icon} n=${all?'laurel':'aspis'} s=${76} sw=${1}/></span>
- <div className="flex items-center justify-between gap-2"><div className="lbl truncate">${deDate(c.now,calendarZone(S))}</div><div className="flex shrink-0 -mr-2 relative"><button aria-label="Menü und Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0" style=${{color:'var(--ink)'}}><${Icon} n="dots" s=${20}/></button><button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0 p-0"><span className="w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold" style=${{background:'var(--card2)',color:'var(--ink)',boxShadow:'0 0 0 1px var(--line) inset'}}>${ini}</span></button></div></div>
+ <div className="flex items-center justify-between gap-2"><div className="lbl truncate">${deDate(c.now,calendarZone(S))}</div><div className="flex shrink-0 -mr-2 relative"><button aria-label="Menü und Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0" style=${{color:'var(--ink)'}}><${Icon} n="dots" s=${20}/></button><button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0 p-0">${(()=>{const lk=PC.look(S,RK.looks(S));return lk&&lk.set?html`<${CharAvatar} lk=${lk} size=${32}/>`:html`<span className="w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold" style=${{background:'var(--card2)',color:'var(--ink)',boxShadow:'0 0 0 1px var(--line) inset'}}>${ini}</span>`})()}</button></div></div>
  <h1 className="disp text-[40px] leading-none">Heute</h1>
+ ${!focusMode(S)&&(()=>{const r=RK.rank(S);return html`<button type="button" onClick=${()=>c.setTab('stats')} data-season-rank className="w-full mt-2 text-left bg-transparent border-0 p-0" style=${{minHeight:44,color:'var(--ink)'}} aria-label=${'Saison '+S.season+', Rang '+r.name+(r.next?', '+r.pts+' von '+r.next.min+' Saisonpunkten bis '+r.next.name:', höchster Saisonrang')}><span className="flex items-baseline justify-between gap-2 text-[12.5px]"><span className="truncate"><span className="mute">Saison ${S.season} · </span><b>${r.name}</b></span><span className="num mute shrink-0">${r.next?r.pts+' / '+r.next.min:r.pts+' Pkt.'}</span></span><span className="block h-1.5 rounded-full mt-1.5 overflow-hidden" style=${{background:'var(--ghost)'}}><span className="block h-full rounded-full" style=${{width:Math.max(3,r.pct*100)+'%',background:r.next?'var(--acc)':'var(--gold)',transition:'width .6s'}}/></span></button>`})()}
  <div className="meander mt-3" aria-hidden="true"/>
  </section>`}
 /* Bereichsfilter bleiben erreichbar, ohne die wichtigste Handlung nach unten zu schieben. */
@@ -1739,7 +1742,7 @@ function Home({c}){const {S}=c;const [more,setMore]=useState(false),[pick,setPic
  const reentry=reentryToday(S,c.D);
  /* Ring antippen holt die nächste Handlung dieses Bereichs nach vorn: in die Nebenmissionen bzw. an den Anfang der Auswahl. Die Hauptschlacht bleibt. */
  const chosen=rings.find(r=>r.area.id===pick),pickItem=chosen&&areaItem(S,items,chosen),uniq=a=>a.filter((x,i)=>x&&a.findIndex(y=>y&&y.key===x.key)===i);
- const side=battle&&!reentry?uniq([pickItem,...items]).filter(x=>x.key!==battle.key).slice(0,2):[],choices=uniq([pickItem,...items]).slice(0,3);
+ const side=battle&&!reentry?uniq([pickItem,...items]).filter(x=>x.key!==battle.key).slice(0,RK.slots(S)):[],choices=uniq([pickItem,...items]).slice(0,3);
  const ba=battle&&priorityArea(battle),ring=ba&&rings.find(r=>r.area.id===ba.id),sel=pickItem?pick:ba&&ba.id;
  const main=c.D.restToday?html`<section className="card p-5 mt-4 flex items-center gap-4"><${AreaBadge} area=${LC.AREA.health} size=${48}/><div><div className="text-[17px] font-bold">Ruhetag</div><div className="text-[13px] mute">Erholung gehört zum Plan.</div></div></section>`
   :!mainGoal(S)&&!battle&&!trialToday(S)&&(!items.some(x=>x.kind!=='mission'||x.g||x.m.id!=='m_ref'))?html`<${TrialStart} c=${c}/>`
@@ -2060,7 +2063,7 @@ function StatsCompass({c}){const {S}=c;const C=LC.compassState(S),ma=C.area&&LC.
 /* Duell nach Prototyp: Zukunfts-Ich heute oder Schatten über die Saison */
 function Solo({c}){const {S}=c;const [mode,setMode]=useState('nem');const r=rankOf(S);
  return html`<div className="screen px-4 pb-6">
- <div className="pt-5"><div className="lbl truncate">Saison ${S.season} · ${r.name}</div><h1 className="disp text-[32px] mt-1 leading-none">Duell</h1></div>
+ <div className="pt-5"><div className="lbl truncate">Saison ${S.season} · Erfahrung: ${r.name}</div><h1 className="disp text-[32px] mt-1 leading-none">Duell</h1></div>
  <div className="mt-3"><${Seg} opts=${[['nem','Zukunfts-Ich · heute'],['season','Schatten · Saison']]} val=${mode} on=${setMode}/></div>
  ${mode==='nem'?html`<${NemDuel} c=${c}/>`:html`<${SoloSeason} c=${c}/>`}</div>`}
 function SoloSeason({c}){
@@ -2436,6 +2439,7 @@ function Stats({c}){
  const adv=c.S.ui==='adv',base=[['out','Ergebnisse'],['proc','Umsetzung'],['temple','Tempel'],['exp','Experimente'],['compound','Wirkung']],opts=adv?[...base,['matrix','Lebensmatrix'],['gen','Gesamt'],['over','Verlauf'],['rec','Rekorde'],['calc','Rechner'],['proj','Prognose']]:base;
  const t=opts.some(o=>o[0]===c.statTab)?c.statTab:'out',set=c.setStatTab;
  return html`<div className="screen px-4 pb-6"><div className="pt-5 flex items-end justify-between gap-2"><div><div className="lbl flex items-center gap-1.5"><span style=${{color:'var(--gold)'}}><${Icon} n="laurel" s=${15} sw=${1.5}/></span>Dein Weg</div><h1 className="disp text-[32px] mt-1 leading-none">Fortschritt</h1></div><div className="pb-1"><${ModeToggle} c=${c}/></div></div>
+ <div className="mt-3"><${RankBar} S=${c.S}/></div>
  <${SeasonFresco} c=${c}/>
  <${StatsCompass} c=${c}/>
  <div className="meander mt-4" aria-hidden="true"/><div className="lbl mt-3 px-1">Details</div><div className="mt-2 mb-3"><${Seg} opts=${opts} val=${t} on=${set}/></div>
@@ -2663,7 +2667,7 @@ function Settings({c}){const {S}=c;
  <button onClick=${()=>c.openSheet({t:'achs'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="award" s=${18} cls="acc"/>Erfolge ansehen</button>
  <button onClick=${()=>c.openSheet({t:'integ'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="plug" s=${18} cls="acc"/>Integrationen</button>
  <div className="lbl mt-3">${isDemoState(S)?'Demo-Steuerung':'Saison und Auswertung'}</div>
- <button onClick=${()=>c.openSheet({t:'tseason'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="temple" s=${18} cls="acc"/><div>Tempel-Saison abschließen<div className="text-[11px] mute font-normal">Bilanz ansehen und neue Saison beginnen</div></div></button>
+ <button onClick=${()=>c.openSheet({t:'tseason'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="temple" s=${18} cls="acc"/><div>Kapitel abschließen<div className="text-[11px] mute font-normal">Bilanz ansehen und neues Kapitel beginnen</div></div></button>
  ${isDemoState(S)&&html`<${TimeDebug} c=${c}/>
  <button onClick=${()=>{c.closeSheet();c.advance()}} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="ff" s=${18} cls="acc"/><div>Zum nächsten Tag vorspulen<div className="text-[11px] mute font-normal">Sonntag löst den Wochenrückblick aus, Woche 4 den Saisonbericht</div></div></button>`}
  <button onClick=${()=>c.openSheet({t:'eval'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="check" s=${18} cls="acc"/><div>Wochen-Evaluation öffnen<div className="text-[11px] mute font-normal">Der Code: Standards prüfen, Zeugnis, Protokolle</div></div></button>
@@ -2749,6 +2753,9 @@ function SheetHost({c}){
   case'trules':b=html`<${TempleRules} c=${c}/>`;break;
   case'tseason':b=html`<${TempleSeasonSheet} c=${c}/>`;break;
   case'routine':b=html`<${RoutineSheet} key=${sh.key||sh.day} c=${c} sh=${sh}/>`;break;
+  case'look':b=html`<${LookSheet} c=${c}/>`;break;
+  case'skills':b=html`<${SkillsSheet} c=${c}/>`;break;
+  case'persona':b=html`<${PersonaSheet} c=${c}/>`;break;
   case'character':b=html`<${CharacterSheet} c=${c} invite=${!!sh.invite}/>`;break;
   case'measure':b=html`<${MeasureSheet} key=${sh.gid} c=${c} gid=${sh.gid}/>`;break;
   case'weekly':b=html`<${WeeklyReview} c=${c}/>`;break;
@@ -2805,14 +2812,14 @@ function SpartaBanner(){return html`<svg viewBox="0 0 360 150" preserveAspectRat
   <circle cx="33" cy="56" r="15" style=${{fill:'var(--gold)',stroke:'var(--card)'}} strokeWidth="2"/><path d="M27 63 L33 49 L39 63" fill="none" style=${{stroke:'var(--card)'}} strokeWidth="2.4"/>
   <path d="M17 22 C17 13 33 12 34 22 L34 30 L29 31 L29 26 L22 26 L22 32 L17 30 Z" style=${{fill:'var(--ink)'}}/>
   <path d="M13 19 C15 6 32 1 41 14 C33 10 24 11 19 21 Z" style=${{fill:'var(--acc)'}}/></g></svg>`}
-const RANKS=[[0,'Rekrut'],[10,'Hoplit'],[30,'Veteran'],[60,'Lochagos'],[100,'Polemarch'],[160,'Strategos']];
+const RANKS=[[0,'Lehrling'],[10,'Geselle'],[30,'Kenner'],[60,'Meister'],[100,'Mentor'],[160,'Weiser']];
 function rankOf(S){const I=LC.insights(S);const xp=I.sessions+I.reviews*3+I.won*5+I.achieved*10;let i=RANKS.length-1;while(i>0&&xp<RANKS[i][0])i--;const nx=RANKS[i+1];return{xp,name:RANKS[i][1],next:nx,pct:nx?(xp-RANKS[i][0])/(nx[0]-RANKS[i][0]):1}}
 function RankBar({S}){const r=rankOf(S);
  return html`<div className="flex items-center gap-2.5 mb-3 px-0.5" title="Erfahrung: umgesetzte Einheiten, Wochenrückblicke ×3, bestätigte Experimente ×5, erreichte Ziele ×10">
  <span className="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style=${{background:'var(--card2)',border:'1.5px solid var(--gold)',color:'var(--gold)'}}><${Icon} n="helmet" s=${22} sw=${1.6}/></span>
  <div className="flex-1 min-w-0"><div className="flex justify-between items-baseline gap-2"><span className="text-[13px] brand truncate">${r.name}</span><span className="num text-[11.5px] mute shrink-0">${r.next?r.xp+' / '+r.next[0]+' EP':r.xp+' EP'}</span></div>
  <div className="h-2.5 rounded-full mt-1.5 overflow-hidden" style=${{background:'var(--ghost)',boxShadow:'0 0 0 1px var(--line) inset'}}><div className="h-full rounded-full" style=${{width:Math.max(4,r.pct*100)+'%',background:'linear-gradient(90deg,var(--acc-d),var(--acc2))',transition:'width .6s'}}/></div>
- <div className="text-[11.5px] mute mt-1">${r.next?'Nächster Rang: '+r.next[1]+' · Rückblicke und bestätigte Experimente zählen mehr':'Höchster Rang erreicht'}</div></div>
+ <div className="text-[11.5px] mute mt-1">${r.next?'Erfahrung · nächste Stufe: '+r.next[1]+' · Rückblicke und bestätigte Experimente zählen mehr':'Höchste Erfahrungsstufe erreicht'}</div></div>
  <span style=${{color:'var(--gold)'}} className="shrink-0"><${Icon} n="laurel" s=${26} sw=${1.4}/></span></div>`}
 function ShieldBadge({icon,ok=true,s=52}){return html`<svg width=${s} height=${Math.round(s*1.1)} viewBox="0 0 48 53" aria-hidden="true"><path d="M24 2 L44 8 V24 C44 37 35 46 24 51 C13 46 4 37 4 24 V8 Z" style=${{fill:ok?'color-mix(in srgb,var(--gold) 14%,var(--card2))':'var(--ghost)',stroke:ok?'var(--gold)':'var(--line)'}} strokeWidth="1.6"/><g transform="translate(13 13)" style=${{color:ok?'var(--gold)':'var(--mute)'}}><${Icon} n=${ok?icon:'lock'} s=${22} sw=${1.6}/></g></svg>`}
 
@@ -2890,7 +2897,7 @@ const AREA_TILE={health:'Gesund\u00ADheit',relationships:'Bezie\u00ADhungen',wea
 function AreaTiles({c,st,sel}){return html`<div className="area-tiles mt-3" role="group" aria-label="Lebensbereiche">${LC.AREAS.map(a=>{const col=st.cols.find(x=>x.area===a.id)||{stage:1,pts:0},on=sel===a.id,f=c.S.life.focus===a.id;return html`<button key=${a.id} aria-pressed=${on} aria-label=${AREA_TILE[a.id].replace(/\u00AD/g,'')+', Stufe '+col.stage+(f?', Priorität':'')} onClick=${()=>c.setTSel(a.id)} className="area-tile"><span className="flex items-center justify-between w-full"><${Icon} n=${a.icon} s=${22} sw=${2}/>${f&&html`<span aria-hidden="true" className="rounded-full" style=${{width:6,height:6,background:'var(--acc)'}}/>`}</span><b lang="de">${AREA_TILE[a.id]}</b><span className="w-full mt-auto"><${Bar} pct=${Math.min(1,col.pts/17)} h=${4}/><small>Stufe ${col.stage}</small></span></button>`})}</div>`}
 function TempleView({c}){const {S}=c;const st=LC.templeState(S);const T=S.life.temple;const sel=c.tSel||S.life.focus||(mainGoal(S)||{}).area||'health';
  return html`<div className="card p-4 mt-4" style=${{background:'var(--hero)'}}>
- <div className="flex items-start justify-between gap-2"><div><div className="lbl acc">Tempelsaison ${st.n} · Woche ${st.week} von ${st.len}</div><div className="disp-serif text-[20px] mt-1">${st.phaseInfo.de}</div></div>
+ <div className="flex items-start justify-between gap-2"><div><div className="lbl acc">Kapitel ${st.n} · Woche ${st.week} von ${st.len}</div><div className="disp-serif text-[20px] mt-1">${st.phaseInfo.de}</div></div>
   <button onClick=${()=>c.openSheet({t:'trules'})} className="chip shrink-0" aria-label="Bauregeln">Bauregeln</button></div>
  ${st.due&&html`<button onClick=${()=>c.openSheet({t:'tseason'})} className="btn w-full py-2.5 mt-3 text-[13px]">Saison abgeschlossen · Bilanz ansehen</button>`}
  <div className=${'mt-2 '+(T.anim?'':'no-anim')}><${TempleSVG} st=${st} sel=${sel} onSel=${a=>c.setTSel(a)} flash=${c.tFlash} anim=${T.anim}/></div>
@@ -2910,27 +2917,27 @@ function TempleSeasonSheet({c}){const {S}=c;const st=LC.templeState(S),T=S.life.
  const start={cols:st.cols.map(x=>({...x,stage:1,engravings:0,emblems:0,weathered:false})),phase:1,foundation:0};
  const ach=(L.goals||[]).filter(g=>g.status==='achieved'&&g.achievedWk!=null&&g.achievedWk>=T.cur.startWk),won=(L.exps||[]).filter(e=>e.status==='success'&&(e.closed??e.endWk)>=T.cur.startWk),open=(L.goals||[]).filter(g=>g.status==='active');
  const lastRev=(L.reviews||[]).slice().reverse().find(r=>r.worked||r.notWorked);
- return html`<${Sheet} sub=${`Saison ${st.n} · ${st.due?'abgeschlossen':'Woche '+st.week+' von '+st.len}`} title="Saisonbilanz" onClose=${c.closeSheet}>
+ return html`<${Sheet} sub=${`Kapitel ${st.n} · ${st.due?'abgeschlossen':'Woche '+st.week+' von '+st.len}`} title="Kapitelbilanz" onClose=${c.closeSheet}>
  <div className="grid grid-cols-2 gap-2"><div className="card2 p-2"><div className="lbl text-center mb-1">Ausgangszustand</div><${TempleSVG} st=${start} mini=${true} anim=${false}/></div><div className="card2 p-2"><div className="lbl text-center mb-1 acc">Jetzt · ${st.phaseInfo.name}</div><${TempleSVG} st=${st} mini=${true} anim=${false}/></div></div>
  <div className="grid grid-cols-3 gap-2 mt-3 text-center">${[[st.total,'Bausteine'],[ach.length,'Ziele erreicht'],[won.length,'bewährte Änderungen']].map(([v,l])=>html`<div key=${l} className="card2 p-2.5"><div className="disp text-[24px]">${v}</div><div className="text-[11px] mute">${l}</div></div>`)}</div>
  ${ach.length>0&&html`<div className="lbl mt-4 mb-1">Erreicht</div>${ach.map(g=>html`<div key=${g.id} className="text-[13px]">✓ ${g.title}</div>`)}`}
  ${won.length>0&&html`<div className="lbl mt-3 mb-1">Was bei dir wirkt</div>${won.map(e=>html`<div key=${e.id} className="text-[13px]">· ${e.label}</div>`)}`}
  ${lastRev&&html`<div className="lbl mt-3 mb-1">Deine Erkenntnis</div><div className="text-[13px]">${lastRev.worked?'Lief: '+lastRev.worked:''} ${lastRev.notWorked?'· Hakte: '+lastRev.notWorked:''}</div>`}
  ${open.length>0&&html`<div className="lbl mt-3 mb-1">Offene Herausforderungen</div>${open.map(g=>html`<div key=${g.id} className="text-[13px] mute">· ${g.title}</div>`)}`}
- <div className="card2 p-3 mt-4 text-[12.5px] leading-relaxed">${st.phase<5?'Ein unvollständiger Tempel ist ein gültiges Ergebnis. Er zeigt, wo du gebaut hast.':'Meisterschaft: ein außergewöhnlicher Saisonfortschritt.'} Dein Tempel bleibt in der Galerie. Ziele, Messwerte, Handlungen und Erkenntnisse bleiben erhalten.</div>
+ <div className="card2 p-3 mt-4 text-[12.5px] leading-relaxed">${st.phase<5?'Ein unvollständiger Tempel ist ein gültiges Ergebnis. Er zeigt, wo du gebaut hast.':'Meisterschaft: ein außergewöhnlicher Kapitelfortschritt.'} Dein Tempel bleibt in der Galerie. Ziele, Messwerte, Handlungen und Erkenntnisse bleiben erhalten.</div>
  <div className="lbl mt-4 mb-1.5">Nächste Saison</div><${Seg} opts=${[[8,'8 Wochen'],[12,'12 Wochen'],[16,'16 Wochen']]} val=${len} on=${setLen}/>
- ${st.due||sure?html`<button onClick=${()=>c.closeTempleSeason(len)} className="btn w-full py-3.5 mt-4 text-sm">${st.due?'Neue Saison beginnen':'Ja, Saison vorzeitig abschließen'}</button>`:html`<div className="text-[12.5px] mute mt-4">Die Saison endet regulär nach Woche ${st.len}.</div><button onClick=${()=>setSure(true)} className="ghost w-full py-3 mt-2 text-[13px] font-semibold">Vorzeitig abschließen …</button>`}<//>`}
+ ${st.due||sure?html`<button onClick=${()=>c.closeTempleSeason(len)} className="btn w-full py-3.5 mt-4 text-sm">${st.due?'Neues Kapitel beginnen':'Ja, Kapitel vorzeitig abschließen'}</button>`:html`<div className="text-[12.5px] mute mt-4">Das Kapitel endet regulär nach Woche ${st.len}.</div><button onClick=${()=>setSure(true)} className="ghost w-full py-3 mt-2 text-[13px] font-semibold">Vorzeitig abschließen …</button>`}<//>`}
 
 function TempleProgress({c}){const {S}=c;const st=LC.templeState(S),T=S.life.temple;const all=T.cur.ms.slice().reverse();
  return html`<div className="flex flex-col gap-3">
- <div className="card p-4"><div className="flex items-baseline justify-between"><div className="lbl acc">Saison ${st.n}</div><div className="num text-[12.5px] mute">Woche ${st.week} von ${st.len}</div></div><div className="mt-2"><${Bar} pct=${st.week/st.len} h=${5} color="var(--bronze)"/></div>
+ <div className="card p-4"><div className="flex items-baseline justify-between"><div className="lbl acc">Kapitel ${st.n}</div><div className="num text-[12.5px] mute">Woche ${st.week} von ${st.len}</div></div><div className="mt-2"><${Bar} pct=${st.week/st.len} h=${5} color="var(--bronze)"/></div>
   <div className="disp-serif text-[18px] mt-3">${st.phaseInfo.name}</div><div className="text-[12.5px] mute">${st.phaseInfo.de} · ${st.total} Bausteine</div>
   <button onClick=${()=>c.openSheet({t:'tseason'})} className="chip mt-3">${st.due?'Saison abschließen':'Zwischenbilanz'}</button></div>
  <div className="card p-4"><div className="lbl mb-2">Säulen</div>${st.cols.map(col=>{const a=LC.AREA[col.area];return html`<div key=${col.area} className="mb-2.5"><div className="flex justify-between text-[13px]"><span className="flex items-center gap-1.5"><span style=${{color:a.color}}><${Icon} n=${a.icon} s=${14}/></span>${a.de}${col.weathered?html`<span className="mute text-[11.5px]">· verwittert</span>`:null}</span><span className="num mute">Stufe ${col.stage} · ${col.pts} P.</span></div>
   <div className="relative h-2 rounded-full mt-1.5" style=${{background:'var(--ghost)'}}><div className="absolute inset-y-0 left-0 rounded-full" style=${{width:Math.min(100,col.pts/17*100)+'%',background:'var(--bronze)'}}/>${LC.STAGES.slice(1).map(s=>html`<span key=${s.n} className="absolute top-0 bottom-0" style=${{left:s.min/17*100+'%',width:1.5,background:'var(--bg)'}}/>`)}</div></div>`})}
   <div className="text-[11.5px] mute">Tempelpunkte sind symbolisch. Echte Ergebnisse siehst du unter „Ergebnisse“, deine Umsetzung unter „Umsetzung“.</div></div>
  <div className="card p-4"><div className="lbl mb-2">Baumeilensteine</div>${all.length?all.slice(0,12).map(m=>html`<div key=${m.id} className="flex items-center gap-2 text-[12.5px] py-1 border-b ln"><span style=${{color:'var(--bronze)'}}><${Icon} n=${MS_IC[m.kind]||'check'} s=${14}/></span><span className="mute shrink-0 w-[74px]">${LC.AREA[m.area].de}</span><span className="flex-1 min-w-0"><span className="block">${m.label}</span><span className="block mute text-[12px]">${LC.milestoneEvidence(L,m)}</span></span><span className="num mute">Wo. ${m.wk+1}</span></div>`):html`<div className="text-[13px] mute">Noch keine. Der erste kommt mit der ersten umgesetzten Ziel-Handlung.</div>`}</div>
- <div className="card p-4"><div className="lbl mb-2">Galerie früherer Saisons</div>${(T.hist||[]).length?html`<div className="grid grid-cols-2 gap-2">${T.hist.slice().reverse().map(h=>html`<div key=${h.n} className="card2 p-2"><${TempleSVG} st=${snapState(h)} mini=${true} anim=${false} label=${'Tempel Saison '+h.n}/><div className="text-[12px] font-semibold mt-1">Saison ${h.n} · ${(LC.PHASES[h.phase-1]||{}).name}</div><div className="text-[11px] mute">${h.ms.length} Bausteine · ${h.achieved.length} Ziele erreicht</div></div>`)}</div>`:html`<div className="text-[13px] mute">Nach dem ersten Saisonabschluss steht hier dein erster Tempel.</div>`}</div></div>`}
+ <div className="card p-4"><div className="lbl mb-2">Galerie früherer Kapitel</div>${(T.hist||[]).length?html`<div className="grid grid-cols-2 gap-2">${T.hist.slice().reverse().map(h=>html`<div key=${h.n} className="card2 p-2"><${TempleSVG} st=${snapState(h)} mini=${true} anim=${false} label=${'Tempel Kapitel '+h.n}/><div className="text-[12px] font-semibold mt-1">Kapitel ${h.n} · ${(LC.PHASES[h.phase-1]||{}).name}</div><div className="text-[11px] mute">${h.ms.length} Bausteine · ${h.achieved.length} Ziele erreicht</div></div>`)}</div>`:html`<div className="text-[13px] mute">Nach dem ersten Kapitelabschluss steht hier dein erster Tempel.</div>`}</div></div>`}
 function TempleMini({c,area}){const {S}=c;const st=LC.templeState(S);const col=st.cols.find(x=>x.area===area);if(!col)return null;
  return html`<button onClick=${()=>{c.setTSel(area);c.setTab('life')}} className="w-full flex items-center gap-3 mt-3 bg-transparent border-0 p-0 text-left" aria-label=${'Lebenstempel, '+LC.AREA[area].de+'-Säule öffnen'}>
  <span className="shrink-0" style=${{width:64}}><${TempleSVG} st=${st} sel=${area} mini=${true} anim=${false}/></span>
@@ -3302,7 +3309,7 @@ function TempleHead({c,st,sel}){const {S}=c,T=S.life.temple,W=S.life.why||{},P=S
  const chip=(icon,label,value,empty,on)=>html`<button type="button" onClick=${on} className="flex-1 min-w-0 text-left border-0 px-3 py-2" style=${{minHeight:52,borderRadius:12,background:'var(--card2)',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}>
   <span className="flex items-center gap-1.5 lbl" style=${{color:'var(--bronze)'}}><${Icon} n=${icon} s=${12}/>${label}</span><span className=${'block text-[13px] truncate mt-0.5 '+(value?'font-semibold':'mute')}>${value||empty}</span></button>`;
  return html`<section className="card p-4 mt-4" style=${{background:'var(--hero)'}} aria-label="Dein Tempel">
- <div className="flex items-start justify-between gap-2"><div className="min-w-0"><div className="lbl acc">Tempelsaison ${st.n} · Woche ${st.week}/${st.len}</div><div className="disp-serif text-[20px] mt-1 truncate">${st.phaseInfo.de}</div></div>
+ <div className="flex items-start justify-between gap-2"><div className="min-w-0"><div className="lbl acc">Kapitel ${st.n} · Woche ${st.week}/${st.len}</div><div className="disp-serif text-[20px] mt-1 truncate">${st.phaseInfo.de}</div></div>
  <button type="button" onClick=${()=>c.openSheet({t:'trules'})} aria-label="Bauregeln" className="flex items-center justify-center border-0 bg-transparent -mt-1 -mr-2" style=${{width:44,height:44,color:'var(--mute)'}}><${Icon} n="info" s=${18}/></button></div>
  ${st.due&&html`<button onClick=${()=>c.openSheet({t:'tseason'})} className="btn w-full py-2.5 mt-3 text-[13px]">Saison abgeschlossen · Bilanz ansehen</button>`}
  <div className="flex gap-2 mt-3">${chip('temple','Dach · Warum',W.text?'„'+W.text+'“':'','Noch offen · antippen zum Festlegen',()=>c.openSheet({t:'why'}))}</div>
@@ -3334,14 +3341,14 @@ function TraitBtn({t,on,onTap}){const s=t.kind==='strength';
  <b className="num text-[13px] shrink-0" style=${{color:'var(--gold)'}} aria-hidden="true">${s?'−':'+'}${t.cost}</b></button>`}
 function CharacterSheet({c,invite}){const {S}=c;const st=CH.state(S);const [sel,setSel]=useState(()=>st.traits),[review,setReview]=useState(false);
  const b=CH.budget(sel),ok=b>=0,fx=CH.effects(sel),col=k=>CH.TRAITS.filter(t=>t.kind===k);
- const head=invite?'Saison '+st.cur+' · Saisonbeginn':'Saison '+st.cur+' · freiwillig';
+ const head=invite?'Kapitel '+st.cur+' · Kapitelbeginn':'Kapitel '+st.cur+' · freiwillig';
  if(review)return html`<${Sheet} sub=${head} title="Das bedeutet deine Auswahl" onClose=${c.closeSheet}>
  ${fx.length?html`<ul className="flex flex-col gap-2.5 text-[13.5px] leading-snug" aria-label="Folgen deiner Auswahl">${fx.map(x=>html`<li key=${x.id} className="flex gap-2"><span className="shrink-0 mt-0.5" style=${{color:x.kind==='strength'?'var(--gold)':'var(--acc)'}}><${Icon} n=${x.kind==='strength'?'shield':'flag'} s=${15}/></span><span><b>${x.name}:</b> ${x.text}</span></li>`)}</ul>`
   :html`<div className="text-[13.5px] leading-snug">Du startest ohne Eigenschaften. Es erscheinen keine Charakterhinweise. Du kannst später unter „Mein Leben“ welche wählen.</div>`}
  <div className="card2 p-3 mt-4 text-[12.5px] leading-relaxed">Vorschläge erscheinen höchstens einzeln und werden erst zum Plan, wenn du sie ausdrücklich übernimmst. Handlungspunkte, Arena-Wertung, Tempel-Bauregeln und deine Messwerte bleiben für alle gleich. Du kannst die Auswahl jederzeit ändern.</div>
  <button type="button" onClick=${()=>c.chooseCharacter(sel)} className="btn w-full py-3.5 mt-4 text-sm">Mit diesem Charakter starten</button>
  <button type="button" onClick=${()=>setReview(false)} className="ghost w-full py-3 mt-2 text-[13px] font-semibold">Zurück zur Auswahl</button><//>`;
- return html`<${Sheet} sub=${head} title="Mit wem gehst du in diese Saison?" onClose=${c.closeSheet}>
+ return html`<${Sheet} sub=${head} title="Mit wem gehst du in dieses Kapitel?" onClose=${c.closeSheet}>
  <div className="text-[13px] mute leading-snug -mt-1">Schätze deine Ausgangslage selbst ein. Stärken kosten Charakterpunkte, Herausforderungen geben welche zurück. Keine Diagnose, keine Wertung.</div>
  <div className="flex items-center justify-between gap-3 mt-3 card2 px-3 py-2.5"><div><div className="lbl">Charakterpunkte übrig</div><div className="text-[11px] mute mt-0.5">${CH.START} Startpunkte · Rest darf ungenutzt bleiben</div></div><b className="disp num text-[28px]" style=${{color:ok?'var(--gold)':'var(--bad)'}} aria-live="polite" aria-label=${'Charakterpunkte übrig: '+b} data-char-budget>${b}</b></div>
  <div className="grid grid-cols-2 gap-2 mt-3">
@@ -3350,9 +3357,83 @@ function CharacterSheet({c,invite}){const {S}=c;const st=CH.state(S);const [sel,
  <div className="text-[12px] mt-1 leading-snug" style=${{color:ok?'var(--mute)':'var(--bad)'}} aria-live="polite">${ok?(sel.length?sel.length+' gewählt · später änderbar':'Ohne Eigenschaften zu starten ist erlaubt.'):'Noch '+(-b)+' Charakterpunkte nötig. Wähle weniger Stärken oder eine passende Herausforderung.'}</div>
  <button type="button" disabled=${!ok} onClick=${()=>setReview(true)} className="btn w-full py-3.5 mt-3 text-sm" style=${ok?undefined:{opacity:.45}}>Weiter: Folgen ansehen</button>
  ${invite&&html`<button type="button" onClick=${c.skipCharacter} className="ghost w-full py-3 mt-2 text-[13px] font-semibold">${st.traits.length?'Bisherige Auswahl behalten':'Überspringen'}</button>`}<//>`}
+/* ───── Zukunftscharakter: Leitbild als Kompass, höchstens zwei, jederzeit änderbar (persona-core.js) ───── */
+function PersonaGrid({ids,setIds}){return html`<div className="grid grid-cols-2 gap-2 mt-3" role="group" aria-label="Leitbilder">${PC.PERSONAS.map(p=>{const on=ids.includes(p.id),full=!on&&ids.length>=PC.MAX;return html`<button key=${p.id} type="button" aria-pressed=${on} aria-label=${p.name+': '+p.line+(p.values.length?'. Werte: '+p.values.join(', '):'')} disabled=${full} onClick=${()=>setIds(x=>PC.toggle(x,p.id))} className="text-left p-3 flex flex-col gap-1.5" style=${{minHeight:96,borderRadius:16,background:on?'color-mix(in srgb,var(--acc) 14%,var(--card))':'var(--card2)',boxShadow:'0 0 0 '+(on?'1.5px var(--acc)':'1px var(--line)')+' inset',color:'var(--ink)',opacity:full?.45:1}}>
+  <span className="flex items-center justify-between"><span style=${{color:on?'var(--acc)':'var(--bronze)'}}><${Icon} n=${p.icon} s=${24}/></span>${on&&html`<span className="acc"><${Icon} n="check" s=${16} sw=${2.6}/></span>`}</span>
+  <span className="text-[14px] font-bold leading-tight">${p.name}</span><span className="text-[12px] mute leading-snug">${p.line}</span></button>`})}</div>`}
+/* Routinenvorschläge aus dem Zukunftscharakter: nur Bereiche ohne Standard, Übernehmen nur per Tipp, danach anpassbar */
+function RoutineSuggest({ids,map,save}){const list=PC.routineSuggestions(ids,map);if(!list.length)return null;
+ return html`<section className="card2 p-3 mt-3" aria-label="Vorschläge aus deinem Zukunftscharakter" data-routine-suggest><div className="lbl acc">Vorschläge aus deinem Zukunftscharakter</div>
+ ${list.map(x=>html`<div key=${x.area} className="flex items-center gap-2 mt-2.5"><span className="flex-1 min-w-0 text-[13px] leading-snug"><span className="mute text-[11.5px] block">${LC.AREA[x.area].de}</span><b>${x.std.text}</b> · ${x.std.perWeek}× pro Woche<span className="block text-[12px] mute">Kleine Variante: ${x.min.text}</span></span><button type="button" onClick=${()=>save(x.area,{std:x.std,min:x.min},'Vorschlag aus deinem Zukunftscharakter')} className="chip on shrink-0" style=${{minHeight:44}} aria-label=${'Übernehmen: '+x.std.text}>Übernehmen</button></div>`)}
+ <div className="text-[11.5px] mute mt-2">Du kannst alles danach anpassen oder wieder entfernen.</div></section>`}
+function ObPersona({ob,u}){const ids=ob.persona||[];const setIds=f=>u(q=>({persona:f(q.persona||[])}));
+ return html`<div><${Lines} l=${['Wer willst du werden?','Wähle, was dich anspricht.']}/><p className="story-in text-[13px] mute mt-2 leading-relaxed" style=${obIn(1)}>Bis zu zwei Leitbilder. Sie geben Richtung, legen dich aber auf nichts fest. Du kannst sie jederzeit ändern.</p>
+ <div className="story-in" style=${obIn(1.2)}><${PersonaGrid} ids=${ids} setIds=${setIds}/></div>
+ ${ids.length>0&&html`<div className="text-[12px] mute mt-3">${PC.suggestValues(ids).length?'Passende Werte: '+PC.suggestValues(ids).join(' · '):'Deine eigenen Werte wählst du gleich selbst.'}</div>`}</div>`}
+function PersonaSheet({c}){const {S}=c,cur=PC.state(S);const [ids,setIds]=useState(()=>cur?cur.ids:[]),[step,setStep]=useState(0),[vals,setVals]=useState(null),[take,setTake]=useState(true);
+ const sugg=PC.suggestValues(ids),v=vals||sugg,mine=(S.principles||[]).map(p=>p.n),add=PC.valuesToAdd(mine,v),gh=PC.goalHint(S,ids);
+ if(step===1)return html`<${Sheet} sub="Zukunftscharakter · Werte" title="Was willst du verkörpern?" onClose=${c.closeSheet}>
+ <div className="text-[13px] mute leading-snug -mt-1">Vorschläge aus deiner Wahl. Tippe an, was zu dir passt.</div>
+ ${[...new Set([...sugg,...v])].length?html`<div className="flex flex-wrap gap-2 mt-3" role="group" aria-label="Vorgeschlagene Werte">${[...new Set([...sugg,...v])].map(x=>{const on=v.includes(x);return html`<button key=${x} type="button" aria-pressed=${on} onClick=${()=>setVals(on?v.filter(y=>y!==x):[...v,x])} className=${'chip'+(on?' on':'')} style=${{minHeight:44}}>${on?'✓ ':''}${x}</button>`})}</div>`:html`<div className="card2 p-3 mt-3 text-[12.5px] mute leading-snug">Dein eigener Stern hat keine vorgegebenen Werte. Deine Werte legst du im Fundament fest.</div>`}
+ ${v.length>0&&(add.length?html`<label className="card2 p-3 mt-3 flex items-start gap-3 text-[13px] leading-snug" style=${{minHeight:44}}><input type="checkbox" checked=${take} onChange=${e=>setTake(e.target.checked)} className="mt-0.5 shrink-0" style=${{width:20,height:20,accentColor:'var(--acc)'}}/><span>In meine Werte übernehmen: <b>${add.join(', ')}</b><span className="block mute text-[12px] mt-0.5">Bestehende Werte bleiben. Höchstens drei Werte insgesamt.</span></span></label>`
+  :html`<div className="card2 p-3 mt-3 text-[12.5px] mute leading-snug">${mine.length>=PC.MAX_VALUES?'Du hast schon drei Werte. Sie bleiben, wie sie sind. Ändern kannst du sie im Fundament.':'Diese Werte gehören schon zu deinen.'}</div>`)}
+ ${gh&&html`<div className="card2 p-3 mt-3 text-[13px] leading-snug"><div className="lbl">Idee für ein erstes Ziel · ${LC.AREA[gh.area].de}</div><div className="mt-1">${gh.idea}</div><div className="text-[12px] mute mt-1">Wird nur angelegt, wenn du es selbst festlegst.</div></div>`}
+ <button type="button" onClick=${()=>c.choosePersona(ids,v,take&&add.length>0,null)} className="btn w-full py-3.5 mt-4 text-sm">Zukunftscharakter speichern</button>
+ ${gh&&html`<button type="button" onClick=${()=>c.choosePersona(ids,v,take&&add.length>0,gh.area)} className="ghost w-full py-3 mt-2 text-[13px] font-semibold">Speichern und Ziel festlegen</button>`}
+ <button type="button" onClick=${()=>setStep(0)} className="bg-transparent border-0 w-full py-2 mt-1 text-[13px] mute" style=${{minHeight:44}}>Zurück</button><//>`;
+ return html`<${Sheet} sub="Zukunftscharakter · frei änderbar" title="Wer willst du werden?" onClose=${c.closeSheet}>
+ <div className="text-[13px] mute leading-snug -mt-1">Wähle, was dich anspricht. Bis zu zwei. Es legt dich auf nichts fest.</div>
+ <${PersonaGrid} ids=${ids} setIds=${setIds}/>
+ <div className="text-[12px] mute mt-2" aria-live="polite">${ids.length?ids.length+' von '+PC.MAX+' gewählt':'Noch nichts gewählt.'}</div>
+ <button type="button" onClick=${()=>c.openSheet({t:'look'})} className="card2 w-full p-3 mt-3 flex items-center gap-3 text-left border-0" style=${{color:'var(--ink)',minHeight:56}}><${CharAvatar} lk=${PC.look(S,RK.looks(S))} size=${36}/><span className="flex-1 text-[13.5px] font-semibold">Aussehen gestalten<span className="block text-[12px] mute font-normal">Figur, Farbe, Emblem</span></span><${Icon} n="chevR" s=${16} cls="mute"/></button>
+ <button type="button" disabled=${!ids.length} onClick=${()=>{setVals(null);setStep(1)}} className="btn w-full py-3.5 mt-3 text-sm" style=${ids.length?undefined:{opacity:.45}}>Weiter: Werte</button>
+ ${cur&&cur.status==='set'?html`<button type="button" onClick=${()=>c.choosePersona([],[],false,null)} className="ghost w-full py-3 mt-2 text-[13px] font-semibold">Zukunftscharakter entfernen</button>`
+  :html`<button type="button" onClick=${c.laterPersona} className="ghost w-full py-3 mt-2 text-[13px] font-semibold">Später</button>`}<//>`}
+function PersonaCard({c}){const {S}=c,p=PC.state(S),list=PC.chosen(S);
+ if(PC.invite(S))return html`<section className="card p-4 mt-4" aria-label="Zukunftscharakter" data-persona-invite>
+ <div className="lbl acc">Neu · 1 Minute</div><div className="text-[16px] font-bold mt-1 leading-snug">Wer willst du werden?</div>
+ <div className="text-[12.5px] mute mt-1 leading-snug">Wähle ein Leitbild als Kompass. Jederzeit änderbar.</div>
+ <div className="flex gap-2 mt-3"><button type="button" onClick=${()=>c.openSheet({t:'persona'})} className="btn flex-1 py-2.5 text-[13px]">Jetzt wählen</button><button type="button" onClick=${c.laterPersona} className="ghost flex-1 py-2.5 text-[13px] font-semibold">Später</button></div></section>`;
+ return html`<button type="button" onClick=${()=>c.openSheet({t:'persona'})} data-persona-row className="card w-full p-3.5 mt-4 flex items-center gap-3 text-left" style=${{color:'var(--ink)',minHeight:56}} aria-label=${list.length?'Zukunftscharakter: '+list.map(x=>x.name).join(' und ')+'. Ändern':'Zukunftscharakter wählen'}>
+ <${CharAvatar} lk=${PC.look(S,RK.looks(S))} size=${40}/>
+ <span className="flex-1 min-w-0"><span className="lbl block">Zukunftscharakter</span><span className="block text-[14px] font-semibold truncate">${list.length?list.map(x=>x.name).join(' · '):'Noch nicht gewählt'}</span>${p&&p.values.length>0&&list.length>0&&html`<span className="block text-[12px] mute truncate">${p.values.join(' · ')}</span>`}</span><${Icon} n="chevR" s=${16} cls="mute"/></button>`}
+/* ───── Fähigkeiten: was du mitbringst, bleibt über Saisons erhalten (persona-core.js) ───── */
+function SkillsSheet({c}){const {S}=c,list=PC.skillList(S),hints=PC.skillHints(S),[txt,setTxt]=useState(''),full=list.length>=PC.SKILL_MAX;
+ const has=n=>list.find(x=>x.name.toLocaleLowerCase('de')===n.toLocaleLowerCase('de'));
+ const addOwn=()=>{if(txt.trim()){c.addSkill(txt);setTxt('')}};
+ return html`<${Sheet} sub="Ausgangslage · bleibt dir" title="Was kannst du schon?" onClose=${c.closeSheet}>
+ <div className="text-[13px] mute leading-snug -mt-1">Fähigkeiten bleiben dir, auch wenn eine neue Saison beginnt. Sie bringen keine Punkte, sie zeigen, worauf du bauen kannst.</div>
+ ${hints.length>0&&html`<section className="card2 p-3 mt-3" aria-label="Vorschläge"><div className="lbl" style=${{color:'var(--gold)'}}>Neue Fähigkeit?</div>${hints.slice(0,3).map(h=>html`<div key=${h.src} className="flex items-center gap-2 mt-2"><span className="flex-1 min-w-0 text-[13.5px] leading-snug"><b>${h.name}</b><span className="block text-[11.5px] mute">${h.why}</span></span><button type="button" disabled=${full} onClick=${()=>c.addSkill(h.name,h.src)} className="chip on shrink-0" style=${{minHeight:44}}>Hinzufügen</button><button type="button" aria-label=${'Vorschlag '+h.name+' ablehnen'} onClick=${()=>c.declineSkill(h.src)} className="bg-transparent border-0 mute shrink-0 w-11 h-11 flex items-center justify-center"><${Icon} n="x" s=${15}/></button></div>`)}</section>`}
+ <div className="lbl mt-4 mb-2">Deine Fähigkeiten · ${list.length}/${PC.SKILL_MAX}</div>
+ ${list.length?html`<div className="flex flex-wrap gap-2" role="list">${list.map(x=>html`<span key=${x.id} role="listitem" className="chip on flex items-center gap-1" style=${{minHeight:36,paddingRight:4}}>${x.name}<button type="button" aria-label=${x.name+' entfernen'} onClick=${()=>c.removeSkill(x.id)} className="bg-transparent border-0 w-8 h-8 flex items-center justify-center" style=${{color:'inherit'}}><${Icon} n="x" s=${13}/></button></span>`)}</div>`:html`<div className="text-[13px] mute">Noch keine. Wähle unten oder schreib eigene.</div>`}
+ <div className="lbl mt-4 mb-2">Häufige</div>
+ <div className="flex flex-wrap gap-2">${PC.SKILL_PRESETS.filter(n=>!has(n)).map(n=>html`<button key=${n} type="button" disabled=${full} onClick=${()=>c.addSkill(n)} className="chip" style=${{minHeight:44,opacity:full?.45:1}}>+ ${n}</button>`)}</div>
+ <div className="flex gap-2 mt-3"><input className="inp flex-1" aria-label="Eigene Fähigkeit" maxLength=${PC.SKILL_LEN} value=${txt} onChange=${e=>setTxt(e.target.value)} onKeyDown=${e=>{if(e.key==='Enter')addOwn()}} placeholder="Eigene Fähigkeit"/><button type="button" disabled=${full||!txt.trim()} onClick=${addOwn} className="btn px-4 text-sm">Hinzufügen</button></div>
+ ${full&&html`<div className="text-[12px] mute mt-2">Zwölf Fähigkeiten sind das Maximum. Entferne eine, um Platz zu schaffen.</div>`}<//>`}
+function SkillsRow({c}){const {S}=c,list=PC.skillList(S),hints=PC.skillHints(S);
+ return html`<button type="button" onClick=${()=>c.openSheet({t:'skills'})} data-skills-row className="card w-full p-3.5 mt-2 flex items-center gap-3 text-left" style=${{color:'var(--ink)',minHeight:56}} aria-label=${'Fähigkeiten: '+(list.length?list.map(x=>x.name).join(', '):'noch keine')+(hints.length?'. '+hints.length+' Vorschlag':'')}>
+ <span className="shrink-0" style=${{color:'var(--bronze)'}}><${Icon} n="award" s=${22}/></span>
+ <span className="flex-1 min-w-0"><span className="lbl block">Fähigkeiten</span><span className=${'block text-[14px] truncate '+(list.length?'font-semibold':'mute')}>${list.length?list.map(x=>x.name).join(' · '):'Was kannst du schon?'}</span></span>
+ ${hints.length>0&&html`<span className="text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0" style=${{background:'color-mix(in srgb,var(--gold) 18%,transparent)',color:'var(--gold)'}}>Neu</span>`}<${Icon} n="chevR" s=${16} cls="mute"/></button>`}
+/* ───── Aussehen des Charakters: Figur, Farbe, Emblem; Gold/Oliv und Gravur nach Freischaltung ───── */
+function CharAvatar({lk,size=44,label}){if(!lk)return null;const col=(PC.LOOK.col.find(x=>x.id===lk.col)||PC.LOOK.col[0]).v,fig=PC.LOOK.fig.find(x=>x.id===lk.fig)||PC.LOOK.fig[0],emb=PC.LOOK.emb.find(x=>x.id===lk.emb)||PC.LOOK.emb[0];
+ return html`<span role=${label?'img':undefined} aria-label=${label} aria-hidden=${label?undefined:'true'} className="relative inline-flex items-center justify-center rounded-full shrink-0" style=${{width:size,height:size,background:'color-mix(in srgb,'+col+' 16%,var(--card2))',boxShadow:'0 0 0 1.5px '+col+' inset',color:col}}>
+ ${lk.engrave&&html`<span className="absolute inset-0 flex items-center justify-center" style=${{color:'var(--gold)',opacity:.8}}><${Icon} n="laurel" s=${Math.round(size*.98)} sw=${1}/></span>`}
+ <${Icon} n=${fig.icon} s=${Math.round(size*.56)} sw=${1.6}/>
+ <span className="absolute flex items-center justify-center rounded-full" style=${{right:-2,bottom:-2,width:Math.round(size*.42),height:Math.round(size*.42),background:'var(--card)',boxShadow:'0 0 0 1px '+col+' inset',color:col}}><${Icon} n=${emb.icon} s=${Math.round(size*.26)} sw=${2}/></span></span>`}
+function LookSheet({c}){const {S}=c,un=RK.looks(S),[lk,setLk]=useState(()=>PC.look(S,un));
+ const row=(k,title)=>html`<div className="mt-4"><div className="lbl mb-2">${title}</div><div className="flex flex-wrap gap-2" role="radiogroup" aria-label=${title}>${PC.LOOK[k].map(o=>{const locked=o.lock&&!un[o.lock],on=lk[k]===o.id;
+  return html`<button key=${o.id} type="button" role="radio" aria-checked=${on} disabled=${locked} onClick=${()=>setLk(x=>({...x,[k]:o.id}))} aria-label=${o.name+(locked?', ab Rang Lochagos':'')} className=${'chip flex items-center gap-1.5'+(on?' on':'')} style=${{minHeight:44,opacity:locked?.45:1}}>
+   ${k==='col'?html`<span className="w-4 h-4 rounded-full" style=${{background:o.v}}/>`:html`<${Icon} n=${o.icon} s=${16}/>`}${o.name}${locked&&html`<${Icon} n="lock" s=${12}/>`}</button>`})}</div></div>`;
+ return html`<${Sheet} sub="Dein Charakter · Aussehen" title="So siehst du aus" onClose=${c.closeSheet}>
+ <div className="flex justify-center mt-1"><${CharAvatar} lk=${lk} size=${96} label="Vorschau deines Charakters"/></div>
+ ${row('fig','Figur')}${row('col','Farbe')}${row('emb','Emblem')}
+ <div className="mt-4"><div className="lbl mb-2">Gravur</div>${un.engrave?html`<button type="button" role="switch" aria-checked=${!!lk.engrave} onClick=${()=>setLk(x=>({...x,engrave:!x.engrave}))} className=${'chip'+(lk.engrave?' on':'')} style=${{minHeight:44}}>Lorbeer-Gravur ${lk.engrave?'an':'aus'}</button>`:html`<div className="text-[12.5px] mute flex items-center gap-1.5"><${Icon} n="lock" s=${12}/>Wird mit dem Rang Strategos freigeschaltet.</div>`}</div>
+ ${!un.palette&&html`<div className="text-[12px] mute mt-3">Gold und Oliv werden mit dem Rang Lochagos freigeschaltet. Freischaltungen bleiben dauerhaft.</div>`}
+ <button type="button" onClick=${()=>c.saveLook(lk)} className="btn w-full py-3.5 mt-5 text-sm">Aussehen speichern</button><//>`}
 function CharacterInvite({c}){const st=CH.state(c.S);if(!st||!st.invite)return null;const carry=st.traits.length>0;
- return html`<section className="card p-4 mt-4" aria-label="Charakter für diese Saison" data-char-invite>
- <div className="lbl acc">Saison ${st.cur} · optional</div><div className="text-[16px] font-bold mt-1 leading-snug">${carry?'Passt dein Charakter noch zur neuen Saison?':'Mit wem gehst du in diese Saison?'}</div>
+ return html`<section className="card p-4 mt-4" aria-label="Charakter für dieses Kapitel" data-char-invite>
+ <div className="lbl acc">Kapitel ${st.cur} · optional</div><div className="text-[16px] font-bold mt-1 leading-snug">${carry?'Passt dein Charakter noch zum neuen Kapitel?':'Mit wem gehst du in dieses Kapitel?'}</div>
  <div className="text-[12.5px] mute mt-1 leading-snug">${carry?'Deine Eigenschaften bleiben, bis du sie änderst.':'Wähle Stärken und Herausforderungen. Daraus entstehen einzelne, freiwillige Vorschläge.'}</div>
  <div className="flex gap-2 mt-3"><button type="button" onClick=${()=>c.openSheet({t:'character',invite:true})} className="btn flex-1 py-2.5 text-[13px]">${carry?'Ansehen':'Charakter wählen'}</button><button type="button" onClick=${c.skipCharacter} className="ghost flex-1 py-2.5 text-[13px] font-semibold">${carry?'Behalten':'Überspringen'}</button></div></section>`}
 /* Höchstens ein Charakterhinweis, nur an seiner Stelle; erst „Übernehmen“ ändert den Plan */
@@ -3374,7 +3455,7 @@ function MyLife({c}){const {S}=c;const L=S.life;const st=LC.templeState(S),sel=c
  const tile=(icon,title,sub,on)=>html`<button type="button" onClick=${on} className="text-left border-0 px-3 py-2 flex items-center gap-3 min-w-0" style=${{minHeight:58,borderRadius:16,background:'var(--card-g)',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}><span className="shrink-0" style=${{color:'var(--bronze)'}}><${Icon} n=${icon} s=${20}/></span><span className="min-w-0"><span className="block text-[14px] font-semibold truncate">${title}</span><span className="block text-[11.5px] mute truncate">${sub}</span></span></button>`;
  return html`<div className="screen px-4 pb-6"><div className="pt-5 relative"><span className="page-emblem"><${Icon} n="compass" s=${76} sw=${1}/></span><div className="lbl">Dein Kompass</div><h1 className="disp text-[40px] mt-1">Mein Leben</h1><div className="meander mt-3" aria-hidden="true"/></div>
  <${TempleHead} c=${c} st=${st} sel=${sel}/>
- <${CharacterInvite} c=${c}/><${CharacterHint} c=${c} place="life"/>
+ <${PersonaCard} c=${c}/><${SkillsRow} c=${c}/><${CharacterInvite} c=${c}/><${CharacterHint} c=${c} place="life"/>
  <div className="flex items-center justify-between mt-5"><div className="lbl">Deine Säulen</div><button type="button" onClick=${()=>c.openSheet({t:'goal'})} className="bg-transparent border-0 acc text-[12.5px] font-semibold flex items-center gap-1 px-1" style=${{minHeight:44}}><${Icon} n="plus" s=${13}/>Ziel</button></div>
  ${LC.AREAS.map(a=>html`<${PillarRow} key=${a.id} c=${c} area=${a.id} st=${st} open=${sel===a.id} onToggle=${()=>c.setTSel(sel===a.id?null:a.id)}/>`)}
  <div className="grid grid-cols-2 gap-2 mt-5">${tile('column','Fundament',fn+' von '+fs.length+' Teilen',()=>c.openSheet({t:'fundament'}))}${WC.enabled(S)?tile('scroll','Wisdom Codex',wn?wn+' gemerkt':'Lebensweisheiten',()=>c.openSheet({t:'codex',f:wn?'fav':'all'})):html`<span/>`}${tile('helmet','Charakter',chs.traits.length?chs.traits.map(id=>CH.BY[id].name).join(' · '):'Stärken und Herausforderungen',()=>c.openSheet({t:'character'}))}</div>
@@ -3494,11 +3575,11 @@ function ExpView({c}){const {S}=c;const L=S.life,I=LC.insights(S),ex=(L.exps||[]
 const OB_ACTS=['Einstieg','Selbsterkenntnis','Eigenverantwortung','Standards','Handeln'];
 const obGoalOn=ob=>!!(ob.goal&&!(ob.skip||{}).goal);
 const OB_SCREENS=[{id:'still',act:0,wait:3.6,tap:1},{id:'what',act:0,wait:6.8,tap:1},{id:'resp',act:0,wait:5.6,tap:1},{id:'ready',act:0,wait:2,choice:1},{id:'name',act:0,wait:.8},
- {id:'pillars',act:1,wait:1.4},{id:'mirror',act:1,wait:1.8},{id:'audit',act:1,wait:.6},{id:'cost',act:1,wait:1.6},{id:'future',act:1,wait:.4},{id:'compound',act:1,wait:4.6},
+ {id:'pillars',act:1,wait:1.4},{id:'mirror',act:1,wait:1.8},{id:'audit',act:1,wait:.6},{id:'cost',act:1,wait:1.6},{id:'future',act:1,wait:.4},{id:'persona',act:1,wait:.4},{id:'compound',act:1,wait:4.6},
  {id:'ctrl',act:2,wait:1},{id:'obst',act:2,wait:1},{id:'owner',act:2,wait:.4},
  {id:'values',act:3,wait:1.6},{id:'standards',act:3,wait:1},{id:'sign',act:3,wait:1,skipIf:ob=>!((ob.values||[]).length||Object.keys(ob.standards||{}).length)},
  {id:'loop',act:4,wait:.4},{id:'year',act:4,wait:1.6},{id:'goal',act:4,wait:1.2},{id:'first',act:4,wait:1.6,skipIf:ob=>!obGoalOn(ob)},{id:'commit',act:4,wait:2.2}];
-const OB_SHORT=['still','what','resp','ready','name','pillars','goal','first','commit'];
+const OB_SHORT=['still','what','resp','ready','name','pillars','persona','goal','first','commit'];
 const obScreens=ob=>(ob.short?OB_SCREENS.filter(s=>OB_SHORT.includes(s.id)):OB_SCREENS).filter(s=>!s.skipIf||!s.skipIf(ob));
 const OB_COST=['Energie','Selbstvertrauen','Zeit mit Menschen','Freiheit','Gesundheit','Ruhe'];
 const OB_YEAR={health:'Ich habe Energie bis zum Abend und laufe 5 km am Stück.',relationships:'Ich bin für die Menschen, die mir wichtig sind, wirklich da.',wealth:'Ich habe eine Rücklage und denke nicht mehr ständig über Geld nach.',growth:'Ich kann etwas, das ich heute noch nicht kann, und traue mir mehr zu.'};
@@ -3603,6 +3684,7 @@ function ObObst({ob,u}){const sel=ob.obst||[];return html`<div><${Lines} l=${['W
  <div className="story-in mt-5" style=${obIn(.8)}><${ObChips} opts=${LC.OBSTACLES.map(o=>[o.id,o.l])} val=${sel} max=${2} on=${v=>u(()=>({obst:v}))}/><div className="text-[12px] mute mt-3">Bis zu zwei. Optional.</div></div>
  ${sel.length>0&&html`<div className="mt-6"><${Lines} l=${['Das ist kein Charakterfehler.','Es ist ein Hindernis.','Und mit Hindernissen kann man planen.']} step=${.7}/></div>`}</div>`}
 function ObValues({ob,u}){const sel=ob.values||[];return html`<div><${Lines} l=${['Woran willst du dich messen,','wenn niemand zusieht?']}/><div className="mt-3"><${FutureHint} f=${ob.future} kind="identity"/></div>
+ ${(()=>{const sg=PC.suggestValues(ob.persona||[]),add=PC.valuesToAdd(sel,sg);return add.length?html`<div className="card2 p-3 mt-4 flex items-center gap-2 text-[13px]" data-ob-value-suggest><span className="flex-1 min-w-0"><span className="lbl block">Aus deinem Zukunftscharakter</span>${add.join(' · ')}</span><button type="button" className="chip on shrink-0" style=${{minHeight:44}} onClick=${()=>u(q=>({values:[...(q.values||[]),...PC.valuesToAdd(q.values||[],sg)]}))}>Übernehmen</button></div>`:null})()}
  <div className="story-in mt-5" style=${obIn(1.4)}><${ObChips} opts=${LC.VALUES.map(v=>[v,v])} val=${sel} max=${3} on=${v=>u(()=>({values:v}))}/><div className="text-[12px] mute mt-3">${sel.length}/3 gewählt</div></div>
  ${sel.length>0&&html`<div className="card mt-5 p-5 text-center" style=${{background:'var(--card2)'}}><div className="lbl mb-2">In Stein</div>${sel.map(v=>html`<div key=${v} className="disp-serif text-[20px] story-engrave" style=${{color:'var(--gold)'}}>${v}</div>`)}</div>`}</div>`}
 function ObSign({ob,u,back}){const [hold,setHold]=useState(false);const signed=!!ob.signed;const name=ob.name.trim()||'Du';const SD=Object.values(ob.standards||{}).filter(x=>x.std);
@@ -3879,6 +3961,7 @@ function obRelevant(ob){const r=[];const add=a=>{if(a&&LC.AREA[a]&&!r.includes(a
 function ObStandards({ob,u}){const rel=obRelevant(ob);const save=(area,p,why)=>u(q=>{const L={d:0,standards:{...(q.standards||{})}};LC.setStandard(L,area,p,why);return{standards:L.standards}});
  return html`<div><${Lines} l=${['Was erwartest du von dir?','In deinem Maß.']}/><p className="story-in text-[13px] mute mt-2 leading-relaxed" style=${obIn(1)}>Standards sind kein Pensum von außen. Du legst fest, was du regelmäßig tust und was an schwierigen Tagen reicht. Alles bleibt änderbar.</p>
   <div className="mt-2"><${FutureHint} f=${ob.future} kind="identity"/></div>
+  <${RoutineSuggest} ids=${ob.persona||[]} map=${ob.standards} save=${save}/>
   <div className="story-in mt-3" style=${obIn(1.3)}><${StandardsPanel} map=${ob.standards} ctxFor=${a=>obStdCtx(ob,a)} save=${save} relevant=${rel} start=${rel[0]}/></div>
   <div className="text-[11.5px] mute mt-3">Ein Bereich reicht für den Anfang. Weitere kannst du jederzeit im Fundament ergänzen.</div></div>`}
 /* App: Kontext aus dem Spielstand */
@@ -3900,6 +3983,7 @@ function StandardsSheet({c,area}){const {S}=c;const L=S.life;const rel=appReleva
  return html`<${Sheet} sub="Dein persönliches Fundament" title="Persönliche Standards" onClose=${c.closeSheet}>
   <div className="text-[13px] mute -mt-1 mb-3 leading-snug">Du legst fest, was du regelmäßig von dir erwartest, in deinem Maß. Fortschritt misst sich an deiner eigenen Ausgangslage, nie an anderen.</div>
   ${(start&&(L.standards||{})[start])?html`<${StdStatus} c=${c} area=${start}/>`:null}
+  <${RoutineSuggest} ids=${PC.chosen(S).map(p=>p.id)} map=${L.standards} save=${save}/>
   <${StandardsPanel} map=${L.standards} ctxFor=${a=>appStdCtx(S,a)} save=${save} relevant=${rel} start=${start}/>
   ${Object.keys(L.standards||{}).length>0&&html`<div className="mt-4 flex flex-col gap-1">${Object.keys(L.standards).map(a=>html`<button key=${a} type="button" onClick=${()=>{if(del===a){c.upd(n=>LC.removeStandard(n.life,a));setDel(null);c.toast('Standard gelöscht.')}else setDel(a)}} className="bg-transparent border-0 py-1.5 text-[12px] bad text-left">${del===a?`Standard ${LC.AREA[a].de} wirklich löschen? Tippe erneut`:`Standard ${LC.AREA[a].de} löschen`}</button>`)}</div>`}<//>`}
 /* Heute: aktive Standards mit Erledigt und Minimum (nur ohne verknüpfte Handlung braucht es „Erledigt“) */
@@ -3980,7 +4064,7 @@ function CommitCard({c}){const {S}=c;const L=S.life,k=L&&L.onboard&&L.onboard.co
   <div className="flex gap-2 mt-3"><button type="button" onClick=${()=>{c.upd(n=>{n.life.onboard.commit={...n.life.onboard.commit,done:true,doneD:n.life.d||0}});c.toast('Erster Schritt erledigt. Genau so geht es weiter.','good',{undo:()=>c.restore(S)})}} className="btn px-5 py-2.5 text-[13.5px]">Erledigt</button>
   <button type="button" onClick=${()=>c.upd(n=>{n.life.onboard.commit={...n.life.onboard.commit,done:true,dropped:true}})} className="ghost px-4 py-2.5 text-[12.5px] font-semibold">Ausblenden</button></div></div>`}
 
-const OB_BODY={standards:ObStandards,commit:ObCommit,future:ObFuture,audit:ObAudit,owner:ObOwner,loop:ObLoop,still:ObStill,what:ObWhat,resp:ObResp,ready:ObReady,name:ObName,pillars:ObPillarsS,mirror:ObMirror,cost:ObCost,compound:ObCompound,year:ObYear,goal:ObGoal,ctrl:ObCtrl,obst:ObObst,values:ObValues,sign:ObSign,first:ObFirst};
+const OB_BODY={persona:ObPersona,standards:ObStandards,commit:ObCommit,future:ObFuture,audit:ObAudit,owner:ObOwner,loop:ObLoop,still:ObStill,what:ObWhat,resp:ObResp,ready:ObReady,name:ObName,pillars:ObPillarsS,mirror:ObMirror,cost:ObCost,compound:ObCompound,year:ObYear,goal:ObGoal,ctrl:ObCtrl,obst:ObObst,values:ObValues,sign:ObSign,first:ObFirst};
 
 /* ───── Sicherung: Export und Import (alles bleibt lokal; die Datei enthält private Texte) ───── */
 function DataBackup({c}){const {S}=c;const [pend,setPend]=useState(null),[err,setErr]=useState('');const ref=useRef(null);
@@ -4100,6 +4184,8 @@ function lifeFromOb(n,ob){LC.ensureLife(n);const L=n.life;L.values=[...(ob.value
   if(ob.story){const r=obRisk(ob);L.onboard={for:(L.d||0)+day,mid:a.missionId,when:x.actions[0].when||null,risk:r,plan:LC.ifThen(r,a.title,ob.firstWhen,a.minutes),start:ob.start||null,obst:[...(ob.obst||[])],ctrl:(ob.ctrl||[]).length,loop:ob.loopPick||null,own:ob.own&&(ob.own.next||'').trim()?{can:[...(ob.own.can||[])],cant:[...(ob.own.cant||[])],next:ob.own.next.trim()}:null,signed:ob.signed||null}}}}}
 /* Fundament: Standards, Commitment, gesehene Module, Pausenstatus */
 function lifeFromOb2(n,ob){const L=n.life;
+ /* Zukunftscharakter aus dem Einstieg; übersprungen = später gefragt werden, nicht erneut einladen */
+ if((ob.persona||[]).length)PC.choose(n,ob.persona,PC.suggestValues(ob.persona),false);else if(ob.skip&&ob.skip.persona)PC.later(n);
  Object.entries(ob.standards||{}).forEach(([a,x])=>{if(!LC.AREA[a])return;LC.setStandard(L,a,{level:x.level,desired:x.desired,current:x.current||undefined,std:x.std||undefined,min:x.min||undefined});const s=(L.standards||{})[a];if(s){s.base={wk:LC.curWk(L),sat:(x.current&&x.current.sat)??null};s.hist=[];const g=(L.goals||[]).find(y=>y.status==='active'&&y.area===a);const ac=g&&LC.actionsOf(L,g.id)[0];if(ac)s.aid=ac.id}});
  const C=ob.commit||{},step=(C.step||'').trim();
  if(step){let mid=null;if(C.kind==='goal'){const g=(L.goals||[]).find(y=>y.status==='active');const ac=g&&LC.actionsOf(L,g.id)[0];if(ac)mid=ac.missionId}
@@ -4140,6 +4226,7 @@ function buildState(ob,session){
  const startStats=[];Object.entries(STAT_DEF).forEach(([c,list])=>list.forEach(([k,l,u,t,meas])=>{const x=ob.stats[k];if(x&&x.v!==null&&x.v!==''&&x.v!==undefined)startStats.push({k,label:l.replace(' (optional)','').replace(' (Ziel)',''),v:x.v,unit:k==='bench'&&ob.units==='imperial'?'lb':u==='mm:ss'?'':u,src:meas?(x.src||'est'):'target'})}));
  const others=Object.fromEntries(OTH.map(o=>[o.id,0]));
  const n={...s,acts,catScore:cat,baseCat:{...cat},weekPts,todayPts:{},day:0,season:1,rest:[],streak:0,bestStreak:0,seasonPts:0,adj:0,base:.3,
+  prog:{v:1,slots:1,capFrom:1,day:null,n:0,up:null},
   lineup,bench:Object.keys(acts).filter(k=>!CORE.includes(k)&&!lineup.includes(k)),subs:3,
   missions:missions.map(m=>{const {k,...r}=m;return{...r,id:MID[k]&&!missions.some(o=>o!==m&&MID[o.k]===MID[k])?MID[k]:'m_'+k+'_'+uid()}}),
   done:{},counts:{},seasonCum:[0],others,oSeason:{...others},weekHist:[],hist:[],snaps:[],sHist:[],gear:[],evalHist:[],codeCk:{},qLog:[],
@@ -4228,7 +4315,7 @@ function AuthFlow({A,set,theme}){
 /* ───── Onboarding: Rahmen mit sechs Stationen, Pausen, Überspringen, Pause und Fortsetzen ───── */
 const obReduced=()=>{try{return window.matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
 /* Screens mit Pflichtangabe; alle lassen sich überspringen */
-const OB_SKIP={name:'Überspringen',goal:'Ziel später festlegen',ctrl:'Überspringen',loop:'Überspringen',owner:'Überspringen',values:'Überspringen',sign:'Überspringen',first:'Überspringen',commit:'Ohne ersten Schritt starten'};
+const OB_SKIP={name:'Überspringen',persona:'Überspringen',goal:'Ziel später festlegen',ctrl:'Überspringen',loop:'Überspringen',owner:'Überspringen',values:'Überspringen',sign:'Überspringen',first:'Überspringen',commit:'Ohne ersten Schritt starten'};
 function obShortTarget(ob){const cur=(obScreens(ob)[clamp(ob.step,0,obScreens(ob).length-1)]||{}).id,fi=OB_SCREENS.findIndex(x=>x.id===cur);const S2=obScreens({...ob,short:true});
  const k=S2.findIndex(x=>OB_SCREENS.findIndex(y=>y.id===x.id)>=fi);return k<0?S2.length-1:k}
 function Onboarding({A,set,theme,onDone}){
@@ -4247,7 +4334,7 @@ function Onboarding({A,set,theme,onDone}){
  const [resume,setResume]=useState(()=>!!(A.ob&&A.ob.obv===2&&A.ob.story&&A.ob.step>=4));
  useEffect(()=>{setSkip(false);if(ob.dir<0||obReduced()){setReady(true);return}setReady(false);const t=setTimeout(()=>setReady(true),(SC.wait||1)*1000);return()=>clearTimeout(t)},[st,ob.short]);
  const nCtrl=useMemo(()=>obCtrlCards(ob).length,[ob.goal]);
- const ok={name:ob.name.trim().length>=1,goal:!!ob.goal&&draftOk(ob.goal),ctrl:(ob.ctrl||[]).length>=nCtrl,loop:!!ob.loopDone,owner:!!ob.ownDone,values:(ob.values||[]).length>=1,sign:!!ob.signed,first:!!ob.goal&&planOk(ob.goal),commit:!!((ob.commit||{}).step||'').trim()}[id]??true;
+ const ok={name:ob.name.trim().length>=1,persona:(ob.persona||[]).length>=1,goal:!!ob.goal&&draftOk(ob.goal),ctrl:(ob.ctrl||[]).length>=nCtrl,loop:!!ob.loopDone,owner:!!ob.ownDone,values:(ob.values||[]).length>=1,sign:!!ob.signed,first:!!ob.goal&&planOk(ob.goal),commit:!!((ob.commit||{}).step||'').trim()}[id]??true;
  const Body=OB_BODY[id];const last=st===list.length-1;
  const finish=paused=>onDone({...ob,paused:!!paused});
  const scroller=useRef(null);useEffect(()=>{if(scroller.current)scroller.current.scrollTop=0},[st]);
@@ -4369,7 +4456,7 @@ function PerfectDay({S,onClose}){
 const useNow=ms=>{const [n,setN]=useState(Date.now());useEffect(()=>{const t=setInterval(()=>setN(Date.now()),ms);return()=>clearInterval(t)},[ms]);return n};
 const METRICS={'5-km-Lauf':[true,S=>S.stats.run5k.last,fmtT],'Bankdrücken (Verbesserung)':[false,S=>S.stats.bench.ver,x=>n1(x)+' kg'],'100 m Schwimmen':[true,S=>S.stats.swim.pr,fmtT],'Lese-Konstanz':[false,()=>120,x=>Math.round(x)+' Min.'],'Fokus-Stunden':[false,()=>18,x=>n1(x)+' h'],'Spar-Konstanz':[false,()=>5,x=>Math.round(x)+' Tage']};
 function App({init,auth,skey='war_within_v5'}){
- const [S,setS]=useState(()=>{const s=syncCalendar(LC.ensureLife(init||loadState(skey)));WC.ensure(s);FS.ensure(s);LC.syncTemple(s);return s});
+ const [S,setS]=useState(()=>{const s=syncCalendar(LC.ensureLife(init||loadState(skey)));WC.ensure(s);FS.ensure(s);RK.ensure(s);PC.ensure(s);LC.syncTemple(s);return s});
  const [tSel,setTSel]=useState(null),[tFlash,setTFlash]=useState(null);
  const [tab,setTab]=useState(()=>{try{return !focusMode(S)&&new URLSearchParams(location.search).has('arena')?'league':'home'}catch(e){return'home'}}),[statTab,setStatTab]=useState('out'),[sheet,setSheet]=useState(null),[sel,setSel]=useState(null),[coreSel,setCoreSel]=useState(null),[freq,setFreq]=useState('all');
  const [toasts,setToasts]=useState([]),[flash,setFlash]=useState({}),[undo,setUndo]=useState(null);
@@ -4388,6 +4475,7 @@ function App({init,auth,skey='war_within_v5'}){
  const openSheet=o=>setSheet(o),closeSheet=()=>setSheet(null);
  useEffect(()=>{if(focusMode(S)&&['solo','league'].includes(tab))setTab('home')},[S.life&&S.life.focusMode,tab]);
  /* Rang und Saisonfortschritt bleiben in ihren Ansichten; keine konkurrierenden Erfolgs-Toasts. */
+ useEffect(()=>{const u=S.prog&&S.prog.up;if(!u||u.t<Date.now()-5000||focusMode(S))return;const t=setTimeout(()=>toast(u.rank+' erreicht. Neu verfügbar: '+u.text+'. Nutzen ist freiwillig.','good'),5600);return()=>clearTimeout(t)},[S.prog&&S.prog.up&&S.prog.up.t]);
  useEffect(()=>{if(pathLevel(S)>(S.sLevel||0))upd(n=>{applyPath(n,n.sLevel||0,pathLevel(n))})},[]);
  /* Automatisch öffnende Berichte */
  useEffect(()=>{if(S.aar&&!(sheet&&(sheet.t==='aar'||sheet.t==='season'))){if(focusMode(S)){upd(n=>{n.aar=null});setSheet({t:'weekly'})}else setSheet({t:'aar'})}},[S.aar]);
@@ -4415,7 +4503,7 @@ function App({init,auth,skey='war_within_v5'}){
   const a=S.acts[m.act];const room=Math.max(0,a.cap-(S.weekPts[m.act]||0));
   const sb=m.freq==='daily'?streakBonus(S.streak):0;
   const pu=extra.onTime||punctOf(mid),calcA=b=>Math.min(Math.max(1,Math.round(m.pts*(1+(b+sb)/100)*(ptsMult(S,m)))),room);
-  const award=calcA((extra.bonus||0)+(pu?PUNCT:0));
+  const capped=!RK.canEarn(S,dayKey(S)),award=capped?0:calcA((extra.bonus||0)+(pu?PUNCT:0));
   upd(n=>{if(isDone(n,m))return;n.done[mid]=true;if(m.freq==='multi'){n.counts=n.counts||{};n.counts[mid]=(n.counts[mid]||0)+1}n.weekPts[m.act]=(n.weekPts[m.act]||0)+award;n.todayPts[m.act]=(n.todayPts[m.act]||0)+award;n.seasonPts+=award;if(m.act===n.sTheme)n.sThemePts=(n.sThemePts||0)+award;n.sAreaPts=n.sAreaPts||{};n.sAreaPts[m.act]=(n.sAreaPts[m.act]||0)+award;
    n.acts[m.act].rating=Math.min(99,n.acts[m.act].rating+m.pts*.04);const ct=m.cat||n.acts[m.act].cat;n.catScore[ct]=Math.min(100,(n.catScore[ct]??40)+m.pts*.12);
    n.autoDone=n.autoDone||{};n.autoDone[mid]=!!extra.auto;
@@ -4427,11 +4515,11 @@ function App({init,auth,skey='war_within_v5'}){
    if(!isPerfect(n)&&dailyAllDone(n)){n.perfect={k:dayKey(n),ts:Date.now()};n.perfectDays=(n.perfectDays||0)+1;n.perfectShow=true}
    n.events.unshift({id:uid(),text:m.title+(extra.msg?' · '+extra.msg:''),pts:award,t:Date.now()});n.events=n.events.slice(0,12);
    n.feed.unshift({id:uid(),who:'me',pts:award,text:`${n.acts[m.act].short} erledigt`,t:Date.now()});n.feed=n.feed.slice(0,12);
-   LC.onComplete(n,mid);if(extra.apply)extra.apply(n);checkAch(n)});
+   RK.afterAward(n,dayKey(n),!capped);LC.onComplete(n,mid);if(extra.apply)extra.apply(n);checkAch(n)});
   arenaAuto(m,extra);
   const la=(S.life.actions||[]).find(x=>x.missionId===mid&&!x.off),lwk=LC.curWk(S.life),limp=la?`Umsetzung ${LC.doneIn(S.life,la.id,lwk)+1}/${LC.plannedAt(la,lwk)} diese Woche`:null;
   try{navigator.vibrate&&navigator.vibrate(award>0?[12,40,18]:8)}catch(e){}
-  toast('Erledigt: '+cleanTitle(m.title),'good',{detail:limp||impactOf(S,m),undo:()=>setS(S)});
+  toast('Erledigt: '+cleanTitle(m.title),'good',{detail:capped?'Dein Punkte-Soll für heute ist voll. Das zählt trotzdem für dich und deine Ziele.':limp||impactOf(S,m),undo:()=>setS(S)});
   if(!extra.keep)setSheet(null)};
  const start=(mid,ev,opt={})=>{const m=S.missions.find(x=>x.id===mid);if(isDone(S,m)){toast(m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
   if(!isActive(S,m.act)){toast(`${S.acts[m.act].name} sitzt auf der Bank. Wechsle sie im Squad ein.`,'warn');return}
@@ -4543,9 +4631,15 @@ function App({init,auth,skey='war_within_v5'}){
  const wisFav=id=>{const on=WC.isFav(S,id);upd(n=>{WC.toggleFav(n,id)});toast(on?'Aus dem Wisdom Codex entfernt.':'Im Wisdom Codex gespeichert.','good')};
  const wisDismiss=place=>{upd(n=>{WC.dismiss(n,place)});toast('Für heute ausgeblendet. Ganz abschalten kannst du die Impulse in den Optionen.')};
  const wisToggle=()=>{const on=WC.enabled(S);upd(n=>{WC.setOn(n,!on)});toast(on?'Impulse aus. Der Codex bleibt in den Optionen erreichbar.':'Impulse an: höchstens einer pro Stelle und Tag.','good')};
- const closeTempleSeason=len=>{lifeUpd(n=>{LC.closeTempleSeason(n,len)});setSheet({t:'character',invite:true});toast('Neue Saison begonnen. Dein bisheriger Tempel steht in der Galerie.','good')};
+ const closeTempleSeason=len=>{lifeUpd(n=>{LC.closeTempleSeason(n,len)});setSheet({t:'character',invite:true});toast('Neues Kapitel begonnen. Dein bisheriger Tempel steht in der Galerie.','good')};
  const chooseCharacter=ids=>{if(!CH.check(ids).ok)return;lifeUpd(n=>{CH.choose(n,ids)});setSheet(null);toast(ids.length?'Charakter gespeichert. Du kannst ihn jederzeit ändern.':'Ohne Eigenschaften gestartet. Später änderbar.','good')};
  const skipCharacter=()=>{lifeUpd(n=>{CH.skip(n)});setSheet(null)};
+ const choosePersona=(ids,vals,addV,goalArea)=>{const before=S;lifeUpd(n=>{const old=n.principles||[],cur=old.map(p=>p.n),r=PC.choose(n,ids,vals,addV,cur);if(r&&r.added.length){const list=[...cur,...r.added];n.principles=list.map(v=>old.find(p=>p.n===v)||{id:'p'+uid(),n:v,acts:0});n.life.values=[...list]}});setSheet(goalArea?{t:'goal',area:goalArea}:null);toast(ids.length?'Zukunftscharakter gespeichert.':'Zukunftscharakter entfernt.','good',{detail:'Jederzeit unter „Mein Leben“ änderbar.',undo:()=>setS(syncCalendar(structuredClone(before)))})};
+ const laterPersona=()=>{lifeUpd(n=>{PC.later(n)});setSheet(null)};
+ const addSkill=(name,src)=>{lifeUpd(n=>{PC.addSkill(n,name,src)});if(src)toast('Neue Fähigkeit: '+String(name).trim(),'good')};
+ const removeSkill=id=>{const before=S,x=PC.skillList(S).find(y=>y.id===id);lifeUpd(n=>{PC.removeSkill(n,id)});if(x)toast(x.name+' entfernt.','good',{undo:()=>setS(syncCalendar(structuredClone(before)))})};
+ const declineSkill=src=>lifeUpd(n=>{PC.declineHint(n,src)});
+ const saveLook=lk=>{const before=S;lifeUpd(n=>{PC.setLook(n,lk,RK.looks(n))});setSheet(null);toast('Aussehen gespeichert.','good',{undo:()=>setS(syncCalendar(structuredClone(before)))})};
  const applyTrait=(id,ch)=>{const snap=structuredClone(S),n=structuredClone(S);LC.ensureLife(n);const r=CH.apply(n,id,ch,{d:n.life.d,battleSet:!!(n.battle&&n.battle.k===dayKey(n)&&n.battle.key),restToday:derive(n).restToday});if(!r.ok){toast('Bitte zuerst eine Auswahl treffen.');return}if(r.battle)n.battle={k:dayKey(n),key:r.battle};setS(n);toast('In deinen Plan übernommen.','good',{undo:()=>setS(syncCalendar(structuredClone(snap)))})};
  const dismissTrait=id=>upd(n=>{LC.ensureLife(n);CH.dismiss(n,id,n.life.d)});
  const addLifeGoal=x=>{lifeUpd(n=>{const g=LC.addGoal(n,x);PJ.setFrame(n,g.id,{capacity:x.capacity,limits:x.limits,steps:x.steps})});setSheet(null);setTab('home');toast('Ziel angelegt. Deine Handlungen stehen ab heute im Plan.','good')};
@@ -4589,7 +4683,7 @@ function App({init,auth,skey='war_within_v5'}){
  /* Erfolge */
  const newA=S.newAch[0];
  useEffect(()=>{if(!newA)return;const t=setTimeout(()=>upd(n=>{n.newAch=n.newAch.slice(1)}),2600);return()=>clearTimeout(t)},[newA]);
- const c={auth,upd,restore:x=>setS(syncCalendar(structuredClone(x))),wisFav,wisDismiss,wisToggle,saveDebrief,saveEvening,saveMonthly,tSel,setTSel,tFlash,toggleWeather,toggleTempleAnim,closeTempleSeason,chooseCharacter,skipCharacter,applyTrait,dismissTrait,setSkin,addLifeGoal,updLifeGoal,setLifeGoalStatus,addMeas,saveWeekly,toggleFocusMode,setAreaSat,setFocusArea,setMainGoal,saveValues,saveWhy,setActPerWeek,removeAction,addActionTo,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,togglePush,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
+ const c={auth,upd,saveLook,choosePersona,laterPersona,addSkill,removeSkill,declineSkill,restore:x=>setS(syncCalendar(structuredClone(x))),wisFav,wisDismiss,wisToggle,saveDebrief,saveEvening,saveMonthly,tSel,setTSel,tFlash,toggleWeather,toggleTempleAnim,closeTempleSeason,chooseCharacter,skipCharacter,applyTrait,dismissTrait,setSkin,addLifeGoal,updLifeGoal,setLifeGoalStatus,addMeas,saveWeekly,toggleFocusMode,setAreaSat,setFocusArea,setMainGoal,saveValues,saveWhy,setActPerWeek,removeAction,addActionTo,simComeback,toggleAuto,complete,createLeague,toggleCode,saveEval,addProto,startSeason,skipSeason,setHero,syncHealth,toggleHealth,freq,setFreq,coreSel,setCoreSel,S,D,now,tab,setTab,statTab,setStatTab,sel,setSel,sheet,openSheet,closeSheet,toast,flash,complete,start,logSave,saveLift,saveRun,addMission,addActivity,editAct,addCat,renameCat,doSwap,toggleRest,toggleTheme,setViz,setNem,setNemTime,togglePush,simMin,setSimMin,curIds,setUi,confirmBrief,saveReview,recordStat,saveMission,delMission,addSub,addStat,delStat,addPrinciple,delPrinciple,actPrinciple,setTradition,dismissSugg,enableDetail,toggleShare,setSave,setStudy,setQuote,resetDemo,simulate,createChal,respChal,simChal,advance,dismissAar,dismissSeason};
  const nav=[['home','Heute','home'],['tasks','Aufgaben','target'],['life','Mein Leben','grid'],['stats','Fortschritt','bars'],...(focusMode(S)?[]:[['league','Arena','swords']])];const navKey={solo:'league',reflect:'home'}[tab]||tab;const revDue=LC.reviewWeek(S.life)!=null;
  const ach=newA&&ACHS.find(a=>a.id===newA);
  const fp=FS.settings(S),dockOffset=fp.enabled&&tab!=='home'?(fp.hints&&!fp.minimized?240:180):104;
