@@ -1,7 +1,7 @@
 # Decision Impact Engine (Phase 0–1)
 
 Leitsatz: Die langfristigen Folgen heutiger Entscheidungen heute sichtbar machen. Weniger Tracking, mehr Leben.
-Branch `claude/hauptschlacht`, Release ww-v76. Phasen 2–10 sind bewusst nicht begonnen.
+Aktuelle Oberfläche: ww-v80, Branch `codex/today-clarity` (auf PR #36 aufgebaut). Phase 2 ist unten dokumentiert.
 
 ## Phase 0 – Audit und Plan
 
@@ -20,9 +20,13 @@ Deterministisch (keine Uhrzeit, kein Zufall, kein Netz), rein lesend bis auf `se
 - **Abdriften** ist dein Tempo der letzten bis zu vier abgeschlossenen Wochen, wenn es unter dem Plan liegt. Sonst gilt ausdrücklich „halber Plan“. Die Ansicht nennt, welche Annahme gilt.
 - **Kurzfristig** (`PJ.today`): Planerfüllung dieser Woche, wenn heute erledigt bzw. ausgelassen, und ob die Woche noch zu schaffen ist. Keine Schuldzuweisung.
 
-## Ansicht „Was passiert, wenn ich dranbleibe?“
+## Ansicht „Was ist mit meinem Plan möglich?“ (ww-v80)
 
-Sheet `impact` (`ImpactSheet`). Erreichbar aus Mein Leben (Zielkarte in der aufgeklappten Säule), aus „Ziel bearbeiten“ und über eine Textzeile unter dem Fortschritt auf Heute für das Hauptziel. Keine neue Navigation. Inhalt: Heute-Wirkung, bei Finanzen Rate/Zinsen, Schalter Durchziehen ↔ Abdriften, schlichtes Liniendiagramm (nur CSS-Variablen; Zeitachse proportional bis 1 Jahr, damit gleichmäßiges Tempo eine Gerade bleibt), Kennzahlen, 5 Jahre als Zahl, Annahmen.
+Sheet `impact`, erreichbar über Mein Leben, Ziel bearbeiten und den aufklappbaren Fortschritt auf Heute. Die sichtbare Zeitachse endet nach 90 Tagen; keine Jahres- oder Fünfjahreshochrechnung. Die internen Berechnungsfelder bleiben für bestehende Aufrufer unverändert.
+
+Vergleich: „Dein Plan“ und „Bisheriges Tempo“, wenn ein niedrigeres Tempo vorliegt, sonst ausdrücklich „Halber Plan“ als Annahme. Die Beschreibung unterscheidet bisherige Messwerte bei Finanzen von abgeschlossenen Wochen bei Fitness/Lernen. Keine Wertung als „Abdriften“.
+
+Fitness und Lernen zeigen geplante Umsetzung getrennt von „Gemessene Wirkung“, mit vorhandenem Messwert und direktem Zugang zum Messen. Lernzeit wird als Rechnung aus erledigten Einheiten und geplanter Dauer bezeichnet. Kein berechnetes Zieldatum beim Lernen. Finanzen zeigen den rechnerischen Dreimonatsstand sowie Ziel- und Etappentermine unter den genannten, unveränderten Raten-/Zinsannahmen.
 
 ## Tests
 
