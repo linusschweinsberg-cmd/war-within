@@ -18,18 +18,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v97"></script>
-<script src="auth.js?v=ww-v97"></script>
-<script src="life-core.js?v=ww-v97"></script>
-<script src="wisdom-core.js?v=ww-v97"></script>
-<script src="future-self-core.js?v=ww-v97"></script>
-<script src="projection-core.js?v=ww-v97"></script>
-<script src="rank-core.js?v=ww-v97"></script>
-<script src="persona-core.js?v=ww-v97"></script>
-<script src="character-core.js?v=ww-v97"></script>
-<script src="arena-core.js?v=ww-v97"></script>
-<script src="arena-api.js?v=ww-v97"></script>
-<script src="arena-ui.js?v=ww-v97"></script>
+<script src="supabase-config.js?v=ww-v98"></script>
+<script src="auth.js?v=ww-v98"></script>
+<script src="life-core.js?v=ww-v98"></script>
+<script src="wisdom-core.js?v=ww-v98"></script>
+<script src="future-self-core.js?v=ww-v98"></script>
+<script src="projection-core.js?v=ww-v98"></script>
+<script src="rank-core.js?v=ww-v98"></script>
+<script src="persona-core.js?v=ww-v98"></script>
+<script src="character-core.js?v=ww-v98"></script>
+<script src="arena-core.js?v=ww-v98"></script>
+<script src="arena-api.js?v=ww-v98"></script>
+<script src="arena-ui.js?v=ww-v98"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -3357,6 +3357,18 @@ function CharacterSheet({c,invite}){const {S}=c;const st=CH.state(S);const [sel,
  <button type="button" disabled=${!ok} onClick=${()=>setReview(true)} className="btn w-full py-3.5 mt-3 text-sm" style=${ok?undefined:{opacity:.45}}>Weiter: Folgen ansehen</button>
  ${invite&&html`<button type="button" onClick=${c.skipCharacter} className="ghost w-full py-3 mt-2 text-[13px] font-semibold">${st.traits.length?'Bisherige Auswahl behalten':'Überspringen'}</button>`}<//>`}
 /* ───── Zukunftscharakter: Leitbild als Kompass, höchstens zwei, jederzeit änderbar (persona-core.js) ───── */
+function PersonaGrid({ids,setIds}){return html`<div className="grid grid-cols-2 gap-2 mt-3" role="group" aria-label="Leitbilder">${PC.PERSONAS.map(p=>{const on=ids.includes(p.id),full=!on&&ids.length>=PC.MAX;return html`<button key=${p.id} type="button" aria-pressed=${on} aria-label=${p.name+': '+p.line+(p.values.length?'. Werte: '+p.values.join(', '):'')} disabled=${full} onClick=${()=>setIds(x=>PC.toggle(x,p.id))} className="text-left p-3 flex flex-col gap-1.5" style=${{minHeight:96,borderRadius:16,background:on?'color-mix(in srgb,var(--acc) 14%,var(--card))':'var(--card2)',boxShadow:'0 0 0 '+(on?'1.5px var(--acc)':'1px var(--line)')+' inset',color:'var(--ink)',opacity:full?.45:1}}>
+  <span className="flex items-center justify-between"><span style=${{color:on?'var(--acc)':'var(--bronze)'}}><${Icon} n=${p.icon} s=${24}/></span>${on&&html`<span className="acc"><${Icon} n="check" s=${16} sw=${2.6}/></span>`}</span>
+  <span className="text-[14px] font-bold leading-tight">${p.name}</span><span className="text-[12px] mute leading-snug">${p.line}</span></button>`})}</div>`}
+/* Routinenvorschläge aus dem Zukunftscharakter: nur Bereiche ohne Standard, Übernehmen nur per Tipp, danach anpassbar */
+function RoutineSuggest({ids,map,save}){const list=PC.routineSuggestions(ids,map);if(!list.length)return null;
+ return html`<section className="card2 p-3 mt-3" aria-label="Vorschläge aus deinem Zukunftscharakter" data-routine-suggest><div className="lbl acc">Vorschläge aus deinem Zukunftscharakter</div>
+ ${list.map(x=>html`<div key=${x.area} className="flex items-center gap-2 mt-2.5"><span className="flex-1 min-w-0 text-[13px] leading-snug"><span className="mute text-[11.5px] block">${LC.AREA[x.area].de}</span><b>${x.std.text}</b> · ${x.std.perWeek}× pro Woche<span className="block text-[12px] mute">Kleine Variante: ${x.min.text}</span></span><button type="button" onClick=${()=>save(x.area,{std:x.std,min:x.min},'Vorschlag aus deinem Zukunftscharakter')} className="chip on shrink-0" style=${{minHeight:44}} aria-label=${'Übernehmen: '+x.std.text}>Übernehmen</button></div>`)}
+ <div className="text-[11.5px] mute mt-2">Du kannst alles danach anpassen oder wieder entfernen.</div></section>`}
+function ObPersona({ob,u}){const ids=ob.persona||[];const setIds=f=>u(q=>({persona:f(q.persona||[])}));
+ return html`<div><${Lines} l=${['Wer willst du werden?','Wähle, was dich anspricht.']}/><p className="story-in text-[13px] mute mt-2 leading-relaxed" style=${obIn(1)}>Bis zu zwei Leitbilder. Sie geben Richtung, legen dich aber auf nichts fest. Du kannst sie jederzeit ändern.</p>
+ <div className="story-in" style=${obIn(1.2)}><${PersonaGrid} ids=${ids} setIds=${setIds}/></div>
+ ${ids.length>0&&html`<div className="text-[12px] mute mt-3">${PC.suggestValues(ids).length?'Passende Werte: '+PC.suggestValues(ids).join(' · '):'Deine eigenen Werte wählst du gleich selbst.'}</div>`}</div>`}
 function PersonaSheet({c}){const {S}=c,cur=PC.state(S);const [ids,setIds]=useState(()=>cur?cur.ids:[]),[step,setStep]=useState(0),[vals,setVals]=useState(null),[take,setTake]=useState(true);
  const sugg=PC.suggestValues(ids),v=vals||sugg,mine=(S.principles||[]).map(p=>p.n),add=PC.valuesToAdd(mine,v),gh=PC.goalHint(S,ids);
  if(step===1)return html`<${Sheet} sub="Zukunftscharakter · Werte" title="Was willst du verkörpern?" onClose=${c.closeSheet}>
@@ -3370,9 +3382,7 @@ function PersonaSheet({c}){const {S}=c,cur=PC.state(S);const [ids,setIds]=useSta
  <button type="button" onClick=${()=>setStep(0)} className="bg-transparent border-0 w-full py-2 mt-1 text-[13px] mute" style=${{minHeight:44}}>Zurück</button><//>`;
  return html`<${Sheet} sub="Zukunftscharakter · frei änderbar" title="Wer willst du werden?" onClose=${c.closeSheet}>
  <div className="text-[13px] mute leading-snug -mt-1">Wähle, was dich anspricht. Bis zu zwei. Es legt dich auf nichts fest.</div>
- <div className="grid grid-cols-2 gap-2 mt-3" role="group" aria-label="Leitbilder">${PC.PERSONAS.map(p=>{const on=ids.includes(p.id),full=!on&&ids.length>=PC.MAX;return html`<button key=${p.id} type="button" aria-pressed=${on} aria-label=${p.name+': '+p.line+(p.values.length?'. Werte: '+p.values.join(', '):'')} disabled=${full} onClick=${()=>setIds(x=>PC.toggle(x,p.id))} className="text-left p-3 flex flex-col gap-1.5" style=${{minHeight:96,borderRadius:16,background:on?'color-mix(in srgb,var(--acc) 14%,var(--card))':'var(--card2)',boxShadow:'0 0 0 '+(on?'1.5px var(--acc)':'1px var(--line)')+' inset',color:'var(--ink)',opacity:full?.45:1}}>
-  <span className="flex items-center justify-between"><span style=${{color:on?'var(--acc)':'var(--bronze)'}}><${Icon} n=${p.icon} s=${24}/></span>${on&&html`<span className="acc"><${Icon} n="check" s=${16} sw=${2.6}/></span>`}</span>
-  <span className="text-[14px] font-bold leading-tight">${p.name}</span><span className="text-[12px] mute leading-snug">${p.line}</span></button>`})}</div>
+ <${PersonaGrid} ids=${ids} setIds=${setIds}/>
  <div className="text-[12px] mute mt-2" aria-live="polite">${ids.length?ids.length+' von '+PC.MAX+' gewählt':'Noch nichts gewählt.'}</div>
  <button type="button" disabled=${!ids.length} onClick=${()=>{setVals(null);setStep(1)}} className="btn w-full py-3.5 mt-3 text-sm" style=${ids.length?undefined:{opacity:.45}}>Weiter: Werte</button>
  ${cur&&cur.status==='set'?html`<button type="button" onClick=${()=>c.choosePersona([],[],false,null)} className="ghost w-full py-3 mt-2 text-[13px] font-semibold">Zukunftscharakter entfernen</button>`
@@ -3547,11 +3557,11 @@ function ExpView({c}){const {S}=c;const L=S.life,I=LC.insights(S),ex=(L.exps||[]
 const OB_ACTS=['Einstieg','Selbsterkenntnis','Eigenverantwortung','Standards','Handeln'];
 const obGoalOn=ob=>!!(ob.goal&&!(ob.skip||{}).goal);
 const OB_SCREENS=[{id:'still',act:0,wait:3.6,tap:1},{id:'what',act:0,wait:6.8,tap:1},{id:'resp',act:0,wait:5.6,tap:1},{id:'ready',act:0,wait:2,choice:1},{id:'name',act:0,wait:.8},
- {id:'pillars',act:1,wait:1.4},{id:'mirror',act:1,wait:1.8},{id:'audit',act:1,wait:.6},{id:'cost',act:1,wait:1.6},{id:'future',act:1,wait:.4},{id:'compound',act:1,wait:4.6},
+ {id:'pillars',act:1,wait:1.4},{id:'mirror',act:1,wait:1.8},{id:'audit',act:1,wait:.6},{id:'cost',act:1,wait:1.6},{id:'future',act:1,wait:.4},{id:'persona',act:1,wait:.4},{id:'compound',act:1,wait:4.6},
  {id:'ctrl',act:2,wait:1},{id:'obst',act:2,wait:1},{id:'owner',act:2,wait:.4},
  {id:'values',act:3,wait:1.6},{id:'standards',act:3,wait:1},{id:'sign',act:3,wait:1,skipIf:ob=>!((ob.values||[]).length||Object.keys(ob.standards||{}).length)},
  {id:'loop',act:4,wait:.4},{id:'year',act:4,wait:1.6},{id:'goal',act:4,wait:1.2},{id:'first',act:4,wait:1.6,skipIf:ob=>!obGoalOn(ob)},{id:'commit',act:4,wait:2.2}];
-const OB_SHORT=['still','what','resp','ready','name','pillars','goal','first','commit'];
+const OB_SHORT=['still','what','resp','ready','name','pillars','persona','goal','first','commit'];
 const obScreens=ob=>(ob.short?OB_SCREENS.filter(s=>OB_SHORT.includes(s.id)):OB_SCREENS).filter(s=>!s.skipIf||!s.skipIf(ob));
 const OB_COST=['Energie','Selbstvertrauen','Zeit mit Menschen','Freiheit','Gesundheit','Ruhe'];
 const OB_YEAR={health:'Ich habe Energie bis zum Abend und laufe 5 km am Stück.',relationships:'Ich bin für die Menschen, die mir wichtig sind, wirklich da.',wealth:'Ich habe eine Rücklage und denke nicht mehr ständig über Geld nach.',growth:'Ich kann etwas, das ich heute noch nicht kann, und traue mir mehr zu.'};
@@ -3656,6 +3666,7 @@ function ObObst({ob,u}){const sel=ob.obst||[];return html`<div><${Lines} l=${['W
  <div className="story-in mt-5" style=${obIn(.8)}><${ObChips} opts=${LC.OBSTACLES.map(o=>[o.id,o.l])} val=${sel} max=${2} on=${v=>u(()=>({obst:v}))}/><div className="text-[12px] mute mt-3">Bis zu zwei. Optional.</div></div>
  ${sel.length>0&&html`<div className="mt-6"><${Lines} l=${['Das ist kein Charakterfehler.','Es ist ein Hindernis.','Und mit Hindernissen kann man planen.']} step=${.7}/></div>`}</div>`}
 function ObValues({ob,u}){const sel=ob.values||[];return html`<div><${Lines} l=${['Woran willst du dich messen,','wenn niemand zusieht?']}/><div className="mt-3"><${FutureHint} f=${ob.future} kind="identity"/></div>
+ ${(()=>{const sg=PC.suggestValues(ob.persona||[]),add=PC.valuesToAdd(sel,sg);return add.length?html`<div className="card2 p-3 mt-4 flex items-center gap-2 text-[13px]" data-ob-value-suggest><span className="flex-1 min-w-0"><span className="lbl block">Aus deinem Zukunftscharakter</span>${add.join(' · ')}</span><button type="button" className="chip on shrink-0" style=${{minHeight:44}} onClick=${()=>u(q=>({values:[...(q.values||[]),...PC.valuesToAdd(q.values||[],sg)]}))}>Übernehmen</button></div>`:null})()}
  <div className="story-in mt-5" style=${obIn(1.4)}><${ObChips} opts=${LC.VALUES.map(v=>[v,v])} val=${sel} max=${3} on=${v=>u(()=>({values:v}))}/><div className="text-[12px] mute mt-3">${sel.length}/3 gewählt</div></div>
  ${sel.length>0&&html`<div className="card mt-5 p-5 text-center" style=${{background:'var(--card2)'}}><div className="lbl mb-2">In Stein</div>${sel.map(v=>html`<div key=${v} className="disp-serif text-[20px] story-engrave" style=${{color:'var(--gold)'}}>${v}</div>`)}</div>`}</div>`}
 function ObSign({ob,u,back}){const [hold,setHold]=useState(false);const signed=!!ob.signed;const name=ob.name.trim()||'Du';const SD=Object.values(ob.standards||{}).filter(x=>x.std);
@@ -3932,6 +3943,7 @@ function obRelevant(ob){const r=[];const add=a=>{if(a&&LC.AREA[a]&&!r.includes(a
 function ObStandards({ob,u}){const rel=obRelevant(ob);const save=(area,p,why)=>u(q=>{const L={d:0,standards:{...(q.standards||{})}};LC.setStandard(L,area,p,why);return{standards:L.standards}});
  return html`<div><${Lines} l=${['Was erwartest du von dir?','In deinem Maß.']}/><p className="story-in text-[13px] mute mt-2 leading-relaxed" style=${obIn(1)}>Standards sind kein Pensum von außen. Du legst fest, was du regelmäßig tust und was an schwierigen Tagen reicht. Alles bleibt änderbar.</p>
   <div className="mt-2"><${FutureHint} f=${ob.future} kind="identity"/></div>
+  <${RoutineSuggest} ids=${ob.persona||[]} map=${ob.standards} save=${save}/>
   <div className="story-in mt-3" style=${obIn(1.3)}><${StandardsPanel} map=${ob.standards} ctxFor=${a=>obStdCtx(ob,a)} save=${save} relevant=${rel} start=${rel[0]}/></div>
   <div className="text-[11.5px] mute mt-3">Ein Bereich reicht für den Anfang. Weitere kannst du jederzeit im Fundament ergänzen.</div></div>`}
 /* App: Kontext aus dem Spielstand */
@@ -3953,6 +3965,7 @@ function StandardsSheet({c,area}){const {S}=c;const L=S.life;const rel=appReleva
  return html`<${Sheet} sub="Dein persönliches Fundament" title="Persönliche Standards" onClose=${c.closeSheet}>
   <div className="text-[13px] mute -mt-1 mb-3 leading-snug">Du legst fest, was du regelmäßig von dir erwartest, in deinem Maß. Fortschritt misst sich an deiner eigenen Ausgangslage, nie an anderen.</div>
   ${(start&&(L.standards||{})[start])?html`<${StdStatus} c=${c} area=${start}/>`:null}
+  <${RoutineSuggest} ids=${PC.chosen(S).map(p=>p.id)} map=${L.standards} save=${save}/>
   <${StandardsPanel} map=${L.standards} ctxFor=${a=>appStdCtx(S,a)} save=${save} relevant=${rel} start=${start}/>
   ${Object.keys(L.standards||{}).length>0&&html`<div className="mt-4 flex flex-col gap-1">${Object.keys(L.standards).map(a=>html`<button key=${a} type="button" onClick=${()=>{if(del===a){c.upd(n=>LC.removeStandard(n.life,a));setDel(null);c.toast('Standard gelöscht.')}else setDel(a)}} className="bg-transparent border-0 py-1.5 text-[12px] bad text-left">${del===a?`Standard ${LC.AREA[a].de} wirklich löschen? Tippe erneut`:`Standard ${LC.AREA[a].de} löschen`}</button>`)}</div>`}<//>`}
 /* Heute: aktive Standards mit Erledigt und Minimum (nur ohne verknüpfte Handlung braucht es „Erledigt“) */
@@ -4033,7 +4046,7 @@ function CommitCard({c}){const {S}=c;const L=S.life,k=L&&L.onboard&&L.onboard.co
   <div className="flex gap-2 mt-3"><button type="button" onClick=${()=>{c.upd(n=>{n.life.onboard.commit={...n.life.onboard.commit,done:true,doneD:n.life.d||0}});c.toast('Erster Schritt erledigt. Genau so geht es weiter.','good',{undo:()=>c.restore(S)})}} className="btn px-5 py-2.5 text-[13.5px]">Erledigt</button>
   <button type="button" onClick=${()=>c.upd(n=>{n.life.onboard.commit={...n.life.onboard.commit,done:true,dropped:true}})} className="ghost px-4 py-2.5 text-[12.5px] font-semibold">Ausblenden</button></div></div>`}
 
-const OB_BODY={standards:ObStandards,commit:ObCommit,future:ObFuture,audit:ObAudit,owner:ObOwner,loop:ObLoop,still:ObStill,what:ObWhat,resp:ObResp,ready:ObReady,name:ObName,pillars:ObPillarsS,mirror:ObMirror,cost:ObCost,compound:ObCompound,year:ObYear,goal:ObGoal,ctrl:ObCtrl,obst:ObObst,values:ObValues,sign:ObSign,first:ObFirst};
+const OB_BODY={persona:ObPersona,standards:ObStandards,commit:ObCommit,future:ObFuture,audit:ObAudit,owner:ObOwner,loop:ObLoop,still:ObStill,what:ObWhat,resp:ObResp,ready:ObReady,name:ObName,pillars:ObPillarsS,mirror:ObMirror,cost:ObCost,compound:ObCompound,year:ObYear,goal:ObGoal,ctrl:ObCtrl,obst:ObObst,values:ObValues,sign:ObSign,first:ObFirst};
 
 /* ───── Sicherung: Export und Import (alles bleibt lokal; die Datei enthält private Texte) ───── */
 function DataBackup({c}){const {S}=c;const [pend,setPend]=useState(null),[err,setErr]=useState('');const ref=useRef(null);
@@ -4153,6 +4166,8 @@ function lifeFromOb(n,ob){LC.ensureLife(n);const L=n.life;L.values=[...(ob.value
   if(ob.story){const r=obRisk(ob);L.onboard={for:(L.d||0)+day,mid:a.missionId,when:x.actions[0].when||null,risk:r,plan:LC.ifThen(r,a.title,ob.firstWhen,a.minutes),start:ob.start||null,obst:[...(ob.obst||[])],ctrl:(ob.ctrl||[]).length,loop:ob.loopPick||null,own:ob.own&&(ob.own.next||'').trim()?{can:[...(ob.own.can||[])],cant:[...(ob.own.cant||[])],next:ob.own.next.trim()}:null,signed:ob.signed||null}}}}}
 /* Fundament: Standards, Commitment, gesehene Module, Pausenstatus */
 function lifeFromOb2(n,ob){const L=n.life;
+ /* Zukunftscharakter aus dem Einstieg; übersprungen = später gefragt werden, nicht erneut einladen */
+ if((ob.persona||[]).length)PC.choose(n,ob.persona,PC.suggestValues(ob.persona),false);else if(ob.skip&&ob.skip.persona)PC.later(n);
  Object.entries(ob.standards||{}).forEach(([a,x])=>{if(!LC.AREA[a])return;LC.setStandard(L,a,{level:x.level,desired:x.desired,current:x.current||undefined,std:x.std||undefined,min:x.min||undefined});const s=(L.standards||{})[a];if(s){s.base={wk:LC.curWk(L),sat:(x.current&&x.current.sat)??null};s.hist=[];const g=(L.goals||[]).find(y=>y.status==='active'&&y.area===a);const ac=g&&LC.actionsOf(L,g.id)[0];if(ac)s.aid=ac.id}});
  const C=ob.commit||{},step=(C.step||'').trim();
  if(step){let mid=null;if(C.kind==='goal'){const g=(L.goals||[]).find(y=>y.status==='active');const ac=g&&LC.actionsOf(L,g.id)[0];if(ac)mid=ac.missionId}
@@ -4281,7 +4296,7 @@ function AuthFlow({A,set,theme}){
 /* ───── Onboarding: Rahmen mit sechs Stationen, Pausen, Überspringen, Pause und Fortsetzen ───── */
 const obReduced=()=>{try{return window.matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
 /* Screens mit Pflichtangabe; alle lassen sich überspringen */
-const OB_SKIP={name:'Überspringen',goal:'Ziel später festlegen',ctrl:'Überspringen',loop:'Überspringen',owner:'Überspringen',values:'Überspringen',sign:'Überspringen',first:'Überspringen',commit:'Ohne ersten Schritt starten'};
+const OB_SKIP={name:'Überspringen',persona:'Überspringen',goal:'Ziel später festlegen',ctrl:'Überspringen',loop:'Überspringen',owner:'Überspringen',values:'Überspringen',sign:'Überspringen',first:'Überspringen',commit:'Ohne ersten Schritt starten'};
 function obShortTarget(ob){const cur=(obScreens(ob)[clamp(ob.step,0,obScreens(ob).length-1)]||{}).id,fi=OB_SCREENS.findIndex(x=>x.id===cur);const S2=obScreens({...ob,short:true});
  const k=S2.findIndex(x=>OB_SCREENS.findIndex(y=>y.id===x.id)>=fi);return k<0?S2.length-1:k}
 function Onboarding({A,set,theme,onDone}){
@@ -4300,7 +4315,7 @@ function Onboarding({A,set,theme,onDone}){
  const [resume,setResume]=useState(()=>!!(A.ob&&A.ob.obv===2&&A.ob.story&&A.ob.step>=4));
  useEffect(()=>{setSkip(false);if(ob.dir<0||obReduced()){setReady(true);return}setReady(false);const t=setTimeout(()=>setReady(true),(SC.wait||1)*1000);return()=>clearTimeout(t)},[st,ob.short]);
  const nCtrl=useMemo(()=>obCtrlCards(ob).length,[ob.goal]);
- const ok={name:ob.name.trim().length>=1,goal:!!ob.goal&&draftOk(ob.goal),ctrl:(ob.ctrl||[]).length>=nCtrl,loop:!!ob.loopDone,owner:!!ob.ownDone,values:(ob.values||[]).length>=1,sign:!!ob.signed,first:!!ob.goal&&planOk(ob.goal),commit:!!((ob.commit||{}).step||'').trim()}[id]??true;
+ const ok={name:ob.name.trim().length>=1,persona:(ob.persona||[]).length>=1,goal:!!ob.goal&&draftOk(ob.goal),ctrl:(ob.ctrl||[]).length>=nCtrl,loop:!!ob.loopDone,owner:!!ob.ownDone,values:(ob.values||[]).length>=1,sign:!!ob.signed,first:!!ob.goal&&planOk(ob.goal),commit:!!((ob.commit||{}).step||'').trim()}[id]??true;
  const Body=OB_BODY[id];const last=st===list.length-1;
  const finish=paused=>onDone({...ob,paused:!!paused});
  const scroller=useRef(null);useEffect(()=>{if(scroller.current)scroller.current.scrollTop=0},[st]);

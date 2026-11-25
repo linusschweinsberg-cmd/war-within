@@ -4,13 +4,13 @@ const dir=process.argv[2]||require('path').join(__dirname,'..');
 const source=fs.readFileSync(dir+'/index.html','utf8');
 const script=[...source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).find(s=>s.includes('function loadState'));
 const store={};const c=vm.createContext({window:{authApi:{}},React:{},htm:{bind:()=>()=>null},ReactDOM:{createRoot:()=>({render(){}})},document:{getElementById:()=>({})},localStorage:{getItem:k=>store[k]??null,setItem:(k,v)=>{store[k]=String(v)},removeItem:k=>{delete store[k]}},console});
-vm.runInContext(fs.readFileSync(dir+'/life-core.js','utf8'),c);vm.runInContext(fs.readFileSync(dir+'/wisdom-core.js','utf8'),c);
+vm.runInContext(fs.readFileSync(dir+'/life-core.js','utf8'),c);vm.runInContext(fs.readFileSync(dir+'/wisdom-core.js','utf8'),c);vm.runInContext(fs.readFileSync(dir+'/persona-core.js','utf8'),c);c.PC=c.window.PC;
 vm.runInContext(script+'\nglobalThis.api={buildState,newOb,draftFromTpl,loadState,obScreens,obShortTarget,obCommitProposal,obCtrlCards,eveCands,initState,focusMode,OB_SCREENS,derive,briefCands,dayKey,eveToday,nextAction};',c);
 const a=c.api,LC=c.window.LC,ses={mode:'guest',name:'Gast'};const ok=[];const t=(n,f)=>{f();ok.push(n)};
 const ids=ob=>[...a.obScreens(ob)].map(x=>x.id);
 const finish=ob=>{const n=a.buildState(ob,ses);LC.ensureLife(n);return n};
 
-t('Neuer Nutzer: Kurzform führt in wenigen Schritten in die App',()=>{const ob=a.newOb('');ob.short=true;assert.ok(!ids(ob).includes('first'),'erste Handlung erst, wenn ein Ziel entsteht');ob.goal=a.draftFromTpl(LC.GOAL_TPL[0]);assert.deepEqual(ids(ob),['still','what','resp','ready','name','pillars','goal','first','commit']);
+t('Neuer Nutzer: Kurzform führt in wenigen Schritten in die App',()=>{const ob=a.newOb('');ob.short=true;assert.ok(!ids(ob).includes('first'),'erste Handlung erst, wenn ein Ziel entsteht');ob.goal=a.draftFromTpl(LC.GOAL_TPL[0]);assert.deepEqual(ids(ob),['still','what','resp','ready','name','pillars','persona','goal','first','commit']);
  ob.skip={goal:true};assert.ok(!ids(ob).includes('first'),'ohne Ziel entfällt die erste Handlung')});
 
 t('Nutzer, der alles überspringt: unvollständiges Profil, App funktioniert, nichts negativ bewertet',()=>{const ob=a.newOb('');ob.skip={name:true,goal:true,ctrl:true,loop:true,owner:true,values:true};
@@ -43,9 +43,9 @@ t('Nutzer mit übersprungenen Fragen: Vorschläge nutzen nur vorhandene Angaben'
  const ob2=a.newOb('');const P2=a.obCommitProposal(ob2);assert.equal(P2.kind,'universal','Säulen unverändert = keine eigene Angabe')});
 
 t('Unterbrechen und fortsetzen: Fortschritt bleibt, Kurzform setzt am nächsten Kern-Screen an',()=>{const ob=a.newOb('Lea');const full=ids(ob);ob.step=full.indexOf('audit');
- const k=a.obShortTarget(ob),S2=ids({...ob,short:true});assert.equal(S2[k],'goal','von der Bestandsaufnahme direkt zum Ziel');
+ const k=a.obShortTarget(ob),S2=ids({...ob,short:true});assert.equal(S2[k],'persona','von der Bestandsaufnahme zum Zukunftscharakter, danach Ziel');assert.equal(S2[k+1],'goal');
  ob.step=full.indexOf('owner');assert.equal(ids({...ob,short:true})[a.obShortTarget(ob)],'goal');
- assert.deepEqual(full.slice(5),['pillars','mirror','audit','cost','future','compound','ctrl','obst','owner','values','standards','loop','year','goal','commit'],'Reihenfolge: Selbsterkenntnis → Eigenverantwortung → Standards → Handeln');
+ assert.deepEqual(full.slice(5),['pillars','mirror','audit','cost','future','persona','compound','ctrl','obst','owner','values','standards','loop','year','goal','commit'],'Reihenfolge: Selbsterkenntnis → Eigenverantwortung → Standards → Handeln');
  const saved=JSON.parse(JSON.stringify(ob));assert.equal(saved.step,ob.step);
  const n=finish({...ob,paused:true});assert.equal(n.life.fund.ob.paused,true);assert.equal(n.life.fund.ob.mode,'full')});
 
@@ -67,3 +67,14 @@ console.log('PASS ftue-flows: '+ok.join(' · '));
 t('Fundament löschen entfernt auch die ins Warum kopierte Vision',()=>{const ob=a.newOb('Test');ob.future={vision:'PRIVATE_VISION_MARKER'};ob.why=ob.future.vision;ob.goal=a.draftFromTpl(LC.GOAL_TPL[0]);const S=finish(ob);const goals=JSON.stringify(S.life.goals),log=JSON.stringify(S.life.log);assert.ok(JSON.stringify(S).includes('PRIVATE_VISION_MARKER'));LC.clearFoundation(S);assert.ok(!JSON.stringify(S).includes('PRIVATE_VISION_MARKER'));assert.equal(JSON.stringify(S.life.goals),goals);assert.equal(JSON.stringify(S.life.log),log)});
 t('Sonntag: alle aktiven Ziel-Handlungen und Standards sind erreichbar',()=>{const S=LC.ensureLife(a.initState());for(let i=0;i<5;i++)LC.addGoal(S,{...LC.GOAL_TPL.find(x=>x.id==='skill'),title:'Ziel '+i});S.day=6;S.life.d=6;LC.setStandard(S.life,'wealth',{std:{text:'Eigener Standard',perWeek:1}});const active=S.life.actions.filter(x=>!x.off&&S.life.goals.find(g=>g.id===x.goalId)?.status==='active');const before=JSON.stringify(active),cands=a.eveCands(S,a.derive(S),[]);assert.ok(active.length>4);for(const ac of active)assert.ok(cands.some(x=>x.m.id===ac.missionId));assert.ok(cands.some(x=>x.m.id==='std:wealth'));assert.equal(JSON.stringify(active),before)});
 console.log('PASS integration regressions: private copies cleared, complete Sunday candidates');
+{const t2=(n,f)=>{f();console.log('PASS '+n)},PC=c.window.PC;
+t2('Zukunftscharakter im Einstieg: gewählt landet im Spielstand, Werte bleiben eigene Wahl',()=>{const ob=a.newOb('Test');ob.persona=['runner','scroll'];ob.values=['Mut'];const n=finish(ob);
+ assert.deepEqual([...n.life.persona.ids],['runner','scroll']);assert.equal(n.life.persona.status,'set');assert.deepEqual([...n.life.values],['Mut'],'Leitbild ersetzt keine Werte');assert.equal(n.life.goals.length,0)});
+t2('Zukunftscharakter übersprungen: keine erneute Einladung; nicht erreicht: Einladung in der App',()=>{const ob=a.newOb('');ob.skip={persona:true};const n=finish(ob);assert.equal(n.life.persona.status,'later');assert.equal(PC.invite(n),false);
+ const m=finish(a.newOb(''));assert.equal(m.life.persona,undefined);assert.equal(PC.invite(m),true)});
+t2('Routinenvorschläge: höchstens drei, mit kleiner Variante, nie für Bereiche mit Standard, erst nach Tippen übernommen',()=>{
+ const r=PC.routineSuggestions(['runner','scroll']);assert.equal(r.length,2);assert.ok(r.every(x=>x.min&&x.min.text&&x.std.perWeek>=1));
+ assert.equal(PC.routineSuggestions(['runner'],{health:{}}).length,0);assert.equal(PC.routineSuggestions(['scroll','column']).length,1,'ein Bereich nur einmal');assert.equal(PC.routineSuggestions(['star']).length,0);
+ const ob=a.newOb('Test');ob.persona=['runner'];const n=finish(ob);assert.equal(Object.keys(n.life.standards||{}).length,0,'kein automatischer Standard');
+ const L={d:0,standards:{}};const x=PC.routineSuggestions(['runner'],L.standards)[0];LC.setStandard(L,x.area,{std:x.std,min:x.min},'Vorschlag');const ob2=a.newOb('Test');ob2.standards=L.standards;const n2=finish(ob2);
+ assert.equal(n2.life.standards.health.std.text,'20 Minuten Bewegung');assert.equal(n2.life.standards.health.min.text,'5 Minuten gehen')});}

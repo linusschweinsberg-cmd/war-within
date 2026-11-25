@@ -8,11 +8,11 @@
  'use strict';
  const V=1,MAX=2,MAX_VALUES=3;
  const PERSONAS=[
-  {id:'shield',icon:'shield',name:'Schild',line:'Für dich und andere da sein',values:['Loyalität','Mitgefühl','Verantwortung'],area:'relationships',idea:'Täglich eine Nachricht an einen Menschen, der dir wichtig ist'},
-  {id:'runner',icon:'activity',name:'Läufer',line:'Stark und belastbar werden',values:['Disziplin','Gesundheit','Mut'],area:'health',idea:'3× pro Woche 20 Minuten Bewegung'},
-  {id:'scroll',icon:'scroll',name:'Schriftrolle',line:'Lernen und verstehen',values:['Neugier','Exzellenz','Ehrlichkeit'],area:'growth',idea:'15 Minuten lesen oder lernen'},
-  {id:'column',icon:'column',name:'Säule',line:'Etwas Eigenes aufbauen',values:['Exzellenz','Disziplin','Verantwortung'],area:'growth',idea:'25 Minuten fokussiert an deinem Projekt'},
-  {id:'owl',icon:'owl',name:'Eule',line:'Geld und Zeit im Griff',values:['Freiheit','Gelassenheit','Verantwortung'],area:'wealth',idea:'Einmal pro Woche 10 Minuten Geldcheck'},
+  {id:'shield',icon:'shield',name:'Schild',line:'Für dich und andere da sein',values:['Loyalität','Mitgefühl','Verantwortung'],area:'relationships',idea:'Täglich eine Nachricht an einen Menschen, der dir wichtig ist',routine:{text:'Einem wichtigen Menschen schreiben',perWeek:3,mini:'Ein kurzes Zeichen senden'}},
+  {id:'runner',icon:'activity',name:'Läufer',line:'Stark und belastbar werden',values:['Disziplin','Gesundheit','Mut'],area:'health',idea:'3× pro Woche 20 Minuten Bewegung',routine:{text:'20 Minuten Bewegung',perWeek:3,minutes:20,mini:'5 Minuten gehen'}},
+  {id:'scroll',icon:'scroll',name:'Schriftrolle',line:'Lernen und verstehen',values:['Neugier','Exzellenz','Ehrlichkeit'],area:'growth',idea:'15 Minuten lesen oder lernen',routine:{text:'15 Minuten lesen oder lernen',perWeek:5,minutes:15,mini:'Eine Seite lesen'}},
+  {id:'column',icon:'column',name:'Säule',line:'Etwas Eigenes aufbauen',values:['Exzellenz','Disziplin','Verantwortung'],area:'growth',idea:'25 Minuten fokussiert an deinem Projekt',routine:{text:'25 Minuten am eigenen Projekt',perWeek:3,minutes:25,mini:'5 Minuten anfangen'}},
+  {id:'owl',icon:'owl',name:'Eule',line:'Geld und Zeit im Griff',values:['Freiheit','Gelassenheit','Verantwortung'],area:'wealth',idea:'Einmal pro Woche 10 Minuten Geldcheck',routine:{text:'Wöchentlicher Geldcheck',perWeek:1,minutes:10,mini:'Kontostand ansehen'}},
   {id:'star',icon:'star',name:'Eigener Stern',line:'Dein eigenes Bild',values:[],area:null,idea:null}];
  const byId=id=>PERSONAS.find(p=>p.id===id)||null;
 
@@ -45,6 +45,10 @@
   L.persona={v:V,ids:clean,values:vals,status:clean.length?'set':'later',t};
   const added=addValues?valuesToAdd(current||L.values,vals):[];return {added}}
  function later(S,t=Date.now()){const L=S.life;if(!L)return;if(L.persona){L.persona.status=L.persona.ids.length?'set':'later';return}L.persona={v:V,ids:[],values:[],status:'later',t}}
+ /* Routinenvorschläge aus dem Zukunftscharakter: höchstens drei, ein Bereich nur einmal, nie für Bereiche mit vorhandenem Standard.
+    Jeder Vorschlag hat eine kleine Variante für schwierige Tage. Übernommen wird nur durch ausdrückliches Tippen. */
+ function routineSuggestions(ids,standards){const has=standards||{},out=[];(ids||[]).map(byId).filter(p=>p&&p.routine&&p.area).forEach(p=>{
+  if(out.length<3&&!has[p.area]&&!out.some(x=>x.area===p.area))out.push({from:p.id,area:p.area,std:{text:p.routine.text,perWeek:p.routine.perWeek,...(p.routine.minutes?{minutes:p.routine.minutes}:{})},min:{text:p.routine.mini}})});return out}
  /* Für einen späteren Sync: nur Codes */
  const forSync=S=>{const p=state(S);return p?{v:p.v,ids:p.ids.slice(),status:p.status}:null};
 
@@ -71,6 +75,6 @@
  function declineHint(S,src){const k=skills(S);if(k&&src&&!k.no.includes(src))k.no=[...k.no,src].slice(-100)}
  const skillsForSync=S=>{const k=skills(S);return k?{v:k.v,n:k.list.length}:null};
 
- G.PC={V,MAX,MAX_VALUES,PERSONAS,byId,ensure,state,chosen,invite,toggle,suggestValues,valuesToAdd,goalHint,choose,later,forSync,
+ G.PC={V,MAX,MAX_VALUES,PERSONAS,byId,ensure,state,chosen,invite,toggle,suggestValues,valuesToAdd,goalHint,routineSuggestions,choose,later,forSync,
   SKILL_MAX,SKILL_LEN,SKILL_PRESETS,skills,skillList,addSkill,removeSkill,skillHints,declineHint,skillsForSync};
 })(typeof window!=='undefined'?window:globalThis);
