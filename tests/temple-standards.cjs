@@ -1,0 +1,12 @@
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
+const c=vm.createContext({console});vm.runInContext(fs.readFileSync(require('path').join(__dirname,'../life-core.js'),'utf8'),c);const L=c.LC;
+const fresh=()=>L.ensureLife({day:0,acts:{},missions:[]});
+const setup=S=>L.setStandard(S.life,'health',{std:{text:'Gehen',perWeek:5},min:{text:'Vor die Tür'}});
+const log=(S,d,kind='std')=>{S.life.d=d;L.logStandard(S.life,'health',kind)};
+let S=fresh();setup(S);for(let d=0;d<4;d++)log(S,d);L.syncTemple(S);assert.equal(L.columnState(S.life,'health').pts,1);S.life.d=7;L.syncTemple(S);assert.equal(L.columnState(S.life,'health').pts,2);L.syncTemple(S);assert.equal(L.columnState(S.life,'health').pts,2,'idempotent');
+S=fresh();setup(S);for(let i=0;i<12;i++)log(S,0);log(S,1,'min');S.life.d=7;L.syncTemple(S);assert.equal(L.columnState(S.life,'health').pts,1,'duplicates and minimum cannot manufacture a consistent week');
+S=fresh();setup(S);delete S.life.temple.cur.routineFrom;for(let d=0;d<5;d++)log(S,d);S.life.d=7;L.syncTemple(S);assert.equal(L.columnState(S.life,'health').pts,0,'existing temples receive no retroactive standard awards');for(let d=7;d<11;d++)log(S,d);S.life.d=14;L.syncTemple(S);assert.equal(L.columnState(S.life,'health').pts,2);
+S=fresh();setup(S);S.life.standards.health.aid='linked';for(let d=0;d<5;d++)log(S,d);S.life.d=7;L.syncTemple(S);assert.equal(L.columnState(S.life,'health').pts,0,'linked standard not awarded again');
+S=fresh();setup(S);S.life.standards.health.status='paused';log(S,0);S.life.d=7;L.syncTemple(S);assert.equal(L.columnState(S.life,'health').pts,0);
+S=fresh();setup(S);log(S,0);L.syncTemple(S);const snapshot=JSON.parse(JSON.stringify(S));log(S,1);L.syncTemple(S);assert.equal(L.columnState(snapshot.life,'health').pts,1);L.closeTempleSeason(S,8);assert.equal(S.life.temple.cur.routineFrom,S.life.d);L.syncTemple(S);assert.equal(L.columnState(S.life,'health').pts,0,'season does not replay old log');
+console.log('PASS temple standards: standalone, 80 percent, deduplication, minimum, migration, linked actions, pauses, season boundaries');

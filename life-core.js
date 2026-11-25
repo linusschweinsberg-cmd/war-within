@@ -299,7 +299,7 @@ function setStandard(L,area,p,why){if(!L||!AREA[area])return null;L.standards=L.
  if(empty){delete L.standards[area];return null}L.standards[area]=n;return n}
 function rerateStandard(L,area,sat){const s=(L.standards||{})[area];if(!s)return null;const v=sat==null||sat===''?null:clamp(Math.round(+sat),1,10);s.current={...(s.current||{note:''}),sat:v};s.rated=[...(s.rated||[]),{wk:curWk(L),sat:v}].slice(-24);s.updated=Date.now();if(s.base&&s.base.sat==null&&v!=null)s.base={...s.base,sat:v};return s}
 function removeStandard(L,area){if(L&&L.standards)delete L.standards[area];if(L&&L.stdLog)L.stdLog=L.stdLog.filter(x=>x.area!==area)}
-function logStandard(L,area,kind){const s=(L.standards||{})[area];if(!s)return null;const e={area,d:L.d||0,wk:curWk(L),kind:kind==='min'?'min':'std',t:Date.now()};L.stdLog=[...(L.stdLog||[]),e].slice(-1000);return e}
+function logStandard(L,area,kind){const s=(L.standards||{})[area];if(!s)return null;const e={area,d:L.d||0,wk:curWk(L),kind:kind==='min'?'min':'std',t:Date.now()};const all=[...(L.stdLog||[]),e],cut=Math.max(0,all.length-1000);L.stdLog=all.slice(-1000);if(cut&&L.temple&&L.temple.cur&&L.temple.cur.stdLogFrom!=null)L.temple.cur.stdLogFrom=Math.max(0,L.temple.cur.stdLogFrom-cut);return e}
 /* Soll in Woche wk: Änderungen gelten ab ihrer Woche (wie plannedAt) */
 function stdPerWeekAt(s,wk){const h=(s.hist||[]).find(x=>x.wk>wk&&x.std);return h?h.std.perWeek:(s.std?s.std.perWeek:null)}
 function standardWeek(L,area,wk){const s=(L.standards||{})[area];if(!s||!s.std)return null;const since=(s.base&&s.base.wk)??0;if(wk<since)return null;
@@ -405,28 +405,34 @@ const STAGES=[{n:1,id:'ruin',name:'Ruine',min:0},{n:2,id:'rebuild',name:'Wiedera
 const PHASES=[{n:1,id:'foundation',name:'The Foundation',de:'Der Anfang'},{n:2,id:'reconstruction',name:'Reconstruction',de:'Der Wiederaufbau'},{n:3,id:'stability',name:'Stability',de:'Die Stabilisierung'},{n:4,id:'refinement',name:'Refinement',de:'Die Veredelung'},{n:5,id:'mastery',name:'Mastery',de:'Der Saisonabschluss'}];
 /* Regeln: Punkte je Baustein und Obergrenze je Säule und Saison (gegen bedeutungsloses Abhaken) */
 const TEMPLE_RULES={
- first:{pts:1,cap:1,label:'Grundstein gelegt',why:'Erste umgesetzte Ziel-Handlung in diesem Bereich'},
- week:{pts:1,cap:12,label:'Konstante Woche',why:'Abgeschlossene Woche mit mindestens 80 % der geplanten Ziel-Handlungen'},
+ first:{pts:1,cap:1,label:'Grundstein gelegt',why:'Erste umgesetzte Ziel-Handlung oder eigenständiger Standard in diesem Bereich'},
+ week:{pts:1,cap:12,label:'Konstante Woche',why:'Abgeschlossene Woche mit mindestens 80 % des Plans aus Ziel-Handlungen und eigenständigem Standard'},
  comeback:{pts:1,cap:2,label:'Wiederaufgenommen',why:'Konstante Woche direkt nach einer Woche ohne Umsetzung'},
  quarter:{pts:2,cap:4,label:'Ergebnis-Meilenstein',why:'Ein Ziel erreicht 25, 50 oder 75 % seines Ergebniswegs (Messwert)'},
  goal:{pts:3,cap:2,label:'Ziel erreicht',why:'Zielwert erreicht, Gravur in der Säule'},
  exp:{pts:2,cap:3,label:'Bewährte Anpassung',why:'Experiment hat seine Hypothese bestätigt, Emblem am Kapitell'},
  restored:{pts:1,cap:2,label:'Restauriert',why:'Nach dokumentiertem Rückschritt wieder verbessert'}};
-const newTemple=(wk,d)=>({v:1,cur:{n:1,startWk:wk,d0:d??wk*7,len:TEMPLE_LEN,ms:[],wx:{}},hist:[],weather:true,anim:true});
+const newTemple=(wk,d)=>({v:1,cur:{n:1,startWk:wk,d0:d??wk*7,len:TEMPLE_LEN,routineFrom:d??wk*7,stdLogFrom:0,ms:[],wx:{}},hist:[],weather:true,anim:true});
 const areaOf=(L,gid)=>(goalById(L,gid)||{}).area;
 const inSeason=(T,wk)=>wk>=T.cur.startWk&&wk<T.cur.startWk+T.cur.len;
 function areaWeek(L,area,wk){let p=0,d=0;(L.goals||[]).filter(g=>g.area===area&&g.status!=='archived').forEach(g=>{const w=goalWeek(L,g,wk);p+=w.planned;d+=w.done});return{planned:p,done:d,rate:p?d/p:null}}
+/* Eigenständige Standards zählen einmal; verknüpfte Handlungen bleiben in goalWeek.
+   Bestehende Tempel nehmen Standards ab dem Update auf, ohne rückwirkende Bausteine. */
+function templeWeek(L,area,wk){const a=areaWeek(L,area,wk),s=(L.standards||{})[area],from=L.temple&&L.temple.cur.routineFrom;
+ if(s&&s.std&&!s.aid&&s.status!=='paused'&&from!=null&&wk*7>=from){const x=standardWeek(L,area,wk);if(x){a.planned+=x.per;const days=new Set((L.stdLog||[]).filter(e=>e.area===area&&e.wk===wk&&e.kind==='std'&&e.d>=from).map(e=>e.d));a.done+=Math.min(x.per,days.size)}}
+ a.rate=a.planned?a.done/a.planned:null;return a}
 /* Bausteine aus Daten ableiten und neue dauerhaft speichern; gibt neu freigeschaltete zurück */
 function syncTemple(S){const L=S.life;if(!L)return[];if(!L.temple)L.temple=newTemple(curWk(L),L.d||0);const T=L.temple,C=T.cur,w=curWk(L),fresh=[];
+ if(C.routineFrom==null){C.routineFrom=L.d||0;C.stdLogFrom=(L.stdLog||[]).length}
  const has=id=>C.ms.some(m=>m.id===id);
  const add=(area,kind,id,wk,extra)=>{if(has(id))return;const r=TEMPLE_RULES[kind];if(C.ms.filter(m=>m.area===area&&m.kind===kind).length>=r.cap)return;const m={id,area,kind,pts:r.pts,label:(extra&&extra.label)||r.label,wk,t:Date.now()};C.ms=[...C.ms,m];fresh.push(m)};
  const end=Math.min(w,C.startWk+C.len-1);
  AREAS.forEach(({id:area})=>{
   /* Grundstein: erste erledigte Ziel-Handlung der Saison */
   const aids=new Set((L.actions||[]).filter(a=>areaOf(L,a.goalId)===area).map(a=>a.id));
-  const d0=C.d0??C.startWk*7;const lf=C.logFrom||0;const firstLog=(L.log||[]).find((x,i)=>i>=lf&&aids.has(x.aid)&&inSeason(T,x.wk)&&x.d>=d0);if(firstLog)add(area,'first','first-'+area+'-'+C.n,firstLog.wk);
+  const d0=C.d0??C.startWk*7;const lf=C.logFrom||0;const firstLog=(L.log||[]).find((x,i)=>i>=lf&&aids.has(x.aid)&&inSeason(T,x.wk)&&x.d>=d0);const std=(L.standards||{})[area],stdFirst=std&&std.std&&!std.aid&&std.status!=='paused'&&(L.stdLog||[]).find((x,i)=>i>=(C.stdLogFrom||0)&&x.area===area&&x.kind==='std'&&x.d>=Math.max(d0,C.routineFrom)&&inSeason(T,x.wk));if(firstLog||stdFirst)add(area,'first','first-'+area+'-'+C.n,(firstLog||stdFirst).wk);
   /* Konstante Wochen (nur abgeschlossene Wochen) und Wiederaufnahme */
-  for(let k=C.startWk;k<Math.min(w,C.startWk+C.len);k++){if(k*7<d0)continue;const a=areaWeek(L,area,k);if(a.planned&&a.rate>=.8){add(area,'week','week-'+area+'-'+k,k);const prev=areaWeek(L,area,k-1);if(k>C.startWk&&prev.planned&&prev.done===0)add(area,'comeback','cb-'+area+'-'+k,k)}}
+  for(let k=C.startWk;k<Math.min(w,C.startWk+C.len);k++){if(k*7<d0)continue;const a=templeWeek(L,area,k);if(a.planned&&a.rate>=.8){add(area,'week','week-'+area+'-'+k,k);const prev=templeWeek(L,area,k-1);if(k>C.startWk&&prev.planned&&prev.done===0)add(area,'comeback','cb-'+area+'-'+k,k)}}
   (L.goals||[]).filter(g=>g.area===area).forEach(g=>{
    /* Ergebnis-Viertel: nur durch Messwerte nach der Startwoche des Ziels */
    const s=goalStart(L,g),t=g.metric.target;if(s!=null&&t!=null&&t!==s){measOf(L,g.id).filter(m=>wkOf(m.d,L)>g.startWk&&inSeason(T,wkOf(m.d,L))).forEach(m=>{const p=(m.v-s)/(t-s);[.25,.5,.75].forEach(q=>{if(p>=q)add(area,'quarter','q-'+g.id+'-'+q,wkOf(m.d,L),{label:'Ergebnis '+Math.round(q*100)+' %: '+g.title})})})}
@@ -451,7 +457,7 @@ function closeTempleSeason(S,len){const L=S.life,T=L.temple,st=templeState(S),wk
   achieved:(L.goals||[]).filter(g=>g.status==='achieved'&&g.achievedWk!=null&&g.achievedWk>=T.cur.startWk).map(g=>g.title),
   learned:(L.exps||[]).filter(e=>e.status==='success'&&(e.closed??e.endWk)>=T.cur.startWk).map(e=>e.label),
   open:(L.goals||[]).filter(g=>g.status==='active').map(g=>g.title),t:Date.now()};
- T.hist=[...(T.hist||[]),snap];T.cur={n:T.cur.n+1,startWk:wk,d0:L.d||0,logFrom:(L.log||[]).length,len:len||T.cur.len,ms:[],wx:{}};return snap}
+ T.hist=[...(T.hist||[]),snap];T.cur={n:T.cur.n+1,startWk:wk,d0:L.d||0,logFrom:(L.log||[]).length,len:len||T.cur.len,routineFrom:L.d||0,stdLogFrom:(L.stdLog||[]).length,ms:[],wx:{}};return snap}
 
 /* ───── Success Loop: aktuelle Phase ───── */
 const LOOP=[{id:'own',n:'Ownership',de:'Verantwortung',q:'Was kann ich kontrollieren?'},{id:'exec',n:'Execution',de:'Umsetzung',q:'Was muss ich heute tun?'},{id:'feed',n:'Feedback',de:'Rückmeldung',q:'Was hat funktioniert, was nicht?'},{id:'adapt',n:'Adaptation',de:'Anpassung',q:'Was ändere ich?'}];
@@ -491,5 +497,5 @@ function parseV(metric,s){if(s==null)return null;s=String(s).trim();if(!s)return
 
 G.LC={LIFE_V,AREAS,AREA,LINKS,ACT_AREA,areaAct,VALUES,WHY_Q,GOAL_TPL,OBSTACLES,OBST,BLOCK_MAP,RULES,LOOP,
  areaRating,compassState,wkOf,curWk,actById,goalById,actionsOf,actLabel,missionTitle,plannedAt,doneIn,goalWeek,weekRate,measOf,goalNow,goalStart,better,reached,goalProgress,trend,diagnose,suggest,
- startExperiment,evalExperiment,decideExperiment,reviewWeek,weekSummary,obstacleCounts,saveWeeklyReview,onComplete,onAdvance,onDailyReview,addMeasurement,addAction,addGoal,updateGoal,setGoalStatus,insights,loopStage,newLife,ensureLife,MOODS,DEBRIEF_OBST,CHANGES,onDebrief,debriefPatterns,monthlyDue,saveMonthly,STD_LEVELS,STD_LV,STD_TPL,areaSatFrom,suggestStandard,setStandard,rerateStandard,removeStandard,logStandard,standardWeek,standardFeedback,adaptOptions,standardProgress,standardsForSync,FUND,FUND_STAGES,inviteCandidates,fundState,fundSections,setFundSkip,markSeen,nextInvite,showInvite,answerInvite,clearFoundation,FUTURE_SUCCESS,FUTURE_TXT,cleanFuture,futureSuccess,futureForSync,AUDIT_AREAS,AUDIT,AUDIT_MAX,setAudit,auditState,auditSummary,auditForSync,EVE_WHEN,EVE_RISK,ifThen,onEvening,eveningFor,eveningStats,TEMPLE_LEN,STAGES,PHASES,TEMPLE_RULES,newTemple,syncTemple,columnState,foundationLevel,templeState,closeTempleSeason,areaWeek,fmtV,parseV,syncMission};
+ startExperiment,evalExperiment,decideExperiment,reviewWeek,weekSummary,obstacleCounts,saveWeeklyReview,onComplete,onAdvance,onDailyReview,addMeasurement,addAction,addGoal,updateGoal,setGoalStatus,insights,loopStage,newLife,ensureLife,MOODS,DEBRIEF_OBST,CHANGES,onDebrief,debriefPatterns,monthlyDue,saveMonthly,STD_LEVELS,STD_LV,STD_TPL,areaSatFrom,suggestStandard,setStandard,rerateStandard,removeStandard,logStandard,standardWeek,standardFeedback,adaptOptions,standardProgress,standardsForSync,FUND,FUND_STAGES,inviteCandidates,fundState,fundSections,setFundSkip,markSeen,nextInvite,showInvite,answerInvite,clearFoundation,FUTURE_SUCCESS,FUTURE_TXT,cleanFuture,futureSuccess,futureForSync,AUDIT_AREAS,AUDIT,AUDIT_MAX,setAudit,auditState,auditSummary,auditForSync,EVE_WHEN,EVE_RISK,ifThen,onEvening,eveningFor,eveningStats,TEMPLE_LEN,STAGES,PHASES,TEMPLE_RULES,newTemple,syncTemple,columnState,foundationLevel,templeState,closeTempleSeason,areaWeek,templeWeek,fmtV,parseV,syncMission};
 })(typeof window!=='undefined'?window:globalThis);

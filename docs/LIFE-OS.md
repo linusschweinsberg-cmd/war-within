@@ -108,3 +108,8 @@ Stufen: Ruine 0 · Wiederaufbau 2 · Stabil 6 · Stark 11 · Meisterschaft 17 Pu
 - Die App ändert den Plan nie ungefragt. „Früher einplanen“ setzt nur die erste Priorität für morgen, weil der Nutzer es gewählt hat.
 - **Abendritual** (zweiter Schritt nach dem Debrief, ≤ 30 Sek.): eine Ziel-Handlung für morgen (Ausgelassenes zuerst), Zeitfenster (morgens/mittags/abends) und optional das wahrscheinlichste Hindernis. Daraus entsteht ein Wenn-dann-Plan (`ifThen`). Gespeichert in `L.evening` (`onEvening`, `eveningFor`); am nächsten Tag steht die Handlung auf „Heute“ zuerst, mit dem Plan darunter. Die Handlung selbst wird nicht geändert. `eveningStats` zählt, wie oft das abends Festgelegte am Folgetag umgesetzt wurde (nur abgeschlossene Tage).
 - Tempel: Der Debrief zeigt, an welcher Säule heute gebaut wurde; Bausteine entstehen weiter nur nach den Bauregeln.
+
+
+## Standards tragen den Tempel (ww-v88)
+
+Eigenständige aktive Standards können den Grundstein legen. Für Wochen- und Comeback-Bausteine nutzt `templeWeek` den gemeinsamen Plan aus Zielen und eigenständigem Standard, weiterhin 80 % und dieselben Obergrenzen. Pro Standard zählt höchstens eine volle Erledigung je Tag; Minimum bleibt separat. Verknüpfte Standards zählen nur über ihre Ziel-Handlung. Bestehende Tempel starten die Erweiterung ab dem ersten Update-Aufruf (`routineFrom`, `stdLogFrom`), ohne rückwirkende Standard-Bausteine; volle Wochen ab dieser Grenze. Saisonwechsel grenzt auch Standardlogs ab. Pausierte Standards liefern keine neuen Bausteine; vorhandene bleiben. Säulendetails erklären Regel, Wochenstand und Zugang zum Standard. Ziel-Wochenstatistiken bleiben unverändert.
