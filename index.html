@@ -18,15 +18,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v79"></script>
-<script src="auth.js?v=ww-v79"></script>
-<script src="life-core.js?v=ww-v79"></script>
-<script src="wisdom-core.js?v=ww-v79"></script>
-<script src="future-self-core.js?v=ww-v79"></script>
-<script src="projection-core.js?v=ww-v79"></script>
-<script src="arena-core.js?v=ww-v79"></script>
-<script src="arena-api.js?v=ww-v79"></script>
-<script src="arena-ui.js?v=ww-v79"></script>
+<script src="supabase-config.js?v=ww-v80"></script>
+<script src="auth.js?v=ww-v80"></script>
+<script src="life-core.js?v=ww-v80"></script>
+<script src="wisdom-core.js?v=ww-v80"></script>
+<script src="future-self-core.js?v=ww-v80"></script>
+<script src="projection-core.js?v=ww-v80"></script>
+<script src="arena-core.js?v=ww-v80"></script>
+<script src="arena-api.js?v=ww-v80"></script>
+<script src="arena-ui.js?v=ww-v80"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -3124,7 +3124,7 @@ function GoalSheet({c,gid,area}){const {S}=c;const L=S.life;const g=gid&&LC.goal
   <div className="flex flex-col gap-2">${acts.map(a=>html`<div key=${a.id} className="card2 p-3 flex items-center gap-2"><span className="flex-1 min-w-0 text-[13px] truncate">${LC.missionTitle(a)}</span><button aria-label="weniger" onClick=${()=>c.setActPerWeek(a.id,Math.max(1,a.perWeek-1))} className="ghost w-8 h-8 flex items-center justify-center">−</button><span className="num font-bold w-7 text-center">${a.perWeek}×</span><button aria-label="mehr" onClick=${()=>c.setActPerWeek(a.id,Math.min(7,a.perWeek+1))} className="ghost w-8 h-8 flex items-center justify-center">+</button><button aria-label="Handlung entfernen" onClick=${()=>c.removeAction(a.id)} className="bg-transparent border-0 mute p-1"><${Icon} n="x" s=${15}/></button></div>`)}</div>
   <div className="flex gap-2 mt-2"><input className="inp flex-1" aria-label="Neue Handlung" value=${na} maxLength=${60} onChange=${e=>setNa(e.target.value)} placeholder="Neue Handlung"/><button disabled=${na.trim().length<2} onClick=${()=>{c.addActionTo(g.id,{title:na.trim(),perWeek:2});setNa('')}} className="btn px-4 text-sm">Hinzufügen</button></div>
   <div className="text-[11.5px] mute mt-2">Planänderungen gelten ab sofort; frühere Wochen bleiben, wie sie waren.</div>
-  ${PJ.typeOf(g)&&html`<button type="button" className="chip mt-3" onClick=${()=>c.openSheet({t:'impact',gid:g.id})}>Was passiert, wenn ich dranbleibe?</button>`}
+  ${PJ.typeOf(g)&&html`<button type="button" className="chip mt-3" onClick=${()=>c.openSheet({t:'impact',gid:g.id})}>Was ist mit meinem Plan möglich?</button>`}
   <${AdaptList} c=${c} g=${g}/>
   <div className="lbl mt-5 mb-1.5">Rahmen</div><div className="text-[12px] mute mb-1.5">Zeit pro Woche</div><${Seg} opts=${CAP_OPTS} val=${cap} on=${setCap}/>
   <input className="inp mt-2" aria-label="Einschränkungen" maxLength=${120} value=${lim} onChange=${e=>setLim(e.target.value)} placeholder="Einschränkungen (optional)"/>
@@ -3177,52 +3177,52 @@ function GoalCard({c,g}){const {S}=c;const L=S.life,wk=LC.curWk(L),now=LC.goalNo
  ${p!=null&&html`<div className="mt-2"><${Bar} pct=${p} h=${5} color="var(--good)"/></div>`}
  ${!ach&&html`<div className="border-t ln mt-3 pt-2.5 flex flex-col gap-1.5">${acts.map(a=>html`<div key=${a.id} className="flex items-center gap-2 text-[13px]"><span className="flex-1 min-w-0 truncate">${LC.missionTitle(a)}</span><span className="num mute shrink-0">${LC.doneIn(L,a.id,wk)}/${LC.plannedAt(a,wk)} Woche</span></div>`)}${!acts.length&&html`<div className="text-[12.5px] mute">Noch keine Handlung. Über den Stift fügst du eine hinzu.</div>`}</div>`}
  ${!ach&&PJ.adapt(S,g.id).length>0&&html`<button type="button" onClick=${()=>c.openSheet({t:'goal',gid:g.id})} data-goal-adapt-hint className="w-full mt-2.5 flex items-center gap-2 text-left border-0 p-0 bg-transparent text-[13px]" style=${{minHeight:40,color:'var(--gold)'}}><${Icon} n="flask" s=${15}/>Anpassung vorgeschlagen<${Icon} n="chevR" s=${14} cls="ml-auto mute"/></button>`}
- ${!ach&&PJ.typeOf(g)&&html`<button type="button" onClick=${()=>c.openSheet({t:'impact',gid:g.id})} className="w-full mt-2.5 flex items-center gap-2 text-left border-0 bg-transparent p-0 text-[13px] font-semibold acc" style=${{minHeight:40}}><${Icon} n="trend" s=${15}/>Was passiert, wenn ich dranbleibe?<${Icon} n="chevR" s=${14} cls="ml-auto mute"/></button>`}</div>`}
-/* ───── Decision Impact: „Was passiert, wenn ich dranbleibe?“ ─────
-   Rechnet nur über projection-core.js (window.PJ). Durchziehen = dein Plan; Abdriften = dein Tempo der letzten Wochen, wenn es darunter liegt, sonst ausdrücklich „halber Plan“. */
+ ${!ach&&PJ.typeOf(g)&&html`<button type="button" onClick=${()=>c.openSheet({t:'impact',gid:g.id})} className="w-full mt-2.5 flex items-center gap-2 text-left border-0 bg-transparent p-0 text-[13px] font-semibold acc" style=${{minHeight:40}}><${Icon} n="trend" s=${15}/>Was ist mit meinem Plan möglich?<${Icon} n="chevR" s=${14} cls="ml-auto mute"/></button>`}</div>`}
+/* ───── Decision Impact: „Was ist mit meinem Plan möglich?“ ─────
+   Rechnet nur über projection-core.js (window.PJ). Sichtbar sind höchstens 90 Tage; der Vergleich nennt seine Datenbasis. */
 const einh=n=>n+(n===1?' Einheit':' Einheiten');
 const PJ_FMT={finance:v=>eur(v),fitness:v=>String(Math.round(v)),learning:v=>n1(v)+' h'};
-/* Zeitachse proportional bis 1 Jahr: gleichmäßiges Tempo bleibt eine Gerade, keine künstliche Kurve. 5 Jahre nur als Zahl. */
-function ImpactChart({p,mode,start,fmt}){const W=320,H=150,pl=8,pr=8,pt=14,pb=26,pts=[{d:0,l:'Heute',follow:start,drift:start},...p.series.filter(x=>x.d<=365)],max=Math.max(1,...pts.map(x=>Math.max(x.follow,x.drift))),f=fmt||PJ_FMT[p.type];
- const X=i=>pl+pts[i].d/365*(W-pl-pr),Y=v=>pt+(1-v/max)*(H-pt-pb),line=k=>pts.map((x,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(x[k]).toFixed(1)).join(' ');
+/* Kurzer Planungshorizont; Zeitachse proportional, keine erfundene Wirkungskurve. */
+function ImpactChart({p,mode,start,fmt,compare}){const W=320,H=150,pl=8,pr=8,pt=14,pb=26,pts=[{d:0,l:'Heute',follow:start,drift:start},...p.series.filter(x=>x.d<=90)],max=Math.max(1,...pts.map(x=>Math.max(x.follow,x.drift))),f=fmt||PJ_FMT[p.type];
+ const X=i=>pl+pts[i].d/90*(W-pl-pr),Y=v=>pt+(1-v/max)*(H-pt-pb),line=k=>pts.map((x,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(x[k]).toFixed(1)).join(' ');
  const other=mode==='follow'?'drift':'follow',last=pts[pts.length-1];
- return html`<svg viewBox=${'0 0 '+W+' '+H} width="100%" role="img" aria-label=${'Verlauf über ein Jahr: Durchziehen '+f(last.follow)+', Abdriften '+f(last.drift)} data-impact-chart>
+ return html`<svg viewBox=${'0 0 '+W+' '+H} width="100%" role="img" aria-label=${'Rechenbeispiel für 90 Tage: Dein Plan '+f(last.follow)+', '+compare+' '+f(last.drift)} data-impact-chart>
  <line x1=${pl} x2=${W-pr} y1=${H-pb} y2=${H-pb} style=${{stroke:'var(--line)'}} strokeWidth="1"/>
  <path d=${line(other)} fill="none" style=${{stroke:other==='follow'?'var(--acc)':'var(--nem)'}} strokeWidth="1.5" strokeDasharray="4 4" opacity=".45"/>
  <path d=${line(mode)} fill="none" style=${{stroke:mode==='follow'?'var(--acc)':'var(--nem)'}} strokeWidth="2.6" strokeLinejoin="round" strokeLinecap="round"/>
- ${pts.map((x,i)=>html`<g key=${i}><circle cx=${X(i)} cy=${Y(x[mode])} r="2.6" style=${{fill:mode==='follow'?'var(--acc)':'var(--nem)'}}/>${(x.d===0||x.d>=90)&&html`<text x=${X(i)} y=${H-8} textAnchor=${i===0?'start':i===pts.length-1?'end':'middle'} style=${{fill:'var(--mute)',fontSize:9}}>${x.l}</text>`}</g>`)}
+ ${pts.map((x,i)=>html`<g key=${i}><circle cx=${X(i)} cy=${Y(x[mode])} r="2.6" style=${{fill:mode==='follow'?'var(--acc)':'var(--nem)'}}/>${x.d!==7&&html`<text x=${X(i)} y=${H-8} textAnchor=${i===0?'start':i===pts.length-1?'end':'middle'} style=${{fill:'var(--mute)',fontSize:10}}>${x.l}</text>`}</g>`)}
  <text x=${W-pr} y=${Math.max(10,Y(last[mode])-6)} textAnchor="end" style=${{fill:'var(--ink)',fontSize:11,fontWeight:700}}>${f(last[mode])}</text></svg>`}
 function ImpactSheet({c,gid}){const {S}=c,L=S.life,g=LC.goalById(L,gid);const [mode,setMode]=useState('follow'),[rate,setRate]=useState(()=>g&&g.proj?String(g.proj.rate):''),[intr,setIntr]=useState(()=>g&&g.proj&&g.proj.interest?String(g.proj.interest).replace('.',','):'');
  if(!g)return null;const type=PJ.typeOf(g),p=PJ.project(S,gid),t=PJ.today(S,gid),pct=x=>Math.round(x*100)+' %',fmt=type==='learning'&&p&&!p.timed?PJ_FMT.fitness:PJ_FMT[type]||String;
  const inMonths=m=>{if(m==null)return null;const d=new Date(c.now);d.setMonth(d.getMonth()+m);return d.toLocaleDateString('de-DE',{month:'long',year:'numeric'})};
  const fact=(k,v,sub)=>html`<div key=${k} className="flex items-baseline justify-between gap-3 py-2 border-t ln first:border-t-0"><span className="text-[13px] mute">${k}</span><span className="text-right"><span className="num text-[14px] font-semibold">${v}</span>${sub&&html`<span className="block text-[11.5px] mute">${sub}</span>`}</span></div>`;
  const saveRate=()=>{c.upd(n=>{PJ.setPlan(n,gid,{rate:rate.replace(',','.'),interest:intr.replace(',','.')})});c.toast(rate.trim()?'Sparrate gespeichert.':'Sparrate entfernt.','good')};
- const drift=p&&p.drift?(p.drift.src==='observed'?'Abdriften = dein Tempo der letzten Wochen':'Abdriften = nur der halbe Plan (Annahme)'):null;
+ const compare=p&&p.drift&&p.drift.src==='observed'?'Bisheriges Tempo':'Halber Plan';
+ const drift=p&&p.drift?(p.drift.src==='observed'?(type==='finance'?'Vergleich aus deinen bisherigen Messwerten.':'Vergleich aus deinen letzten bis zu vier abgeschlossenen Wochen.'):'Vergleichsannahme: die Hälfte deines Plans. Das ist keine Aussage über dein Verhalten.'):null;
  const MISS={stand:['Aktueller Stand fehlt','Messen',()=>c.openSheet({t:'measure',gid})],ziel:['Zielwert fehlt','Ziel bearbeiten',()=>c.openSheet({t:'goal',gid})],rate:['Sparrate pro Monat fehlt',null,null],handlung:['Keine Handlung geplant','Ziel bearbeiten',()=>c.openSheet({t:'goal',gid})],typ:['Für diese Art Ziel gibt es noch keine Projektion',null,null]};
- return html`<${Sheet} sub=${LC.AREA[g.area].de+' · Folgen deiner Entscheidungen'} title="Was passiert, wenn ich dranbleibe?" onClose=${c.closeSheet}>
+ return html`<${Sheet} sub=${LC.AREA[g.area].de+' · Plan und gemessene Wirkung'} title="Was ist mit meinem Plan möglich?" onClose=${c.closeSheet}>
  <div className="text-[15px] font-bold -mt-1">${g.title}</div>
  ${t&&t.planned>0&&html`<div className="card2 p-3.5 mt-3" data-impact-today><div className="lbl">Heute</div><div className="text-[13.5px] mt-1 leading-snug">Diese Woche <b className="num">${t.done} von ${t.planned}</b> umgesetzt.${t.doneToday?' Heute schon erledigt.':html` Heute erledigt: <b className="num">${pct(t.ifDone)}</b> der Woche, ausgelassen: <b className="num">${pct(t.ifSkip)}</b>.`}</div>${!t.doneToday&&html`<div className="text-[12px] mute mt-1">${t.stillPossible?'Ein ausgelassener Tag ändert wenig: die Woche ist noch zu schaffen.':'Die Woche wird knapp. Ein kleiner Schritt zählt trotzdem.'}</div>`}</div>`}
  ${type==='finance'&&html`<div className="card2 p-3.5 mt-3"><div className="lbl mb-2">Dein Plan</div><div className="grid grid-cols-2 gap-2"><label className="block"><span className="text-[12px] mute">Sparrate pro Monat (€)</span><input className="inp mt-1" inputMode="decimal" value=${rate} onChange=${e=>setRate(e.target.value)} placeholder="z. B. 250"/></label><label className="block"><span className="text-[12px] mute">Zinsen pro Jahr (%)</span><input className="inp mt-1" inputMode="decimal" value=${intr} onChange=${e=>setIntr(e.target.value)} placeholder="0"/></label></div><button type="button" className="btn w-full py-2.5 mt-2.5 text-[13.5px]" onClick=${saveRate}>Plan speichern</button><div className="text-[11.5px] mute mt-1.5">Zinsen nur, wenn du sie ausdrücklich annimmst. Ohne Angabe: 0 %.</div></div>`}
  ${p&&!p.complete?html`<div className="card2 p-3.5 mt-3" data-impact-missing><div className="text-[13.5px] font-semibold">Noch nicht berechenbar</div>${p.missing.map(k=>{const m=MISS[k]||[k];return html`<div key=${k} className="flex items-center justify-between gap-2 mt-2 text-[13px]"><span className="mute">${m[0]}</span>${m[1]&&html`<button type="button" className="chip" onClick=${m[2]}>${m[1]}</button>`}</div>`})}<div className="text-[11.5px] mute mt-2">Die App zeigt keine Zahlen, die nicht aus deinen Angaben folgen.</div></div>`
- :p&&html`<div className="mt-3"><${Seg} opts=${[['follow','Durchziehen'],['drift','Abdriften']]} val=${mode} on=${setMode}/></div>
- <div className="card2 p-3 mt-2"><${ImpactChart} p=${p} mode=${mode} fmt=${fmt} start=${type==='finance'?p.now:type==='fitness'||!p.timed?(p.done??p.sessions):p.hours}/><div className="text-[11.5px] mute mt-1">${type==='finance'?'Kontostand':type==='fitness'||!p.timed?'Absolvierte Einheiten':'Investierte Lernzeit'} bei gleichbleibendem Tempo. ${drift}. In 5 Jahren: ${fmt(p.series[5][mode])}.</div></div>
+ :p&&html`<div className="mt-3"><div className="lbl mb-2">Nächste 90 Tage · Rechenbeispiel</div><${Seg} opts=${[['follow','Dein Plan'],['drift',compare]]} val=${mode} on=${setMode}/></div>
+ <div className="card2 p-3 mt-2"><${ImpactChart} p=${p} mode=${mode} fmt=${fmt} compare=${compare} start=${type==='finance'?p.now:type==='fitness'||!p.timed?(p.done??p.sessions):p.hours}/><div className="text-[12px] mute mt-1 leading-snug">${type==='finance'?'Rechnerischer Stand bei unveränderter Rate und Zinsannahme.':type==='fitness'?'Geplante Trainingseinheiten, keine Vorhersage deiner Fitness.':p.timed?'Lernzeit aus Einheiten und geplanter Dauer, keine gemessene Lernwirkung.':'Geplante Lerneinheiten, keine Vorhersage deines Könnens.'} ${drift}</div></div>
  <div className="card2 px-3.5 py-1 mt-2" data-impact-facts>
  ${type==='finance'&&html`${fact('Ziel '+fmt(p.target),p.months==null?'mit dieser Rate nicht':p.months===0?'erreicht':'in '+p.months+' Monaten',p.months?inMonths(p.months):null)}
   ${p.unrealistic&&fact('Dein Zeitraum',p.deadlineM+' Monate','reicht mit dieser Rate nicht – Rate erhöhen oder Zeitraum verlängern')}
-  ${fact('In 3 / 6 / 12 Monaten',fmt(p.at3)+' / '+fmt(p.at6)+' / '+fmt(p.at12))}
+  ${fact('Rechnerisch nach 3 Monaten',fmt(p.at3))}
   ${fact('Zwischenziele',p.milestones.map(m=>fmt(m.value)+(m.months!=null?' ('+m.months+' M.)':'')).join(' · '))}
-  ${p.alt.map(x=>fact('Mit '+fmt(x.rate)+' pro Monat',x.months==null?'nicht erreichbar':x.months+' Monate','nach 12 Monaten '+fmt(x.at12)))}
-  ${fact('Eine Rate ausgelassen',fmt(p.skip.diff12)+' nach 12 Monaten',p.skip.delay?'Ziel '+p.skip.delay+' Monat'+(p.skip.delay>1?'e':'')+' später':null)}
-  ${fact('Durchziehen statt Abdriften',fmt(p.scenarioDiff12)+' mehr nach 12 Monaten')}`}
+  ${p.alt.map(x=>fact('Mit '+fmt(x.rate)+' pro Monat',x.months==null?'rechnerisch nicht erreichbar':x.months+' Monate','bei unveränderten Annahmen'))}`}
  ${type==='fitness'&&html`${fact('Plan',einh(p.plan)+' pro Woche')}
   ${fact('Absolviert',einh(p.done),p.plannedPast?'abgeschlossene Wochen: '+p.doneInPast+' von '+p.plannedPast+' geplant':null)}
   ${p.consistency!=null&&fact('Konstanz',pct(p.consistency)+' der Wochen erfüllt','Ruhe- und Krankheitstage senken den Plan, sie zählen nicht als verpasst')}
   ${fact('Meilensteine (aus Messwerten)',p.milestones.length?p.milestones.filter(m=>m.reached).length+' von '+p.milestones.length:'noch keine Messwerte')}
-  ${fact('In einem Jahr',einh(Math.round(p.series[4].follow)),'Abdriften: '+Math.round(p.series[4].drift))}`}
- ${type==='learning'&&html`${fact('Investierte Zeit',p.timed?n1(p.hours)+' h':'Dauer pro Einheit fehlt',einh(p.sessions))}
-  ${fact('Restzeit bei gleichem Tempo',p.restWeeks==null?'noch nicht berechenbar':p.restWeeks===0?'Ziel erreicht':p.restWeeks+' Wochen',p.restWeeks==null?'braucht zwei Messwerte mit mind. 14 Tagen Abstand':null)}
-  ${p.freq.map(x=>fact(x.perWeek+'× pro Woche',p.timed?n1(x.hoursPerMonth)+' h pro Monat':einh(Math.round(x.perWeek*PJ.MONTH/7))+' pro Monat',x.weeks!=null?'Ziel in '+x.weeks+' Wochen':null))}`}
+  ${fact('Plan in 90 Tagen',einh(Math.round(p.series.find(x=>x.d===90).follow)),'einschließlich bisheriger Einheiten')}`}
+ ${type==='learning'&&html`${fact('Erledigte Lerneinheiten',einh(p.sessions))}
+  ${fact('Zeit nach geplanter Dauer',p.timed?n1(p.hours)+' h':'Dauer pro Einheit fehlt','keine gemessene Lernzeit')}
+  ${p.freq.map(x=>fact(x.perWeek+'× pro Woche',p.timed?n1(x.hoursPerMonth)+' h pro Monat':einh(Math.round(x.perWeek*PJ.MONTH/7))+' pro Monat','bei geplanter Dauer und Häufigkeit'))}`}
  </div>
+ ${type!=='finance'&&html`<section className="card2 p-3.5 mt-3" aria-label="Gemessene Wirkung"><div className="lbl">Gemessene Wirkung</div><div className="text-[13px] mt-1">${p.type==='fitness'&&p.latest!=null||p.type==='learning'&&p.milestones.length?html`${g.metric.name}: <b>${LC.fmtV(g.metric,LC.goalNow(L,g))}</b>`:'Noch kein Messwert für dieses Ziel.'}</div><div className="text-[12px] mute mt-1">Ob dein Plan wirkt, prüfst du an deinen Messwerten.</div><button type="button" className="chip mt-2" onClick=${()=>c.openSheet({t:'measure',gid})}>Messwert eintragen</button></section>`}
  ${type==='fitness'&&html`<div className="text-[11.5px] mute mt-2">${p.uncertain[0]}</div>`}
  <div className="text-[11.5px] mute mt-2 leading-snug" data-impact-assumptions>Annahmen: ${p.assumptions.join(' · ')}</div>`}
  <//>`}
