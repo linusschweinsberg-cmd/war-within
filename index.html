@@ -18,17 +18,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v94"></script>
-<script src="auth.js?v=ww-v94"></script>
-<script src="life-core.js?v=ww-v94"></script>
-<script src="wisdom-core.js?v=ww-v94"></script>
-<script src="future-self-core.js?v=ww-v94"></script>
-<script src="projection-core.js?v=ww-v94"></script>
-<script src="rank-core.js?v=ww-v94"></script>
-<script src="character-core.js?v=ww-v94"></script>
-<script src="arena-core.js?v=ww-v94"></script>
-<script src="arena-api.js?v=ww-v94"></script>
-<script src="arena-ui.js?v=ww-v94"></script>
+<script src="supabase-config.js?v=ww-v95"></script>
+<script src="auth.js?v=ww-v95"></script>
+<script src="life-core.js?v=ww-v95"></script>
+<script src="wisdom-core.js?v=ww-v95"></script>
+<script src="future-self-core.js?v=ww-v95"></script>
+<script src="projection-core.js?v=ww-v95"></script>
+<script src="rank-core.js?v=ww-v95"></script>
+<script src="character-core.js?v=ww-v95"></script>
+<script src="arena-core.js?v=ww-v95"></script>
+<script src="arena-api.js?v=ww-v95"></script>
+<script src="arena-ui.js?v=ww-v95"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -918,7 +918,7 @@ const ESS=['m_morn','m_train','m_cal','m_read','m_sleep','m_walk','m_focus'];
 /* ───── Missions-Zeile: ganze Zeile tippbar, nach rechts wischen ───── */
 const ACOL={body:'#9AAE6B',fin:'#D4A94F',rel:'#D0806A',disc:'#D9774F',rec:'#7FA7AD',deep:'#B59A7A',lang:'#8FB3B0',run:'#E0925A'};
 function MRow({m,c,big}){
- const {S}=c,a=S.acts[m.act],done=isDone(S,m),cnt=(S.counts&&S.counts[m.id])||0,room=a.cap-(S.weekPts[m.act]||0),capped=!done&&room<=0;
+ const {S}=c,a=S.acts[m.act],done=isDone(S,m),cnt=(S.counts&&S.counts[m.id])||0,room=a.cap-(S.weekPts[m.act]||0),capped=!done&&room<=0,dayFull=!done&&!RK.canEarn(S,dayKey(S));
  const col=ACOL[m.act]||'var(--acc)';
  const [dx,setDx]=useState(0),[hold,setHold]=useState(false);const st=useRef(null),moved=useRef(false),lp=useRef(false),tm=useRef(null);
  const clr=()=>{clearTimeout(tm.current);setHold(false)};
@@ -935,7 +935,7 @@ function MRow({m,c,big}){
   ${hold&&html`<span aria-hidden="true" className="absolute left-0 bottom-0 h-[3px]" style=${{background:'var(--acc)',animation:'holdBar .48s linear forwards'}}/>`}
   <button aria-label="Aktivität öffnen" onClick=${e=>{e.stopPropagation();c.openSheet({t:'act',id:a.id})}} className="bg-transparent border-0 p-0 shrink-0 flex items-center justify-center" style=${{color:'var(--ink)',width:32,height:44,opacity:done?.6:1}}><${Icon} n=${a.icon} s=${big?28:24} sw=${2}/></button>
   <div className="flex-1 min-w-0" style=${{opacity:done?.6:1}}><div className=${`${big?'text-[17px]':'text-[15px]'} font-semibold leading-tight`}>${m.title}</div>
-  <div className="text-[13px] mt-0.5 mute">${focusMode(S)?'':capped?'Limit · ':m.pts+' Punkte · '}${m.desc?m.desc+' · ':''}${m.freq==='multi'?`${cnt} von ${m.times} diese Woche`:freqLabel(m)}${wantsLog(S,m)&&!done?' · mit Eingabe':''}${!done&&c.curIds&&c.curIds.has(m.id)?' · jetzt dran: +20 %':''}${done&&S.punct&&S.punct.k===dayKey(S)&&S.punct.ids.includes(m.id)?' · pünktlich':''}${done&&S.autoDone&&S.autoDone[m.id]?' · Auto (Demo)':''}</div></div>
+  <div className="text-[13px] mt-0.5 mute">${focusMode(S)?'':dayFull?'Ohne Punkte (Tageslimit) · ':capped?'Limit · ':m.pts+' Punkte · '}${m.desc?m.desc+' · ':''}${m.freq==='multi'?`${cnt} von ${m.times} diese Woche`:freqLabel(m)}${wantsLog(S,m)&&!done?' · mit Eingabe':''}${!done&&c.curIds&&c.curIds.has(m.id)?' · jetzt dran: +20 %':''}${done&&S.punct&&S.punct.k===dayKey(S)&&S.punct.ids.includes(m.id)?' · pünktlich':''}${done&&S.autoDone&&S.autoDone[m.id]?' · Auto (Demo)':''}</div></div>
   ${!done&&html`<button aria-label=${m.title+' bearbeiten'} onClick=${e=>{e.stopPropagation();c.openSheet({t:'medit',mid:m.id})}} onPointerDown=${e=>e.stopPropagation()} className="bg-transparent border-0 p-1.5 -mr-1 shrink-0 rounded-full" style=${{color:'inherit',opacity:.5}}><${Icon} n="dots" s=${18} sw=${2.6}/></button>`}
   <div aria-hidden="true" className=${'chk'+(done?' on':'')} style=${{width:big?32:28,height:big?32:28}}>
    ${done?html`<${Icon} n="check" s=${big?18:16} sw=${3}/>`:wantsLog(S,m)?html`<${Icon} n="chevR" s=${16} sw=${2.4} style=${{color:'var(--mute)'}}/>`:null}</div></div></div>`}

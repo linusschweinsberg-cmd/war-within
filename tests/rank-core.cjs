@@ -36,3 +36,4 @@ t('App wiring: capped completions award zero, record the day, side slots follow 
  assert.match(html,/RK\.ensure\(s\)/);
  assert.match(html,/<script src="rank-core\.js\?v=ww-v\d+"><\/script>/)});
 console.log('PASS rank-core');
+t('Task rows say "Ohne Punkte" once the daily limit is reached',()=>{assert.match(html,/dayFull=!done&&!RK\.canEarn\(S,dayKey\(S\)\)/);assert.match(html,/dayFull\?'Ohne Punkte \(Tageslimit\) · '/)});
