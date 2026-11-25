@@ -1,5 +1,7 @@
 # THE WAR WITHIN – Life OS
 
+Ergänzung ww-v92: [Vom Versuch zur Routine](ROUTINES.md) beschreibt bewusste Standardübernahme, kleine Ausführung, historische Pausen/Änderungen und belegte Tempelbausteine. Bauregeln und Obergrenzen bleiben unverändert.
+
 Stand: Branch `claude/life-os`. Die App bleibt eine statische Seite (GitHub Pages). Neu ist ein eigenständig testbarer Logik-Kern.
 
 ## Architektur
@@ -113,3 +115,5 @@ Stufen: Ruine 0 · Wiederaufbau 2 · Stabil 6 · Stark 11 · Meisterschaft 17 Pu
 ## Standards tragen den Tempel (ww-v88)
 
 Eigenständige aktive Standards können den Grundstein legen. Für Wochen- und Comeback-Bausteine nutzt `templeWeek` den gemeinsamen Plan aus Zielen und eigenständigem Standard, weiterhin 80 % und dieselben Obergrenzen. Pro Standard zählt höchstens eine volle Erledigung je Tag; Minimum bleibt separat. Verknüpfte Standards zählen nur über ihre Ziel-Handlung. Bestehende Tempel starten die Erweiterung ab dem ersten Update-Aufruf (`routineFrom`, `stdLogFrom`), ohne rückwirkende Standard-Bausteine; volle Wochen ab dieser Grenze. Saisonwechsel grenzt auch Standardlogs ab. Pausierte Standards liefern keine neuen Bausteine; vorhandene bleiben. Säulendetails erklären Regel, Wochenstand und Zugang zum Standard. Ziel-Wochenstatistiken bleiben unverändert.
+
+> Oberfläche ab `ww-v93`: Die Tempelsaison heißt „Kapitel“, der dauerhafte Rang (`rankOf`) heißt „Erfahrung“ mit den Stufen Lehrling, Geselle, Kenner, Meister, Mentor, Weiser. Daten und `TEMPLE_RULES` unverändert.

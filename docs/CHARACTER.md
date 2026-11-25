@@ -35,15 +35,17 @@ Entscheidung: **Tempelsaison** (`S.life.temple.cur.n`, Standard 12 Wochen, wähl
 | Eigenschaft | Ort | Wirkung nach Auswahl |
 |---|---|---|
 | Gut organisiert | Mein Leben | Fester Auslöser (`action.anchor`) für eine Handlung ohne Auslöser |
-| Ausdauernd | Mein Leben | Bestehende Handlung +1×/Woche (mit Wochenhistorie wie `setActPerWeek`) |
-| Neugierig | Reflexion | Kleiner neuer Versuch als Handlung 1×/Woche zum Hauptziel |
+| Ausdauernd | Mein Leben | Bestehende Handlung beibehalten oder passenden Auslöser festlegen; Häufigkeit bleibt gleich |
+| Neugierig | Reflexion | Einmaliger Tagesversuch, ausdrücklich heute oder morgen, ohne zusätzliches Wochen-Soll |
 | Gemeinsam stark | Mein Leben | Optionale gemeinsame Handlung 1×/Woche zum Hauptziel |
 | Leicht ablenkbar | Mein Leben | Zeitraum ohne Ablenkung (`action.calm = {min}`) für eine Handlung |
-| Alles oder nichts | Mein Leben | Kleine Variante (`action.mini`), die bewusst gilt |
+| Alles oder nichts | Mein Leben | Kleine Variante (`action.mini`), auf Heute und in Aufgabendetails separat bestätigbar, ohne volle Erledigung/Punkte |
 | Überplaner | Mein Leben | Heute einen kleinen Versuch mit bestehender Handlung (Hauptschlacht `S.battle`), nur wenn heute noch nichts gewählt ist |
 | Zu viel auf einmal | Mein Leben | Schwerpunkt (`life.focus`) wählen; andere Ziele bleiben unverändert |
 
-Vorhandene Werte werden nie überschrieben (Handlungen mit Auslöser, Variante oder Ablenkungsfrei-Zeitraum werden nicht angeboten). Ohne Ziele/Handlungen gibt es keine Vorschläge. Es entstehen keine automatischen Missionen oder Verpflichtungen.
+Vorhandene Werte werden nie überschrieben (Handlungen mit Auslöser, Variante oder Ablenkungsfrei-Zeitraum werden nicht angeboten). Ohne Ziele/Handlungen gibt es keine handlungsbezogenen Vorschläge. Es entstehen keine automatischen Missionen oder Verpflichtungen.
+
+Ab ww-v92 darf „Neugierig“ auch ohne Ergebnisziel einen eigenen Tagesversuch anbieten. Zeitpunkt und einmaliger Umfang werden vor der Übernahme gewählt. Eine Routine entsteht erst über „Regelmäßig machen“ und die Bestätigung eines Standards oder der Verknüpfung einer bestehenden Zielhandlung. Daten, Migration alter Charakter-Handlungen, kleine Ausführung, Rückblick und Tempelbelege: [ROUTINES.md](ROUTINES.md). Die beiden Befunde aus dem Gegenreview von PR #38 sind umgesetzt; erneutes unabhängiges Codex-Gegenreview bleibt erforderlich.
 
 ## Daten
 
@@ -61,3 +63,5 @@ Abwärtskompatibel: fehlt das Objekt, wird es leer angelegt; unbekannte IDs fall
 ## Tests
 
 `node tests/character-core.cjs`: Budget, keine Doppelten, Bestätigung nur bei gültigem Budget, leere/übersprungene Auswahl, alte Spielstände, Persistenz und Änderung, Saisonwechsel, Vorschläge ohne automatische Planänderung, keine Überschreibung, unveränderte Arena-Wertung, Tempellogik und Punktevergabe.
+
+> Oberfläche ab `ww-v93`: Die Tempelsaison heißt „Kapitel“. Daten (`S.life.temple.cur.n`) und Regeln bleiben gleich.

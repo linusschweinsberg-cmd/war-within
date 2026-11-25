@@ -8,9 +8,9 @@
  'use strict';
  const V=1,START=4;
  const TRAITS=[
-  {id:'steady',kind:'strength',cost:4,name:'Ausdauernd',desc:'Du bleibst gern lange an einer Sache dran.',effect:'Du bekommst das Angebot, eine bestehende Handlung zu vertiefen.',place:'life'},
+  {id:'steady',kind:'strength',cost:4,name:'Ausdauernd',desc:'Du bleibst gern lange an einer Sache dran.',effect:'Du kannst eine Handlung bewusst beibehalten oder einen passenden Auslöser festlegen.',place:'life'},
   {id:'organized',kind:'strength',cost:2,name:'Gut organisiert',desc:'Klare Abläufe liegen dir.',effect:'Du bekommst einen festen Auslöser für eine Routine vorgeschlagen.',place:'life'},
-  {id:'curious',kind:'strength',cost:2,name:'Neugierig',desc:'Du probierst gern etwas Neues aus.',effect:'Im Rückblick kannst du einen kleinen neuen Versuch starten.',place:'reflect'},
+  {id:'curious',kind:'strength',cost:2,name:'Neugierig',desc:'Du probierst gern etwas Neues aus.',effect:'Im Rückblick kannst du einmalig heute oder morgen etwas Kleines ausprobieren.',place:'reflect'},
   {id:'social',kind:'strength',cost:3,name:'Gemeinsam stark',desc:'Mit anderen kommst du leichter ins Tun.',effect:'Auf Wunsch planst du eine Handlung gemeinsam mit jemandem.',place:'life'},
   {id:'distracted',kind:'challenge',cost:2,name:'Leicht ablenkbar',desc:'Dein Fokus springt manchmal schnell weiter.',effect:'Du kannst für eine Handlung einen Zeitraum ohne Ablenkung planen.',place:'life'},
   {id:'allornothing',kind:'challenge',cost:3,name:'Alles oder nichts',desc:'Kleine Schritte fühlen sich manchmal zu wenig an.',effect:'Du kannst eine kleine Variante festlegen, die bewusst auch zählt.',place:'life'},
@@ -45,14 +45,14 @@
  function skip(S,t=Date.now()){const c=ensure(S);if(!c)return false;c.status=c.traits.length?'set':'skipped';c.season=seasonOf(S);c.t=c.t||t;return true}
 
  /* ── Vorschläge: höchstens einer zur Zeit, je Eigenschaft und Saison einmal ── */
- const liveActs=L=>(L.actions||[]).filter(a=>!a.off&&(L.goals||[]).some(g=>g.id===a.goalId&&g.status==='active'));
+ const liveActs=L=>(L.actions||[]).filter(a=>!a.off&&!a.paused&&(L.goals||[]).some(g=>g.id===a.goalId&&g.status==='active'));
  const mainGoal=L=>{const gs=(L.goals||[]).filter(g=>g.status==='active');return gs.find(g=>g.id===L.main)||gs[0]||null};
  const opt=a=>({aid:a.id,label:a.title});
  function candidate(S,id,ctx){const L=S.life,acts=liveActs(L),g=mainGoal(L);
   switch(id){
    case'organized':{const o=acts.filter(a=>!a.anchor&&!a.when).slice(0,3);return o.length?{text:'Gib einer Routine einen festen Auslöser. So musst du nicht jeden Tag neu entscheiden.',acts:o.map(opt),anchors:ANCHORS}:null}
-   case'steady':{const o=acts.filter(a=>(a.perWeek||1)<7).slice(0,3);return o.length?{text:'Vertiefe eine Handlung, die schon läuft: ein Termin mehr pro Woche statt etwas Neuem.',acts:o.map(a=>({...opt(a),from:a.perWeek||1,to:(a.perWeek||1)+1}))}:null}
-   case'curious':return g?{text:'Probier in der nächsten Woche etwas Kleines Neues für „'+g.title+'“ aus. Einmal reicht.',goalId:g.id}:null;
+   case'steady':{const o=acts.slice(0,3);return o.length?{text:'Was läuft, darf bleiben. Behalte eine Handlung bei oder wähle einen passenden Auslöser. Die Häufigkeit bleibt gleich.',acts:o.map(opt),anchors:ANCHORS}:null}
+   case'curious':return !G.LC.trialByDay(L,L.d)||!G.LC.trialByDay(L,L.d+1)?{text:'Ein kleiner Versuch, einmal heute oder morgen. Kein Wochen-Soll. Regelmäßig wird er erst nach deiner eigenen Entscheidung.',goalId:g&&g.id,area:g&&g.area}:null;
    case'social':return g?{text:'Plane eine Handlung gemeinsam mit jemandem. Nur wenn es für dich passt.',goalId:g.id}:null;
    case'distracted':{const o=acts.filter(a=>!a.calm).slice(0,3);return o.length?{text:'Plane für eine Handlung einen Zeitraum ohne Ablenkung, zum Beispiel mit dem Handy außer Reichweite.',acts:o.map(opt),mins:CALM_MIN}:null}
    case'allornothing':{const o=acts.filter(a=>!a.mini).slice(0,3);return o.length?{text:'Leg eine kleine Variante fest. An schweren Tagen lässt du sie bewusst gelten.',acts:o.map(opt)}:null}
@@ -73,8 +73,9 @@
   const x=candidate(S,id,ctx);if(!x)return{ok:false};const a=ch.aid&&(L.actions||[]).find(y=>y.id===ch.aid);
   const inOpts=()=>a&&(x.acts||[]).some(o=>o.aid===a.id);let out={ok:true};
   if(id==='organized'){if(!inOpts()||!ANCHORS.includes(ch.anchor))return{ok:false};a.anchor=ch.anchor;LC&&LC.syncMission(S,a)}
-  else if(id==='steady'){if(!inOpts())return{ok:false};const wk=LC.curWk(L),v=Math.min(7,(a.perWeek||1)+1),prev=(a.hist||[]).find(h=>h.wk===wk);a.hist=[...(a.hist||[]).filter(h=>h.wk!==wk),{wk,perWeek:v,from:prev?prev.from:a.perWeek}];a.perWeek=v;LC.syncMission(S,a)}
-  else if(id==='curious'||id==='social'){const title=String(ch.title||'').trim().slice(0,80);const g=(L.goals||[]).find(y=>y.id===x.goalId);if(!title||!g)return{ok:false};
+  else if(id==='steady'){if(!inOpts()||!['keep','anchor'].includes(ch.mode))return{ok:false};if(ch.mode==='anchor'){if(a.anchor||a.when||!ANCHORS.includes(ch.anchor))return{ok:false};a.anchor=ch.anchor;LC.syncMission(S,a)}}
+  else if(id==='curious'){const d=+ch.d;if(ctx.restToday&&d===L.d)return{ok:false};if(!LC.createTrial(S,{d,text:ch.title,area:x.area,goalId:x.goalId,src:'character'}))return{ok:false}}
+  else if(id==='social'){const title=String(ch.title||'').trim().slice(0,80);const g=(L.goals||[]).find(y=>y.id===x.goalId);if(!title||!g)return{ok:false};
    const na=LC.addAction(S,g,{title:id==='social'?title+' (gemeinsam)':title,perWeek:1});if(na&&typeof na==='object')na.src='character'}
   else if(id==='distracted'){if(!inOpts()||!CALM_MIN.includes(+ch.min))return{ok:false};a.calm={min:+ch.min}}
   else if(id==='allornothing'){const t=String(ch.text||'').trim().slice(0,80);if(!inOpts()||!t)return{ok:false};a.mini=t}

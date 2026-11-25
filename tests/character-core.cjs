@@ -32,9 +32,9 @@ t('Vorschlag passt zur Eigenschaft und ändert nichts ohne Übernahme',()=>{cons
  assert.equal(CH.suggestion(S),null,'höchstens ein Hinweis pro Tag');S.life.d+=1;const n=CH.suggestion(S);assert.equal(n.trait,'distracted');assert.ok(!n.acts.some(x=>x.aid==='never'));
  CH.dismiss(S,'distracted');S.life.d+=1;assert.equal(CH.suggestion(S),null,'abgelehnt kommt in dieser Saison nicht wieder');});
 t('Vorschläge der übrigen Eigenschaften',()=>{const S=withGoals();CH.choose(S,['steady','curious','social','allornothing','overplanner','overcommit']);const L=S.life;const nA=L.actions.length,pw=L.actions.map(a=>a.perWeek);
- let s=CH.suggestion(S,{place:'life'});assert.equal(s.trait,'steady');CH.apply(S,'steady',{aid:s.acts[0].aid});assert.equal(LC.actById(L,s.acts[0].aid).perWeek,s.acts[0].to);assert.equal(L.actions.length,nA);L.d++;
- s=CH.suggestion(S,{place:'reflect'});assert.equal(s.trait,'curious');assert.equal(CH.apply(S,'curious',{title:''}).ok,false);CH.apply(S,'curious',{title:'Einmal Podcast hören'});assert.equal(L.actions.length,nA+1);assert.equal(L.actions.at(-1).perWeek,1);L.d++;
- assert.equal(CH.suggestion(S,{place:'reflect'}),null,'nur an der passenden Stelle');s=CH.suggestion(S,{place:'life'});assert.equal(s.trait,'social');CH.apply(S,'social',{title:'Laufen mit Tom'});assert.match(L.actions.at(-1).title,/gemeinsam/);L.d++;
+ let s=CH.suggestion(S,{place:'life'});assert.equal(s.trait,'steady');CH.apply(S,'steady',{aid:s.acts[0].aid,mode:'keep'});assert.deepEqual(plain(L.actions.map(a=>a.perWeek)),plain(pw));assert.equal(L.actions.length,nA);L.d++;
+ s=CH.suggestion(S,{place:'reflect'});assert.equal(s.trait,'curious');assert.equal(CH.apply(S,'curious',{title:''}).ok,false);assert.equal(CH.apply(S,'curious',{title:'Einmal Podcast hören',d:L.d}).ok,true);assert.equal(L.actions.length,nA);assert.equal(L.trial.text,'Einmal Podcast hören');L.d++;
+ assert.equal(CH.suggestion(S,{place:'reflect'}),null,'nur an der passenden Stelle');s=CH.suggestion(S,{place:'life'});assert.equal(s.trait,'social');CH.apply(S,'social',{title:'Laufen mit Tom'});assert.equal(L.actions.length,nA+1);assert.match(L.actions.at(-1).title,/gemeinsam/);L.d++;
  s=CH.suggestion(S);assert.equal(s.trait,'allornothing');CH.apply(S,'allornothing',{aid:s.acts[0].aid,text:'5 Minuten'});assert.equal(LC.actById(L,s.acts[0].aid).mini,'5 Minuten');L.d++;
  assert.equal(CH.suggestion(S,{battleSet:true}).trait,'overcommit','Überplaner ruht, wenn heute schon etwas gewählt ist');
  s=CH.suggestion(S);assert.equal(s.trait,'overplanner');const r=CH.apply(S,'overplanner',{aid:s.acts[0].aid});assert.match(r.battle,/^m:/);L.d++;
@@ -48,5 +48,5 @@ t('Arena-Wertung unabhängig',()=>{const src=fs.readFileSync(path.join(dir,'aren
  const r1=plain(A.weekly(s,1));const S=withGoals();CH.choose(S,['steady','organized','distracted']);assert.deepEqual(plain(A.weekly(s,1)),r1)});
 t('Handlungspunkte und Tempelregeln ohne Charakterbezug',()=>{const html=fs.readFileSync(path.join(dir,'index.html'),'utf8'),lc=fs.readFileSync(path.join(dir,'life-core.js'),'utf8');assert.ok(!/CH\.|character/.test(lc),'life-core kennt keinen Charakter');
  const m=html.match(/const complete=[\s\S]*?\n/);assert.ok(m&&!/CH\./.test(m[0]),'Punktevergabe ohne Charakter');assert.ok(!/b(n|S).(pts|seasonPts|xp|arena)b/.test(fs.readFileSync(path.join(dir,'character-core.js'),'utf8').replace(/\/\*[\s\S]*?\*\//g,'')))});
-t('Sync nur mit Codes',()=>{const S=withGoals();CH.choose(S,['curious']);CH.apply(S,'curious',{title:'Privater Text'});assert.ok(!JSON.stringify(CH.forSync(S)).includes('Privat'))});
+t('Sync nur mit Codes',()=>{const S=withGoals();CH.choose(S,['curious']);CH.apply(S,'curious',{title:'Privater Text',d:S.life.d});assert.ok(!JSON.stringify(CH.forSync(S)).includes('Privat'))});
 console.log('PASS character-core: '+ok.length+' Szenarien\n - '+ok.join('\n - '));

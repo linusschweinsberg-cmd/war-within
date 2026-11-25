@@ -94,3 +94,7 @@ Wenn kein Hauptziel und keine persönlich gewählte Handlung offen ist (nur die 
 ## Versuch bearbeiten und weiterführen (ww-v87)
 
 Offene Tagesversuche lassen sich bearbeiten oder entfernen; beide Änderungen bieten Rückgängig. Nach dem Erledigen ist die freiwillige, änderbare Rückmeldung „Hat dir das geholfen?“ (Ja/Teilweise/Nein) möglich. Ein eigener Knopf merkt dieselbe Handlung einmal für morgen vor (`life.trialNext`, absoluter Spieltag); kein automatisches Wiederholen oder Nachholen nach längerer Pause. Rückmeldung und Vormerkung verändern weder Punkte noch Ziele oder Wochenpläne. Auch die Vormerkung ist rückgängig machbar.
+
+## Bewusst regelmäßig machen (ww-v92)
+
+Tagesversuche bleiben auch neben einem Ziel oder Standard auf Heute erreichbar. Nach der Erledigung ergänzt „Regelmäßig machen“ die Rückmeldung und einmalige Wiederholung. Die eigene Bestätigung verlangt Handlung, Bereich und Wochenhäufigkeit, optional Auslöser und kleine Variante. Sie verwendet persönliche Standards beziehungsweise eine ausdrücklich gewählte bestehende Zielhandlung, ohne zusätzliches Ergebnisziel. Vorhandene Standards werden nicht überschrieben. Kleine Charaktervarianten sind an normalen Tagen auf Heute und in Aufgabendetails separat bestätigbar; volle Erledigung, Punkte, Messwerte und Wochen-Soll bleiben dabei unverändert. Auslöser, Umfang, Minimum und Bearbeiten/Pausieren stehen an der Ausführung. Details und Grenzen: [ROUTINES.md](ROUTINES.md).
