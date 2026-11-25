@@ -49,7 +49,7 @@ Abschnitte von „Dein persönliches Fundament“:
 | Station | Ausführlich | Kurz |
 |---|---|---|
 | Einstieg | still, what, resp, ready, name (Modul 1) | still, what, resp, ready, name |
-| 1 · Selbsterkenntnis | pillars, mirror, audit, cost, future, compound (Module 4, 5) | pillars |
+| 1 · Selbsterkenntnis | pillars, mirror, audit, cost, future, persona, compound (Module 4, 5) | pillars, persona |
 | 2 · Eigenverantwortung | ctrl, obst, owner (Modul 3) | – |
 | 3 · Standards | values, standards, sign (Modul 6) | – |
 | 4 · Handeln | loop, year, goal, first, commit (Module 2, 8) | goal, first, commit |
@@ -143,3 +143,5 @@ S.life (Spielstand)
 
 - Jeder Abschnitt lässt sich einzeln bearbeiten.
 - Das Fundament hat „Alle persönlichen Angaben löschen“. Das entfernt `audit`, `future`, `standards`, `stdLog`, `why.q`, `onboard.own` und `onboard.commit` sowie die Werte-Standards. Ziele und erledigte Handlungen bleiben erhalten.
+
+- **Zukunftscharakter** (`persona`, ab `ww-v98`): bis zu zwei Leitbilder (`persona-core.js`), überspringbar. Gewählt → `S.life.persona`; übersprungen → `status:later` (keine erneute Einladung); nicht erreicht → Einladung unter „Mein Leben“. Werte-Bildschirm bietet passende Werte nur zum Ergänzen an. Standards-Bildschirm (und Standards-Sheet in der App) zeigt bis zu drei Routinenvorschläge mit kleiner Variante; übernommen wird nur per Tipp, nie für Bereiche mit vorhandenem Standard.

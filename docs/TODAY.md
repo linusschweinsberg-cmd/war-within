@@ -80,3 +80,21 @@ Mobile Browserprüfung 375/390 px: bestehender Testspielstand, leerer neuer Spie
 Alle neun Skripte bestehen: today-focus, calendar, life-core, release-smoke, auth-contract, wisdom-core, ftue-flows, auth-resume und service-worker. today-focus prüft Maximalzahl und Eindeutigkeit der Prioritäten, Abendvorrang, Nachrücken, Wochenquoten, Standards/Minimum, Erstschritt, Ruhetag, leeren Tag, Undo, unveränderte Punkte sowie aktuelle, künftige, vergangene und ungültige Zeitfenster.
 
 Browser: frischer lokaler Gast, Erledigen und Rückgängig mit wiederhergestellter Reihenfolge, Tagesplan direkt öffnen, Plan ändern und nächsten Block auf Heute anzeigen, Reload, Zusatzbereich und Fokusmodus geprüft. 375 px, hell/dunkel und antik/violet geprüft, keine Konsolenfehler. Bestehende Spielstände werden nicht zurückgesetzt. Release-URLs und Service Worker: ww-v58. Kein Merge oder Live-Deployment, keine Supabase-Änderung.
+
+## Kleine Variante nur für heute (ww-v85)
+
+Im Wiedereinstieg bietet „Heute kleiner anfangen“ ein Freitextfeld für eine selbst gewählte kleine Variante (maximal 80 Zeichen). Erst „Kleine Variante für heute wählen“ ersetzt die Hauptkarte für den Rückkehrtag. Daten: optional `life.reentry.small={key,text,done}`; am Folgetag nicht aktiv. Die eigene Bestätigung vergibt keine Punkte, verändert keine Ziel-Handlungslogs und hakt die volle Mission nicht ab. Der Wochenplan bleibt gleich. Rückgängig nutzt den gemeinsamen Fünf-Sekunden-Snapshot. Die dauerhafte Reduktion der Wochenhäufigkeit bleibt davon ausdrücklich getrennt. Normale Erledigungsknöpfe heißen „Erledigt“ bzw. „Erfassen“.
+
+
+## Direkter Versuch ohne Ziel (ww-v86)
+
+Wenn kein Hauptziel und keine persönlich gewählte Handlung offen ist (nur die allgemeine Abendreflexion), zeigt Heute eine Eingabe für eine eigene Handlung. Maximal 80 Zeichen, bewusst nur heute, ohne Wiederholung oder Punkte. `life.trial={d,text,done}` bleibt nach Neuladen erhalten; die Bestätigung bietet fünf Sekunden Rückgängig. Ziele, Missionen, Onboarding und Wochenpläne bleiben unverändert. Ruhetage haben Vorrang.
+
+
+## Versuch bearbeiten und weiterführen (ww-v87)
+
+Offene Tagesversuche lassen sich bearbeiten oder entfernen; beide Änderungen bieten Rückgängig. Nach dem Erledigen ist die freiwillige, änderbare Rückmeldung „Hat dir das geholfen?“ (Ja/Teilweise/Nein) möglich. Ein eigener Knopf merkt dieselbe Handlung einmal für morgen vor (`life.trialNext`, absoluter Spieltag); kein automatisches Wiederholen oder Nachholen nach längerer Pause. Rückmeldung und Vormerkung verändern weder Punkte noch Ziele oder Wochenpläne. Auch die Vormerkung ist rückgängig machbar.
+
+## Bewusst regelmäßig machen (ww-v92)
+
+Tagesversuche bleiben auch neben einem Ziel oder Standard auf Heute erreichbar. Nach der Erledigung ergänzt „Regelmäßig machen“ die Rückmeldung und einmalige Wiederholung. Die eigene Bestätigung verlangt Handlung, Bereich und Wochenhäufigkeit, optional Auslöser und kleine Variante. Sie verwendet persönliche Standards beziehungsweise eine ausdrücklich gewählte bestehende Zielhandlung, ohne zusätzliches Ergebnisziel. Vorhandene Standards werden nicht überschrieben. Kleine Charaktervarianten sind an normalen Tagen auf Heute und in Aufgabendetails separat bestätigbar; volle Erledigung, Punkte, Messwerte und Wochen-Soll bleiben dabei unverändert. Auslöser, Umfang, Minimum und Bearbeiten/Pausieren stehen an der Ausführung. Details und Grenzen: [ROUTINES.md](ROUTINES.md).
