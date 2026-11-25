@@ -51,6 +51,16 @@ Keine zusätzlichen Punkte-Floats, Partikel, Rang-, Saisonpfad-, Prioritäten- o
 
 Prüfung: `action-feedback`, `today-focus`, `today-battle`, `today-dayflow`, `release-smoke`, `auth-contract`, `service-worker`, `arena-sync`, `future-self` und `wisdom-core` bestanden. Browser 375 × 812: genau eine Rückgängig-Schaltfläche, Erledigen und Wiederherstellen, keine Konsolenfehler.
 
+## Wiedereinstieg nach einer Öffnungslücke (ww-v83)
+
+Nach mindestens drei Kalendertagen zwischen zwei Öffnungen setzt `closeCalendarDays` das optionale Feld `S.life.reentry={d:life.d}`. Es enthält nur Tagesindex und freiwillige Entscheidungen (`dismissed`, `planAdjusted`), keine Diagnose und keine privaten Textkopien. Bei neu verankerten Spielständen und täglichem Öffnen entsteht kein Hinweis allein aus fehlenden Erledigungen. Zeitzonenwechsel und Saisonwechsel nutzen denselben Kalenderpfad.
+
+Nur am Rückkehrtag, außerhalb eines bewussten Ruhetags: „Willkommen zurück – Ein Schritt für heute“. Der Nutzer wählt eine bestehende Handlung; eine bereits ausdrücklich festgelegte Hauptschlacht bleibt bestehen. Nebenmissionen bleiben zunächst verborgen. „Meinen Tag wie gewohnt anzeigen“ bzw. „Weitere Aufgaben für heute anzeigen“ beendet diese Ansicht jederzeit. Andere Aufgaben bleiben über die Navigation erreichbar. Kein neues Nachholpensum, keine Rückstandsmeldung. Der Saison-Einrichtungsdialog öffnet sich in dieser Ansicht nicht automatisch.
+
+Bei einer gewählten Ziel-Handlung mit mehr als einer geplanten Einheit bietet ein geschlossener Abschnitt eine Reduktion auf die aufgerundete Hälfte an. Der Knopf nennt die neue Häufigkeit und der Text ihre Gültigkeit: ab dieser Woche, bis zur nächsten eigenen Änderung. Erst der Tipp ruft die bestehende `setActPerWeek`-Historienlogik auf. Es werden weder frühere Wochen noch Erledigungen oder Punkte geändert. Die Wahl allein ändert keinen Plan.
+
+Prüfung: `tests/reentry.cjs` mit frischem Spielstand, täglichen Besuchen, Öffnungslücke, Reload, Auswahl ohne Punkte-/Planänderung, Ablehnen, Ruhetag, Folgetag, Zeitzonen-/Saisonwechsel und historischen Wochenplänen. Browser 375 × 812: Import eines erzeugten Testspielstands mit fünftägiger Pause, Wahl, Reduktion 4 → 2, Erledigen, Rückgängig, Reload und freiwilliges Beenden; keine Konsolenfehler.
+
 ## Zeitblock
 
 Ein Zeitblock braucht eine tatsächlich gespeicherte numerische Startzeit und Dauer im bestehenden Tagesplan. Reine Tageszeitwünsche (morgens/abends) und der automatisch verteilte Nemesis-Plan gelten nicht als feste Buchung. Erledigte Aufgaben, Schlaf und ungültige Intervalle werden nicht als nächster Handlungsblock gezeigt.

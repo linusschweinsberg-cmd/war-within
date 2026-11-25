@@ -18,15 +18,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v82"></script>
-<script src="auth.js?v=ww-v82"></script>
-<script src="life-core.js?v=ww-v82"></script>
-<script src="wisdom-core.js?v=ww-v82"></script>
-<script src="future-self-core.js?v=ww-v82"></script>
-<script src="projection-core.js?v=ww-v82"></script>
-<script src="arena-core.js?v=ww-v82"></script>
-<script src="arena-api.js?v=ww-v82"></script>
-<script src="arena-ui.js?v=ww-v82"></script>
+<script src="supabase-config.js?v=ww-v83"></script>
+<script src="auth.js?v=ww-v83"></script>
+<script src="life-core.js?v=ww-v83"></script>
+<script src="wisdom-core.js?v=ww-v83"></script>
+<script src="future-self-core.js?v=ww-v83"></script>
+<script src="projection-core.js?v=ww-v83"></script>
+<script src="arena-core.js?v=ww-v83"></script>
+<script src="arena-api.js?v=ww-v83"></script>
+<script src="arena-ui.js?v=ww-v83"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -579,7 +579,7 @@ const seasonWeek=S=>Math.floor((S.day+(S.calendar?.seasonOffset||0))/7);
 function calendarMinutes(t,S){const p=new Intl.DateTimeFormat('en-GB',{timeZone:calendarZone(S),hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(t));return +p.find(x=>x.type==='hour').value*60 + +p.find(x=>x.type==='minute').value}
 /* Demo-Spielstand (initState) hat kein Profil; nur dort sind Vorspulen, Saisonsprung und Zurücksetzen erlaubt. */
 const isDemoState=S=>!S.profile;
-function closeCalendarDays(S,days){const C=S.calendar;for(let i=0;i<days;i++){closeCalendarDay(S,true);C.date=datePlus(C.date,1);LC.syncTemple(S)}}
+function closeCalendarDays(S,days){const C=S.calendar;for(let i=0;i<days;i++){closeCalendarDay(S,true);C.date=datePlus(C.date,1);LC.syncTemple(S)}if(days>=3)S.life.reentry={d:S.life.d}}
 function syncCalendar(S,t=Date.now()){
  const tz=calendarZone(S),today=calendarDate(t,tz),C=S.calendar;LC.ensureLife(S);
  const valid=C&&C.v===1&&/^\d{4}-\d{2}-\d{2}$/.test(C.date)&&Number.isFinite(dateNumber(C.date))&&Number.isInteger(C.seasonOffset);
@@ -1530,6 +1530,20 @@ function battleObstacle(S,b){const L=S.life||{};if(b&&b.risk&&b.risk!=='none'){c
  const n={};(L.daily||[]).filter(e=>e.d>=(L.d||0)-7&&!e.recover).forEach(e=>(e.obst||[]).forEach(o=>{n[o]=(n[o]||0)+1}));const top=Object.entries(n).sort((x,y)=>y[1]-x[1])[0];
  const r=top&&LC.DEBRIEF_OBST.find(x=>x[0]===top[0]);return r?{label:r[1],src:'recent',n:top[1]}:null}
 const chooseBattle=(c,key)=>c.upd(n=>{n.battle={k:dayKey(n),key:key||null}});
+/* Rückkehrtag: nur Anzeige vereinfachen; gespeicherter Plan und Historie bleiben unverändert. */
+function reentryToday(S,D){const r=S.life&&S.life.reentry;if(!r||r.d!==S.life.d||r.dismissed||D.restToday)return null;return r}
+function chooseReentry(c,key){c.upd(n=>{const r=reentryToday(n,derive(n));if(!r||!battleItem(n,key))return;n.battle={k:dayKey(n),key}})}
+function reentryAction(S,b){return b&&b.kind==='mission'&&(S.life.actions||[]).find(a=>a.missionId===b.m.id&&!a.off)}
+function ReentryPick({c,items}){return html`<section className="card p-4 mt-4" aria-label="Wiedereinstieg">
+ <div className="lbl acc">Willkommen zurück</div><h2 className="text-[20px] font-bold mt-1">Ein Schritt für heute.</h2>
+ <p className="text-[13px] mute mt-2 leading-snug">Du musst nichts nachholen. Dein bisheriger Fortschritt bleibt. Wähle eine Handlung, die heute für dich passt.</p>
+ <div className="flex flex-col gap-2 mt-3">${items.map(x=>html`<button key=${x.key} type="button" className="ghost p-3 text-left text-[14px] font-semibold" style=${{minHeight:52}} onClick=${()=>chooseReentry(c,x.key)}>${cleanTitle(x.title)}</button>`)}</div>
+ <button type="button" className="w-full bg-transparent border-0 text-[13px] mute mt-2" style=${{minHeight:44}} onClick=${()=>c.upd(n=>{if(n.life.reentry)n.life.reentry.dismissed=true})}>Meinen Tag wie gewohnt anzeigen</button></section>`}
+function ReentrySupport({c,b}){const r=reentryToday(c.S,c.D);if(!r||!b)return null;const a=reentryAction(c.S,b),from=a&&LC.plannedAt(a,LC.curWk(c.S.life)),to=from>1?Math.ceil(from/2):null;
+ return html`<section className="mt-3 px-1" aria-label="Dein Wiedereinstieg"><p className="text-[13px] mute leading-snug">${b.done?'Du hast wieder angefangen. Für heute darf das reichen.':'Für heute kannst du bei diesem einen Schritt bleiben.'}</p>
+ ${to&&!r.planAdjusted&&html`<details className="mt-2"><summary className="text-[13px] acc cursor-pointer" style=${{minHeight:44}}>Wochenplan kleiner machen</summary><div className="card p-3 text-[13px] leading-snug"><p><b>${a.title}</b>: ${from} → ${to} Mal pro Woche.</p><p className="mute mt-2">Gilt ab dieser Woche, bis du den Plan wieder änderst. Vergangene Wochen und erledigte Handlungen bleiben erhalten.</p><button type="button" className="chip mt-3" style=${{minHeight:44}} onClick=${()=>{c.setActPerWeek(a.id,to);c.upd(n=>{if(n.life.reentry)n.life.reentry.planAdjusted=true});c.toast('Wochenplan auf '+to+' Mal reduziert.','good')}}>Auf ${to} Mal pro Woche reduzieren</button></div></details>`}
+ ${r.planAdjusted&&html`<p className="text-[12px] mute mt-2">Dein kleinerer Wochenplan ist gespeichert.</p>`}
+ <button type="button" className="bg-transparent border-0 text-[13px] mute mt-1 p-0" style=${{minHeight:44}} onClick=${()=>c.upd(n=>{if(n.life.reentry)n.life.reentry.dismissed=true})}>Weitere Aufgaben für heute anzeigen</button></section>`}
 /* Compound-Effekt aus echten Daten. Handlungen insgesamt bleiben bei Pausen erhalten. Momentum: Tage mit Handlung in den
    letzten 7 Saisontagen; Ruhetage zählen nicht dagegen, heute erst mit einer Handlung. Potenzial: Saisonstand + Tempo × Resttage,
    Tempo = letzte 7 Tage (ab Saisontag 8), sonst der eigene Wochenplan. Keine erfundene Wirkung, keine Kurve. */
@@ -1677,18 +1691,20 @@ function FutureSelfTile({c}){const {S}=c,p=FS.settings(S);if(!p.enabled)return n
  </span><${Icon} n="chevR" s=${16} cls="mute"/></button>`}
 function Home({c}){const {S}=c;const [more,setMore]=useState(false),[pick,setPick]=useState(null),nm=((S.profile&&S.profile.name)||'').trim();
  const ini=(nm||(c.auth&&c.auth.session&&c.auth.session.name)||'?').slice(0,1).toUpperCase(),fm=focusMode(S),items=todayPriorities(S,c.D,5),rings=areaDay(S,c.D),battle=todayBattle(S,c.D,items);
+ const reentry=reentryToday(S,c.D);
  /* Ring antippen holt die nächste Handlung dieses Bereichs nach vorn: in die Nebenmissionen bzw. an den Anfang der Auswahl. Die Hauptschlacht bleibt. */
  const chosen=rings.find(r=>r.area.id===pick),pickItem=chosen&&areaItem(S,items,chosen),uniq=a=>a.filter((x,i)=>x&&a.findIndex(y=>y&&y.key===x.key)===i);
- const side=battle?uniq([pickItem,...items]).filter(x=>x.key!==battle.key).slice(0,2):[],choices=uniq([pickItem,...items]).slice(0,3);
+ const side=battle&&!reentry?uniq([pickItem,...items]).filter(x=>x.key!==battle.key).slice(0,2):[],choices=uniq([pickItem,...items]).slice(0,3);
  const ba=battle&&priorityArea(battle),ring=ba&&rings.find(r=>r.area.id===ba.id),sel=pickItem?pick:ba&&ba.id;
  const main=c.D.restToday?html`<section className="card p-5 mt-4 flex items-center gap-4"><${AreaBadge} area=${LC.AREA.health} size=${48}/><div><div className="text-[17px] font-bold">Ruhetag</div><div className="text-[13px] mute">Erholung gehört zum Plan.</div></div></section>`
   :battle?html`<${BattleCard} key=${battle.key} c=${c} b=${battle} ring=${ring}/>`
-  :choices.length?html`<${BattlePick} c=${c} items=${choices}/>`
+  :choices.length?reentry?html`<${ReentryPick} c=${c} items=${choices}/>`:html`<${BattlePick} c=${c} items=${choices}/>`
   :html`<section className="card p-5 mt-3"><div className="text-[18px] font-bold">Nichts mehr offen.</div><div className="flex gap-2 mt-4"><button type="button" className="btn flex-1 py-3 text-[14px]" onClick=${()=>c.openSheet({t:'review'})}>Tag abschließen</button>${!mainGoal(S)&&html`<button type="button" className="chip" style=${{minHeight:48}} onClick=${()=>c.openSheet({t:'goal'})}>Ziel festlegen</button>`}</div></section>`;
  return html`<div className="screen px-4 pb-6">
  <${TodayHero} c=${c} ini=${ini} rings=${rings}/>
- ${S.setup&&html`<button onClick=${()=>c.openSheet({t:'newseason'})} className="btn w-full py-3 mt-3 text-sm">Neue Saison einrichten</button>`}
+ ${S.setup&&!reentry&&html`<button onClick=${()=>c.openSheet({t:'newseason'})} className="btn w-full py-3 mt-3 text-sm">Neue Saison einrichten</button>`}
  ${main}
+ <${ReentrySupport} c=${c} b=${battle}/>
  <${SideMissions} c=${c} items=${side}/>
  <${DayAhead} c=${c}/>
  <details className="mt-3"><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}><span>Bereiche heute</span><${Icon} n="chevD" s=${16}/></summary>
@@ -4275,7 +4291,7 @@ function App({init,auth,skey='war_within_v5'}){
  /* Automatisch öffnende Berichte */
  useEffect(()=>{if(S.aar&&!(sheet&&(sheet.t==='aar'||sheet.t==='season'))){if(focusMode(S)){upd(n=>{n.aar=null});setSheet({t:'weekly'})}else setSheet({t:'aar'})}},[S.aar]);
  useEffect(()=>{if(S.sreport&&!S.aar&&!(sheet&&sheet.t==='season'))setSheet({t:'season'})},[S.sreport,S.aar]);
- useEffect(()=>{if(S.setup&&!S.sreport&&!S.aar)setSheet({t:'newseason'})},[S.setup,S.sreport,S.aar]);
+ useEffect(()=>{if(S.setup&&!S.sreport&&!S.aar&&!reentryToday(S,D))setSheet({t:'newseason'})},[S.setup,S.sreport,S.aar]);
  /* Missionen */
  const cref=useRef(),lref=useRef(),sref=useRef();
  /* Pünktlichkeit: im geplanten Fenster (früher zählt auch) +20 %, 30 Min. Kulanz, keine Strafe bei Verspätung */
