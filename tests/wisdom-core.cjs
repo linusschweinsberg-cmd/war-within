@@ -89,6 +89,6 @@ t('Migration: alter Spielstand ohne wisdom, kaputte Daten',()=>{const S=LC.ensur
  S.wisdom={on:'ja',fav:'x',seen:[{id:'weg',d:1},null,{id:WC.LIB[0].id,d:2}],slots:null};WC.ensure(S);assert.equal(S.wisdom.on,true);assert.deepEqual([...S.wisdom.fav],[]);assert.equal(S.wisdom.seen.length,1);
  const snap=JSON.stringify(S.wisdom);WC.ensure(S);assert.equal(JSON.stringify(S.wisdom),snap,'idempotent')});
 
-t('Einbindung: Skript, Service Worker, Codex-Sheet',()=>{const h=fs.readFileSync(dir+'/index.html','utf8'),sw=fs.readFileSync(dir+'/sw.js','utf8');assert.ok(h.includes('<script src="wisdom-core.js?v=ww-v85"></script>'));assert.ok(sw.includes("'./wisdom-core.js?v=ww-v85'"));assert.ok(h.includes("case'codex'"));['place="today"','place="debrief"','place="milestone"','place="season"'].forEach(p=>assert.ok(h.includes(p),p))});
+t('Einbindung: Skript, Service Worker, Codex-Sheet',()=>{const h=fs.readFileSync(dir+'/index.html','utf8'),sw=fs.readFileSync(dir+'/sw.js','utf8');assert.ok(h.includes('<script src="wisdom-core.js?v=ww-v86"></script>'));assert.ok(sw.includes("'./wisdom-core.js?v=ww-v86'"));assert.ok(h.includes("case'codex'"));['place="today"','place="debrief"','place="milestone"','place="season"'].forEach(p=>assert.ok(h.includes(p),p))});
 
 console.log('PASS wisdom: '+ok.join(' · '));

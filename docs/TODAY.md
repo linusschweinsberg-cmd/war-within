@@ -84,3 +84,8 @@ Browser: frischer lokaler Gast, Erledigen und Rückgängig mit wiederhergestellt
 ## Kleine Variante nur für heute (ww-v85)
 
 Im Wiedereinstieg bietet „Heute kleiner anfangen“ ein Freitextfeld für eine selbst gewählte kleine Variante (maximal 80 Zeichen). Erst „Kleine Variante für heute wählen“ ersetzt die Hauptkarte für den Rückkehrtag. Daten: optional `life.reentry.small={key,text,done}`; am Folgetag nicht aktiv. Die eigene Bestätigung vergibt keine Punkte, verändert keine Ziel-Handlungslogs und hakt die volle Mission nicht ab. Der Wochenplan bleibt gleich. Rückgängig nutzt den gemeinsamen Fünf-Sekunden-Snapshot. Die dauerhafte Reduktion der Wochenhäufigkeit bleibt davon ausdrücklich getrennt. Normale Erledigungsknöpfe heißen „Erledigt“ bzw. „Erfassen“.
+
+
+## Direkter Versuch ohne Ziel (ww-v86)
+
+Wenn kein Hauptziel und keine persönlich gewählte Handlung offen ist (nur die allgemeine Abendreflexion), zeigt Heute eine Eingabe für eine eigene Handlung. Maximal 80 Zeichen, bewusst nur heute, ohne Wiederholung oder Punkte. `life.trial={d,text,done}` bleibt nach Neuladen erhalten; die Bestätigung bietet fünf Sekunden Rückgängig. Ziele, Missionen, Onboarding und Wochenpläne bleiben unverändert. Ruhetage haben Vorrang.
