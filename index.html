@@ -18,18 +18,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v107"></script>
-<script src="auth.js?v=ww-v107"></script>
-<script src="life-core.js?v=ww-v107"></script>
-<script src="wisdom-core.js?v=ww-v107"></script>
-<script src="future-self-core.js?v=ww-v107"></script>
-<script src="projection-core.js?v=ww-v107"></script>
-<script src="rank-core.js?v=ww-v107"></script>
-<script src="persona-core.js?v=ww-v107"></script>
-<script src="character-core.js?v=ww-v107"></script>
-<script src="arena-core.js?v=ww-v107"></script>
-<script src="arena-api.js?v=ww-v107"></script>
-<script src="arena-ui.js?v=ww-v107"></script>
+<script src="supabase-config.js?v=ww-v108"></script>
+<script src="auth.js?v=ww-v108"></script>
+<script src="life-core.js?v=ww-v108"></script>
+<script src="wisdom-core.js?v=ww-v108"></script>
+<script src="future-self-core.js?v=ww-v108"></script>
+<script src="projection-core.js?v=ww-v108"></script>
+<script src="rank-core.js?v=ww-v108"></script>
+<script src="persona-core.js?v=ww-v108"></script>
+<script src="character-core.js?v=ww-v108"></script>
+<script src="arena-core.js?v=ww-v108"></script>
+<script src="arena-api.js?v=ww-v108"></script>
+<script src="arena-ui.js?v=ww-v108"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -4300,7 +4300,8 @@ function AuthFlow({A,set,theme}){
  const forgot=async ev=>{ev.preventDefault();setTried(true);if(E.email)return;setBusy(true);setErr('');try{await authApi.resetPassword(f.email);setMsg('Falls ein Konto zu dieser Adresse besteht, erhältst du einen Link zum Zurücksetzen.')}catch(x){setErr(x.message)}finally{setBusy(false)}};
  const reset=async ev=>{ev.preventDefault();setTried(true);if(E.pw||E.pw2)return;setBusy(true);setErr('');try{await authApi.updatePassword(f.pw);set(()=>({recovery:false}));setF(p=>({...p,pw:'',pw2:''}));}catch(x){setErr(x.message)}finally{setBusy(false)}};
 
- const guest=()=>set(()=>({session:{mode:'guest',name:'Gast'}}));
+ const guest=()=>{let own=false;try{const g=JSON.parse(localStorage.getItem(GUEST_KEY)||'null');own=!!(g&&!isDemoState(g))}catch(e){}set(()=>own?{session:{mode:'guest',name:'Gast'}}:{session:{mode:'guest',name:'Gast'},guestOb:true,ob:newOb('')})};
+ const demo=()=>set(()=>({session:{mode:'guest',name:'Gast'},guestOb:false}));
  const Back=html`<button type="button" aria-label="Zurück" onClick=${()=>go(v==='forgot'?'login':'welcome')} className="ghost w-10 h-10 flex items-center justify-center mb-5"><${Icon} n="chevL" s=${20}/></button>`;
  if(v==='reset')return html`<${Shell} theme=${theme}><form onSubmit=${reset} className="px-6 py-8"><div className="disp text-[38px]">Neues Passwort</div><${Field} id="reset-pw" label="Neues Passwort" type="password" value=${f.pw} on=${F('pw')} err=${e('pw')} auto="new-password"/><${Field} id="reset-pw2" label="Passwort bestätigen" type="password" value=${f.pw2} on=${F('pw2')} err=${e('pw2')} auto="new-password"/>${err&&html`<div role="alert">${err}</div>`}<button disabled=${busy} className="btn w-full py-4">Passwort speichern</button></form><//>`;
  if(v==='welcome')return html`<${Shell} theme=${theme}><div className="flex-1 flex flex-col px-6 relative screen" style=${{paddingTop:'max(28px,env(safe-area-inset-top))',paddingBottom:'max(24px,env(safe-area-inset-bottom))'}}>
@@ -4311,7 +4312,7 @@ function AuthFlow({A,set,theme}){
   <div className="flex flex-col gap-2.5">
    <button onClick=${()=>go('signup')} className="btn w-full py-4 text-[15px]">Registrieren</button>
    <button onClick=${()=>go('login')} className="ghost w-full py-4 text-[15px] font-semibold">Anmelden</button>
-   <button onClick=${guest} className="bg-transparent border-0 py-3 text-[13.5px] font-semibold mute">Als Gast fortfahren <span className="font-normal">· Demo mit Beispieldaten</span></button></div></div><//>`;
+   <button onClick=${guest} className="bg-transparent border-0 py-3 text-[13.5px] font-semibold mute">Ohne Konto starten <span className="font-normal">· bleibt auf diesem Gerät</span></button><button onClick=${demo} className="bg-transparent border-0 py-2 text-[12.5px] mute">Erst ein Beispiel ansehen</button></div></div><//>`;
  if(v==='signup')return html`<${Shell} theme=${theme}><form noValidate onSubmit=${signup} className="flex-1 overflow-y-auto px-6 relative screen" style=${{paddingTop:'max(20px,env(safe-area-inset-top))',paddingBottom:32}}>${Back}
   <div className="disp text-[38px]">Konto erstellen</div><div className="text-[13.5px] mute mt-1.5 mb-6">Ein Konto, eine Reise. Dauert 20 Sekunden.</div>
   <${Field} id="su-name" label="Anzeigename" value=${f.name} on=${F('name')} err=${e('name')} auto="nickname" max=${40}/>
@@ -4407,6 +4408,7 @@ function Account({c}){
   <div className="lbl mt-3">Test & Demo</div>
   <${Row} i="rotate" l=${cf==='ob'?'Wirklich? Tippe erneut':'Onboarding neu starten'} d="Ersetzt den aktuellen Spielstand durch einen neuen Plan" on=${()=>{if(cf==='ob'){c.closeSheet();au.restartOnboarding&&au.restartOnboarding()}else setCf('ob')}}/>
   <${Row} i="rotate" l=${cf==='rs'?'Wirklich? Tippe erneut':'Demo zurücksetzen'} d="Beispieldaten wiederherstellen" danger=${true} on=${()=>{if(cf==='rs')c.resetDemo();else setCf('rs')}}/>
+  <${Row} i="compass" l=${cf==='ob'?'Wirklich neu beginnen? Tippe erneut':'Einstieg wiederholen'} d="Ersetzt deinen Spielstand. Sichere ihn vorher unter „Daten sichern“." danger=${true} on=${()=>{if(cf==='ob'){c.closeSheet();au.restartOnboarding&&au.restartOnboarding()}else setCf('ob')}}/>
   <${Row} i="logout" l="Abmelden" d="Deine Daten bleiben auf diesem Gerät" danger=${true} on=${()=>{c.closeSheet();au.signOut&&au.signOut()}}/>
   <${Row} i="x" l=${cf==='wipe'?'Wirklich alles löschen? Tippe erneut':'Lokales Konto & Daten löschen'} danger=${true} on=${()=>{if(cf==='wipe'){c.closeSheet();au.wipe&&au.wipe()}else setCf('wipe')}}/></div>
   <div className="mt-3"><${DemoNote}/></div><//>`;
