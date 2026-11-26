@@ -18,18 +18,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v104"></script>
-<script src="auth.js?v=ww-v104"></script>
-<script src="life-core.js?v=ww-v104"></script>
-<script src="wisdom-core.js?v=ww-v104"></script>
-<script src="future-self-core.js?v=ww-v104"></script>
-<script src="projection-core.js?v=ww-v104"></script>
-<script src="rank-core.js?v=ww-v104"></script>
-<script src="persona-core.js?v=ww-v104"></script>
-<script src="character-core.js?v=ww-v104"></script>
-<script src="arena-core.js?v=ww-v104"></script>
-<script src="arena-api.js?v=ww-v104"></script>
-<script src="arena-ui.js?v=ww-v104"></script>
+<script src="supabase-config.js?v=ww-v105"></script>
+<script src="auth.js?v=ww-v105"></script>
+<script src="life-core.js?v=ww-v105"></script>
+<script src="wisdom-core.js?v=ww-v105"></script>
+<script src="future-self-core.js?v=ww-v105"></script>
+<script src="projection-core.js?v=ww-v105"></script>
+<script src="rank-core.js?v=ww-v105"></script>
+<script src="persona-core.js?v=ww-v105"></script>
+<script src="character-core.js?v=ww-v105"></script>
+<script src="arena-core.js?v=ww-v105"></script>
+<script src="arena-api.js?v=ww-v105"></script>
+<script src="arena-ui.js?v=ww-v105"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -1663,7 +1663,7 @@ function TodayHero({c,ini,rings}){const {S}=c,planned=rings.filter(r=>r.total>0)
  return html`<section className="pt-3 relative" aria-label="Dein Tag">
  <span className="page-emblem" style=${{top:44}}><${Icon} n=${all?'laurel':'aspis'} s=${76} sw=${1}/></span>
  <div className="flex items-center justify-between gap-2"><div className="lbl truncate">${deDate(c.now,calendarZone(S))}</div><div className="flex shrink-0 -mr-2 relative"><button aria-label="Menü und Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0" style=${{color:'var(--ink)'}}><${Icon} n="dots" s=${20}/></button><button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0 p-0">${(()=>{const lk=PC.look(S,RK.looks(S));return lk&&lk.set?html`<${CharAvatar} lk=${lk} size=${32}/>`:html`<span className="w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold" style=${{background:'var(--card2)',color:'var(--ink)',boxShadow:'0 0 0 1px var(--line) inset'}}>${ini}</span>`})()}</button></div></div>
- <h1 className="disp text-[40px] leading-none">Heute</h1>
+ <h1 className="disp text-[40px] leading-none">Heute</h1><div className="text-[12.5px] mute mt-1.5 leading-snug" data-page-purpose>Was heute zählt. Fang mit der Hauptschlacht an.</div>
  ${!focusMode(S)&&(()=>{const r=RK.rank(S);return html`<button type="button" onClick=${()=>c.setTab('stats')} data-season-rank className="w-full mt-2 text-left bg-transparent border-0 p-0" style=${{minHeight:44,color:'var(--ink)'}} aria-label=${'Saison '+S.season+', Rang '+r.name+(r.next?', '+r.pts+' von '+r.next.min+' Saisonpunkten bis '+r.next.name:', höchster Saisonrang')}><span className="flex items-baseline justify-between gap-2 text-[12.5px]"><span className="truncate"><span className="mute">Spielsaison ${S.season} · </span><b>${r.name}</b></span><span className="num mute shrink-0">${r.next?r.pts+' / '+r.next.min+' Pkt.':r.pts+' Pkt.'}</span></span><span className="block h-1.5 rounded-full mt-1.5 overflow-hidden" style=${{background:'var(--ghost)'}}><span className="block h-full rounded-full" style=${{width:Math.max(3,r.pct*100)+'%',background:r.next?'var(--acc)':'var(--gold)',transition:'width .6s'}}/></span></button>`})()}
  <div className="meander mt-3" aria-hidden="true"/>
  </section>`}
@@ -1965,7 +1965,7 @@ function Tasks({c}){
  const opts=[['today','Fokus'],['all','Alle'],...(S.ui==='adv'?GROUPS.map(g=>[g.id,g.name]):[]),...Object.keys(S.acts).filter(id=>D.allM.some(m=>m.act===id)).map(id=>[id,S.acts[id].name])];
  const nd=fm.filter(m=>isDone(S,m)).length;
  return html`<div className="screen px-4 pb-6">
- <div className="pt-5 flex items-end justify-between gap-3"><div className="min-w-0"><div className="lbl truncate">${deDate(c.now,calendarZone(S))}</div><h1 className="disp text-[32px] mt-1 leading-none">Aufgaben</h1></div>
+ <div className="pt-5 flex items-end justify-between gap-3"><div className="min-w-0"><div className="lbl truncate">${deDate(c.now,calendarZone(S))}</div><h1 className="disp text-[32px] mt-1 leading-none">Aufgaben</h1><div className="text-[12.5px] mute mt-1.5 leading-snug" data-page-purpose>Alles, was heute ansteht. Antippen heißt erledigt.</div></div>
   <div className="flex gap-2 shrink-0"><button aria-pressed=${view==='plan'} aria-label="Tagesplan anzeigen" onClick=${()=>setView(view==='plan'?'list':'plan')} className="icon-btn"><${Icon} n="calendar" s=${20} sw=${2}/></button><button aria-label="Aufgabe hinzufügen" onClick=${()=>c.openSheet({t:'add'})} className="btn w-11 h-11 flex items-center justify-center"><${Icon} n="plus" s=${22} sw=${2.4}/></button></div></div>
  <${DayProgress} c=${c} tap=${false}/>
  ${view==='plan'?html`<div className="mt-3"><${DayPlanner} c=${c}/></div>`:html`
@@ -2457,17 +2457,17 @@ function PersonalSeasonCard({S}){if(isDemoState(S)||focusMode(S))return null;con
  ${has?html`<div className="text-[12.5px] mute mt-2">Dein Saisonziel: ${target} Punkte aus deinem übernommenen Plan. Boni zählen zusätzlich.</div><div className="mt-2"><${Bar} pct=${Math.min(1,S.seasonPts/Math.max(1,target))} h=${5}/></div><div className="text-[11.5px] mute mt-2">Offene Wochen folgen deinem Plan. Abgeschlossene Wochen mit gespeichertem Plan bleiben erhalten.</div>`:html`<div className="text-[12.5px] mute mt-2">Dein Saisonplan ist noch offen. Wähle eine Handlung oder einen Standard, der zu dir passt.</div>`}
  ${p.offered>p.capacity&&html`<p className="text-[12px] mute mt-2">Dein Plan enthält mehr Handlungen als Punkteplätze. Höchstens drei Erledigungen pro Tag bringen Saisonpunkte; weitere zählen für deine Ziele und Erfahrung.</p>`}</section>`}
 function Stats({c}){
- const adv=c.S.ui==='adv',base=[['out','Ergebnisse'],['proc','Umsetzung'],['temple','Tempel'],['exp','Experimente'],['compound','Wirkung']],opts=adv?[...base,['matrix','Lebensmatrix'],['gen','Gesamt'],['over','Verlauf'],['rec','Rekorde'],['calc','Rechner'],['proj','Prognose']]:base;
+ const adv=c.S.ui==='adv',base=[['out','Ergebnisse'],['proc','Umsetzung'],['temple','Tempel']],opts=adv?[...base,['exp','Experimente'],['compound','Wirkung'],['matrix','Lebensmatrix'],['gen','Gesamt'],['over','Verlauf'],['rec','Rekorde'],['calc','Rechner'],['proj','Prognose']]:base;
  const t=opts.some(o=>o[0]===c.statTab)?c.statTab:'out',set=c.setStatTab;
- return html`<div className="screen px-4 pb-6"><div className="pt-5 flex items-end justify-between gap-2"><div><div className="lbl flex items-center gap-1.5"><span style=${{color:'var(--gold)'}}><${Icon} n="laurel" s=${15} sw=${1.5}/></span>Dein Weg</div><h1 className="disp text-[32px] mt-1 leading-none">Fortschritt</h1></div><div className="pb-1"><${ModeToggle} c=${c}/></div></div>
- <${PersonalSeasonCard} S=${c.S}/><div className="mt-3"><${RankBar} S=${c.S}/></div>
+ return html`<div className="screen px-4 pb-6"><div className="pt-5 flex items-end justify-between gap-2"><div><div className="lbl flex items-center gap-1.5"><span style=${{color:'var(--gold)'}}><${Icon} n="laurel" s=${15} sw=${1.5}/></span>Dein Weg</div><h1 className="disp text-[32px] mt-1 leading-none">Fortschritt</h1><div className="text-[12.5px] mute mt-1.5 leading-snug" data-page-purpose>Was du schon erreicht hast.</div></div><div className="pb-1"><${ModeToggle} c=${c}/></div></div>
+ <${PersonalSeasonCard} S=${c.S}/>${adv&&html`<div className="mt-3"><${RankBar} S=${c.S}/></div>`}
  <${SeasonFresco} c=${c}/>
  <${StatsCompass} c=${c}/>
  <div className="meander mt-4" aria-hidden="true"/><div className="lbl mt-3 px-1">Details</div><div className="mt-2 mb-3"><${Seg} opts=${opts} val=${t} on=${set}/></div>
  
  ${t==='out'&&html`<${OutcomeView} c=${c}/>`}${t==='temple'&&html`<${TempleProgress} c=${c}/>`}${t==='proc'&&html`<${ProcessView} c=${c}/>`}${t==='exp'&&html`<${ExpView} c=${c}/>`}
  ${t==='compound'&&html`<div className="text-[11.5px] mute mb-3 px-1">Spielwelt: Punkte und Mengen. Echte Ergebnisse findest du unter „Ergebnisse“.</div>`}
- ${t==='compound'&&html`<${Compound} c=${c}/>`}${t==='matrix'&&html`<${LifeMatrix} c=${c}/>`}${t==='gen'&&html`<${Gen} c=${c}/>`}${t==='over'&&html`<${Over} c=${c}/>`}${t==='rec'&&html`<${Recs} c=${c}/>`}${t==='calc'&&html`<${Calc} c=${c}/>`}${t==='proj'&&html`<${Proj} c=${c}/>`}<${WisdomSlot} c=${c} place="milestone" cls="mt-4 wis-sm"/>
+ ${t==='compound'&&html`<${Compound} c=${c}/>`}${t==='matrix'&&html`<${LifeMatrix} c=${c}/>`}${t==='gen'&&html`<${Gen} c=${c}/>`}${t==='over'&&html`<${Over} c=${c}/>`}${t==='rec'&&html`<${Recs} c=${c}/>`}${t==='calc'&&html`<${Calc} c=${c}/>`}${t==='proj'&&html`<${Proj} c=${c}/>`}${adv&&html`<${WisdomSlot} c=${c} place="milestone" cls="mt-4 wis-sm"/>`}
  ${!focusMode(c.S)&&html`<button onClick=${()=>c.setTab('league')} className="card w-full p-4 mt-5 flex items-center gap-3 text-left"><span className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style=${{background:'rgba(var(--gold-rgb),.14)',color:'var(--gold)'}}><${Icon} n="trophy" s=${19}/></span><div className="flex-1"><div className="text-[14.5px] font-semibold">Arena · Mit Freunden</div><div className="text-[12px] mute">Zu zweit, zu dritt oder in einer Gruppe</div></div><${Icon} n="chevR" s=${16} cls="mute"/></button>`}</div>`}
 /* ───── Log-Berechnung ───── */
 function calcBonus(k,v,S){
@@ -3472,17 +3472,17 @@ function CharacterHint({c,place}){const {S}=c;const [open,setOpen]=useState(fals
  <div className="text-[14px] mt-1.5 leading-snug">${h.text}</div>
  ${open?html`${acts}${extra}${h.trait==='curious'&&html`<fieldset className="mt-3"><legend className="lbl">Wann einmal ausprobieren?</legend><div className="flex gap-2 mt-2">${[0,1].map(n=>html`<button type="button" className="chip" disabled=${n===0&&c.D.restToday||!!LC.trialByDay(S.life,S.life.d+n)} aria-pressed=${ch.d===S.life.d+n} onClick=${()=>set({d:S.life.d+n})}>${n?'Morgen einmal':'Heute einmal'}</button>`)}</div></fieldset>`}<div className="flex gap-2 mt-3"><button type="button" onClick=${()=>c.applyTrait(h.trait,ch)} className="btn flex-1 py-2.5 text-[13px]">Übernehmen</button><button type="button" onClick=${()=>setOpen(false)} className="ghost flex-1 py-2.5 text-[13px] font-semibold">Abbrechen</button></div>`
   :html`<div className="flex gap-2 mt-3"><button type="button" onClick=${()=>setOpen(true)} className="btn flex-1 py-2.5 text-[13px]">Auswählen …</button><button type="button" onClick=${()=>c.dismissTrait(h.trait)} className="ghost flex-1 py-2.5 text-[13px] font-semibold">Nicht jetzt</button></div>`}</section>`}
-function MyLife({c}){const {S}=c;const L=S.life;const st=LC.templeState(S),sel=c.tSel,ach=(L.goals||[]).filter(g=>g.status==='achieved'),fs=LC.fundSections(S),fn=fs.filter(x=>x.state==='done').length,wn=((S.wisdom&&S.wisdom.fav)||[]).length,chs=CH.state(S);
+function MyLife({c}){const {S}=c;const adv=S.ui==='adv';const L=S.life;const st=LC.templeState(S),sel=c.tSel,ach=(L.goals||[]).filter(g=>g.status==='achieved'),fs=LC.fundSections(S),fn=fs.filter(x=>x.state==='done').length,wn=((S.wisdom&&S.wisdom.fav)||[]).length,chs=CH.state(S);
  const tile=(icon,title,sub,on)=>html`<button type="button" onClick=${on} className="text-left border-0 px-3 py-2 flex items-center gap-3 min-w-0" style=${{minHeight:58,borderRadius:16,background:'var(--card-g)',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}><span className="shrink-0" style=${{color:'var(--bronze)'}}><${Icon} n=${icon} s=${20}/></span><span className="min-w-0"><span className="block text-[14px] font-semibold truncate">${title}</span><span className="block text-[11.5px] mute truncate">${sub}</span></span></button>`;
- return html`<div className="screen px-4 pb-6"><div className="pt-5 relative"><span className="page-emblem"><${Icon} n="compass" s=${76} sw=${1}/></span><div className="lbl">Dein Kompass</div><h1 className="disp text-[40px] mt-1">Mein Leben</h1><div className="meander mt-3" aria-hidden="true"/></div>
+ return html`<div className="screen px-4 pb-6"><div className="pt-5 relative"><span className="page-emblem"><${Icon} n="compass" s=${76} sw=${1}/></span><div className="lbl">Dein Kompass</div><h1 className="disp text-[40px] mt-1">Mein Leben</h1><div className="flex items-center justify-between gap-3 mt-1.5"><div className="text-[12.5px] mute leading-snug" data-page-purpose>Wofür du das alles tust: deine Ziele in vier Lebensbereichen.</div><${ModeToggle} c=${c}/></div><div className="meander mt-3" aria-hidden="true"/></div>
  <${TempleHead} c=${c} st=${st} sel=${sel}/>
  
  <div className="flex items-center justify-between mt-5"><div className="lbl">Deine Säulen</div><button type="button" onClick=${()=>c.openSheet({t:'goal'})} className="bg-transparent border-0 acc text-[12.5px] font-semibold flex items-center gap-1 px-1" style=${{minHeight:44}}><${Icon} n="plus" s=${13}/>Ziel</button></div>
  ${LC.AREAS.map(a=>html`<${PillarRow} key=${a.id} c=${c} area=${a.id} st=${st} open=${sel===a.id} onToggle=${()=>c.setTSel(sel===a.id?null:a.id)}/>`)}
- ${PC.invite(S)?html`<${PersonaCard} c=${c}/>`:chs&&chs.invite?html`<${CharacterInvite} c=${c}/>`:html`<${CharacterHint} c=${c} place="life"/>`}
- <div className="lbl mt-5 px-1">Über dich</div>${!PC.invite(S)&&html`<${PersonaCard} c=${c}/>`}<${SkillsRow} c=${c}/>
- <div className="grid grid-cols-2 gap-2 mt-5">${tile('column','Fundament',fn+' von '+fs.length+' Teilen',()=>c.openSheet({t:'fundament'}))}${WC.enabled(S)?tile('scroll','Wisdom Codex',wn?wn+' gemerkt':'Lebensweisheiten',()=>c.openSheet({t:'codex',f:wn?'fav':'all'})):html`<span/>`}${tile('helmet','Charakter',chs.traits.length?chs.traits.map(id=>CH.BY[id].name).join(' · '):'Stärken und Herausforderungen',()=>c.openSheet({t:'character'}))}</div>
- <${WisdomSlot} c=${c} place="season" cls="mt-3 wis-sm"/>
+ ${adv&&(PC.invite(S)?html`<${PersonaCard} c=${c}/>`:chs&&chs.invite?html`<${CharacterInvite} c=${c}/>`:html`<${CharacterHint} c=${c} place="life"/>`)}
+ ${adv&&html`<div className="lbl mt-5 px-1">Über dich</div>${!PC.invite(S)&&html`<${PersonaCard} c=${c}/>`}<${SkillsRow} c=${c}/>`}
+ <div className="grid grid-cols-2 gap-2 mt-5">${tile('column','Fundament',fn+' von '+fs.length+' Teilen',()=>c.openSheet({t:'fundament'}))}${adv&&WC.enabled(S)?tile('scroll','Wisdom Codex',wn?wn+' gemerkt':'Lebensweisheiten',()=>c.openSheet({t:'codex',f:wn?'fav':'all'})):html`<span/>`}${adv&&tile('helmet','Charakter',chs.traits.length?chs.traits.map(id=>CH.BY[id].name).join(' · '):'Stärken und Herausforderungen',()=>c.openSheet({t:'character'}))}</div>
+ ${adv&&html`<${WisdomSlot} c=${c} place="season" cls="mt-3 wis-sm"/>`}
  ${ach.length>0&&html`<details className="mt-3"><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center'}}>Erreichte Ziele (${ach.length})</summary><div className="flex flex-col gap-2">${ach.map(g=>html`<${GoalCard} key=${g.id} c=${c} g=${g}/>`)}</div></details>`}
  </div>`}
 
@@ -3499,7 +3499,7 @@ function Reflect({c}){const {S}=c;const L=S.life;const due=LC.reviewWeek(L),r=re
  const oc={};(L.daily||[]).filter(x=>x.wk>wk-4).forEach(x=>(x.obst||[]).forEach(o=>{oc[o]=(oc[o]||0)+1}));(L.reviews||[]).filter(x=>x.wk>wk-4&&x.obstacle&&LC.OBST[x.obstacle.code]).forEach(x=>{oc[x.obstacle.code]=(oc[x.obstacle.code]||0)+1});
  const ol=Object.entries(oc).sort((a,b)=>b[1]-a[1]),om=ol.length?ol[0][1]:1;const revs=(L.reviews||[]).slice().reverse();
  return html`<div className="screen px-4 pb-6"><div className="pt-5 relative"><span className="page-emblem"><${Icon} n="owl" s=${76} sw=${1}/></span><div className="lbl">Feedback-Loop</div><h1 className="disp text-[40px] mt-1">Reflexion</h1><div className="text-[13px] mute mt-1 leading-snug">Was hat funktioniert, was nicht, und was änderst du? Ehrlich und ohne Urteil.</div><div className="meander mt-3" aria-hidden="true"/></div>
- <${CharacterHint} c=${c} place="reflect"/>
+ ${S.ui==='adv'&&html`<${CharacterHint} c=${c} place="reflect"/>`}
  <div className="grid grid-cols-1 gap-2.5 mt-4">
   ${due!=null?html`<button onClick=${()=>c.openSheet({t:'weekly'})} className="card p-4 text-left" style=${{background:'linear-gradient(150deg,color-mix(in srgb,var(--acc) 22%,var(--card)),var(--card) 70%)',boxShadow:'0 0 0 1px color-mix(in srgb,var(--acc2) 50%,transparent) inset'}}><div className="lbl acc">Wochenrückblick bereit</div><div className="text-[18px] font-bold mt-1">Woche ${due+1} auswerten</div><div className="text-[13px] mute mt-0.5">Umsetzung und Ergebnis prüfen, ein Hindernis lösen, ein Experiment festlegen. 3 Minuten.</div><span className="btn inline-block px-4 py-2.5 mt-3 text-[13px]">Starten</span></button>`
   :html`<div className="card p-4"><div className="lbl">Wochenrückblick</div><div className="text-[15px] font-semibold mt-1">Nächster Rückblick am Sonntag</div><div className="text-[12.5px] mute mt-0.5">${(L.reviews||[]).length?'Der letzte ist erledigt. Bis dahin: umsetzen und messen.':'Am Ende der Woche wertest du Umsetzung und Ergebnis aus.'}</div></div>`}
@@ -4615,7 +4615,7 @@ function App({init,auth,skey='war_within_v5'}){
  const setViz=v=>upd(n=>{n.viz=v});
  const setNem=(mid,tod)=>upd(n=>{n.nem=n.nem||nemDefault(n);if(tod)n.nem[mid]=tod;else delete n.nem[mid]});
  const setNemTime=(mid,v)=>upd(n=>{n.nem=n.nem||nemDefault(n);const pl=buildNemesisPlan(nemTasks(n));Object.keys(n.nem).forEach(k=>{if(typeof n.nem[k]==='string'){const q=pl.find(x=>x.id===k),m=n.missions.find(x=>x.id===k);n.nem[k]={s:q?q.start:360,d:m?durDef(m):30}}});if(v)n.nem[mid]=v;else delete n.nem[mid]});
- const setUi=v=>{if((S.ui||'basic')===v)return;upd(n=>{n.ui=v});toast(v==='adv'?'Erweitert: Lebensmatrix, Rekorde, Rechner und Prognosen sichtbar. Deine Daten bleiben gleich.':'Basis: nur das Wichtigste. Es geht nichts verloren.','good')};
+ const setUi=v=>{if((S.ui||'basic')===v)return;upd(n=>{n.ui=v});toast(v==='adv'?'Erweitert: Charakter, Fähigkeiten, Impulse, Erfahrungsstufen und mehr Auswertungen sichtbar. Deine Daten bleiben gleich.':'Basis: nur das Wichtigste. Es geht nichts verloren.','good')};
  const recordStat=(id,v)=>{upd(n=>{n.mxv=n.mxv||{};n.mxv[id]=[...(n.mxv[id]||[]),{v,t:Date.now()}].slice(-40)});toast('Wert gespeichert. Punkte gibt es für Missionen, nicht für Einträge.','good')};
  const saveMission=x=>{const isNew=!x.id;upd(n=>{if(isNew)n.missions.push({...x,id:'x'+uid(),sub:undefined});else{const m=n.missions.find(y=>y.id===x.id);if(m){m.title=x.title;m.desc=x.desc;m.freq=x.freq;m.times=x.times;m.pts=x.pts;if(m.id==='m_ref')m.planOptIn=true}}});setSheet(x.stat&&isNew?{t:'stat',id:x.stat}:null);toast(isNew?'Mission angelegt':'Mission gespeichert','good')};
  const delMission=id=>{upd(n=>{((n.life&&n.life.actions)||[]).forEach(a=>{if(a.missionId===id)a.off=true});n.missions=n.missions.filter(m=>m.id!==id);delete n.done[id];if(n.brief)n.brief.ids=n.brief.ids.filter(x=>x!==id)});setSheet(null);toast('Mission gelöscht. Verdiente Punkte bleiben.')};

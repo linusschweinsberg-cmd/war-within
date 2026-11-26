@@ -33,7 +33,7 @@ t('Choose, change, remove and later; persists through JSON and repairs bad data'
 
 t('App wiring: script, ensure on load, sheet, card on Mein Leben, undo snapshot',()=>{
  assert.match(html,/<script src="persona-core\.js\?v=ww-v\d+"><\/script>/);assert.match(html,/PC\.ensure\(s\)/);
- assert.match(html,/case'persona':b=html`<\$\{PersonaSheet\}/);assert.ok(html.includes('${PC.invite(S)?html`<${PersonaCard} c=${c}/>`:chs&&chs.invite?html`<${CharacterInvite} c=${c}/>`'));assert.ok(html.includes('${!PC.invite(S)&&html`<${PersonaCard} c=${c}/>`}<${SkillsRow} c=${c}/>'));
+ assert.match(html,/case'persona':b=html`<\$\{PersonaSheet\}/);assert.ok(html.includes('(PC.invite(S)?html`<${PersonaCard} c=${c}/>`:chs&&chs.invite?html`<${CharacterInvite} c=${c}/>`'));assert.ok(html.includes('${!PC.invite(S)&&html`<${PersonaCard} c=${c}/>`}<${SkillsRow} c=${c}/>'));
  assert.ok(html.includes('mine=(S.principles||[]).map(p=>p.n),add=PC.valuesToAdd(mine,v)'));assert.ok(html.includes('r=PC.choose(n,ids,vals,addV,cur)'));
  assert.match(html,/const choosePersona=\(ids,vals,addV,goalArea\)=>\{const before=S;/);assert.match(html,/undo:\(\)=>setS\(syncCalendar\(structuredClone\(before\)\)\)/)});
 console.log('PASS persona-core');
