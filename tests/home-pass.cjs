@@ -16,3 +16,7 @@ console.log(ok.map(n=>'PASS '+n).join('\n'));
  t2('Tempel: TemplePlain auf beiden Seiten, Stufen statt Namen',()=>{assert.equal((html.match(/<\$\{TemplePlain\} /g)||[]).length,2);assert.ok(!html.includes('${col.stageName}'),'keine Stufennamen in den Details')});
  t2('TempleProgress definiert L für milestoneEvidence',()=>{const i=html.indexOf('function TempleProgress');assert.ok(html.slice(i,i+200).includes('const L=S.life'))});
  console.log(ok2.map(n=>'PASS '+n).join('\n'))}
+{const ok3=[];const t3=(n,f)=>{f();ok3.push(n)};
+ t3('Tempel-Segmente folgen den Bausteinen; leere Säule ist leer',()=>{assert.ok(html.includes("const E=[1,...LC.STAGES.slice(1).map(x=>x.min)]"));assert.ok(html.includes("c.pts?'Stufe '+c.stage+'/5':'noch leer'"))});
+ t3('Zuletzt verdienter Baustein wird genannt',()=>{assert.ok(html.includes('Zuletzt: ${m.label}'))});
+ console.log(ok3.map(n=>'PASS '+n).join('\n'))}

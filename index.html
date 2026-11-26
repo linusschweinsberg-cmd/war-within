@@ -18,18 +18,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v116"></script>
-<script src="auth.js?v=ww-v116"></script>
-<script src="life-core.js?v=ww-v116"></script>
-<script src="wisdom-core.js?v=ww-v116"></script>
-<script src="future-self-core.js?v=ww-v116"></script>
-<script src="projection-core.js?v=ww-v116"></script>
-<script src="rank-core.js?v=ww-v116"></script>
-<script src="persona-core.js?v=ww-v116"></script>
-<script src="character-core.js?v=ww-v116"></script>
-<script src="arena-core.js?v=ww-v116"></script>
-<script src="arena-api.js?v=ww-v116"></script>
-<script src="arena-ui.js?v=ww-v116"></script>
+<script src="supabase-config.js?v=ww-v117"></script>
+<script src="auth.js?v=ww-v117"></script>
+<script src="life-core.js?v=ww-v117"></script>
+<script src="wisdom-core.js?v=ww-v117"></script>
+<script src="future-self-core.js?v=ww-v117"></script>
+<script src="projection-core.js?v=ww-v117"></script>
+<script src="rank-core.js?v=ww-v117"></script>
+<script src="persona-core.js?v=ww-v117"></script>
+<script src="character-core.js?v=ww-v117"></script>
+<script src="arena-core.js?v=ww-v117"></script>
+<script src="arena-api.js?v=ww-v117"></script>
+<script src="arena-ui.js?v=ww-v117"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -3332,8 +3332,8 @@ function ImpactSheet({c,gid}){const {S}=c,L=S.life,g=LC.goalById(L,gid);const [m
 /* Schlichte Tempel-Darstellung: je Lebensbereich eine Säule aus fünf Stufen-Segmenten. Gleiche Daten wie TempleSVG, ohne Ornamente. */
 function TemplePlain({st,sel,onSel}){return html`<div role="group" aria-label="Säulen nach Lebensbereich" className="grid grid-cols-4 gap-1 -mx-1" data-temple-plain>${st.cols.map(c=>{const a=LC.AREA[c.area],on=sel===c.area;
  return html`<button type="button" key=${c.area} aria-pressed=${on} aria-label=${'Säule '+a.de+': Stufe '+c.stage+' von 5'+(c.next?', noch '+c.next.need+(c.next.need===1?' Baustein':' Bausteine')+' bis Stufe '+(c.stage+1):'')} onClick=${()=>onSel&&onSel(c.area)} className="flex flex-col items-center gap-1 border-0 bg-transparent px-0 py-2 min-w-0" style=${{color:'var(--ink)',borderRadius:12,boxShadow:on?'0 0 0 1px var(--ink) inset':'none'}}>
-  <span className="flex flex-col-reverse w-full" style=${{maxWidth:40,gap:3}} aria-hidden="true">${[1,2,3,4,5].map(n=>html`<span key=${n} className="block" style=${{height:16,borderRadius:3,background:n<=c.stage?a.color:'transparent',boxShadow:n<=c.stage?'none':'0 0 0 1px var(--line) inset'}}/>`)}</span>
-  <span className="mt-1" style=${{color:a.color}} aria-hidden="true"><${Icon} n=${a.icon} s=${16}/></span><span className="text-[12px] leading-tight text-center whitespace-nowrap" style=${{letterSpacing:'-.01em'}}>${a.de}</span><span className="text-[12px] mute leading-tight">Stufe ${c.stage}/5</span></button>`})}</div>`}
+  <span className="flex flex-col-reverse w-full" style=${{maxWidth:40,gap:3}} aria-hidden="true">${[1,2,3,4,5].map(n=>{const E=[1,...LC.STAGES.slice(1).map(x=>x.min)],lo=n===1?0:E[n-2],hi=E[n-1],r=Math.max(0,Math.min(1,(c.pts-lo)/(hi-lo)));return html`<span key=${n} className="block relative overflow-hidden" style=${{height:16,borderRadius:3,boxShadow:r>=1?'none':'0 0 0 1px var(--line) inset'}}><span className="absolute inset-x-0 bottom-0" style=${{height:Math.round(r*100)+'%',background:a.color}}/></span>`})}</span>
+  <span className="mt-1" style=${{color:a.color}} aria-hidden="true"><${Icon} n=${a.icon} s=${16}/></span><span className="text-[12px] leading-tight text-center whitespace-nowrap" style=${{letterSpacing:'-.01em'}}>${a.de}</span><span className="text-[12px] mute leading-tight">${c.pts?'Stufe '+c.stage+'/5':'noch leer'}</span></button>`})}</div>`}
 function TempleHead({c,st,sel}){const {S}=c,T=S.life.temple,W=S.life.why||{},P=S.principles||[];
  const chip=(icon,label,value,empty,on)=>html`<button type="button" onClick=${on} className="flex-1 min-w-0 text-left border-0 px-3 py-2" style=${{minHeight:52,borderRadius:12,background:'var(--card2)',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}>
   <span className="flex items-center gap-1.5 lbl" style=${{color:'var(--bronze)'}}><${Icon} n=${icon} s=${12}/>${label}</span><span className=${'block text-[14px] truncate mt-0.5 '+(value?'font-semibold':'mute')}>${value||empty}</span></button>`;
@@ -3342,10 +3342,10 @@ function TempleHead({c,st,sel}){const {S}=c,T=S.life.temple,W=S.life.why||{},P=S
  <button type="button" onClick=${()=>c.openSheet({t:'trules'})} aria-label="Bauregeln" className="flex items-center justify-center border-0 bg-transparent -mt-1 -mr-2" style=${{width:44,height:44,color:'var(--mute)'}}><${Icon} n="info" s=${18}/></button></div>
  ${st.due&&html`<button onClick=${()=>c.openSheet({t:'tseason'})} className="btn w-full py-2.5 mt-3 text-[14px]">Saison abgeschlossen · Bilanz ansehen</button>`}
  <div className="flex gap-2 mt-3">${chip('temple','Dein Warum',W.text?'„'+W.text+'“':'','Wofür machst du das alles? Antippen',()=>c.openSheet({t:'why'}))}</div>
- <div className="mt-3"><${TemplePlain} st=${st} sel=${sel} onSel=${a=>{c.setTSel(sel===a?null:a);if(sel!==a)setTimeout(()=>{const el=document.getElementById('pillar-'+a);el&&el.scrollIntoView({behavior:'smooth',block:'start'})},60)}}/></div>
- ${(()=>{const nx=st.cols.filter(x=>x.next).sort((a,b)=>a.next.need-b.next.need)[0];return html`<div className="text-[12px] mute text-center leading-snug mt-1 mb-3 px-2" data-temple-explain>Jede Säule wächst mit Bausteinen aus deinen Handlungen. Tippe eine Säule an. <button type="button" onClick=${()=>c.openSheet({t:'trules'})} className="bg-transparent border-0 p-0 acc font-semibold text-[12px]">Wie genau?</button>${nx?html`<span className="block ink font-semibold mt-1.5">Als Nächstes: ${LC.AREA[nx.area].de} erreicht Stufe ${nx.stage+1}, noch ${nx.next.need} ${nx.next.need===1?'Baustein':'Bausteine'}.</span>`:''}</div>`})()}
- <div className="flex gap-2">${chip('column','Deine Werte',P.map(p=>p.n).join(' · '),'wählen',()=>c.openSheet({t:'values'}))}</div>
+ <div className="mt-2"><${TemplePlain} st=${st} sel=${sel} onSel=${a=>{c.setTSel(sel===a?null:a);if(sel!==a)setTimeout(()=>{const el=document.getElementById('pillar-'+a);el&&el.scrollIntoView({behavior:'smooth',block:'start'})},60)}}/></div>
+ <div className="flex gap-2 mt-2">${chip('column','Deine Werte',P.map(p=>p.n).join(' · '),'wählen',()=>c.openSheet({t:'values'}))}</div>
  ${P.length>0&&html`<div className="text-[12px] mute mt-2.5 px-1">Heute nach einem Wert gehandelt? Antippen.</div><div className="flex flex-wrap gap-1.5 mt-1.5" role="group" aria-label="Heute nach einem Wert gehandelt">${P.map(p=>html`<button key=${p.id} type="button" onClick=${()=>c.actPrinciple(p.id)} className="chip" style=${{minHeight:36}} aria-label=${p.n+': heute danach gehandelt'}><${Icon} n="check" s=${12}/> ${p.n}${p.acts?html`<span className="num mute ml-1" title=${p.acts+'× danach gehandelt'}>${p.acts}×</span>`:null}</button>`)}</div>`}
+ ${(()=>{const nx=st.cols.filter(x=>x.next).sort((a,b)=>a.next.need-b.next.need)[0];return html`<div className="text-[12px] mute text-center leading-snug mt-4 px-2" data-temple-explain>Jede Säule wächst mit Bausteinen aus deinen Handlungen. Tippe eine Säule an. <button type="button" onClick=${()=>c.openSheet({t:'trules'})} className="bg-transparent border-0 p-0 acc font-semibold text-[12px]">Wie genau?</button>${nx?html`<span className="block ink font-semibold mt-1.5">Als Nächstes: ${LC.AREA[nx.area].de} erreicht Stufe ${nx.stage+1}, noch ${nx.next.need} ${nx.next.need===1?'Baustein':'Bausteine'}.</span>`:''}${(()=>{const m=(T.cur.ms||[]).slice(-1)[0];return m?html`<span className="block mt-1">Zuletzt: ${m.label} · ${LC.AREA[m.area]?LC.AREA[m.area].de:''}</span>`:''})()}</div>`})()}
  </section>`}
 /* Eine Säule = ein Lebensbereich: Hauptziel, Wochenstand, Fortschritt. */
 function PillarRow({c,area,st,open,onToggle}){const {S}=c,L=S.life,a=LC.AREA[area],wk=LC.curWk(L),aw=LC.areaWeek(L,area,wk);
