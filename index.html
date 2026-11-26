@@ -18,18 +18,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v108"></script>
-<script src="auth.js?v=ww-v108"></script>
-<script src="life-core.js?v=ww-v108"></script>
-<script src="wisdom-core.js?v=ww-v108"></script>
-<script src="future-self-core.js?v=ww-v108"></script>
-<script src="projection-core.js?v=ww-v108"></script>
-<script src="rank-core.js?v=ww-v108"></script>
-<script src="persona-core.js?v=ww-v108"></script>
-<script src="character-core.js?v=ww-v108"></script>
-<script src="arena-core.js?v=ww-v108"></script>
-<script src="arena-api.js?v=ww-v108"></script>
-<script src="arena-ui.js?v=ww-v108"></script>
+<script src="supabase-config.js?v=ww-v118"></script>
+<script src="auth.js?v=ww-v118"></script>
+<script src="life-core.js?v=ww-v118"></script>
+<script src="wisdom-core.js?v=ww-v118"></script>
+<script src="future-self-core.js?v=ww-v118"></script>
+<script src="projection-core.js?v=ww-v118"></script>
+<script src="rank-core.js?v=ww-v118"></script>
+<script src="persona-core.js?v=ww-v118"></script>
+<script src="character-core.js?v=ww-v118"></script>
+<script src="arena-core.js?v=ww-v118"></script>
+<script src="arena-api.js?v=ww-v118"></script>
+<script src="arena-ui.js?v=ww-v118"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -2949,7 +2949,7 @@ function TempleSeasonSheet({c}){const {S}=c;const st=LC.templeState(S),T=S.life.
  <div className="lbl mt-4 mb-1.5">Nächste Saison</div><${Seg} opts=${[[8,'8 Wochen'],[12,'12 Wochen'],[16,'16 Wochen']]} val=${len} on=${setLen}/>
  ${st.due||sure?html`<button onClick=${()=>c.closeTempleSeason(len)} className="btn w-full py-3.5 mt-4 text-sm">${st.due?'Neues Kapitel beginnen':'Ja, Kapitel vorzeitig abschließen'}</button>`:html`<div className="text-[12.5px] mute mt-4">Das Kapitel endet regulär nach Woche ${st.len}.</div><button onClick=${()=>setSure(true)} className="ghost w-full py-3 mt-2 text-[13px] font-semibold">Vorzeitig abschließen …</button>`}<//>`}
 
-function TempleProgress({c}){const {S}=c;const st=LC.templeState(S),T=S.life.temple;const all=T.cur.ms.slice().reverse();
+function TempleProgress({c}){const {S}=c;const L=S.life,st=LC.templeState(S),T=S.life.temple;const all=T.cur.ms.slice().reverse();
  return html`<div className="flex flex-col gap-3">
  <div className="card p-4"><div className="flex items-baseline justify-between"><div className="lbl acc">Kapitel ${st.n}</div><div className="num text-[12.5px] mute">Woche ${st.week} von ${st.len}</div></div><div className="mt-2"><${Bar} pct=${st.week/st.len} h=${5} color="var(--bronze)"/></div>
   <div className="disp-serif text-[18px] mt-3">${st.phaseInfo.name}</div><div className="text-[12.5px] mute">${st.phaseInfo.de} · ${st.total} Bausteine</div>
