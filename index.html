@@ -18,18 +18,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v103"></script>
-<script src="auth.js?v=ww-v103"></script>
-<script src="life-core.js?v=ww-v103"></script>
-<script src="wisdom-core.js?v=ww-v103"></script>
-<script src="future-self-core.js?v=ww-v103"></script>
-<script src="projection-core.js?v=ww-v103"></script>
-<script src="rank-core.js?v=ww-v103"></script>
-<script src="persona-core.js?v=ww-v103"></script>
-<script src="character-core.js?v=ww-v103"></script>
-<script src="arena-core.js?v=ww-v103"></script>
-<script src="arena-api.js?v=ww-v103"></script>
-<script src="arena-ui.js?v=ww-v103"></script>
+<script src="supabase-config.js?v=ww-v104"></script>
+<script src="auth.js?v=ww-v104"></script>
+<script src="life-core.js?v=ww-v104"></script>
+<script src="wisdom-core.js?v=ww-v104"></script>
+<script src="future-self-core.js?v=ww-v104"></script>
+<script src="projection-core.js?v=ww-v104"></script>
+<script src="rank-core.js?v=ww-v104"></script>
+<script src="persona-core.js?v=ww-v104"></script>
+<script src="character-core.js?v=ww-v104"></script>
+<script src="arena-core.js?v=ww-v104"></script>
+<script src="arena-api.js?v=ww-v104"></script>
+<script src="arena-ui.js?v=ww-v104"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -1664,7 +1664,7 @@ function TodayHero({c,ini,rings}){const {S}=c,planned=rings.filter(r=>r.total>0)
  <span className="page-emblem" style=${{top:44}}><${Icon} n=${all?'laurel':'aspis'} s=${76} sw=${1}/></span>
  <div className="flex items-center justify-between gap-2"><div className="lbl truncate">${deDate(c.now,calendarZone(S))}</div><div className="flex shrink-0 -mr-2 relative"><button aria-label="Menü und Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0" style=${{color:'var(--ink)'}}><${Icon} n="dots" s=${20}/></button><button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0 p-0">${(()=>{const lk=PC.look(S,RK.looks(S));return lk&&lk.set?html`<${CharAvatar} lk=${lk} size=${32}/>`:html`<span className="w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold" style=${{background:'var(--card2)',color:'var(--ink)',boxShadow:'0 0 0 1px var(--line) inset'}}>${ini}</span>`})()}</button></div></div>
  <h1 className="disp text-[40px] leading-none">Heute</h1>
- ${!focusMode(S)&&(()=>{const r=RK.rank(S);return html`<button type="button" onClick=${()=>c.setTab('stats')} data-season-rank className="w-full mt-2 text-left bg-transparent border-0 p-0" style=${{minHeight:44,color:'var(--ink)'}} aria-label=${'Saison '+S.season+', Rang '+r.name+(r.next?', '+r.pts+' von '+r.next.min+' Saisonpunkten bis '+r.next.name:', höchster Saisonrang')}><span className="flex items-baseline justify-between gap-2 text-[12.5px]"><span className="truncate"><span className="mute">Saison ${S.season} · </span><b>${r.name}</b></span><span className="num mute shrink-0">${r.next?r.pts+' / '+r.next.min+' Pkt.':r.pts+' Pkt.'}</span></span><span className="block h-1.5 rounded-full mt-1.5 overflow-hidden" style=${{background:'var(--ghost)'}}><span className="block h-full rounded-full" style=${{width:Math.max(3,r.pct*100)+'%',background:r.next?'var(--acc)':'var(--gold)',transition:'width .6s'}}/></span></button>`})()}
+ ${!focusMode(S)&&(()=>{const r=RK.rank(S);return html`<button type="button" onClick=${()=>c.setTab('stats')} data-season-rank className="w-full mt-2 text-left bg-transparent border-0 p-0" style=${{minHeight:44,color:'var(--ink)'}} aria-label=${'Saison '+S.season+', Rang '+r.name+(r.next?', '+r.pts+' von '+r.next.min+' Saisonpunkten bis '+r.next.name:', höchster Saisonrang')}><span className="flex items-baseline justify-between gap-2 text-[12.5px]"><span className="truncate"><span className="mute">Spielsaison ${S.season} · </span><b>${r.name}</b></span><span className="num mute shrink-0">${r.next?r.pts+' / '+r.next.min+' Pkt.':r.pts+' Pkt.'}</span></span><span className="block h-1.5 rounded-full mt-1.5 overflow-hidden" style=${{background:'var(--ghost)'}}><span className="block h-full rounded-full" style=${{width:Math.max(3,r.pct*100)+'%',background:r.next?'var(--acc)':'var(--gold)',transition:'width .6s'}}/></span></button>`})()}
  <div className="meander mt-3" aria-hidden="true"/>
  </section>`}
 /* Bereichsfilter bleiben erreichbar, ohne die wichtigste Handlung nach unten zu schieben. */
@@ -2453,7 +2453,7 @@ function Suggest({c}){const {S}=c;if(S.ui==='adv')return null;const dis=S.sugg||
 const DETAIL_LOGS={train:['lift','squat','run','swim','pull'],learn:['study','read']};
 const wantsLog=(S,m)=>!!m.log&&(S.ui==='adv'||Object.entries(DETAIL_LOGS).some(([k,l])=>(S.detail||{})[k]&&l.includes(m.log)));
 function PersonalSeasonCard({S}){if(isDemoState(S)||focusMode(S))return null;const r=window.RK.rank(S),p=weekPointPlan(S),has=hasPersonalPlan(S),target=Math.round(seasonPointPlan(S)*(S.sGoal||.85));
- return html`<section className="card p-3.5 mt-3" aria-label="Dein persönlicher Saisonplan"><div className="flex justify-between gap-2 text-[13px]"><b>Saison ${S.season} · ${r.name}</b><span className="num">${S.seasonPts} Punkte</span></div>
+ return html`<section className="card p-3.5 mt-3" aria-label="Dein persönlicher Saisonplan"><div className="flex justify-between gap-2 text-[13px]"><b>Spielsaison ${S.season} · ${r.name}</b><span className="num">${S.seasonPts} Punkte</span></div>
  ${has?html`<div className="text-[12.5px] mute mt-2">Dein Saisonziel: ${target} Punkte aus deinem übernommenen Plan. Boni zählen zusätzlich.</div><div className="mt-2"><${Bar} pct=${Math.min(1,S.seasonPts/Math.max(1,target))} h=${5}/></div><div className="text-[11.5px] mute mt-2">Offene Wochen folgen deinem Plan. Abgeschlossene Wochen mit gespeichertem Plan bleiben erhalten.</div>`:html`<div className="text-[12.5px] mute mt-2">Dein Saisonplan ist noch offen. Wähle eine Handlung oder einen Standard, der zu dir passt.</div>`}
  ${p.offered>p.capacity&&html`<p className="text-[12px] mute mt-2">Dein Plan enthält mehr Handlungen als Punkteplätze. Höchstens drei Erledigungen pro Tag bringen Saisonpunkte; weitere zählen für deine Ziele und Erfahrung.</p>`}</section>`}
 function Stats({c}){
@@ -2918,7 +2918,7 @@ const AREA_TILE={health:'Gesund\u00ADheit',relationships:'Bezie\u00ADhungen',wea
 function AreaTiles({c,st,sel}){return html`<div className="area-tiles mt-3" role="group" aria-label="Lebensbereiche">${LC.AREAS.map(a=>{const col=st.cols.find(x=>x.area===a.id)||{stage:1,pts:0},on=sel===a.id,f=c.S.life.focus===a.id;return html`<button key=${a.id} aria-pressed=${on} aria-label=${AREA_TILE[a.id].replace(/\u00AD/g,'')+', Stufe '+col.stage+(f?', Priorität':'')} onClick=${()=>c.setTSel(a.id)} className="area-tile"><span className="flex items-center justify-between w-full"><${Icon} n=${a.icon} s=${22} sw=${2}/>${f&&html`<span aria-hidden="true" className="rounded-full" style=${{width:6,height:6,background:'var(--acc)'}}/>`}</span><b lang="de">${AREA_TILE[a.id]}</b><span className="w-full mt-auto"><${Bar} pct=${Math.min(1,col.pts/17)} h=${4}/><small>Stufe ${col.stage}</small></span></button>`})}</div>`}
 function TempleView({c}){const {S}=c;const st=LC.templeState(S);const T=S.life.temple;const sel=c.tSel||S.life.focus||(mainGoal(S)||{}).area||'health';
  return html`<div className="card p-4 mt-4" style=${{background:'var(--hero)'}}>
- <div className="flex items-start justify-between gap-2"><div><div className="lbl acc">Kapitel ${st.n} · Woche ${st.week} von ${st.len}</div><div className="disp-serif text-[20px] mt-1">${st.phaseInfo.de}</div></div>
+ <div className="flex items-start justify-between gap-2"><div><div className="lbl acc">Tempelsaison · Kapitel ${st.n} · Woche ${st.week} von ${st.len}</div><div className="disp-serif text-[20px] mt-1">${st.phaseInfo.de}</div></div>
   <button onClick=${()=>c.openSheet({t:'trules'})} className="chip shrink-0" aria-label="Bauregeln">Bauregeln</button></div>
  ${st.due&&html`<button onClick=${()=>c.openSheet({t:'tseason'})} className="btn w-full py-2.5 mt-3 text-[13px]">Saison abgeschlossen · Bilanz ansehen</button>`}
  <div className=${'mt-2 '+(T.anim?'':'no-anim')}><${TempleSVG} st=${st} sel=${sel} onSel=${a=>c.setTSel(a)} flash=${c.tFlash} anim=${T.anim}/></div>
@@ -3330,7 +3330,7 @@ function TempleHead({c,st,sel}){const {S}=c,T=S.life.temple,W=S.life.why||{},P=S
  const chip=(icon,label,value,empty,on)=>html`<button type="button" onClick=${on} className="flex-1 min-w-0 text-left border-0 px-3 py-2" style=${{minHeight:52,borderRadius:12,background:'var(--card2)',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}>
   <span className="flex items-center gap-1.5 lbl" style=${{color:'var(--bronze)'}}><${Icon} n=${icon} s=${12}/>${label}</span><span className=${'block text-[13px] truncate mt-0.5 '+(value?'font-semibold':'mute')}>${value||empty}</span></button>`;
  return html`<section className="card p-4 mt-4" style=${{background:'var(--hero)'}} aria-label="Dein Tempel">
- <div className="flex items-start justify-between gap-2"><div className="min-w-0"><div className="lbl acc">Kapitel ${st.n} · Woche ${st.week}/${st.len}</div><div className="disp-serif text-[20px] mt-1 truncate">${st.phaseInfo.de}</div></div>
+ <div className="flex items-start justify-between gap-2"><div className="min-w-0"><div className="lbl acc">Tempelsaison · Kapitel ${st.n} · Woche ${st.week}/${st.len}</div><div className="disp-serif text-[20px] mt-1 truncate">${st.phaseInfo.de}</div></div>
  <button type="button" onClick=${()=>c.openSheet({t:'trules'})} aria-label="Bauregeln" className="flex items-center justify-center border-0 bg-transparent -mt-1 -mr-2" style=${{width:44,height:44,color:'var(--mute)'}}><${Icon} n="info" s=${18}/></button></div>
  ${st.due&&html`<button onClick=${()=>c.openSheet({t:'tseason'})} className="btn w-full py-2.5 mt-3 text-[13px]">Saison abgeschlossen · Bilanz ansehen</button>`}
  <div className="flex gap-2 mt-3">${chip('temple','Dach · Warum',W.text?'„'+W.text+'“':'','Noch offen · antippen zum Festlegen',()=>c.openSheet({t:'why'}))}</div>
