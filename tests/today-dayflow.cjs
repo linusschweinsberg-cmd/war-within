@@ -4,6 +4,7 @@ const root=path.join(__dirname,'..'),source=fs.readFileSync(path.join(root,'inde
 const script=[...source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(x=>x[1]).find(s=>s.includes('function loadState'));
 const c=vm.createContext({window:{authApi:{}},React:{},htm:{bind:()=>()=>null},ReactDOM:{createRoot:()=>({render(){}})},document:{getElementById:()=>({})},localStorage:{getItem:()=>null},console});
 for(const f of ['life-core.js','wisdom-core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),c);
+vm.runInContext(fs.readFileSync(path.join(__dirname,'../rank-core.js'),'utf8'),c);
 vm.runInContext(script+';globalThis.api={buildState,newOb,derive,todayBattle,chooseBattle,completePriority,compoundNow,dayKey,loadState,closeCalendarDay,battleObstacle};',c);
 const a=c.api,LC=c.window.LC,test=(n,f)=>{f();console.log('PASS '+n)};
 const fresh=()=>LC.ensureLife(a.buildState(a.newOb('Flow'),{mode:'guest',name:'Flow'}));
