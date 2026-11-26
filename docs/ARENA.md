@@ -1,5 +1,7 @@
 # Arena mit Freunden
 
+> Produktionsstand 26.11.2026: Beide Migrationen wurden nach Gegenreview aus Commit `2b89776` im Supabase-Projekt eingespielt. Sieben Tabellen mit RLS, fünf RPCs, gesperrte direkte Schreibrechte und die Realtime-Publikation wurden nachgeprüft. Ein Leak geheimer zukünftiger Aufstellungen über die Punkteantwort wurde vor Anwendung korrigiert. SMTP und der echte Test mit drei Konten/Geräten stehen noch aus; siehe `FRIENDS-TEST.md`. Die nachfolgenden Hinweise „Entwurf/nicht angewendet“ beschreiben den historischen Entwicklungsstand.
+
 ## Umfang und Freischaltung
 
 Release `ww-v62`: private Ligen für 2–8 Personen, Standardgröße 3, vier Spielwochen, gemeinsames Wochen-Soll (seit ww-v65 für alle gleich), gemeinsame Wertung, Einladungslink/-code, Ereignisse und drei feste Reaktionen. Jeder spielt jede Woche mit. Die Arena ist direkt über die fünfte Navigationsschaltfläche erreichbar; der bisherige persönliche Planvergleich liegt darunter. Fokusmodus blendet beide aus. Kein Freilos, keine simulierte Annahme oder Aktivität in der gemeinsamen Arena.

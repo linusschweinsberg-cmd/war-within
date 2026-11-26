@@ -11,6 +11,13 @@ Ziel: drei echte Konten, bestätigte E-Mail-Anmeldung und eine gemeinsame privat
 - Eigener SMTP-Versand ist ausgeschaltet. Der Supabase-Standardversand erreicht nur Projekt-Teammitglieder und ist auf zwei E-Mails pro Stunde begrenzt (Stand der offiziellen Dokumentation am Prüftag). Freunde nicht als Projektadministratoren hinzufügen.
 - Quelle: https://supabase.com/docs/guides/auth/auth-smtp
 
+## Durchgeführt
+
+- Beide Arena-Migrationen am 26.11.2026 im echten Supabase-Projekt erfolgreich ausgeführt, aus geprüftem Commit `2b89776`. Vorher waren sowohl Arena-Tabellen als auch das Schema `private` nicht vorhanden; keine bestehenden privaten Objekte wurden überschrieben.
+- Gegenreview: ein P2-Befund behoben (geheime zukünftige Formationen über Punkteantwort); Korrektur mit drei Regressionstests unabhängig freigegeben.
+- Nachprüfung im Produktionsprojekt: sieben Arena-Tabellen, alle sieben mit RLS; fünf öffentliche Arena-RPCs; `anon` darf `arena_command` nicht ausführen, `authenticated` darf; keine INSERT/UPDATE/DELETE/TRUNCATE-Rechte für `anon`/`authenticated`; beide vorgesehenen Tabellen in `supabase_realtime`; korrigierter Zukunftsfilter in der installierten Snapshot-Funktion vorhanden. Noch keine Arena-Datensätze angelegt.
+- Alle acht Arena-Suiten einschließlich echter SQL-Ausführung in der Wegwerf-Datenbank sowie Auth-Vertrag und Auth-Wiederherstellung bestanden. Das ersetzt keinen echten E-Mail-/Mehrgeräte-Test.
+
 ## Reihenfolge und Abnahmekriterien
 
 1. Eigenen SMTP-Anbieter und bestätigte Absenderadresse einrichten. Geheimnisse ausschließlich in den Anbieter-/Supabase-Einstellungen eingeben, nie im Repository. E-Mail-Bestätigung bleibt eingeschaltet.
@@ -32,7 +39,6 @@ Bitte melden: Gerät/Browser, letzter Schritt, erwartetes und tatsächliches Ver
 ## Offen
 
 - SMTP-Anbieter/Absender und Zustellung an echte externe Adressen.
-- Produktionsmigration und Nachprüfung.
 - Vollständiger Auth-Durchlauf mit Teilnehmern.
 - Drei echte Konten / Geräte und anschließend laufende Saison.
 
