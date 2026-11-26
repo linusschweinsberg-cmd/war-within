@@ -402,8 +402,8 @@ function showInvite(L,key){L.fund={v:1,...(L.fund||{})};L.fund.inv={...(L.fund.i
 function answerInvite(L,key,ans){L.fund={v:1,...(L.fund||{})};const inv={...(L.fund.inv||{})},d=L.d||0,n=(((inv.seen||{})[key]||{}).n||0)+(ans==='yes'?0:1);
  inv.seen={...(inv.seen||{}),[key]:{n,d}};inv.ans={[d]:ans};inv.cur={key,d};if(ans==='never'||(ans==='later'&&n>=2))inv.never={...(inv.never||{}),[key]:true};L.fund.inv=inv}
 /* Alle persönlichen Fundament-Angaben löschen; Ziele und Handlungen bleiben */
-function clearFoundation(S){const L=S.life;if(!L)return;['audit','auditCur','future','futureCur','standards','stdLog'].forEach(k=>delete L[k]);if(L.why)L.why={text:'',q:{}};
- if(L.onboard){delete L.onboard.own;delete L.onboard.commit}(S.principles||[]).forEach(p=>{delete p.std})}
+function clearFoundation(S){const L=S.life;if(!L)return;['audit','auditCur','future','futureCur','standards','stdLog','persona','skills','character'].forEach(k=>delete L[k]);if(L.why)L.why={text:'',q:{}};
+ if(L.onboard){delete L.onboard.own;delete L.onboard.commit}S.principles=[];L.values=[]}
 
 /* ───── Ziele und Handlungen anlegen / ändern ───── */
 function addAction(S,goal,x){const L=S.life,area=goal.area,act=areaAct(S,area);const a={id:'a'+uid(),goalId:goal.id,title:x.title,perWeek:clamp(+x.perWeek||1,1,7),minutes:x.minutes||null,when:x.when||'',since:curWk(L)};

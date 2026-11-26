@@ -163,7 +163,7 @@ t6('Einladungen: selten, ablehnbar, nie aufdringlich',()=>{const S=LC.ensureLife
  delete S.life.audit;LC.setFundSkip(S.life,'audit',true);const all=[];for(let k=0;k<40;k++){const x=LC.nextInvite(S);if(x){all.push(x.key);LC.showInvite(S.life,x.key);LC.answerInvite(S.life,x.key,'never')}LC.onAdvance(S)}
  assert.ok(!all.includes('audit'),'übersprungene Abschnitte werden nicht beworben');assert.equal(new Set(all).size,all.length,'keine Wiederholung nach Nie mehr')});
 t6('Fundament: alles löschen behält Ziele',()=>{const S=LC.ensureLife(base());LC.addGoal(S,{...tpl('skill')});S.life.audit=LC.setAudit(null,'body',{sat:5});LC.setStandard(S.life,'growth',{std:{text:'x',perWeek:1}});S.principles=[{n:'Mut',std:'Ich tue es.'}];
- LC.clearFoundation(S);assert.equal(S.life.audit,undefined);assert.equal(S.life.standards,undefined);assert.equal(S.principles[0].std,undefined);assert.equal(S.life.goals.length,1)});
+ LC.clearFoundation(S);assert.equal(S.life.audit,undefined);assert.equal(S.life.standards,undefined);assert.equal(S.principles.length,0);assert.equal(S.life.values.length,0);assert.equal(S.life.goals.length,1)});
 t6('Ältere Konten: Einladungen erst ab dem Tag nach dem ersten Öffnen',()=>{const S=base();S.day=30;LC.ensureLife(S);assert.equal(S.life.fund.ob.mode,'legacy');assert.equal(LC.nextInvite(S),null,'nicht beim ersten Öffnen');LC.onAdvance(S);assert.ok(LC.nextInvite(S),'ab dem nächsten Tag')});
 console.log('PASS standards+fundament: '+ok6.join(' · '))}
 /* Kreislauf mit Standards: Abendritual, Monats-Check, Neueinschätzung */

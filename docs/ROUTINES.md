@@ -33,4 +33,10 @@ Bereits vor ww-v92 angelegte Charakter-Handlungen tragen keinen zuverlässigen E
 
 Browser-Testserver: `node tests/routine-preview-server.cjs`, dann `http://localhost:5192/?fixture=fresh` beziehungsweise `?fixture=goal`. Er verwendet getrennte lokale Testschlüssel, keine echten Konten und keinen Service Worker. `PORT` ist optional. Server-Helfer separat starten/beenden, nicht als endende Testsuite behandeln; `arena-seed.cjs` ist ein beendbares Bibliotheksmodul.
 
+## Bedienkorrekturen (ww-v101)
+
+- Hauptschlacht und der aufklappbare Bereich „Standards und Impulse“ bestätigen Standards über denselben Ablauf. Volle Ausführung und Minimum bleiben rückgängig machbar; Wiederholen nach Rückgängig ist möglich. Pausierte Standards werden auch aus einer bereits gewählten Hauptschlacht entfernt. Alte, bereits gerenderte Bestätigungen dürfen die Pause nicht umgehen.
+- „Fundament und Charakterangaben löschen“ benennt den Umfang vor der zweifachen Bestätigung. Es entfernt Audit, Zukunftsvision, Warum, Werte, Standards, Leitbilder, Aussehen, Eigenschaften und Fähigkeiten. Konto, Ziele, Messwerte und Handlungsverlauf bleiben erhalten. Dies ist keine Kontolöschung.
+- `tests/routine-safety.cjs` führt den tatsächlichen Callback aus „Standards und Impulse“ aus und prüft Snapshot-Rückgängig, Mehrfachtippen, Pause mit alter Tagesauswahl, Ruhetag, Wochenlimit und den Löschumfang. Die Testvorschau bietet `?fixture=standard` mit eigenem lokalen Schlüssel für volle/kleine Ausführung, Pause und Testfähigkeiten.
+
 Geprüft: 28 Testsuiten plus beendbares Seed-Modul; Arena-Preview separat gestartet, Testdaten und Bereitschaft bestätigt. Browser 375×812 und 390×844: frischer Versuch, Rückmeldung, Standardübernahme mit Auslöser/Minimum, volle Ausführung, kleine Charaktervariante auf Heute und in Aufgabendetails, Anpassen/Pause, Rückgängig und Reload. Keine Konsolenfehler im geprüften Ablauf. E-Mail-Konten und produktive Arena wurden nicht verwendet. Unabhängiges Codex-Gegenreview vor Merge erforderlich; kein Merge/Deployment.

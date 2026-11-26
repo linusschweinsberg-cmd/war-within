@@ -18,18 +18,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v100"></script>
-<script src="auth.js?v=ww-v100"></script>
-<script src="life-core.js?v=ww-v100"></script>
-<script src="wisdom-core.js?v=ww-v100"></script>
-<script src="future-self-core.js?v=ww-v100"></script>
-<script src="projection-core.js?v=ww-v100"></script>
-<script src="rank-core.js?v=ww-v100"></script>
-<script src="persona-core.js?v=ww-v100"></script>
-<script src="character-core.js?v=ww-v100"></script>
-<script src="arena-core.js?v=ww-v100"></script>
-<script src="arena-api.js?v=ww-v100"></script>
-<script src="arena-ui.js?v=ww-v100"></script>
+<script src="supabase-config.js?v=ww-v101"></script>
+<script src="auth.js?v=ww-v101"></script>
+<script src="life-core.js?v=ww-v101"></script>
+<script src="wisdom-core.js?v=ww-v101"></script>
+<script src="future-self-core.js?v=ww-v101"></script>
+<script src="projection-core.js?v=ww-v101"></script>
+<script src="rank-core.js?v=ww-v101"></script>
+<script src="persona-core.js?v=ww-v101"></script>
+<script src="character-core.js?v=ww-v101"></script>
+<script src="arena-core.js?v=ww-v101"></script>
+<script src="arena-api.js?v=ww-v101"></script>
+<script src="arena-ui.js?v=ww-v101"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -1516,7 +1516,7 @@ function todayPriorities(S,D,max=3){
 const doneTodayM=(S,m)=>((S.ctime||{})[m.id]||[]).some(x=>x.day===dayKey(S))||((m.freq==='daily'||m.freq==='multi')&&!!(S.done||{})[m.id]);
 function battleItem(S,key){if(!key)return null;const L=S.life||{},d=L.d||0;
  if(key.startsWith('m:')){const m=S.missions.find(x=>x.id===key.slice(2));if(!m||(L.actions||[]).some(a=>a.missionId===m.id&&a.paused))return null;const x=goalMs(S).find(y=>y.m.id===m.id);return{key,kind:'mission',m,g:x&&x.g,minutes:x&&x.a.minutes||null,title:m.title,done:doneTodayM(S,m)}}
- if(key.startsWith('std:')){const area=key.slice(4),s=(L.standards||{})[area];if(!s||!s.std||s.aid)return null;const e=(L.stdLog||[]).filter(x=>x.area===area&&x.d===d);return{key,kind:'standard',std:s,area,title:s.std.text,minutes:s.std.minutes||null,done:e.length>0,min:e.length>0&&!e.some(x=>x.kind==='std')}}
+ if(key.startsWith('std:')){const area=key.slice(4),s=(L.standards||{})[area];if(!s||!s.std||s.aid||s.status==='paused')return null;const e=(L.stdLog||[]).filter(x=>x.area===area&&x.d===d);return{key,kind:'standard',std:s,area,title:s.std.text,minutes:s.std.minutes||null,done:e.length>0,min:e.length>0&&!e.some(x=>x.kind==='std')}}
  if(key==='commit'){const cm=L.onboard&&L.onboard.commit;if(!cm||cm.mid||!(cm.text||'').trim()||(cm.done&&cm.doneD!==d))return null;return{key,kind:'commit',title:cm.text,area:cm.area,done:!!cm.done}}
  return null}
 function battleEarlier(S){const L=S.life||{},d=L.d||0,ev=LC.eveningFor(L,d),ob=L.onboard&&L.onboard.for===d&&L.onboard.mid?L.onboard:null,out=[];
@@ -1607,11 +1607,14 @@ function nextTimeBlock(S,now){
 /* Mehrfachtippen: Missionen sperrt complete(); Standards und erster Schritt zählen höchstens einmal pro Tag. */
 const prioLock={};
 const priorityDoneToday=(S,item)=>{const L=S.life||{};return item.kind==='commit'?!!(L.onboard&&L.onboard.commit&&L.onboard.commit.done):(L.stdLog||[]).some(x=>x.area===item.area&&x.d===(L.d||0))};
+function priorityAvailable(S,item,kind){if(priorityDoneToday(S,item))return false;if(item.kind!=='standard')return true;
+ const L=S.life||{},s=(L.standards||{})[item.area];if(!s||!s.std||s.status==='paused'||s.aid&&kind!=='min'||kind==='min'&&!s.min)return false;
+ const w=LC.standardWeek(L,item.area,LC.curWk(L));return kind==='min'||!w||w.done<w.per}
 function completePriority(c,item,e,kind='std'){
  if(c.D&&c.D.restToday)return;
  if(item.kind==='mission'){c.start(item.m.id,e,{noHint:true});return}
- const t=Date.now();if(t-(prioLock[item.key]||0)<700||priorityDoneToday(c.S,item))return;prioLock[item.key]=t;
- const before=c.S;c.upd(n=>{if(priorityDoneToday(n,item))return;if(item.kind==='commit')n.life.onboard.commit={...n.life.onboard.commit,done:true,doneD:n.life.d||0};else LC.logStandard(n.life,item.area,kind)});
+ const t=Date.now();if(t-(prioLock[item.key]||0)<700||!priorityAvailable(c.S,item,kind))return;prioLock[item.key]=t;
+ const before=c.S;c.upd(n=>{if(!priorityAvailable(n,item,kind))return;if(item.kind==='commit')n.life.onboard.commit={...n.life.onboard.commit,done:true,doneD:n.life.d||0};else LC.logStandard(n.life,item.area,kind)});
  c.toast(item.kind==='commit'?'Erster Schritt erledigt.':kind==='min'?'Minimum notiert.':'Standard notiert.','good',{undo:()=>{delete prioLock[item.key];c.restore(before)}});
 }
 /* Heute: Kopf mit Fortschrittsring · eine farbige Jetzt-Karte · Folgeschritte als Kacheln · Im Blick als zwei Kacheln. Wenig Text, klare Flächen. */
@@ -3988,7 +3991,7 @@ function StandardsSheet({c,area}){const {S}=c;const L=S.life;const rel=appReleva
   ${Object.keys(L.standards||{}).length>0&&html`<div className="mt-4 flex flex-col gap-1">${Object.keys(L.standards).map(a=>html`<button key=${a} type="button" onClick=${()=>{if(del===a){c.upd(n=>LC.removeStandard(n.life,a));setDel(null);c.toast('Standard gelöscht.')}else setDel(a)}} className="bg-transparent border-0 py-1.5 text-[12px] bad text-left">${del===a?`Standard ${LC.AREA[a].de} wirklich löschen? Tippe erneut`:`Standard ${LC.AREA[a].de} löschen`}</button>`)}</div>`}<//>`}
 /* Heute: aktive Standards mit Erledigt und Minimum (nur ohne verknüpfte Handlung braucht es „Erledigt“) */
 function StandardsToday({c}){const {S}=c;const L=S.life;const list=Object.values(L.standards||{}).filter(s=>s.std&&s.status!=='paused');if(!list.length)return null;
- const log=(a,k)=>{if(c.D.restToday||(L.stdLog||[]).some(e=>e.area===a&&e.d===L.d))return;const before=S;c.upd(n=>{LC.ensureLife(n);if(!(n.life.stdLog||[]).some(e=>e.area===a&&e.d===n.life.d))LC.logStandard(n.life,a,k)});c.toast(k==='min'?'Minimum notiert. Drangeblieben zählt.':'Standard notiert.','good',{undo:()=>{delete prioLock[item.key];c.restore(before)}})};
+ const log=(a,k)=>completePriority(c,{kind:'standard',area:a,key:'std:'+a},null,k);
  return html`<div className="card p-3.5 mt-3"><div className="flex items-center justify-between"><div className="lbl">Deine Standards</div><button type="button" onClick=${()=>c.openSheet({t:'standards'})} className="bg-transparent border-0 p-0 text-[12px] acc font-semibold">Ändern</button></div>
   <div className="flex flex-col gap-2.5 mt-2">${list.map(s=>{const w=LC.standardWeek(L,s.area,LC.curWk(L)),f=LC.standardFeedback(L,s.area);return html`<div key=${s.area}>
    <div className="flex items-center gap-2"><span className="text-[11px] lbl shrink-0" style=${{color:aCol(s.area)}}>${LC.AREA[s.area].de}</span><span className="text-[13.5px] font-medium flex-1 min-w-0 truncate">${s.std.text}</span><span className="num text-[12.5px] shrink-0">${w?w.done:0}/${w?w.per:s.std.perWeek}</span></div>
@@ -4012,7 +4015,8 @@ function FundamentSheet({c}){const {S}=c;const L=S.life,secs=LC.fundSections(S),
    <div className="flex flex-wrap gap-1.5 mt-2.5"><button type="button" onClick=${()=>openFund(c,x.id)} className="chip on">${x.state==='done'?'Ansehen und ändern':x.state==='partial'?'Fortsetzen':'Beginnen'}</button>
     ${x.state==='open'&&html`<button type="button" onClick=${()=>skip(x.id,true)} className="chip">Überspringen</button>`}${x.state==='skipped'&&html`<button type="button" onClick=${()=>skip(x.id,false)} className="chip">Doch wieder anbieten</button>`}</div></div>`})}</div></div>`)}
   <div className="flex items-center gap-1.5 text-[11.5px] mute mt-4"><${Icon} n="lock" s=${11}/>Deine Texte bleiben auf diesem Gerät.</div>
-  <button type="button" onClick=${()=>{if(del){c.upd(n=>{LC.clearFoundation(n)});setDel(false);c.toast('Persönliche Angaben gelöscht. Ziele und erledigte Handlungen bleiben.')}else setDel(true)}} className="bg-transparent border-0 w-full py-3 mt-1 text-[12.5px] bad">${del?'Wirklich alle persönlichen Angaben löschen? Tippe erneut':'Alle persönlichen Angaben löschen'}</button><//>`}
+  <div className="text-[11.5px] mute mt-3">Löschen entfernt deine Angaben im Fundament, Leitbilder, Eigenschaften, Aussehen und Fähigkeiten. Konto, Ziele, Messwerte und bisherige Handlungen bleiben erhalten.</div>
+  <button type="button" onClick=${()=>{if(del){c.upd(n=>{LC.clearFoundation(n)});setDel(false);c.toast('Fundament und Charakterangaben gelöscht. Konto, Ziele und Verlauf bleiben.')}else setDel(true)}} className="bg-transparent border-0 w-full py-3 mt-1 text-[12.5px] bad">${del?'Fundament und Charakterangaben wirklich löschen? Tippe erneut':'Fundament und Charakterangaben löschen'}</button><//>`}
 function FundamentCard({c}){const {S}=c;const secs=LC.fundSections(S),n=secs.filter(x=>x.state==='done').length;
  return html`<button onClick=${()=>c.openSheet({t:'fundament'})} className="card w-full p-4 mt-3 text-left"><div className="flex items-center gap-2"><span className="lbl acc">Dein persönliches Fundament</span><span className="text-[11.5px] mute ml-auto num">${n} von ${secs.length}</span></div>
   <div className="flex gap-1 mt-2.5" aria-hidden="true">${secs.map(x=>html`<span key=${x.id} className="flex-1 h-1.5 rounded-full" style=${x.state==='done'?{background:'var(--good)'}:x.state==='partial'?{background:'var(--acc2)'}:{border:'1px dashed var(--line)'}}/>`)}</div>
