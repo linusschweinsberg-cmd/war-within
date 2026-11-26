@@ -120,7 +120,10 @@ let seed=7;const rnd=n=>{seed=(seed*1103515245+12345)%2147483648;return seed%n};
  /* ── Sichtbarkeit: fremde Aufstellung erst ab Wochenbeginn ── */
  await su();await db.query("insert into public.arena_formations(league_id,user_id,week,kind,slot,plan) values($1,$2,2,'spear','body',$3::jsonb)",[id,ids[1],JSON.stringify(full)]);
  await as(0);s=await load(id);assert.equal(s.formations.some(f=>f.user_id===ids[1]&&f.week===2),false,'Woche 2 von Jonas geheim');assert.equal((await db.query('select * from public.arena_formations where week=2')).rows.length,0,'auch direkt per RLS');
+ assert.equal(s.scores.some(x=>x.user_id===ids[1]&&x.week===2),false,'keine geheime Formation oder Plantage über zukünftige Punkte verraten');
+ assert.ok(s.scores.some(x=>x.user_id===ids[1]&&x.week===1),'begonnene gegnerische Woche bleibt sichtbar');
  await as(1);s=await load(id);assert.ok(s.formations.some(f=>f.user_id===ids[1]&&f.week===2),'eigene Aufstellung sichtbar');
+ assert.equal(s.scores.find(x=>x.user_id===ids[1]&&x.week===2).kind,'spear','eigene zukünftige Punkte samt Formation bleiben sichtbar');
  await assert.rejects(db.query("insert into public.arena_formation_log(league_id,user_id,week,action,kind,slot,effective_day) values($1,$2,1,'switch','shield','mind',current_date)",[id,ids[1]]),/permission denied/);
  await assert.rejects(db.query("update public.arena_formations set switch_day=null where league_id=$1",[id]),/permission denied/);
  await as(3);await assert.rejects(load(id),/nicht verfügbar/);
