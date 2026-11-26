@@ -122,7 +122,7 @@ declare s jsonb; scores jsonb; me uuid:=auth.uid();
 begin
  s:=private.arena_snapshot_v1(p_league);
  if (select rule_version from public.arena_leagues where id=p_league)<>3 then return s; end if;
- select coalesce(jsonb_agg(private.arena_v3_score(p_league,m.user_id,w)||jsonb_build_object('user_id',m.user_id,'week',w)),'[]') into scores from public.arena_members m cross join generate_series(1,4) w where m.league_id=p_league;
+ select coalesce(jsonb_agg(private.arena_v3_score(p_league,m.user_id,w)||jsonb_build_object('user_id',m.user_id,'week',w)),'[]') into scores from public.arena_members m cross join generate_series(1,4) w where m.league_id=p_league and (m.user_id=me or private.arena_week_open(p_league,w));
  return jsonb_set(s,'{league,rule_version}','3')||jsonb_build_object('scores',scores,
   'doctrines',coalesce((select jsonb_object_agg(user_id,doctrine) from public.arena_members where league_id=p_league and doctrine is not null),'{}'),
   'formations',coalesce((select jsonb_agg(to_jsonb(f)-'league_id') from public.arena_formations f where league_id=p_league and (f.user_id=me or private.arena_week_open(p_league,f.week))),'[]'),
