@@ -1,5 +1,16 @@
 # Dein Zukunfts-Ich
 
+## Ich zögere gerade (ww-v119)
+
+Der Hauptzweck des Zukunfts-Ichs: Hilfe in dem Moment, in dem man aufschieben will. Das Panel öffnet direkt damit, die bisherigen drei Fragen stehen unter „Weitere Fragen“.
+
+1. **Dein Grund:** bis zu zwei eigene Sätze aus dem Zukunftsbild („Wer du werden willst“, „In einem Jahr“) und dem Warum. Fehlt beides, gibt es einen Link zum Festlegen.
+2. **Kleinster Schritt jetzt:** die offene Hauptschlacht, sonst die erste offene Priorität. Mit Minimum (auch beim mit einer Zielhandlung verknüpften Standard) oder kleiner Variante als Hauptknopf, „Ganz erledigen“ daneben. Es gibt keine neue Erledigungslogik, alles läuft über completePriority bzw. SmallVariant mit Rückgängig.
+3. **Was es verändert:** Wochenstand vorher und mit heute, aus goalWeek bzw. standardWeek.
+
+Ein Ruhetag hat Vorrang. Es wird nichts gespeichert und kein Verlauf angelegt. Die Absicherungstexte stehen in einer kurzen Zeile am Ende statt am Anfang. Test: tests/future-self-hesitate.cjs.
+
+
 ## Vorhandene Architektur und Migrationsvorschlag
 
 React/htm in index.html trägt die Oberflächen; life-core.js liefert Werte/Warum, vier Lebensbereiche, Ziele, goalWeek, standardWeek, tägliche Logs, Debrief, Abendplanung und Success Loop. todayPriorities priorisiert bereits offene Handlungen einschließlich Standards und Commitment. Die Zukunftsvision liegt privat in life.future (FutureStory/FutureSheet), nicht in einem getrennten Profil. Wisdom bleibt ein unabhängiges Impulsarchiv ohne Fortschrittseffekte.

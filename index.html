@@ -18,18 +18,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v117"></script>
-<script src="auth.js?v=ww-v117"></script>
-<script src="life-core.js?v=ww-v117"></script>
-<script src="wisdom-core.js?v=ww-v117"></script>
-<script src="future-self-core.js?v=ww-v117"></script>
-<script src="projection-core.js?v=ww-v117"></script>
-<script src="rank-core.js?v=ww-v117"></script>
-<script src="persona-core.js?v=ww-v117"></script>
-<script src="character-core.js?v=ww-v117"></script>
-<script src="arena-core.js?v=ww-v117"></script>
-<script src="arena-api.js?v=ww-v117"></script>
-<script src="arena-ui.js?v=ww-v117"></script>
+<script src="supabase-config.js?v=ww-v119"></script>
+<script src="auth.js?v=ww-v119"></script>
+<script src="life-core.js?v=ww-v119"></script>
+<script src="wisdom-core.js?v=ww-v119"></script>
+<script src="future-self-core.js?v=ww-v119"></script>
+<script src="projection-core.js?v=ww-v119"></script>
+<script src="rank-core.js?v=ww-v119"></script>
+<script src="persona-core.js?v=ww-v119"></script>
+<script src="character-core.js?v=ww-v119"></script>
+<script src="arena-core.js?v=ww-v119"></script>
+<script src="arena-api.js?v=ww-v119"></script>
+<script src="arena-ui.js?v=ww-v119"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -3080,14 +3080,37 @@ function FutureSelfDock({c}){const p=FS.settings(c.S),key=dayKey(c.S),h=!c.sheet
  <div className=${'flex items-center gap-2'+(p.minimized?' justify-end':'')}>
  <button type="button" aria-label="Dein Zukunfts-Ich öffnen" title="Dein Zukunfts-Ich" onClick=${()=>c.openSheet({t:'futureSelf'})} className=${'flex items-center text-left bg-transparent border-0 p-0'+(p.minimized?'':' flex-1 min-w-0')} style=${{minWidth:44,minHeight:44,color:'var(--ink)'}}><span className="shrink-0 rounded-full" style=${{background:'var(--ghost)'}}><${FutureSelfMark} animated=${!p.minimized&&!c.sheet}/></span>${!p.minimized&&html`<span className="min-w-0 ml-2"><span className="block text-[14px] font-semibold">Dein Zukunfts-Ich</span><span className="block text-[12px] mute">Wer du wirst, wenn du so weitermachst</span></span>`}</button>
  ${!float&&html`<button type="button" aria-label=${p.minimized?'Zukunfts-Ich-Präsenz vergrößern':'Zukunfts-Ich-Präsenz minimieren'} className="icon-btn shrink-0" onClick=${()=>c.upd(n=>FS.configure(n,{minimized:!p.minimized}))}><${Icon} n=${p.minimized?'plus':'minus'} s=${16}/></button>`}</div></aside>`}
-function FutureSelfPanel({c}){const prefs=FS.settings(c.S),[mode,setMode]=useState(prefs.lastMode),ctx=futureSelfContext(c),answer=mode&&prefs.enabled?FS.respond(c.S,mode,ctx):null;
+/* „Ich zögere gerade“: eigener Grund, kleinster Schritt jetzt, Wirkung auf die Woche. Nur vorhandene Daten, nichts wird erfunden oder gespeichert. */
+function hesitateModel(S,D){const L=S.life||{},items=todayPriorities(S,D),b=todayBattle(S,D,items);let it=b&&!b.done?b:null;
+ if(!it){for(const x of items){const y=battleItem(S,x.key);if(y&&!y.done){it=y;break}}}
+ const f=L.future||{},reason=[(f.identity||'').trim()&&{k:'Wer du werden willst',v:f.identity.trim()},((L.why||{}).text||'').trim()&&{k:'Dein Warum',v:L.why.text.trim()},(f.vision||'').trim()&&{k:'In einem Jahr',v:f.vision.trim()}].filter(Boolean);
+ let week=null,min=null,minItem=null;if(it){const wk=LC.curWk(L);if(it.kind==='mission'){const a=(L.actions||[]).find(a=>a.missionId===it.m.id&&!a.off);if(a){const done=LC.doneIn(L,a.id,wk),planned=LC.plannedAt(a,wk);if(planned)week={done,planned};const ls=Object.entries(L.standards||{}).find(([k,x])=>x&&x.aid===a.id&&x.min&&x.status!=='paused');if(ls&&!LC.standardDoneToday(L,ls[0])){min=ls[1].min.text;minItem={kind:'standard',area:ls[0],key:'std:'+ls[0]}}}}
+  else if(it.kind==='standard'){const w=LC.standardWeek(L,it.area,wk);if(w)week={done:w.done,planned:w.per};min=it.std.min&&it.std.min.text;if(min)minItem=it}}
+ const minDone=Object.keys(L.standards||{}).some(k=>LC.standardDayKind(L,k)==='min'&&(it&&(it.area===k||(it.kind==='mission'&&(L.standards[k]||{}).aid&&(L.actions||[]).some(a=>a.id===L.standards[k].aid&&a.missionId===it.m.id)))));
+ return{it,reason,week,min,minItem,minDone,rest:!!D.restToday}}
+function HesitateView({c}){const {S,D}=c,h=hesitateModel(S,D);
+ if(h.rest)return html`<section className="card2 p-3.5 mt-4" data-hesitate><h3 className="text-[16px] font-semibold">Heute ist Ruhetag</h3><p className="text-[14px] mt-1.5">Du hast dich bewusst für Erholung entschieden. Das zählt genauso.</p></section>`;
+ return html`<section className="card2 p-3.5 mt-4" data-hesitate aria-live="polite">
+  <div className="lbl">Dein Grund</div>
+  ${h.reason.length?h.reason.slice(0,2).map(r=>html`<p key=${r.k} className="text-[14px] mt-1.5 leading-snug"><span className="mute">${r.k}: </span>„${r.v}“</p>`):html`<p className="text-[14px] mute mt-1.5">Noch nicht festgelegt. <button type="button" className="bg-transparent border-0 p-0 acc font-semibold" onClick=${()=>c.openSheet({t:'future'})}>Jetzt in einem Satz beschreiben</button></p>`}
+  <div className="lbl mt-4">Kleinster Schritt jetzt</div>
+  ${h.it?html`<p className="text-[16px] font-semibold mt-1.5">${cleanTitle(h.it.title)}</p>
+   ${h.minItem&&html`<button type="button" className="btn w-full py-3 mt-3 text-[14px]" onClick=${()=>completePriority(c,h.minItem,null,'min')}>Nur das Minimum: ${h.min}</button>`}
+   ${h.it.kind==='mission'&&!h.minItem&&html`<${SmallVariant} c=${c} item=${h.it}/>`}
+   <button type="button" className=${h.minItem?'ghost w-full py-3 mt-2 text-[14px]':'btn w-full py-3 mt-3 text-[14px]'} onClick=${()=>completePriority(c,h.it)}>Ganz erledigen</button>
+   ${h.minDone&&html`<p className="text-[14px] mt-2" style=${{color:'var(--good)'}}>Minimum für heute gehalten. Die Kette reißt nicht.</p>`}<p className="text-[12px] mute mt-2 leading-snug">Anfangen ist der schwerste Teil. Zwei Minuten reichen, um es zu einem Tag zu machen, an dem du drangeblieben bist.</p>`
+   :html`<p className="text-[14px] mute mt-1.5">Für heute ist nichts mehr offen.</p>`}
+  ${h.week&&html`<div className="lbl mt-4">Was es verändert</div><p className="text-[14px] mt-1.5">Diese Woche ${h.week.done} von ${h.week.planned}. Mit heute: <b>${Math.min(h.week.planned,h.week.done+1)} von ${h.week.planned}</b>.</p>`}
+ </section>`}
+function FutureSelfPanel({c}){const prefs=FS.settings(c.S),[mode,setMode]=useState('hesitate'),ctx=futureSelfContext(c),answer=mode&&mode!=='hesitate'&&prefs.enabled?FS.respond(c.S,mode,ctx):null;
  const ask=m=>{const r=FS.respond(c.S,m,ctx);setMode(m);c.upd(n=>FS.record(n,m,r.rule,dayKey(n)))};
  const act=()=>{const a=answer&&answer.action;if(!a)return;if(a.kind==='item')completePriority(c,a.item);else c.openSheet({t:{goal:'goal',review:'review',plan:'dayplan'}[a.kind]||'goal'})};
  const V=({title,rows,empty})=>html`<div className="mt-4"><div className="lbl">${title}</div>${rows.length?html`<ul className="list-disc pl-5 mt-1.5 space-y-1 text-[14px] leading-snug">${rows.map((x,i)=>html`<li key=${i}>${x}</li>`)}</ul>`:html`<div className="text-[12px] mute mt-1">${empty}</div>`}</div>`;
  return html`<${Sheet} sub="Mögliche Zukunft · lokale Simulation" title="Dein Zukunfts-Ich" onClose=${c.closeSheet}>
  <div className="flex gap-3 items-center"><span className="shrink-0"><${FutureSelfMark} size=${120} animated=${prefs.enabled}/></span><p className="text-[14px] leading-snug">${FS.TEXT.identity}</p></div>
- <p className="text-[12px] mute mt-2 leading-snug">Eine mögliche Version von dir, keine reale Person und kein Erfolgsversprechen. Rückmeldung nur aus deinen Einträgen. Persönliche Texte bleiben auf diesem Gerät.</p>
- ${prefs.enabled?html`<div className="flex flex-col gap-2 mt-4" role="group" aria-label="Fragen an dein Zukunfts-Ich">${[['confront','Konfrontiere mich'],['next','Was würde mein Zukunfts-Ich tun?'],['verdict','Mein Tagesurteil']].map(([id,label])=>html`<button type="button" key=${id} aria-pressed=${mode===id} className=${mode===id?'btn px-3 py-3 text-[14px] text-left':'ghost px-3 py-3 text-[14px] text-left'} style=${{minHeight:44}} onClick=${()=>ask(id)}>${label}</button>`)}</div>
+ 
+ ${prefs.enabled&&html`<button type="button" aria-pressed=${mode==='hesitate'} className=${mode==='hesitate'?'btn w-full px-3 py-3 mt-4 text-[14px]':'ghost w-full px-3 py-3 mt-4 text-[14px]'} onClick=${()=>setMode('hesitate')} data-hesitate-btn>Ich zögere gerade</button>${mode==='hesitate'&&html`<${HesitateView} c=${c}/>`}`}
+ ${prefs.enabled?html`<details className="mt-3" open=${mode!=='hesitate'}><summary className="text-[14px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center'}}>Weitere Fragen</summary><div className="flex flex-col gap-2 mt-1" role="group" aria-label="Fragen an dein Zukunfts-Ich">${[['confront','Konfrontiere mich'],['next','Was würde mein Zukunfts-Ich tun?'],['verdict','Mein Tagesurteil']].map(([id,label])=>html`<button type="button" key=${id} aria-pressed=${mode===id} className=${mode===id?'btn px-3 py-3 text-[14px] text-left':'ghost px-3 py-3 text-[14px] text-left'} style=${{minHeight:44}} onClick=${()=>ask(id)}>${label}</button>`)}</div></details>
  ${answer?html`<section aria-label="Rückmeldung deines Zukunfts-Ichs" aria-live="polite" className="card2 p-3.5 mt-4 break-words"><div className="lbl acc">${answer.loop} · dein Success Loop</div><h3 className="text-[16px] font-semibold mt-2">${answer.title}</h3><p className="text-[14px] leading-relaxed mt-2">${answer.message}</p>${answer.next&&html`<p className="text-[14px] mute mt-2">${answer.next}</p>`}
  ${answer.demo&&html`<p className="text-[12px] mute mt-2">Dieser Gaststand enthält Beispieldaten. Sie sind keine Auswertung deiner Person.</p>`}
  ${(answer.identity||answer.vision)&&html`<p className="text-[12px] mt-3">Dein beschriebenes Zukunftsbild: „${answer.identity||answer.vision}“</p>`}
@@ -3098,8 +3121,8 @@ function FutureSelfPanel({c}){const prefs=FS.settings(c.S),[mode,setMode]=useSta
  <${V} title="Was ich nicht weiß" rows=${answer.missing} empty="Auch vollständige App-Einträge erklären nicht alle Umstände deines Tages."/>
  ${answer.action&&html`<button type="button" className="btn px-4 py-3 w-full mt-4 text-[14px]" onClick=${act}>${answer.action.label}</button>`}
  ${answer.action&&answer.action.kind==='item'&&html`<button type="button" className="ghost px-4 py-3 w-full mt-2 text-[14px]" onClick=${()=>c.openSheet({t:'dayplan'})}>Im Tagesplan einplanen</button>`}
- </section>`:html`<p className="text-[14px] mute mt-4">Wähle eine Frage. Du entscheidest, wann du Rückmeldung möchtest.</p>`}`:html`<div className="card2 p-3 mt-4 text-[14px]">Die Funktion ist deaktiviert. Die bestehende Planung und deine Daten bleiben erhalten.</div>`}
- <div className="mt-5 border-t pt-3" style=${{borderColor:'var(--line)'}}><div className="lbl">Präsenz einstellen</div><button type="button" onClick=${()=>c.openSheet({t:'future'})} className="ghost w-full text-left px-3 py-3 mt-2 text-[14px]">Eigenes Zukunftsbild bearbeiten</button>
+ </section>`:mode==='hesitate'?null:html`<p className="text-[14px] mute mt-4">Wähle eine Frage. Du entscheidest, wann du Rückmeldung möchtest.</p>`}`:html`<div className="card2 p-3 mt-4 text-[14px]">Die Funktion ist deaktiviert. Die bestehende Planung und deine Daten bleiben erhalten.</div>`}
+ <p className="text-[12px] mute mt-4 leading-snug">Regelbasiert aus deinen Einträgen, kein Chat. Deine Texte bleiben auf diesem Gerät.</p><div className="mt-3 border-t pt-3" style=${{borderColor:'var(--line)'}}><div className="lbl">Präsenz einstellen</div><button type="button" onClick=${()=>c.openSheet({t:'future'})} className="ghost w-full text-left px-3 py-3 mt-2 text-[14px]">Eigenes Zukunftsbild bearbeiten</button>
  <button type="button" aria-pressed=${prefs.enabled} onClick=${()=>c.upd(n=>FS.configure(n,{enabled:!prefs.enabled}))} className="ghost w-full text-left px-3 py-3 mt-2 text-[14px]">${prefs.enabled?'Zukunfts-Ich deaktivieren':'Zukunfts-Ich aktivieren'}</button>
  ${prefs.enabled&&html`<button type="button" aria-pressed=${prefs.minimized} onClick=${()=>c.upd(n=>FS.configure(n,{minimized:!prefs.minimized}))} className="ghost w-full text-left px-3 py-3 mt-2 text-[14px]">${prefs.minimized?'Präsenz wieder vergrößern':'Präsenz minimieren'}</button><button type="button" aria-pressed=${prefs.hints} onClick=${()=>c.upd(n=>FS.configure(n,{hints:!prefs.hints}))} className="ghost w-full text-left px-3 py-3 mt-2 text-[14px]">Tageshinweis · ${prefs.hints?'an':'aus'}</button><p className="text-[12px] mute mt-1">Optional: höchstens ein Hinweis pro Tag in der Zugangsleiste. Kein automatisches Dialogfenster.</p>`}</div><//>`}
 
