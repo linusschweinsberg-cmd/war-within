@@ -42,7 +42,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v119` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v120` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`, `node tests/ftue-flows.cjs` (Abläufe: neu, vollständig, übersprungen, zurückkehrend). Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Produktprinzip (verbindlich)
@@ -52,7 +52,8 @@ Erst Selbsterkenntnis. Dann Eigenverantwortung. Dann persönliche Standards. Und
 - Abkürzungen wie die Kurzform sind erlaubt. Übersprungene Stufen werden aber im Fundament in dieser Reihenfolge nachgeholt.
 
 ## Konzepte
-- Zukunfts-Ich: `future-self-core.js` (`window.FS`) enthält nachvollziehbare lokale Regeln. Gleiche Figur wie das alte Nemesis-Planmodell, keine zweite Fortschrittsberechnung. Zugang über der Navigation, minimier-/abschaltbar; Hinweise nur nach Opt-in und höchstens einmal pro Tag. Einstellungen unter `S.life.futureSelf`; Verlauf enthält nur Codes, keine privaten Textkopien. Details: `docs/FUTURE-SELF.md`.
+- Zurückgenommen (ww-v120, nur Oberfläche, Daten/Logik bleiben): Nemesis-Szene/Duell auf Heute und „Persönlicher Planvergleich“ in der Arena, Erfahrungsleiste, Wahl des Fortschrittsbilds, „Rückfall-Modus simulieren“, Integrationen-Demo (Health-Sync). Begründung: simulierte Daten oder doppelte Fortschrittssysteme.
+- Zukunfts-Ich: `future-self-core.js` (`window.FS`) enthält nachvollziehbare lokale Regeln. Gleiche Figur wie das alte Nemesis-Planmodell, keine zweite Fortschrittsberechnung. Seit ww-v120 ohne eigene Leiste/Kachel: „Keine Lust?“ auf der Hauptschlacht, Fenster über das Menü; Hinweise nur nach Opt-in und höchstens einmal pro Tag. Einstellungen unter `S.life.futureSelf`; Verlauf enthält nur Codes, keine privaten Textkopien. Details: `docs/FUTURE-SELF.md`.
 - Decision Impact Engine: `projection-core.js` (`window.PJ`), deterministische Projektion für Finanzen/Fitness/Lernen aus echten Zielen, Messwerten und Handlungen; Zinsen nur als sichtbare Annahme (Standard 0 %), Ruhe/Krankheit senken den Plan. Optionales Feld `goal.proj`. Details: `docs/IMPACT.md`.
 - Saisonrang: `rank-core.js` (`window.RK`), Rekrut 0 · Hoplit 60 · Veteran 160 · Lochagos 300 · Strategos 480 Saisonpunkte; Rang aus `S.seasonPts`, Nebenplätze auf Heute 1–3 (`S.prog.slots`, einmal erreicht dauerhaft); Saisonpunkte für höchstens 3 Erledigungen pro Tag, bei bestehenden Spielständen erst ab der nächsten Saison (`S.prog.capFrom`). Details: `docs/SPIELKONZEPT.md`.
 - Zukunftscharakter: `persona-core.js` (`window.PC`), Daten in `S.life.persona` (fehlt bei alten Spielständen → Einladung auf „Mein Leben“). Sechs Leitbilder, höchstens zwei, jederzeit änderbar oder entfernbar; Werte nur ergänzt bis drei, nie ersetzt; Ziel nur als Idee (öffnet auf Wunsch das Ziel-Sheet). Aussehen in `S.life.persona.look` (Figur, Farbe, Emblem; Gold/Oliv ab Lochagos, Gravur ab Strategos über `RK.looks`, dauerhaft); Avatar auf Heute statt Initiale, sobald gestaltet. Fähigkeiten in `S.life.skills` (bis 12, bleiben über Saisons; erreichte Ziele und bewährte Experimente nur als Vorschlag; Sync nur Anzahl). Details: `docs/SPIELKONZEPT.md`.

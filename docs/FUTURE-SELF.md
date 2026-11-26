@@ -1,5 +1,10 @@
 # Dein Zukunfts-Ich
 
+## Zurückgenommen als eigene Figur (ww-v120)
+
+Die Zugangsleiste über der Navigation und die Kachel auf Heute entfallen. Der Kern steht jetzt dort, wo gehandelt wird: Die offene Hauptschlacht hat „Keine Lust?“ mit dem eigenen Satz, dem Minimum bzw. der kleinen Variante und dem Wochenstand (`HesitateView compact`). Das Zukunfts-Ich-Fenster bleibt über Menü › „Dein Zukunfts-Ich“ erreichbar. Einstellungen und Daten bleiben unverändert.
+
+
 ## Ich zögere gerade (ww-v119)
 
 Der Hauptzweck des Zukunfts-Ichs: Hilfe in dem Moment, in dem man aufschieben will. Das Panel öffnet direkt damit, die bisherigen drei Fragen stehen unter „Weitere Fragen“.
