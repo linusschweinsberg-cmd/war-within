@@ -4,6 +4,7 @@ const root=path.join(__dirname,'..'),source=fs.readFileSync(path.join(root,'inde
 const script=[...source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(x=>x[1]).find(s=>s.includes('function loadState'));
 const c=vm.createContext({window:{authApi:{}},React:{},htm:{bind:()=>()=>null},ReactDOM:{createRoot:()=>({render(){}})},document:{getElementById:()=>({})},localStorage:{getItem:()=>null},console});
 for(const f of ['life-core.js','wisdom-core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),c);
+vm.runInContext(fs.readFileSync(path.join(__dirname,'../rank-core.js'),'utf8'),c);
 vm.runInContext(script+';globalThis.api={buildState,newOb,derive,todayPriorities,todayBattle,chooseBattle,completePriority,compoundNow,momentumOf,dayKey,loadState,SDAYS};',c);
 const a=c.api,LC=c.window.LC,test=(n,f)=>{f();console.log('PASS '+n)};
 const fresh=()=>LC.ensureLife(a.buildState(a.newOb('Test'),{mode:'guest',name:'Test'}));
@@ -37,7 +38,7 @@ test('Winning the battle: one tap, no double points on repeated taps, undo resto
 
 test('Standard as battle: double tap logs once, minimum is honest, undo restores',()=>{const S0=fresh();LC.setStandard(S0.life,'health',{std:{text:'Spaziergang',perWeek:3,minutes:20},min:{text:'Vor die Tür',minutes:5}});const k=ctx(S0);a.chooseBattle(k,'std:health');
  let b=battle(k.S);assert.equal(b.kind,'standard');const pts=k.S.seasonPts;
- a.completePriority(k,b,null);a.completePriority(k,b,null);assert.equal(k.S.life.stdLog.length,1,'logged once');assert.equal(battle(k.S).done,true);assert.equal(battle(k.S).min,false);assert.equal(k.S.seasonPts,pts,'standards award no points');
+ a.completePriority(k,b,null);a.completePriority(k,b,null);assert.equal(k.S.life.stdLog.length,1,'logged once');assert.equal(battle(k.S).done,true);assert.equal(battle(k.S).min,false);assert.ok(k.S.seasonPts>pts,'full standalone standard awards points');
  k.undo();assert.equal((k.S.life.stdLog||[]).length,0);assert.equal(battle(k.S).done,false);
  const T0=fresh();LC.setStandard(T0.life,'growth',{std:{text:'Spaziergang',perWeek:3},min:{text:'Vor die Tür'}});const t=ctx(T0);a.chooseBattle(t,'std:growth');a.completePriority(t,battle(t.S),null,'min');assert.equal(battle(t.S).min,true,'minimum is shown as minimum, not full win')});
 

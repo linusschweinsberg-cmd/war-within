@@ -27,6 +27,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
+- Codex · `codex/personal-season-plan` · Auf PR #43 aufgebaut: gemeinsame Punkte für vollständige Standards/Zielhandlungen, dauerhafte Standard-Erfahrung und persönlicher Saisonplan aus aktiven Handlungen; abgeschlossene Wochenbudgets gespeichert. Release ww-v102. Tests, Browser und unabhängiges Gegenreview vor PR-Abschluss.
 - Codex · `codex/routine-scoring` · Routinenkorrekturen: gemeinsames Rückgängig, Pause und präzise Löschung von Fundament/Charakter. Dateien: index.html, life-core.js, Tests, sw.js und docs. Release ww-v101; Wertung und persönlicher Saisonplan folgen separat.
 
 ### Letzte Integration
@@ -40,7 +41,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v101` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v102` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`, `node tests/ftue-flows.cjs` (Abläufe: neu, vollständig, übersprungen, zurückkehrend). Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Produktprinzip (verbindlich)
