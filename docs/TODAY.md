@@ -1,5 +1,63 @@
 # Heute: wichtigste Handlung und nächster Zeitblock
 
+## Zielbild: Heute als Werkzeug (Entwurf, Nov 2026, noch nicht umgesetzt)
+
+Gilt für künftige Änderungen an Heute, sobald der Nutzer den Entwurf bestätigt hat. Dann ersetzt es die Abschnitte darunter, soweit sie widersprechen. Diese stammen aus mehreren Runden, in denen einzelne Elemente verbessert wurden, ohne dass die Aufgabe der Seite festgelegt war.
+
+### Aufgabe der Seite
+
+**Heute bringt dich in unter 10 Sekunden zur nächsten Handlung und schließt den Tag ab.** Heute ist kein Armaturenbrett. Die Frage „Wie stehe ich?“ beantworten Fortschritt und Mein Leben.
+
+Jedes Element auf Heute muss eine dieser Fragen beantworten: „Was zählt heute?“, „Was tue ich jetzt?“ oder „Wie war der Tag?“. Was keine davon beantwortet, gehört auf eine andere Seite.
+
+### Drei Zustände, immer nur einer
+
+| Zustand | Bedingung | Inhalt | Einzige Hauptaktion |
+|---|---|---|---|
+| 1 · Entscheiden | Keine Hauptschlacht für heute (`todayBattle` leer) | „Was zählt heute?“, höchstens drei Kandidaten aus `todayPriorities` | Antippen wählt |
+| 2 · Handeln | Hauptschlacht offen | Die Handlung groß; darunter Auslöser bzw. Uhrzeit aus dem Tagesplan und das Minimum | „Erledigt“ (daneben klein: „Minimum“) |
+| 3 · Abschließen | Hauptschlacht erledigt **oder** ab 18 Uhr | Bestätigung des Tages, Debrief in ≤ 30 s (bestehender Daily Debrief), danach „Morgen zuerst: …“ (`nextPrio`) | Abschicken |
+
+Ruhetag, Wiedereinstieg nach Öffnungslücke und erste Woche bleiben Sonderfälle von Zustand 1 mit ihren bisherigen Texten.
+
+Unter dem jeweiligen Zustand steht höchstens **„Auch heute“**: 2–3 Zeilen mit Haken (Nebenmissionen und offene Standards mit ihrer 7-Tage-Spur). Mehr steht auf Heute nicht. Alles Weitere erreicht man über „Alle Aufgaben“.
+
+### Was umzieht (nichts wird entfernt)
+
+| Bisher auf Heute | Neuer Ort |
+|---|---|
+| Rang und Saisonpunkte im Kopf | Fortschritt (Saisonkarte) |
+| „Bereiche heute“ (Schilde) | Aufgaben (Bereichsfilter im Modus „Erweitert“) |
+| „Fortschritt und Zukunfts-Ich“ | Fortschritt; das Zukunfts-Ich bleibt über seine Leiste bzw. Kachel erreichbar |
+| Kachel „Tagesplan“ | In Zustand 2 als Uhrzeit der Hauptschlacht; geplant wird über das Kalender-Symbol in Aufgaben |
+| Kachel „Tagesrückblick/Wochenrückblick“ | Zustand 3; ein fälliger Wochenrückblick erscheint dort als einzige Zusatzzeile |
+| „Deine Standards“ (eingeklappt) | Offene Standards stehen in „Auch heute“; bearbeitet wird über Mein Leben |
+| Impulse, Wirkungsmodell, Wettbewerb | Bleiben im Modus „Erweitert“ unter „Mehr“ |
+
+### Erfolgsmessung (lokal, nur Zahlen)
+
+1. **Zeit bis zur ersten Handlung:** Sekunden vom ersten Öffnen des Tages bis zur ersten Erledigung. Ziel: Median unter 10 s, wenn die Hauptschlacht schon gewählt ist.
+2. **Hauptschlacht-Quote:** Anteil der Tage ohne Ruhetag, an denen die Hauptschlacht erledigt wurde.
+3. **Abschluss-Quote:** Anteil der Tage mit Debrief.
+
+Gespeichert werden nur Spieltag, Zeitstempel und Codes (wie `stdDay`). Keine Texte, keine Übertragung. Angezeigt werden die Zahlen zunächst nur unter Fortschritt › Erweitert. Ohne diese Zahlen wird Heute nicht weiter umgebaut.
+
+### Abnahme
+
+- Bei 375 × 812 px ist die Hauptaktion des aktuellen Zustands ohne Scrollen sichtbar, und es gibt genau einen gefüllten Knopf in Akzentfarbe.
+- Zustand 1 → 2 → 3 lässt sich mit je einem Tipp durchlaufen; „Rückgängig“ führt jeweils einen Zustand zurück.
+- Kein Element aus der Umzugstabelle bleibt zusätzlich auf Heute stehen.
+- Die bestehenden Regeln der Hauptschlacht gelten unverändert: nie automatisch, abgeleitet statt gespeichert, Sperre gegen Mehrfachtippen, Sieg-Rückmeldung.
+- Test mit drei Personen ohne Erklärung: „Öffne die App und tu, was sie dir sagt.“ Alle drei schließen eine Handlung ab, ohne nachzufragen.
+
+### Reihenfolge
+
+1. PRs #48 → #49 → #50 reviewen und mergen (Grundlage für Kopf, Schrift und Spur).
+2. Messung (siehe „Erfolgsmessung“) einbauen, eine Woche sammeln.
+3. Die drei Zustände in einem eigenen Branch umsetzen und mit denselben Zahlen vergleichen.
+4. Test mit drei Personen, danach nur noch gezielte Änderungen.
+
+
 ## Aktueller Aufbau (ab ww-v79)
 
 Seit ww-v81 zeigt die untere Navigation auf Nutzerwunsch nur Icons. Deutsche zugängliche Namen und Tooltips, `aria-current`, aktiver Unterstrich und mindestens 52 px hohe Tippflächen bleiben erhalten.
