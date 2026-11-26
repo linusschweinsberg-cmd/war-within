@@ -18,18 +18,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v105"></script>
-<script src="auth.js?v=ww-v105"></script>
-<script src="life-core.js?v=ww-v105"></script>
-<script src="wisdom-core.js?v=ww-v105"></script>
-<script src="future-self-core.js?v=ww-v105"></script>
-<script src="projection-core.js?v=ww-v105"></script>
-<script src="rank-core.js?v=ww-v105"></script>
-<script src="persona-core.js?v=ww-v105"></script>
-<script src="character-core.js?v=ww-v105"></script>
-<script src="arena-core.js?v=ww-v105"></script>
-<script src="arena-api.js?v=ww-v105"></script>
-<script src="arena-ui.js?v=ww-v105"></script>
+<script src="supabase-config.js?v=ww-v106"></script>
+<script src="auth.js?v=ww-v106"></script>
+<script src="life-core.js?v=ww-v106"></script>
+<script src="wisdom-core.js?v=ww-v106"></script>
+<script src="future-self-core.js?v=ww-v106"></script>
+<script src="projection-core.js?v=ww-v106"></script>
+<script src="rank-core.js?v=ww-v106"></script>
+<script src="persona-core.js?v=ww-v106"></script>
+<script src="character-core.js?v=ww-v106"></script>
+<script src="arena-core.js?v=ww-v106"></script>
+<script src="arena-api.js?v=ww-v106"></script>
+<script src="arena-ui.js?v=ww-v106"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -1785,8 +1785,8 @@ function Home({c}){const {S}=c;const [more,setMore]=useState(false),[pick,setPic
  <${FutureSelfTile} c=${c}/>
 
  </details>
- <details className="mt-4" onToggle=${e=>setMore(e.currentTarget.open)}><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}><span>Standards und Impulse</span><${Icon} n="chevD" s=${16}/></summary>
- ${more&&html`<${StandardsToday} c=${c}/><button type="button" className="chip mt-3" onClick=${()=>c.openSheet({t:'loopinfo'})}>Wie dein Handeln wirkt</button><${InviteCard} c=${c}/><${CalmCard} c=${c}/><${WisdomSlot} c=${c} place="today"/>${!fm&&html`<div className="mt-3"><${DayScene} c=${c}/></div><${DuelPair} c=${c}/>`}`}</details>
+ <details className="mt-4" onToggle=${e=>setMore(e.currentTarget.open)}><summary className="text-[13px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}><span>${S.ui==='adv'?'Standards und Impulse':'Deine Standards'}</span><${Icon} n="chevD" s=${16}/></summary>
+ ${more&&S.ui!=='adv'&&html`<${StandardsToday} c=${c}/><${CalmCard} c=${c}/>`}${more&&S.ui==='adv'&&html`<${StandardsToday} c=${c}/><button type="button" className="chip mt-3" onClick=${()=>c.openSheet({t:'loopinfo'})}>Wie dein Handeln wirkt</button><${InviteCard} c=${c}/><${CalmCard} c=${c}/><${WisdomSlot} c=${c} place="today"/>${!fm&&html`<div className="mt-3"><${DayScene} c=${c}/></div><${DuelPair} c=${c}/>`}`}</details>
  </div>`}
 /* Heute zuerst: Ziel, Ergebnis/Umsetzung, nächste Handlung, Loop-Phase */
 function TodayFocus({c}){const {S}=c;const L=S.life,g=mainGoal(S);const st=loopNow(c),Lp=LC.LOOP.find(x=>x.id===st);
@@ -1962,7 +1962,7 @@ function Tasks({c}){
  const bIds=(briefToday(S)||{ids:[]}).ids,gIds=goalMs(S).map(x=>x.m.id),pr=id=>gIds.includes(id)?gIds.indexOf(id)-30:bIds.includes(id)?bIds.indexOf(id)-10:ESS.indexOf(id);
  const gOf=m=>{const g=GROUPS.find(x=>x.core.includes(m.act));return g?g.id:GROUPS[GROUPS.length-1].id};
  const fset=focusMs(S,D);const fm=[...D.allM].filter(m=>grp==='all'||(grp==='today'?fset.includes(m):(gOf(m)===grp||m.act===grp))).sort((a,b)=>(isDone(S,a)-isDone(S,b))||(grp==='today'?pr(a.id)-pr(b.id):0));
- const opts=[['today','Fokus'],['all','Alle'],...(S.ui==='adv'?GROUPS.map(g=>[g.id,g.name]):[]),...Object.keys(S.acts).filter(id=>D.allM.some(m=>m.act===id)).map(id=>[id,S.acts[id].name])];
+ const opts=[['today','Fokus'],['all','Alle'],...(S.ui==='adv'?[...GROUPS.map(g=>[g.id,g.name]),...Object.keys(S.acts).filter(id=>D.allM.some(m=>m.act===id)).map(id=>[id,S.acts[id].name])]:[])];
  const nd=fm.filter(m=>isDone(S,m)).length;
  return html`<div className="screen px-4 pb-6">
  <div className="pt-5 flex items-end justify-between gap-3"><div className="min-w-0"><div className="lbl truncate">${deDate(c.now,calendarZone(S))}</div><h1 className="disp text-[32px] mt-1 leading-none">Aufgaben</h1><div className="text-[12.5px] mute mt-1.5 leading-snug" data-page-purpose>Alles, was heute ansteht. Antippen heißt erledigt.</div></div>
@@ -1978,8 +1978,8 @@ function Tasks({c}){
   ${done.length>0&&html`<button type="button" aria-expanded=${showDone} onClick=${()=>setShowDone(!showDone)} className="bg-transparent border-0 w-full py-2.5 mt-2 text-[12.5px] mute flex items-center justify-center gap-1.5">Erledigt (${done.length})<${Icon} n="chevR" s=${13} style=${{transform:showDone?'rotate(90deg)':'none',transition:'transform .2s'}}/></button>`}
   ${showDone&&html`<div className="flex flex-col gap-2">${done.map(m=>html`<${MRow} key=${m.id} m=${m} c=${c}/>`)}</div>`}`})()}
  ${fm.length===0&&html`<div className="card p-4 text-center"><div className="text-[15px] mute">Keine Mission in dieser Auswahl.</div><button onClick=${()=>c.openSheet({t:'add'})} className="chip mt-3">Mission hinzufügen</button></div>`}
- <div className="text-[12px] mute text-center mt-3 leading-snug">Antippen oder nach rechts wischen: erledigt · lange drücken: Details${avgQ(S)?` · Ø Erfolgsgrad ${avgQ(S).avg}`:''}</div>
- <div className="text-center"><button onClick=${()=>c.openSheet({t:'catalog'})} className="acc font-semibold bg-transparent border-0 text-[13px] block mx-auto mt-1" style=${{minHeight:44}}>Punkte-Katalog</button></div>`}</div>`}
+ <div className="text-[12px] mute text-center mt-3 leading-snug">Antippen oder nach rechts wischen: erledigt · lange drücken: Details${S.ui==='adv'&&avgQ(S)?` · Ø Erfolgsgrad ${avgQ(S).avg}`:''}</div>
+ ${S.ui==='adv'&&html`<div className="text-center"><button onClick=${()=>c.openSheet({t:'catalog'})} className="acc font-semibold bg-transparent border-0 text-[13px] block mx-auto mt-1" style=${{minHeight:44}}>Punkte-Katalog</button></div>`}`}</div>`}
 function SelfCompare({c}){
  const {S,D}=c;const cats=allCats(S);const [tp,setTp]=useState(0);
  const now=cats.map(x=>Math.round(S.catScore[x.id]??40)),old=cats.map(x=>Math.round((S.baseCat&&S.baseCat[x.id])??CAT_INIT[x.id]??40));
