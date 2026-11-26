@@ -18,18 +18,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v111"></script>
-<script src="auth.js?v=ww-v111"></script>
-<script src="life-core.js?v=ww-v111"></script>
-<script src="wisdom-core.js?v=ww-v111"></script>
-<script src="future-self-core.js?v=ww-v111"></script>
-<script src="projection-core.js?v=ww-v111"></script>
-<script src="rank-core.js?v=ww-v111"></script>
-<script src="persona-core.js?v=ww-v111"></script>
-<script src="character-core.js?v=ww-v111"></script>
-<script src="arena-core.js?v=ww-v111"></script>
-<script src="arena-api.js?v=ww-v111"></script>
-<script src="arena-ui.js?v=ww-v111"></script>
+<script src="supabase-config.js?v=ww-v112"></script>
+<script src="auth.js?v=ww-v112"></script>
+<script src="life-core.js?v=ww-v112"></script>
+<script src="wisdom-core.js?v=ww-v112"></script>
+<script src="future-self-core.js?v=ww-v112"></script>
+<script src="projection-core.js?v=ww-v112"></script>
+<script src="rank-core.js?v=ww-v112"></script>
+<script src="persona-core.js?v=ww-v112"></script>
+<script src="character-core.js?v=ww-v112"></script>
+<script src="arena-core.js?v=ww-v112"></script>
+<script src="arena-api.js?v=ww-v112"></script>
+<script src="arena-ui.js?v=ww-v112"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -2872,7 +2872,7 @@ function TempleColumn({c,x,sel,flash,anim}){const s=c.stage,top=s>=3?62:s===2?11
 function TempleSVG({st,sel,onSel,mini,flash,anim=true,label}){const cols=st.cols,f=st.foundation,built=cols.map(c=>c.stage>=3);
  const step=(on,x,y,w,h,col)=>on?html`<rect x=${x} y=${y} width=${w} height=${h} rx="1" style=${{fill:col}}/>`:html`<rect x=${x} y=${y} width=${w} height=${h} rx="1" fill="none" style=${{stroke:'var(--stone-d)'}} opacity=".55" strokeDasharray="3 3"/>`;
  const key=(e,a)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSel&&onSel(a)}};
- return html`<svg viewBox=${mini?'0 0 300 216':'0 0 300 240'} className="w-full block" role=${onSel?'group':'img'} aria-label=${label||`Lebenstempel, Phase ${st.phase}: ${st.phaseInfo?st.phaseInfo.name:''}`}>
+ return html`<svg viewBox=${mini?'0 0 300 216':'0 0 300 254'} className="w-full block" role=${onSel?'group':'img'} aria-label=${label||`Lebenstempel, Phase ${st.phase}: ${st.phaseInfo?st.phaseInfo.name:''}`}>
  ${st.phase>=4?html`<path d="M34 28 L150 4 L266 28Z" style=${{fill:'var(--stone)',stroke:'var(--stone-d)'}} strokeWidth="1"/><path d="M58 25 L150 9 L242 25Z" style=${{fill:'var(--marble)'}} opacity=".5"/>${st.phase>=5&&html`<g transform="translate(138 9)" style=${{color:'var(--bronze)'}}><${Icon} n="laurel" s=${24} sw=${1.4}/></g><circle cx="150" cy="4" r="3" style=${{fill:'var(--bronze)'}}/>`}`
  :html`<path d="M34 28 L150 4 L266 28Z" fill="none" style=${{stroke:'var(--stone-d)'}} opacity=".55" strokeDasharray="4 4"/>`}
  ${cols.map((c,i)=>{const x=COLX[i];return html`<g key=${'ent'+c.area}>${built[i]?html`<rect x=${x-26} y="36" width="52" height="12" style=${{fill:c.stage>=4?'var(--marble)':'var(--stone)',stroke:'var(--stone-d)',animation:anim?'stoneIn .7s ease-out both':null}} strokeWidth=".6"/>${st.phase>=3&&html`<rect x=${x-26} y="29" width="52" height="7" style=${{fill:'var(--stone-d)'}}/>${[-14,0,14].map(d=>html`<rect key=${d} x=${x+d-2} y="29.5" width="4" height="6" style=${{fill:'var(--stone)'}}/>`)}`}`:html`<rect x=${x-26} y="36" width="52" height="12" fill="none" style=${{stroke:'var(--stone-d)'}} opacity=".55" strokeDasharray="3 3"/>`}</g>`})}
@@ -2882,7 +2882,7 @@ function TempleSVG({st,sel,onSel,mini,flash,anim=true,label}){const cols=st.cols
  ${f>=3&&Array.from({length:22}).map((_,k)=>html`<rect key=${'mz'+k} x=${40+k*10.4} y="185" width="5" height="4" style=${{fill:'var(--bronze)'}} opacity=".55"/>`)}
  ${f>=4&&html`<rect x="34" y="181" width="232" height="1.5" style=${{fill:'var(--bronze)'}}/>`}
  ${!mini&&cols.map((c,i)=>{const x=COLX[i],a=LC.AREA[c.area],on=sel===c.area;return html`<g key=${'t'+c.area}>
-  <g transform=${`translate(${x-8} 220)`} style=${{color:on?'var(--acc2)':'var(--mute)'}}><${Icon} n=${a.icon} s=${16} sw=${on?2.2:1.8}/></g>
+  <g transform=${`translate(${x-8} 218)`} style=${{color:on?'var(--ink)':'var(--mute)'}}><${Icon} n=${a.icon} s=${16} sw=${on?2.2:1.8}/></g><text x=${x} y="249" textAnchor="middle" style=${{fill:on?'var(--ink)':'var(--mute)',fontSize:12,fontFamily:'Inter',fontWeight:600}}>Stufe ${c.stage}</text>
   ${onSel&&html`<rect x=${x-26} y="30" width="52" height="210" fill="transparent" role="button" tabIndex="0" aria-pressed=${on} aria-label=${`Säule ${a.de}: Stufe ${c.stage}, ${c.stageName}${c.weathered?', leicht verwittert':''}`} onClick=${()=>onSel(c.area)} onKeyDown=${e=>key(e,c.area)} style=${{cursor:'pointer',outline:'none'}}/>`}</g>`})}
  </svg>`}
 function snapState(h){return{cols:h.cols.map(c=>({...c,stageName:(LC.STAGES[c.stage-1]||{}).name})),phase:h.phase,phaseInfo:LC.PHASES[h.phase-1],foundation:h.foundation}}
@@ -3334,16 +3334,17 @@ function TempleHead({c,st,sel}){const {S}=c,T=S.life.temple,W=S.life.why||{},P=S
  <div className="flex items-start justify-between gap-2"><div className="min-w-0"><div className="lbl acc">Tempelsaison ${st.n} · Woche ${st.week}/${st.len}</div><div className="disp-serif text-[20px] mt-1 truncate">${st.phaseInfo.de}</div></div>
  <button type="button" onClick=${()=>c.openSheet({t:'trules'})} aria-label="Bauregeln" className="flex items-center justify-center border-0 bg-transparent -mt-1 -mr-2" style=${{width:44,height:44,color:'var(--mute)'}}><${Icon} n="info" s=${18}/></button></div>
  ${st.due&&html`<button onClick=${()=>c.openSheet({t:'tseason'})} className="btn w-full py-2.5 mt-3 text-[14px]">Saison abgeschlossen · Bilanz ansehen</button>`}
- <div className="flex gap-2 mt-3">${chip('temple','Dach · Warum',W.text?'„'+W.text+'“':'','Noch offen · antippen zum Festlegen',()=>c.openSheet({t:'why'}))}</div>
- <div className=${'mt-1 mx-auto '+(T.anim?'':'no-anim')} style=${{maxWidth:280}}><${TempleSVG} st=${st} sel=${sel} onSel=${a=>c.setTSel(sel===a?null:a)} flash=${c.tFlash} anim=${T.anim}/></div>
+ <div className="flex gap-2 mt-3">${chip('temple','Dach · Warum',W.text?'„'+W.text+'“':'','Wofür machst du das alles? Antippen',()=>c.openSheet({t:'why'}))}</div>
+ <div className=${'mt-1 mx-auto '+(T.anim?'':'no-anim')} style=${{maxWidth:280}}><${TempleSVG} st=${st} sel=${sel} onSel=${a=>{c.setTSel(sel===a?null:a);if(sel!==a)setTimeout(()=>{const el=document.getElementById('pillar-'+a);el&&el.scrollIntoView({behavior:'smooth',block:'start'})},60)}} flash=${c.tFlash} anim=${T.anim}/></div>
+ ${(()=>{const nx=st.cols.filter(x=>x.next).sort((a,b)=>a.next.need-b.next.need)[0];return html`<div className="text-[12px] mute text-center leading-snug mt-1 mb-3 px-2" data-temple-explain>Jede Säule wächst mit Bausteinen aus deinen Handlungen. Tippe eine Säule an. <button type="button" onClick=${()=>c.openSheet({t:'trules'})} className="bg-transparent border-0 p-0 acc font-semibold text-[12px]">Wie genau?</button>${nx?html`<span className="block ink font-semibold mt-1.5">Als Nächstes: ${LC.AREA[nx.area].de} wird „${nx.next.name}“, noch ${nx.next.need} ${nx.next.need===1?'Baustein':'Bausteine'}.</span>`:''}</div>`})()}
  <div className="flex gap-2">${chip('column','Fundament · Werte',P.map(p=>p.n).join(' · '),'wählen',()=>c.openSheet({t:'values'}))}</div>
- ${P.length>0&&html`<div className="flex flex-wrap gap-1.5 mt-2" role="group" aria-label="Heute nach einem Wert gehandelt">${P.map(p=>html`<button key=${p.id} type="button" onClick=${()=>c.actPrinciple(p.id)} className="chip" style=${{minHeight:36}} aria-label=${p.n+': heute danach gehandelt'}><${Icon} n="check" s=${12}/> ${p.n}${p.acts?html`<span className="num mute ml-1">${p.acts}</span>`:null}</button>`)}</div>`}
+ ${P.length>0&&html`<div className="text-[12px] mute mt-2.5 px-1">Heute nach einem Wert gehandelt? Antippen.</div><div className="flex flex-wrap gap-1.5 mt-1.5" role="group" aria-label="Heute nach einem Wert gehandelt">${P.map(p=>html`<button key=${p.id} type="button" onClick=${()=>c.actPrinciple(p.id)} className="chip" style=${{minHeight:36}} aria-label=${p.n+': heute danach gehandelt'}><${Icon} n="check" s=${12}/> ${p.n}${p.acts?html`<span className="num mute ml-1" title=${p.acts+'× danach gehandelt'}>${p.acts}×</span>`:null}</button>`)}</div>`}
  </section>`}
 /* Eine Säule = ein Lebensbereich: Hauptziel, Wochenstand, Fortschritt. */
 function PillarRow({c,area,st,open,onToggle}){const {S}=c,L=S.life,a=LC.AREA[area],wk=LC.curWk(L),aw=LC.areaWeek(L,area,wk);
  const goals=(L.goals||[]).filter(g=>g.area===area&&g.status==='active'),g=goals.find(x=>x.id===L.main)||goals[0],p=g?LC.goalProgress(L,g):null,f=L.focus===area;
  const bar=p!=null?p:aw.planned?aw.done/aw.planned:0;
- return html`<div className="card overflow-hidden mt-2" style=${open?{borderColor:tint(a.color,55)}:undefined}>
+ return html`<div id=${'pillar-'+area} className="card overflow-hidden mt-2" style=${open?{borderColor:tint(a.color,55),scrollMarginTop:64}:{scrollMarginTop:64}}>
  <button type="button" onClick=${onToggle} aria-expanded=${open} className="w-full flex items-center gap-3 px-3 py-3 bg-transparent border-0 text-left" style=${{color:'var(--ink)',minHeight:64}}>
  <${AreaBadge} area=${a} size=${40}/>
  <span className="flex-1 min-w-0"><span className="flex items-center gap-1.5"><span className="text-[16px] font-bold truncate">${a.de}</span>${f&&html`<span className="acc shrink-0" title="Priorität" aria-label="Priorität"><${Icon} n="flag" s=${13}/></span>`}</span>
