@@ -18,18 +18,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v101"></script>
-<script src="auth.js?v=ww-v101"></script>
-<script src="life-core.js?v=ww-v101"></script>
-<script src="wisdom-core.js?v=ww-v101"></script>
-<script src="future-self-core.js?v=ww-v101"></script>
-<script src="projection-core.js?v=ww-v101"></script>
-<script src="rank-core.js?v=ww-v101"></script>
-<script src="persona-core.js?v=ww-v101"></script>
-<script src="character-core.js?v=ww-v101"></script>
-<script src="arena-core.js?v=ww-v101"></script>
-<script src="arena-api.js?v=ww-v101"></script>
-<script src="arena-ui.js?v=ww-v101"></script>
+<script src="supabase-config.js?v=ww-v102"></script>
+<script src="auth.js?v=ww-v102"></script>
+<script src="life-core.js?v=ww-v102"></script>
+<script src="wisdom-core.js?v=ww-v102"></script>
+<script src="future-self-core.js?v=ww-v102"></script>
+<script src="projection-core.js?v=ww-v102"></script>
+<script src="rank-core.js?v=ww-v102"></script>
+<script src="persona-core.js?v=ww-v102"></script>
+<script src="character-core.js?v=ww-v102"></script>
+<script src="arena-core.js?v=ww-v102"></script>
+<script src="arena-api.js?v=ww-v102"></script>
+<script src="arena-ui.js?v=ww-v102"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -626,7 +626,7 @@ LC.ensureLife(n);
     const tier0=n.tier||0;let tier1=tier0;if(rank<=2&&tier0<4&&(!automatic||n.seasonPts>0))tier1++;else if(rank>=5&&tier0>0)tier1--;
     const potNext=was.cur>=.9?.18:was.cur<.5?.08:.12;
     {const lvE=pathLevel(n);if(lvE>(n.sLevel||0))applyPath(n,n.sLevel||0,lvE)}
-    n.sreport={season:n.season,rank,pts:n.seasonPts,cur:was.cur,l0,l1:Math.round(30+70*clamp(n.base,0,1)),table:tbl,missions:n.seasonMissions??12,ach:Object.keys(n.ach).length,theme:th,len:SL(n),goal:n.sGoal||.85,goalOk,thOk,badges,areas,met,mOk,mDays:Math.min(n.mDays||0,n.mTarget||20),mTarget:n.mTarget||20,mArea:n.mArea,tier0,tier1,potNext,focus:n.sFocus,level:n.sLevel||0};n.sreport.grade=gradeSeason(n.sreport);
+    n.sreport={season:n.season,rank,pts:n.seasonPts,cur:was.cur,l0,l1:Math.round(30+70*clamp(n.base,0,1)),table:tbl,missions:n.seasonMissions??12,ach:Object.keys(n.ach).length,theme:th,len:SL(n),goal:n.sGoal||.85,goalOk,thOk,badges,areas,met,mOk,mDays:Math.min(n.mDays||0,n.mTarget||20),mTarget:n.mTarget||20,mArea:n.mArea,tier0,tier1,potNext,focus:n.sFocus,level:n.sLevel||0};n.sreport.personal=!isDemoState(n);n.sreport.grade=gradeSeason(n.sreport);
     n.sHist=[{season:n.season,theme:th,len:SL(n),rank,pts:n.seasonPts,cur:was.cur,goal:n.sGoal||.85,ok:goalOk,badges},...(n.sHist||[])].slice(0,8);
     n.gear=[...(n.gear||[]),...badges.map(x=>x+' · S'+n.season)].slice(-12);
     n.tier=tier1;n.potOff=potNext;n.sThemePts=0;n.sAreaPts={};n.mDays=0;n.sLocked=false;n.setup=true;
@@ -645,14 +645,20 @@ const isActive=()=>true;
 const isDone=(S,m)=>!!S.done[m.id]||(m.freq==='multi'&&((S.counts&&S.counts[m.id])||0)>=(m.times||1));
 const FREQ={daily:'Täglich',multi:'Mehrmals pro Woche',weekly:'Wöchentlich',monthly:'Monatlich'};
 const freqLabel=m=>m.freq==='multi'?`${m.times}× pro Woche`:FREQ[m.freq]||'Täglich';
-const planWeek=S=>Math.round(.85*Object.keys(S.acts).reduce((s,id)=>s+S.acts[id].cap,0));
+function weekPointPlan(S,week=seasonWeek(S)){const offset=S.calendar?.seasonOffset||0,start=week*7-offset;
+ const days=Array.from({length:7},(_,i)=>start+i).filter(d=>d>=0&&d<SDAYS(S)&&!(S.rest||[]).includes(d)).length;
+ return LC.pointPlan(S,{days,dayCap:window.RK?window.RK.DAY_CAP:3,active:Object.keys(S.acts).filter(id=>isActive(S,id))})}
+const planWeek=S=>isDemoState(S)?Math.round(.85*Object.keys(S.acts).reduce((s,id)=>s+S.acts[id].cap,0)):Math.max(1,weekPointPlan(S).points);
+function seasonPointPlan(S){if(isDemoState(S))return planWeek(S)*SL(S);
+ return Math.max(1,Array.from({length:SL(S)},(_,i)=>{const saved=(S.weekHist||[]).find(w=>w.season===S.season&&w.week===i+1&&Number.isFinite(w.plan));return saved?saved.plan:weekPointPlan(S,i).points}).reduce((n,p)=>n+p,0))}
+const hasPersonalPlan=S=>isDemoState(S)||weekPointPlan(S).points>0||completedWeeks(S).some(w=>w.season===S.season&&w.plan>0);
 function standingsOf(S){
- const rows=[{...ME,full:(S.profile&&S.profile.name)||ME.full,pts:weekTotal(S),season:S.seasonPts,rating:Math.round(30+70*clamp(S.base+1.4*S.seasonPts/(planWeek(S)*SL(S)),0,1))},...OTH.map(o=>({...o,pts:S.others[o.id],season:S.oSeason[o.id]}))];
+ const rows=[{...ME,full:(S.profile&&S.profile.name)||ME.full,pts:weekTotal(S),season:S.seasonPts,rating:Math.round(30+70*clamp(S.base+1.4*S.seasonPts/seasonPointPlan(S),0,1))},...OTH.map(o=>({...o,pts:S.others[o.id],season:S.oSeason[o.id]}))];
  rows.sort((a,b)=>b.pts-a.pts||(a.id==='me'?-1:1));rows.forEach((r,i)=>r.rank=i+1);return rows}
 function derive(S){
- const di=calendarWeekday(S),week=seasonWeek(S),plan=planWeek(S),seasonPlan=plan*SL(S);
+ const di=calendarWeekday(S),week=seasonWeek(S),plan=planWeek(S),seasonPlan=seasonPointPlan(S);
  const restPast=S.rest.filter(d=>d<S.day).length;
- const cur=S.seasonPts/seasonPlan;
+ const cur=hasPersonalPlan(S)?S.seasonPts/seasonPlan:0;
  let pot=clamp((S.day-restPast)/SDAYS(S)+(S.potOff??.12),0,1);if(cur>=pot)pot=Math.min(1,cur+.06);
  const vC=clamp(S.base+1.4*cur,0,1),vP=clamp(S.base+1.4*pot,0,1);
  const standings=standingsOf(S),me=standings.find(r=>r.id==='me');
@@ -665,7 +671,7 @@ function derive(S){
 function checkAch(n){
  const D=derive(n),A=n.ach,F=n.flags,add=[];
  const t=(id,c)=>{if(c&&!A[id]){A[id]=true;add.push(id)}};
- t('first',Object.keys(n.done).length>0);t('streak7',n.streak>=7);t('pr',!!F.pr);t('league',!!F.league);t('comeback',!!F.comeback||(n.seasonPts>0&&D.gap<6&&!!F.wasWide));
+ t('first',Object.keys(n.done).length>0||LC.standardSessions(n.life||{})>0);t('streak7',n.streak>=7);t('pr',!!F.pr);t('league',!!F.league);t('comeback',!!F.comeback||(n.seasonPts>0&&D.gap<6&&!!F.wasWide));
  if(D.gap>10)F.wasWide=true;
  t('fin500',n.save.saved>=500);t('intel',n.study.hours>=21);t('balance',CORE.every(id=>(n.todayPts[id]||0)>0));t('champ',!!F.champ);t('improved',!!F.improved);
  {const LF=(n.life&&n.life.flags)||{};t('review1',!!LF.review);t('measure1',!!LF.measure||!!LF.goal);t('exp1',((n.life&&n.life.exps)||[]).length>0);t('expwin',!!LF.expWin);t('goal1',!!LF.goal)}
@@ -674,7 +680,7 @@ function checkAch(n){
 const completedWeeks=S=>(S.weekHist||[]).filter(w=>Number.isInteger(w.season)&&Number.isInteger(w.week)&&Number.isFinite(w.pts));
 function recordWeek(S,rank){
  const week=seasonWeek(S)+1;
- const snapshot={season:S.season,week,day:S.day,pts:weekTotal(S),rank,cats:{...S.catScore},streak:S.streak,areas:{...S.weekPts},savedAt:new Date().toISOString()};
+ const snapshot={season:S.season,week,day:S.day,pts:weekTotal(S),plan:isDemoState(S)?planWeek(S):weekPointPlan(S).points,rank,cats:{...S.catScore},streak:S.streak,areas:{...S.weekPts},savedAt:new Date().toISOString()};
  S.weekHist=[...(S.weekHist||[]).filter(w=>w.season!==S.season||w.week!==week),snapshot];
 }
 function loadState(key='war_within_v5'){try{const r=localStorage.getItem(key);if(r){const s=JSON.parse(r);if(s&&s.v===5){const d=JSON.parse(JSON.stringify(SEASON_DEF));Object.keys(d).forEach(k=>{if(s[k]===undefined)s[k]=d[k]});
@@ -1013,16 +1019,16 @@ function TreeCard({c}){
   <div className="text-[12px] mute mt-2 leading-snug">${S.comeback?'Rückfall: einige Blätter welken. Jede erledigte Aufgabe bringt sie zurück.':'Jede Aufgabe lässt Blätter wachsen. Dein Streak macht den Stamm dicker.'}</div></div>`}
 /* ───── Saison-Pfad & Etappen ───── */
 const PATH=[['badge','Erste Spur'],['freeze','Streak-Schutz'],['title','Wächter'],['badge','Bronze-Abzeichen'],['freeze','Streak-Schutz'],['title','Hauptmann'],['badge','Silber-Abzeichen'],['freeze','Streak-Schutz'],['title','Stratege'],['crown','Gipfel-Krone']];
-const pathMax=S=>Math.max(PATH.length,Math.round(planWeek(S)*SL(S)*(S.sGoal||.85)));
+const pathMax=S=>Math.max(PATH.length,Math.round(seasonPointPlan(S)*(S.sGoal||.85)));
 const pathStep=(S,i)=>Math.round(pathMax(S)*(i+1)/PATH.length);
-const pathLevel=S=>{let l=0;for(let i=0;i<PATH.length;i++)if(S.seasonPts>=pathStep(S,i))l=i+1;return l};
+const pathLevel=S=>{if(!isDemoState(S)&&!weekPointPlan(S).points&&!completedWeeks(S).some(w=>w.season===S.season&&w.plan>0))return S.sLevel||0;let l=0;for(let i=0;i<PATH.length;i++)if(S.seasonPts>=pathStep(S,i))l=i+1;return l};
 /* Spielwochen als Kapitel: Fundament → Momentum → Konstanz → Endspurt */
 const WEEKN=[{k:'start',n:'Fundament',d:'Routinen legen. Klein anfangen und jeden Tag dabei sein.',col:'#9AAE6B',ic:'flag'},{k:'mom',n:'Momentum',d:'Tempo aufnehmen. Aus einzelnen Tagen wird ein Rhythmus.',col:'#7FA7AD',ic:'zap'},{k:'mid',n:'Konstanz',d:'Die Mitte entscheidet. Halte den Standard, auch wenn die Motivation sinkt.',col:'#D9774F',ic:'shield'},{k:'final',n:'Endspurt',d:'Alle Punkte zählen 10 % mehr. Beende die Saison stark.',col:'#D4A94F',ic:'flame'}];
 const weekIdx=(S,w)=>{const L=SL(S);return w>=L-1?3:w===0?0:w<(L-1)/2?1:2};
 const phaseOf=S=>{const x=WEEKN[weekIdx(S,seasonWeek(S))];return{...x,bonus:x.k==='final'?.1:0}};
 const ptsMult=(S,m)=>(m.act===S.sTheme?1.15:1)*(1+phaseOf(S).bonus);
 function applyPath(n,from,to){const got=[];for(let i=from;i<to;i++){const [k,l]=PATH[i];if(k==='freeze')n.freezes=Math.min(5,(n.freezes||0)+1);if(k==='title')n.title=l;if(k==='crown')n.title='Legende · Saison '+n.season;if(k!=='freeze')n.gear=[...(n.gear||[]),l+' · S'+n.season].slice(-16);got.push(l)}n.sLevel=to;return got}
-const gradeSeason=r=>{const v=Math.min(1,r.cur/(r.goal||.85))*.5+(r.met/5)*.25+(r.mOk?.15:0)+(r.rank<=2?.1:r.rank<=4?.05:0);return v>=.95?'S':v>=.8?'A':v>=.65?'B':v>=.45?'C':'D'};
+const gradeSeason=r=>{const own=Math.min(1,r.cur/(r.goal||.85)),v=r.personal?own:own*.5+(r.met/5)*.25+(r.mOk?.15:0)+(r.rank<=2?.1:r.rank<=4?.05:0);return v>=.95?'S':v>=.8?'A':v>=.65?'B':v>=.45?'C':'D'};
 function SeasonStrip({c}){const {S}=c;const ph=phaseOf(S),lv=Math.min(S.sLevel||0,PATH.length),done=lv>=PATH.length,need=done?pathMax(S):pathStep(S,lv),prev=lv?pathStep(S,lv-1):0,p=done?1:clamp((S.seasonPts-prev)/Math.max(1,need-prev),0,1),w=Math.min(SL(S),seasonWeek(S)+1);
  return html`<button onClick=${()=>c.openSheet({t:'spath'})} className="card w-full p-3.5 mb-4 text-left flex items-center gap-3" style=${{borderRadius:20}}>
   <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style=${{background:`color-mix(in srgb,${ph.col} 13%,transparent)`,color:ph.col,boxShadow:`0 0 0 1px color-mix(in srgb,${ph.col} 27%,transparent) inset`}}><${Icon} n=${ph.ic} s=${20}/></div>
@@ -1498,7 +1504,7 @@ function todayPriorities(S,D,max=3){
  const L=S.life||{},gm=goalMs(S),out=[],seen=new Set(),commit=L.onboard&&L.onboard.commit;
  const push=x=>{if(x&&!seen.has(x.key)){seen.add(x.key);out.push(x)}};
  const mission=m=>{if(!m||isDone(S,m)||(L.actions||[]).some(a=>a.missionId===m.id&&a.paused))return;const x=gm.find(y=>y.m.id===m.id);if(x&&weekLeft(S,x)<=0)return;return{key:'m:'+m.id,kind:'mission',m,g:x&&x.g,minutes:x&&x.a.minutes||null,title:m.title}};
- const standards=Object.values(L.standards||{}).filter(x=>x.std&&!x.aid&&x.status!=='paused').filter(x=>{const w=LC.standardWeek(L,x.area,LC.curWk(L));return(!w||w.done<w.per)&&!(L.stdLog||[]).some(e=>e.area===x.area&&e.d===(L.d||0))}).map(x=>({key:'std:'+x.area,kind:'standard',std:x,area:x.area,title:x.std.text,minutes:x.std.minutes||null}));
+ const standards=Object.values(L.standards||{}).filter(x=>x.std&&!x.aid&&x.status!=='paused').filter(x=>{const w=LC.standardWeek(L,x.area,LC.curWk(L));return(!w||w.done<w.per)&&!LC.standardDoneToday(L,x.area)}).map(x=>({key:'std:'+x.area,kind:'standard',std:x,area:x.area,title:x.std.text,minutes:x.std.minutes||null}));
  const evening=LC.eveningFor(L,L.d||0),ev=eveToday(S);
  if(ev){const x=mission(ev.m);if(x)push({...x,source:ev.src==='ob'?'Beim Start festgelegt':'Gestern Abend festgelegt',plan:ev.plan,when:ev.when})}
  if(evening&&evening.std){const x=standards.find(x=>x.area===evening.std);if(x)push({...x,source:'Gestern Abend festgelegt',plan:evening.plan,when:evening.when})}
@@ -1516,7 +1522,7 @@ function todayPriorities(S,D,max=3){
 const doneTodayM=(S,m)=>((S.ctime||{})[m.id]||[]).some(x=>x.day===dayKey(S))||((m.freq==='daily'||m.freq==='multi')&&!!(S.done||{})[m.id]);
 function battleItem(S,key){if(!key)return null;const L=S.life||{},d=L.d||0;
  if(key.startsWith('m:')){const m=S.missions.find(x=>x.id===key.slice(2));if(!m||(L.actions||[]).some(a=>a.missionId===m.id&&a.paused))return null;const x=goalMs(S).find(y=>y.m.id===m.id);return{key,kind:'mission',m,g:x&&x.g,minutes:x&&x.a.minutes||null,title:m.title,done:doneTodayM(S,m)}}
- if(key.startsWith('std:')){const area=key.slice(4),s=(L.standards||{})[area];if(!s||!s.std||s.aid||s.status==='paused')return null;const e=(L.stdLog||[]).filter(x=>x.area===area&&x.d===d);return{key,kind:'standard',std:s,area,title:s.std.text,minutes:s.std.minutes||null,done:e.length>0,min:e.length>0&&!e.some(x=>x.kind==='std')}}
+ if(key.startsWith('std:')){const area=key.slice(4),s=(L.standards||{})[area];if(!s||!s.std||s.aid||s.status==='paused')return null;const done=LC.standardDayKind(L,area);return{key,kind:'standard',std:s,area,title:s.std.text,minutes:s.std.minutes||null,done:!!done,min:done==='min'}}
  if(key==='commit'){const cm=L.onboard&&L.onboard.commit;if(!cm||cm.mid||!(cm.text||'').trim()||(cm.done&&cm.doneD!==d))return null;return{key,kind:'commit',title:cm.text,area:cm.area,done:!!cm.done}}
  return null}
 function battleEarlier(S){const L=S.life||{},d=L.d||0,ev=LC.eveningFor(L,d),ob=L.onboard&&L.onboard.for===d&&L.onboard.mid?L.onboard:null,out=[];
@@ -1606,7 +1612,15 @@ function nextTimeBlock(S,now){
 }
 /* Mehrfachtippen: Missionen sperrt complete(); Standards und erster Schritt zählen höchstens einmal pro Tag. */
 const prioLock={};
-const priorityDoneToday=(S,item)=>{const L=S.life||{};return item.kind==='commit'?!!(L.onboard&&L.onboard.commit&&L.onboard.commit.done):(L.stdLog||[]).some(x=>x.area===item.area&&x.d===(L.d||0))};
+/* Beide Ausführungswege teilen Basis-/Saison-/Konstanzboni, Wochenraum und Tageslimit. */
+function completionQuote(S,m,extra={}){const capped=!window.RK.canEarn(S,dayKey(S)),room=Math.max(0,(S.acts[m.act]?.cap||0)-(S.weekPts[m.act]||0)),sb=m.freq==='daily'?streakBonus(S.streak):0;
+ const award=capped?0:Math.min(Math.max(1,Math.round(m.pts*(1+((extra.bonus||0)+(extra.onTime?20:0)+sb)/100)*ptsMult(S,m))),room);return{award,capped}}
+function awardCompletion(S,m,extra={}){const r=completionQuote(S,m,extra),award=r.award;
+ S.weekPts[m.act]=(S.weekPts[m.act]||0)+award;S.todayPts[m.act]=(S.todayPts[m.act]||0)+award;S.seasonPts+=award;
+ if(m.act===S.sTheme)S.sThemePts=(S.sThemePts||0)+award;S.sAreaPts=S.sAreaPts||{};S.sAreaPts[m.act]=(S.sAreaPts[m.act]||0)+award;
+ window.RK.afterAward(S,dayKey(S),award>0);return r}
+function standardMission(S,area){const s=(S.life.standards||{})[area],per=s.std.perWeek,act=LC.areaAct(S,area);return{id:'std:'+area,title:s.std.text,act,pts:LC.routinePoints(per),freq:per>=7?'daily':'multi'}}
+const priorityDoneToday=(S,item)=>{const L=S.life||{};return item.kind==='commit'?!!(L.onboard&&L.onboard.commit&&L.onboard.commit.done):LC.standardDoneToday(L,item.area)};
 function priorityAvailable(S,item,kind){if(priorityDoneToday(S,item))return false;if(item.kind!=='standard')return true;
  const L=S.life||{},s=(L.standards||{})[item.area];if(!s||!s.std||s.status==='paused'||s.aid&&kind!=='min'||kind==='min'&&!s.min)return false;
  const w=LC.standardWeek(L,item.area,LC.curWk(L));return kind==='min'||!w||w.done<w.per}
@@ -1614,8 +1628,8 @@ function completePriority(c,item,e,kind='std'){
  if(c.D&&c.D.restToday)return;
  if(item.kind==='mission'){c.start(item.m.id,e,{noHint:true});return}
  const t=Date.now();if(t-(prioLock[item.key]||0)<700||!priorityAvailable(c.S,item,kind))return;prioLock[item.key]=t;
- const before=c.S;c.upd(n=>{if(!priorityAvailable(n,item,kind))return;if(item.kind==='commit')n.life.onboard.commit={...n.life.onboard.commit,done:true,doneD:n.life.d||0};else LC.logStandard(n.life,item.area,kind)});
- c.toast(item.kind==='commit'?'Erster Schritt erledigt.':kind==='min'?'Minimum notiert.':'Standard notiert.','good',{undo:()=>{delete prioLock[item.key];c.restore(before)}});
+ const before=c.S,reward=item.kind==='standard'&&kind==='std'?completionQuote(before,standardMission(before,item.area)):null;c.upd(n=>{if(!priorityAvailable(n,item,kind))return;if(item.kind==='commit')n.life.onboard.commit={...n.life.onboard.commit,done:true,doneD:n.life.d||0};else{const entry=LC.logStandard(n.life,item.area,kind);if(kind==='std'&&entry){const m=standardMission(n,item.area);awardCompletion(n,m);n.seasonMissions=(n.seasonMissions||0)+1;const lv=pathLevel(n);if(lv>(n.sLevel||0))applyPath(n,n.sLevel||0,lv);checkAch(n)}}});
+ c.toast(item.kind==='commit'?'Erster Schritt erledigt.':kind==='min'?'Minimum notiert.':'Standard notiert.','good',{detail:reward&&!focusMode(before)?reward.capped?'Punkte-Soll voll. Deine Handlung zählt weiterhin für dich und deine Erfahrung.':reward.award?'+'+reward.award+' Saisonpunkte':'Wochenlimit erreicht. Deine Handlung und Erfahrung zählen trotzdem.':undefined,undo:()=>{delete prioLock[item.key];c.restore(before)}});
 }
 /* Heute: Kopf mit Fortschrittsring · eine farbige Jetzt-Karte · Folgeschritte als Kacheln · Im Blick als zwei Kacheln. Wenig Text, klare Flächen. */
 const priorityDetail=(c,item)=>item.kind==='mission'?c.openSheet({t:'medit',mid:item.m.id}):item.kind==='standard'?c.openSheet({t:'standards',area:item.area}):c.openSheet({t:'fundament'});
@@ -1631,7 +1645,7 @@ function AreaBadge({area,size=40}){const col=area?area.color:'var(--acc2)';
 /* Ringe je Lebensbereich: „Fokus heute“ (wie im Aufgaben-Tab) plus eigenständige Standards. Erledigt/geplant, kein erfundener Wert. */
 function areaDay(S,D){const L=S.life||{},out={};LC.AREAS.forEach(a=>{out[a.id]={area:a,total:0,done:0,open:[]}});
  focusMs(S,D).forEach(m=>{const o=out[LC.ACT_AREA[m.act]];if(!o)return;o.total++;if(isDone(S,m))o.done++;else o.open.push(m)});
- Object.values(L.standards||{}).filter(x=>x.std&&!x.aid&&x.status!=='paused').forEach(x=>{const o=out[x.area];if(!o)return;o.total++;if((L.stdLog||[]).some(e=>e.area===x.area&&e.d===(L.d||0)))o.done++;else o.std=x});
+ Object.values(L.standards||{}).filter(x=>x.std&&!x.aid&&x.status!=='paused').forEach(x=>{const o=out[x.area];if(!o)return;o.total++;if(LC.standardDoneToday(L,x.area))o.done++;else o.std=x});
  return LC.AREAS.map(a=>out[a.id])}
 /* Nächste Handlung eines Bereichs: zuerst aus den Prioritäten, sonst offene Fokus-Mission oder offener Standard. */
 function areaItem(S,items,ring){if(!ring)return null;const hit=items.find(x=>{const a=priorityArea(x);return a&&a.id===ring.area.id});if(hit)return hit;
@@ -2438,11 +2452,15 @@ function Suggest({c}){const {S}=c;if(S.ui==='adv')return null;const dis=S.sugg||
  <div className="flex gap-2 mt-3"><button onClick=${()=>c.dismissSugg(s[0])} className="ghost flex-1 py-2.5 text-[13px] font-semibold">Nicht jetzt</button><button onClick=${()=>c.enableDetail(s[0])} className="btn flex-[1.5] py-2.5 text-[13px]">Details aktivieren</button></div></div>`}
 const DETAIL_LOGS={train:['lift','squat','run','swim','pull'],learn:['study','read']};
 const wantsLog=(S,m)=>!!m.log&&(S.ui==='adv'||Object.entries(DETAIL_LOGS).some(([k,l])=>(S.detail||{})[k]&&l.includes(m.log)));
+function PersonalSeasonCard({S}){if(isDemoState(S)||focusMode(S))return null;const r=window.RK.rank(S),p=weekPointPlan(S),has=hasPersonalPlan(S),target=Math.round(seasonPointPlan(S)*(S.sGoal||.85));
+ return html`<section className="card p-3.5 mt-3" aria-label="Dein persönlicher Saisonplan"><div className="flex justify-between gap-2 text-[13px]"><b>Saison ${S.season} · ${r.name}</b><span className="num">${S.seasonPts} Punkte</span></div>
+ ${has?html`<div className="text-[12.5px] mute mt-2">Dein Saisonziel: ${target} Punkte aus deinem übernommenen Plan. Boni zählen zusätzlich.</div><div className="mt-2"><${Bar} pct=${Math.min(1,S.seasonPts/Math.max(1,target))} h=${5}/></div><div className="text-[11.5px] mute mt-2">Offene Wochen folgen deinem Plan. Abgeschlossene Wochen mit gespeichertem Plan bleiben erhalten.</div>`:html`<div className="text-[12.5px] mute mt-2">Dein Saisonplan ist noch offen. Wähle eine Handlung oder einen Standard, der zu dir passt.</div>`}
+ ${p.offered>p.capacity&&html`<p className="text-[12px] mute mt-2">Dein Plan enthält mehr Handlungen als Punkteplätze. Höchstens drei Erledigungen pro Tag bringen Saisonpunkte; weitere zählen für deine Ziele und Erfahrung.</p>`}</section>`}
 function Stats({c}){
  const adv=c.S.ui==='adv',base=[['out','Ergebnisse'],['proc','Umsetzung'],['temple','Tempel'],['exp','Experimente'],['compound','Wirkung']],opts=adv?[...base,['matrix','Lebensmatrix'],['gen','Gesamt'],['over','Verlauf'],['rec','Rekorde'],['calc','Rechner'],['proj','Prognose']]:base;
  const t=opts.some(o=>o[0]===c.statTab)?c.statTab:'out',set=c.setStatTab;
  return html`<div className="screen px-4 pb-6"><div className="pt-5 flex items-end justify-between gap-2"><div><div className="lbl flex items-center gap-1.5"><span style=${{color:'var(--gold)'}}><${Icon} n="laurel" s=${15} sw=${1.5}/></span>Dein Weg</div><h1 className="disp text-[32px] mt-1 leading-none">Fortschritt</h1></div><div className="pb-1"><${ModeToggle} c=${c}/></div></div>
- <div className="mt-3"><${RankBar} S=${c.S}/></div>
+ <${PersonalSeasonCard} S=${c.S}/><div className="mt-3"><${RankBar} S=${c.S}/></div>
  <${SeasonFresco} c=${c}/>
  <${StatsCompass} c=${c}/>
  <div className="meander mt-4" aria-hidden="true"/><div className="lbl mt-3 px-1">Details</div><div className="mt-2 mb-3"><${Seg} opts=${opts} val=${t} on=${set}/></div>
@@ -3997,7 +4015,7 @@ function StandardsToday({c}){const {S}=c;const L=S.life;const list=Object.values
    <div className="flex items-center gap-2"><span className="text-[11px] lbl shrink-0" style=${{color:aCol(s.area)}}>${LC.AREA[s.area].de}</span><span className="text-[13.5px] font-medium flex-1 min-w-0 truncate">${s.std.text}</span><span className="num text-[12.5px] shrink-0">${w?w.done:0}/${w?w.per:s.std.perWeek}</span></div>
    ${(()=>{const ev=LC.eveningFor(L,L.d||0);return ev&&ev.std===s.area?html`<div className="text-[11.5px] mt-1"><span className="acc font-semibold">Gestern Abend festgelegt${ev.when?' · '+ev.when:''}.</span> <span className="mute">${ev.plan}</span></div>`:null})()}
    <p className="text-[12px] mute mt-1">${s.std.anchor?'Auslöser: '+s.std.anchor+' · ':''}${s.std.perWeek}× pro Woche, Tage selbst wählen.</p><button className="chip mt-2" onClick=${()=>c.openSheet({t:'routine',key:'std:'+s.area})}>Bearbeiten oder pausieren</button><div className="mt-1.5"><${Bar} pct=${w?Math.min(1,w.done/w.per):0} h=${4} color=${aCol(s.area)}/></div>
-   <div className="flex flex-wrap items-center gap-1.5 mt-2">${!s.aid&&html`<button type="button" disabled=${c.D.restToday||w&&w.done>=w.per||(L.stdLog||[]).some(e=>e.area===s.area&&e.d===L.d)} onClick=${()=>log(s.area,'std')} className="chip">Erledigt</button>`}${s.min&&html`<button type="button" disabled=${c.D.restToday||(L.stdLog||[]).some(e=>e.area===s.area&&e.d===L.d)} onClick=${()=>log(s.area,'min')} className="chip" title=${s.min.text}>Minimum: ${s.min.text.length>26?s.min.text.slice(0,25)+'…':s.min.text}</button>`}
+   <div className="flex flex-wrap items-center gap-1.5 mt-2">${!s.aid&&html`<button type="button" disabled=${c.D.restToday||w&&w.done>=w.per||LC.standardDoneToday(L,s.area)} onClick=${()=>log(s.area,'std')} className="chip">Erledigt</button>`}${s.min&&html`<button type="button" disabled=${c.D.restToday||LC.standardDoneToday(L,s.area)} onClick=${()=>log(s.area,'min')} className="chip" title=${s.min.text}>Minimum: ${s.min.text.length>26?s.min.text.slice(0,25)+'…':s.min.text}</button>`}
     ${f&&f.adapt&&html`<button type="button" onClick=${()=>c.openSheet({t:'standards',area:s.area})} className="bg-transparent border-0 p-0 text-[12px] acc">Anpassen?</button>`}</div>
    ${s.aid&&html`<div className="text-[11px] mute mt-1">Zählt mit deiner Ziel-Handlung.</div>`}</div>`})}</div></div>`}
 
@@ -4490,7 +4508,7 @@ function App({init,auth,skey='war_within_v5'}){
  /* Pünktlichkeit: im geplanten Fenster (früher zählt auch) +20 %, 30 Min. Kulanz, keine Strafe bei Verspätung */
  const nowM=simMin!=null?simMin:calendarMinutes(now,S);
  const nemPlanNow=useMemo(()=>buildNemesisPlan(nemTasks(S)),[S]);
- const PUNCT=20,GRACE=30;
+ const GRACE=30;
  const punctOf=mid=>{const p=nemPlanNow.find(x=>x.id===mid&&!x.virtual&&x.kind!=='sleep');return !!p&&nowM>=nemPlanNow[0].start-180&&nowM<=(p.fixed?p.start:p.end)+GRACE};
  const curIds=new Set(nemPlanNow.filter(p=>!p.virtual&&p.kind!=='sleep'&&nowM>=p.start&&nowM<=(p.fixed?p.start:p.end)+GRACE).map(p=>p.id));
  /* Arena sharing requires explicit opt-in; only qualified completed actions count. */
@@ -4504,11 +4522,8 @@ function App({init,auth,skey='war_within_v5'}){
  const complete=(mid,pos,extra={})=>{
   if(lock.current[mid])return;lock.current[mid]=1;setTimeout(()=>{delete lock.current[mid]},700);
   const m=S.missions.find(x=>x.id===mid);if(!m||isDone(S,m)){toast(m&&m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
-  const a=S.acts[m.act];const room=Math.max(0,a.cap-(S.weekPts[m.act]||0));
-  const sb=m.freq==='daily'?streakBonus(S.streak):0;
-  const pu=extra.onTime||punctOf(mid),calcA=b=>Math.min(Math.max(1,Math.round(m.pts*(1+(b+sb)/100)*(ptsMult(S,m)))),room);
-  const capped=!RK.canEarn(S,dayKey(S)),award=capped?0:calcA((extra.bonus||0)+(pu?PUNCT:0));
-  upd(n=>{if(isDone(n,m))return;n.done[mid]=true;if(m.freq==='multi'){n.counts=n.counts||{};n.counts[mid]=(n.counts[mid]||0)+1}n.weekPts[m.act]=(n.weekPts[m.act]||0)+award;n.todayPts[m.act]=(n.todayPts[m.act]||0)+award;n.seasonPts+=award;if(m.act===n.sTheme)n.sThemePts=(n.sThemePts||0)+award;n.sAreaPts=n.sAreaPts||{};n.sAreaPts[m.act]=(n.sAreaPts[m.act]||0)+award;
+  const pu=extra.onTime||punctOf(mid),reward={...extra,onTime:pu},quoted=completionQuote(S,m,reward),{capped,award}=quoted;
+  upd(n=>{if(isDone(n,m))return;n.done[mid]=true;if(m.freq==='multi'){n.counts=n.counts||{};n.counts[mid]=(n.counts[mid]||0)+1}const {award}=awardCompletion(n,m,reward);
    n.acts[m.act].rating=Math.min(99,n.acts[m.act].rating+m.pts*.04);const ct=m.cat||n.acts[m.act].cat;n.catScore[ct]=Math.min(100,(n.catScore[ct]??40)+m.pts*.12);
    n.autoDone=n.autoDone||{};n.autoDone[mid]=!!extra.auto;
    if(extra.q!=null){n.qLog=n.qLog||[];n.qLog.unshift({act:m.act,q:extra.q,t:Date.now()});n.qLog=n.qLog.slice(0,40)}
@@ -4519,7 +4534,7 @@ function App({init,auth,skey='war_within_v5'}){
    if(!isPerfect(n)&&dailyAllDone(n)){n.perfect={k:dayKey(n),ts:Date.now()};n.perfectDays=(n.perfectDays||0)+1;n.perfectShow=true}
    n.events.unshift({id:uid(),text:m.title+(extra.msg?' · '+extra.msg:''),pts:award,t:Date.now()});n.events=n.events.slice(0,12);
    n.feed.unshift({id:uid(),who:'me',pts:award,text:`${n.acts[m.act].short} erledigt`,t:Date.now()});n.feed=n.feed.slice(0,12);
-   RK.afterAward(n,dayKey(n),!capped);LC.onComplete(n,mid);if(extra.apply)extra.apply(n);checkAch(n)});
+   LC.onComplete(n,mid);if(extra.apply)extra.apply(n);checkAch(n)});
   arenaAuto(m,extra);
   const la=(S.life.actions||[]).find(x=>x.missionId===mid&&!x.off),lwk=LC.curWk(S.life),limp=la?`Umsetzung ${LC.doneIn(S.life,la.id,lwk)+1}/${LC.plannedAt(la,lwk)} diese Woche`:null;
   try{navigator.vibrate&&navigator.vibrate(award>0?[12,40,18]:8)}catch(e){}
@@ -4600,7 +4615,7 @@ function App({init,auth,skey='war_within_v5'}){
  const setNemTime=(mid,v)=>upd(n=>{n.nem=n.nem||nemDefault(n);const pl=buildNemesisPlan(nemTasks(n));Object.keys(n.nem).forEach(k=>{if(typeof n.nem[k]==='string'){const q=pl.find(x=>x.id===k),m=n.missions.find(x=>x.id===k);n.nem[k]={s:q?q.start:360,d:m?durDef(m):30}}});if(v)n.nem[mid]=v;else delete n.nem[mid]});
  const setUi=v=>{if((S.ui||'basic')===v)return;upd(n=>{n.ui=v});toast(v==='adv'?'Erweitert: Lebensmatrix, Rekorde, Rechner und Prognosen sichtbar. Deine Daten bleiben gleich.':'Basis: nur das Wichtigste. Es geht nichts verloren.','good')};
  const recordStat=(id,v)=>{upd(n=>{n.mxv=n.mxv||{};n.mxv[id]=[...(n.mxv[id]||[]),{v,t:Date.now()}].slice(-40)});toast('Wert gespeichert. Punkte gibt es für Missionen, nicht für Einträge.','good')};
- const saveMission=x=>{const isNew=!x.id;upd(n=>{if(isNew)n.missions.push({...x,id:'x'+uid(),sub:undefined});else{const m=n.missions.find(y=>y.id===x.id);if(m){m.title=x.title;m.desc=x.desc;m.freq=x.freq;m.times=x.times;m.pts=x.pts}}});setSheet(x.stat&&isNew?{t:'stat',id:x.stat}:null);toast(isNew?'Mission angelegt':'Mission gespeichert','good')};
+ const saveMission=x=>{const isNew=!x.id;upd(n=>{if(isNew)n.missions.push({...x,id:'x'+uid(),sub:undefined});else{const m=n.missions.find(y=>y.id===x.id);if(m){m.title=x.title;m.desc=x.desc;m.freq=x.freq;m.times=x.times;m.pts=x.pts;if(m.id==='m_ref')m.planOptIn=true}}});setSheet(x.stat&&isNew?{t:'stat',id:x.stat}:null);toast(isNew?'Mission angelegt':'Mission gespeichert','good')};
  const delMission=id=>{upd(n=>{((n.life&&n.life.actions)||[]).forEach(a=>{if(a.missionId===id)a.off=true});n.missions=n.missions.filter(m=>m.id!==id);delete n.done[id];if(n.brief)n.brief.ids=n.brief.ids.filter(x=>x!==id)});setSheet(null);toast('Mission gelöscht. Verdiente Punkte bleiben.')};
  const addSub=(cat,name,act)=>{upd(n=>{n.mx=n.mx||{};n.mx.subs=n.mx.subs||{};n.mx.subs[cat]=[...(n.mx.subs[cat]||[]),{id:'s'+uid(),n:name,act,custom:true,stats:[]}]});toast('Unterkategorie angelegt. Füge jetzt Werte hinzu.','good')};
  const addStat=(sub,st)=>{const id='v'+uid();upd(n=>{n.mx=n.mx||{};n.mx.stats=n.mx.stats||{};n.mx.stats[sub]=[...(n.mx.stats[sub]||[]),{id,...st,custom:true}]});setSheet({t:'stat',id});toast('Wert angelegt','good')};

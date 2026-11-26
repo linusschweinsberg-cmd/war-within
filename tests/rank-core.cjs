@@ -30,8 +30,8 @@ t('Ensure is idempotent and survives JSON reload',()=>{const S={season:1,day:0,s
  const broken={season:2,day:3,seasonPts:5,prog:{v:1,slots:'x'}};RK.ensure(broken);assert.equal(broken.prog.slots,2)});
 
 t('App wiring: capped completions award zero, record the day, side slots follow RK.slots',()=>{
- assert.match(html,/const capped=!RK\.canEarn\(S,dayKey\(S\)\),award=capped\?0:calcA/);
- assert.match(html,/RK\.afterAward\(n,dayKey\(n\),!capped\)/);
+ assert.ok(html.includes('const {award}=awardCompletion(n,m,reward)'));
+ assert.ok(html.includes('window.RK.afterAward(S,dayKey(S),award>0)'));
  assert.match(html,/\.slice\(0,RK\.slots\(S\)\):\[\]/);
  assert.match(html,/RK\.ensure\(s\)/);
  assert.match(html,/<script src="rank-core\.js\?v=ww-v\d+"><\/script>/)});
