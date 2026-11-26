@@ -10,3 +10,9 @@ t('Zugeklappte Bereiche stehen in einer Karte; Standards nur, wenn es welche gib
 t('Im Blick: Name oben, Zeit darunter',()=>{assert.ok(html.includes("tile('owl','Tagesrückblick',r?'erledigt':'ab 18:00',false,"));assert.ok(!html.includes("tile('owl',r?'Erledigt':'ab 18:00'"))});
 
 console.log(ok.map(n=>'PASS '+n).join('\n'));
+
+/* Tempel: schlichte Säulen statt Zeichnung auf Mein Leben und Fortschritt; TempleProgress definiert L (vorher ReferenceError, sobald Bausteine existieren). */
+{const ok2=[];const t2=(n,f)=>{f();ok2.push(n)};
+ t2('Tempel: TemplePlain auf beiden Seiten, Stufen statt Namen',()=>{assert.equal((html.match(/<\$\{TemplePlain\} /g)||[]).length,2);assert.ok(!html.includes('${col.stageName}'),'keine Stufennamen in den Details')});
+ t2('TempleProgress definiert L für milestoneEvidence',()=>{const i=html.indexOf('function TempleProgress');assert.ok(html.slice(i,i+200).includes('const L=S.life'))});
+ console.log(ok2.map(n=>'PASS '+n).join('\n'))}
