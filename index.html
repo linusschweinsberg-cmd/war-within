@@ -18,18 +18,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v122"></script>
-<script src="auth.js?v=ww-v122"></script>
-<script src="life-core.js?v=ww-v122"></script>
-<script src="wisdom-core.js?v=ww-v122"></script>
-<script src="future-self-core.js?v=ww-v122"></script>
-<script src="projection-core.js?v=ww-v122"></script>
-<script src="rank-core.js?v=ww-v122"></script>
-<script src="persona-core.js?v=ww-v122"></script>
-<script src="character-core.js?v=ww-v122"></script>
-<script src="arena-core.js?v=ww-v122"></script>
-<script src="arena-api.js?v=ww-v122"></script>
-<script src="arena-ui.js?v=ww-v122"></script>
+<script src="supabase-config.js?v=ww-v123"></script>
+<script src="auth.js?v=ww-v123"></script>
+<script src="life-core.js?v=ww-v123"></script>
+<script src="wisdom-core.js?v=ww-v123"></script>
+<script src="future-self-core.js?v=ww-v123"></script>
+<script src="projection-core.js?v=ww-v123"></script>
+<script src="rank-core.js?v=ww-v123"></script>
+<script src="persona-core.js?v=ww-v123"></script>
+<script src="character-core.js?v=ww-v123"></script>
+<script src="arena-core.js?v=ww-v123"></script>
+<script src="arena-api.js?v=ww-v123"></script>
+<script src="arena-ui.js?v=ww-v123"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -1669,7 +1669,7 @@ function FutureHead({c,purpose}){const {S}=c,p=FS.settings(S);if(!p.enabled)retu
  return html`<button type="button" onClick=${()=>c.openSheet({t:'futureSelf'})} data-future-head aria-label=${'Heute. '+purpose+' Dein Zukunfts-Ich: '+line+(show?' Er '+d.Z+', du '+d.X+' von '+d.Y+'.':'')+' Öffnen'} className="relative w-full mt-2 text-left overflow-hidden p-0" style=${{borderRadius:20,border:'1px solid var(--line)',background:'var(--hero)',color:'var(--ink)'}}>
  <span className="flex items-stretch gap-2">
   <span className="flex-1 min-w-0 px-4 pt-3 pb-2"><span className="lbl block" style=${{color:'var(--nem)'}}>Dein Zukunfts-Ich</span><span className="disp block text-[32px] leading-none mt-1">Heute</span>
-   <span className="block text-[12px] mute mt-1.5 leading-snug" data-page-purpose>${purpose}</span><span className="block text-[13px] font-semibold mt-2 leading-snug">${line}</span></span>
+   <span className="block text-[13px] font-semibold mt-1.5 leading-snug">${line}</span></span>
   <span className="shrink-0 flex items-end justify-center" style=${{width:96,background:'color-mix(in srgb,var(--nem) 12%,transparent)'}}><${FutureSelfMark} size=${92}/></span></span>
  <span className="block px-4 py-2.5 space-y-1" style=${{borderTop:'1px solid var(--line)',background:'color-mix(in srgb,var(--gold) 10%,transparent)'}}>${!fm&&(()=>{const r=RK.rank(S);return html`<span className="flex items-baseline justify-between text-[11.5px] mute" data-season-rank><span>Spielsaison ${S.season} · <b style=${{color:'var(--ink)'}}>${r.name}</b></span><span className="num">${r.next?r.pts+' / '+r.next.min+' Pkt.':r.pts+' Pkt.'}</span></span>`})()}${show?html`${bar('Er',d.Z,'var(--nem)')}${bar('Du',d.X,'var(--acc)')}`:html`<span className="flex items-center justify-between text-[12px] mute">Tippen für Rat oder Tagesurteil<${Icon} n="chevR" s=${14}/></span>`}</span></button>`}
 function TodayHero({c,ini,rings,battle}){const {S}=c,planned=rings.filter(r=>r.total>0),closed=planned.filter(r=>r.done>=r.total).length,all=planned.length>0&&closed===planned.length;
@@ -1694,12 +1694,12 @@ function BattleCard({c,b,ring}){const morning=nowMinOf(c)<720,ob=battleObstacle(
  useEffect(()=>{const prev=was.current;was.current=b.done;if(!b.done){setFx(false);return}if(prev)return;setFx(true);const id=setTimeout(()=>setFx(false),800);return()=>clearTimeout(id)},[b.done]);
  /* Gewonnen: gleicher Aufbau und gleiche Höhe wie offen, damit ein zweiter Tipp nichts Nachgerücktes trifft. */
  if(b.done)return html`<section className=${'relative overflow-hidden mt-4 p-4'+(fx?' battle-fx':'')} data-today-battle="won" aria-label="Hauptschlacht" style=${{borderRadius:16,background:'var(--card)',color:'var(--ink)',boxShadow:'0 0 0 1px '+tint('var(--bronze)',60)+' inset'}}>
- <div className="flex items-start justify-between gap-2"><div className="lbl pt-1 min-w-0" style=${{color:'var(--bronze)'}}>Hauptschlacht<span className="mute font-normal normal-case tracking-normal"> · ${b.source}</span></div><span aria-hidden="true" className="shrink-0 -mt-2" style=${{height:44}}/></div>
+ <div className="flex items-start justify-between gap-2"><div className="lbl pt-1 min-w-0" style=${{color:'var(--bronze)'}}>Hauptschlacht${b.source&&b.source!=='Von dir gewählt'?html`<span className="mute font-normal normal-case tracking-normal"> · ${b.source}</span>`:null}</div><span aria-hidden="true" className="shrink-0 -mt-2" style=${{height:44}}/></div>
  <div className="flex items-center gap-3"><span aria-hidden="true" className="battle-shield shrink-0 flex items-center justify-center" style=${{width:44,height:44,borderRadius:22,background:tint('var(--bronze)',16),color:'var(--bronze)',boxShadow:'0 0 0 1.5px var(--bronze) inset'}}><${Icon} n="aspis" s=${24}/></span>
  <div className="text-[20px] font-bold leading-snug break-words min-w-0">${t}</div></div>
  ${b.plan&&html`<div className="text-[12px] mute mt-2 leading-snug">${b.plan}</div>`}
  ${obLine}
- <div role="status" className="select-none mt-4 flex items-center justify-center gap-2 text-[16px] font-bold" style=${{minHeight:52,borderRadius:12,background:tint('var(--bronze)',14),color:'var(--bronze)'}}><${Icon} n=${b.min?'check':'laurel'} s=${18}/>${b.min?'Minimum gehalten':'Schlacht gewonnen'}</div>${c.S.ui!=='adv'&&html`<div className="text-[12px] mute text-center mt-2 leading-snug" data-loop-next>Wie geht es weiter? Heute Abend kurz zurückblicken, sonntags den Plan anpassen.</div>`}</section>`;
+ <div role="status" className="select-none mt-4 flex items-center justify-center gap-2 text-[16px] font-bold" style=${{minHeight:52,borderRadius:12,background:tint('var(--bronze)',14),color:'var(--bronze)'}}><${Icon} n=${b.min?'check':'laurel'} s=${18}/>${b.min?'Minimum gehalten':'Schlacht gewonnen'}</div>${c.S.ui!=='adv'&&calmLeft(c.S)>0&&html`<div className="text-[12px] mute text-center mt-2 leading-snug" data-loop-next>Wie geht es weiter? Heute Abend kurz zurückblicken, sonntags den Plan anpassen.</div>`}</section>`;
  return html`<section className="relative overflow-hidden mt-4 p-4" data-today-battle="open" data-today-priority="primary" aria-label="Hauptschlacht" style=${{borderRadius:16,background:rust(18),color:'var(--ink)',boxShadow:'0 0 0 1px '+rust(40)+' inset'}}>
  <div className="flex items-start justify-between gap-2"><div className="lbl pt-1 min-w-0" style=${{color:'var(--acc2)'}}>${morning?'Morgen-Briefing · ':''}Hauptschlacht<span className="mute font-normal normal-case tracking-normal">${' · '+b.source}${b.when?' · '+b.when:''}</span></div>
  <div className="flex shrink-0 -mt-2 -mr-2"><button type="button" onClick=${()=>chooseBattle(c,null)} className="border-0 bg-transparent text-[12px] px-2" style=${{minHeight:44,color:'var(--mute)'}}>Ändern</button><button type="button" onClick=${()=>priorityDetail(c,b)} aria-label=${'Details: '+t} className="flex items-center justify-center border-0 bg-transparent" style=${{width:44,height:44,color:'var(--mute)'}}><${Icon} n="info" s=${18}/></button></div></div>
