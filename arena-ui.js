@@ -360,13 +360,13 @@
   const [view,setView]=useState('today'),[opened,setOpened]=useState(0);
   const [live,setLive]=useState('off'),[news,setNews]=useState(null),[focus,setFocus]=useState(null),prevSnap=useRef(null),[hallOpen,setHallOpen]=useState(false);
   useEffect(()=>{const update=()=>setOnline(navigator.onLine!==false);addEventListener('online',update);addEventListener('offline',update);return()=>{removeEventListener('online',update);removeEventListener('offline',update)}},[]);
-  const [code,setCode]=useState(()=>{try{return new URL(G.location.href).searchParams.get('arena')||''}catch(e){return''}}),[form,setForm]=useState(''),[confirm,setConfirm]=useState(false);
+  const [code,setCode]=useState(()=>c.auth?.invite||''),[form,setForm]=useState(''),[confirm,setConfirm]=useState(false);
   const section=useRef(null);
   useEffect(()=>{section.current?.scrollIntoView({block:'start',behavior:'auto'})},[snapshot?.league.id]);
   const active=useRef(true),gate=useRef(false),serial=useRef(0),selected=useRef(null);selected.current=snapshot?.league.id||null;
   useEffect(()=>{active.current=true;return()=>{active.current=false;serial.current++}},[]);
   async function run(fn,apply){if(gate.current)return;gate.current=true;setBusy(true);setError('');const seq=++serial.current;try{const r=await fn();if(active.current&&seq===serial.current){apply(r);setLoaded(true)}}catch(e){if(active.current&&seq===serial.current)setError(e.message||'Die Arena konnte nicht geladen werden.')}finally{gate.current=false;if(active.current&&seq===serial.current)setBusy(false)}}
-  const open=s=>{prevSnap.current=null;setFocus(null);setSnapshot(s);setForm('');setConfirm(false);setNotice('');setView('today');setOpened(0)};
+  const open=s=>{prevSnap.current=null;setFocus(null);setSnapshot(s);setForm('');setConfirm(false);setNotice('');setView('today');setOpened(0);if(c.auth?.invite===s.league.invite_code)c.auth?.clearInvite?.();};
   useEffect(()=>{if(signed)run(()=>api.list(),setList)},[signed]);
   useEffect(()=>{if(!signed||!snapshot)return;const id=snapshot.league.id;const refresh=()=>{if(document.visibilityState==='hidden'||navigator.onLine===false||gate.current)return;run(()=>api.load(id),s=>{if(selected.current===id)setSnapshot(s)})};const interval=setInterval(refresh,live==='live'?30000:15000);addEventListener('focus',refresh);addEventListener('online',refresh);document.addEventListener('visibilitychange',refresh);return()=>{clearInterval(interval);removeEventListener('focus',refresh);removeEventListener('online',refresh);document.removeEventListener('visibilitychange',refresh)}},[signed,snapshot?.league.id,live]);
   /* Live: Realtime-Signal lädt den bestätigten Stand neu (gebündelt); ohne Realtime bleibt die Abfrage alle 15 s. */

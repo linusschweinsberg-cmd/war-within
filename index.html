@@ -4448,6 +4448,7 @@ function ProfileEdit({c,P,name,setP,done}){const [n,setN]=useState(name);const [
 /* ───── Wurzel: Anmeldung → Onboarding → App ───── */
 function Root(){
  const [A,setA]=useState(loadAuth);const [ready,setReady]=useState(false);const [authError,setAuthError]=useState('');const [boot,setBoot]=useState({init:null,key:0});
+ const [invite,setInvite]=useState(()=>{try{return window.ArenaCore.pendingInvitation(localStorage,location.href)}catch(e){return''}});
  const set=useCallback(fn=>setA(p=>{const n={...p,...fn(p)};saveAuth(n);return n}),[]);
  useEffect(()=>{let active=true;
  const apply=({session,recovery})=>{if(!active)return;setBoot(b=>({init:null,key:b.key+1}));setA(p=>{const sameUser=session?session.id===(p.session?.id||p.obUserId):p.session?.mode==='guest';const next={...p,session:session||(p.session?.mode==='guest'?p.session:null),recovery:!!recovery,onboarded:session?!!localStorage.getItem(ACC_KEY+'_'+session.id):false,ob:sameUser?p.ob:null,obUserId:session&&sameUser&&p.ob?session.id:null};if(sameUser)next.onboarded=p.onboarded;saveAuth(next);return next});setReady(true)};
@@ -4459,7 +4460,8 @@ function Root(){
  const isG=A.session.mode==='guest';
  if(isG?A.guestOb:!A.onboarded)return html`<${Onboarding} A=${A} set=${set} theme=${theme} onDone=${ob=>{const s=buildState(ob,A.session);try{localStorage.setItem(skey,JSON.stringify(s))}catch(e){}setBoot(b=>({init:s,key:b.key+1}));set(()=>(isG?{guestOb:false,ob:null}:{onboarded:true,ob:null}))}}/>`;
  if(authError&&A.session)return html`<div role="alert">${authError}<button onClick=${()=>setAuthError('')}>Zurück</button></div>`;
- const auth={session:A.session,
+ const auth={session:A.session,invite,
+  clearInvite:()=>{window.ArenaCore.clearInvitation(localStorage);setInvite('');try{const url=new URL(location.href);url.searchParams.delete('arena');history.replaceState(null,'',url.href)}catch(e){}},
   signOut:async()=>{try{if(!isG)await authApi.signOut()}catch(e){setAuthError(e.message);return}setBoot(b=>({init:null,key:b.key+1}));set(()=>({session:null}))},
   restartOnboarding:()=>set(p=>({...(isG?{guestOb:true}:{onboarded:false}),ob:newOb(isG?'':(p.session&&p.session.name)||'')})),
   rename:name=>set(p=>({session:{...p.session,name},account:p.account&&p.session&&p.session.mode==='demo'?{...p.account,name}:p.account})),
@@ -4485,7 +4487,7 @@ const METRICS={'5-km-Lauf':[true,S=>S.stats.run5k.last,fmtT],'Bankdrücken (Verb
 function App({init,auth,skey='war_within_v5'}){
  const [S,setS]=useState(()=>{const s=syncCalendar(LC.ensureLife(init||loadState(skey)));WC.ensure(s);FS.ensure(s);RK.ensure(s);PC.ensure(s);LC.syncTemple(s);return s});
  const [tSel,setTSel]=useState(null),[tFlash,setTFlash]=useState(null);
- const [tab,setTab]=useState(()=>{try{return !focusMode(S)&&new URLSearchParams(location.search).has('arena')?'league':'home'}catch(e){return'home'}}),[statTab,setStatTab]=useState('out'),[sheet,setSheet]=useState(null),[sel,setSel]=useState(null),[coreSel,setCoreSel]=useState(null),[freq,setFreq]=useState('all');
+ const [tab,setTab]=useState(()=>auth?.invite&&!focusMode(S)?'league':'home'),[statTab,setStatTab]=useState('out'),[sheet,setSheet]=useState(null),[sel,setSel]=useState(null),[coreSel,setCoreSel]=useState(null),[freq,setFreq]=useState('all');
  const [toasts,setToasts]=useState([]),[flash,setFlash]=useState({}),[undo,setUndo]=useState(null);
  useEffect(()=>{if(!undo)return;const t=setTimeout(()=>setUndo(u=>u&&u.id===undo.id?null:u),5000);return()=>clearTimeout(t)},[undo&&undo.id]);
  const now=useNow(1000);const scrollRef=useRef(null);const [scrolled,setScrolled]=useState(false);const [fabOff,setFabOff]=useState(false);const lastY=useRef(0);const lock=useRef({});
@@ -4711,9 +4713,11 @@ function App({init,auth,skey='war_within_v5'}){
  const nav=[['home','Heute','home'],['tasks','Aufgaben','target'],['life','Mein Leben','grid'],['stats','Fortschritt','bars'],...(focusMode(S)?[]:[['league','Arena','swords']])];const navKey={solo:'league',reflect:'home'}[tab]||tab;const revDue=LC.reviewWeek(S.life)!=null;
  const ach=newA&&ACHS.find(a=>a.id===newA);
  const fp=FS.settings(S),dockOffset=fp.enabled&&tab!=='home'?(fp.hints&&!fp.minimized?240:180):104;
+ const openInvitation=()=>{if(focusMode(S))toggleFocusMode();setTab('league')};
  return html`<div data-theme=${S.theme} data-skin=${S.skin||'antik'} className="app mx-auto w-full max-w-[430px] h-[100dvh] relative overflow-hidden flex flex-col" style=${{boxShadow:'0 0 80px rgba(var(--acc-rgb),.12)'}}>
  <div className="absolute inset-0 pointer-events-none overflow-hidden"><div className="absolute rounded-full" style=${{top:-110,left:-80,width:300,height:300,background:'rgba(var(--acc-rgb),.13)',filter:'blur(70px)'}}/><div className="absolute rounded-full" style=${{top:260,right:-140,width:260,height:260,background:'rgba(var(--sky-rgb),.07)',filter:'blur(80px)'}}/></div>
  <div ref=${scrollRef} onScroll=${e=>{const y=e.currentTarget.scrollTop,v=y>70;if(v!==scrolled)setScrolled(v);const dn=y>lastY.current+4,up=y<lastY.current-4;if(dn&&!fabOff&&y>120)setFabOff(true);else if((up||y<120)&&fabOff)setFabOff(false);lastY.current=y}} className="flex-1 overflow-y-auto relative scroll-fade" style=${{paddingBottom:dockOffset}}>
+  ${auth?.invite&&tab!=='league'&&html`<section aria-label="Arena-Einladung" className="card mx-4 mt-4 p-4"><div className="lbl acc">Einladung von Freunden</div><p className="text-[13px] mt-2">Deine Arena-Einladung ist noch da. Du entscheidest selbst, ob du beitrittst.</p>${focusMode(S)&&html`<p className="text-[12px] mute mt-2">Zum Öffnen beendest du den Fokusmodus und die ruhige Startwoche. Arena, Planvergleich und Punkte werden sichtbar.</p>`}<button type="button" onClick=${openInvitation} className="btn w-full mt-3 py-3 text-[13px]">${focusMode(S)?'Fokusmodus beenden und Einladung ansehen':'Einladung ansehen'}</button><button type="button" onClick=${auth.clearInvite} className="ghost w-full mt-2 py-3 text-[13px]">Einladung verwerfen</button></section>`}
   ${['solo','reflect'].includes(tab)&&html`<div className="px-4 pt-4 -mb-2 flex gap-2"><button onClick=${()=>setTab(navKey)} className="chip flex items-center gap-1"><${Icon} n="chevL" s=${14}/>${navKey==='home'?'Heute':'Arena'}</button></div>`}${tab==='home'&&html`<${Home} c=${c}/>`}${tab==='life'&&html`<${MyLife} c=${c}/>`}${tab==='reflect'&&html`<${Reflect} c=${c}/>`}${tab==='tasks'&&html`<${Tasks} c=${c}/>`}${tab==='solo'&&html`<${Solo} c=${c}/>`}${tab==='league'&&html`<${League} c=${c}/>`}${tab==='stats'&&html`<${Stats} c=${c}/>`}</div>
  ${(()=>{const T={home:'Heute',life:'Mein Leben',reflect:'Reflexion',tasks:'Aufgaben',solo:'Duell · Saison '+S.season,league:'Arena',stats:'Fortschritt'}[tab];return html`<div aria-hidden=${!scrolled} className="topbar absolute top-0 inset-x-0 z-20 px-4 flex items-center justify-between pointer-events-none" style=${{height:52,paddingTop:'env(safe-area-inset-top)',opacity:scrolled?1:0,transform:scrolled?'none':'translateY(-8px)',background:'var(--glass)',backdropFilter:'blur(16px) saturate(1.4)',WebkitBackdropFilter:'blur(16px) saturate(1.4)',borderBottom:'1px solid var(--line)'}}><div className="disp text-[19px]">${T}</div><button tabIndex=${scrolled?0:-1} onClick=${()=>{if(scrollRef.current)scrollRef.current.scrollTo({top:0,behavior:'smooth'})}} className="chip pointer-events-auto" style=${{padding:'4px 10px',minHeight:28}} aria-label="Nach oben"><${Icon} n="up" s=${14}/></button></div>`})()}
  

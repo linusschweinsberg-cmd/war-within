@@ -27,7 +27,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
-- Keine offenen Codearbeiten. Freundestest: Arena live freigeschaltet; SMTP und echte Konten-/Mehrgeräteprüfung warten auf Anbieter/Absender (siehe `docs/FRIENDS-TEST.md`).
+- Codex: `codex/friends-invitation-flow` – Einladungen über Registrierung/Bestätigung erhalten und im Fokusmodus bewusst öffnen; `arena-core.js`, `arena-ui.js`, `index.html`, Release-Versionen und Tests. Domain bleibt beim Nutzer.
 
 ### Letzte Integration
 - PR #43–#44 (Merge `7a673ed`, Release `ww-v102`): Standard-Rückgängig, pausierte Hauptschlachten und präziser Löschumfang korrigiert; volle eigenständige Standards teilen Punkte/Limits mit Zielhandlungen und zählen dauerhaft als Erfahrung. Textfreie Tageskennung verhindert Doppelwertung nach Löschen. Persönlicher Saisonplan aus übernommenen Handlungen mit Ruhe/Startwoche und gespeicherten Wochenbudgets; automatische Reflexion erst nach ausdrücklicher Übernahme. 33 beendbare Testskripte einschließlich Arena-SQL/RLS bestanden; unabhängiges Gegenreview nach zwei korrigierten P2-Randfällen ohne weitere Blocker. Browser 375/390 px: Undo, Pause/Reload, Löschung, vier Standards = 22 Punkte/4 Erfahrung und Reload geprüft, keine erfassten Konsolenfehler. Livegang vom Nutzer ausdrücklich bestätigt; keine Supabase-Änderungen.
