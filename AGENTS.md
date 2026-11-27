@@ -28,7 +28,11 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
-- Keine offenen Codearbeiten. Freundestest: Arena live freigeschaltet; SMTP und echte Konten-/Mehrgeräteprüfung warten auf Anbieter/Absender (siehe `docs/FRIENDS-TEST.md`).
+- Codex: Fortgesetzte Integritätsprüfung auf `codex/friends-invitation-flow` – zentraler Missionsabschluss gegen pausierte/entfernte Zielhandlungen und inaktive Ziele abgesichert; `index.html`, Regressionen, Release-URLs/Service Worker und Dokumentation. Kandidat ww-v138, kein Merge/Deployment. Details: `docs/INTEGRITY-v138.md`.
+- Codex: Fortgesetzte Integritätsprüfung auf `codex/friends-invitation-flow` – Wochenhäufigkeit über gemeinsamen Routinenablauf mit verknüpften Standards synchronisiert; `index.html`, Regression, Release-URLs/Service Worker und Dokumentation. Kandidat ww-v137, kein Merge/Deployment. Details: `docs/INTEGRITY-v137.md`.
+- Codex: Integritätsprüfung auf `codex/friends-invitation-flow` – dauerhafte Erfahrung bei begrenztem Zielhandlungsprotokoll korrigiert; `life-core.js`, `tests/personal-scoring.cjs`, Release-URLs/Service Worker und Dokumentation. Kandidat ww-v136, kein Merge/Deployment. Details: `docs/INTEGRITY-v136.md`.
+- Codex: Selbsttest-Prüfliste auf `codex/friends-invitation-flow` ergänzt (`docs/SELBSTTEST.md`, `AGENTS.md`); vier Beobachtungsfragen, Fehlerkriterien und Auswertung nach zwei Wochen. Funktionsstopp bleibt bestehen.
+- Codex: `codex/friends-invitation-flow` – Review ww-v128–ww-v134, Einladungsabgleich und Kontotest; arena-core.js, arena-ui.js, index.html, usage-core.js, sw.js, docs und Tests. Zielrelease ww-v135, kein Merge/Deployment ohne Nutzerfreigabe. Domain bleibt beim Nutzer.
 
 ### Letzte Integration
 - Releases ww-v128 bis ww-v133 (27.11.2026, auf ausdrücklichen Nutzerwunsch ohne Codex-Gegenreview veröffentlicht; Review nachholen): #48–#56 Vereinfachungs-Stapel (Zukunfts-Ich-Kopfkachel auf Heute, Texte hinter InfoNote, Kurzform als Standard, Nutzungszählung usage-core.js, Zukunfts-Ich ohne Pronomen), #57 Tempel mit Dach/Säulen/Sockel, #58 Fortschritt in Basis nur „Diese Woche“ und „Deine Ziele“, #59 Arena: drei Schritte, „Liga erstellen“ zuerst, kurze Regeln; Kopfkachel nennt die Einheit („von N geplanten Aufgaben“). **Funktionsstopp** für zwei Wochen Selbsttest: nur echte Fehler beheben, keine Oberflächenänderungen, damit die Nutzungszählung aussagekräftig bleibt.
@@ -43,7 +47,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v134` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v135` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`, `node tests/ftue-flows.cjs` (Abläufe: neu, vollständig, übersprungen, zurückkehrend). Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Produktprinzip (verbindlich)
@@ -74,5 +78,6 @@ Erst Selbsterkenntnis. Dann Eigenverantwortung. Dann persönliche Standards. Und
 - Gesundheitsdaten-Sync und Liga-Mitglieder sind simulierte Demo-Daten.
 
 ## Nächste Schritte
+- Zwei Wochen Alltagstest nach `docs/SELBSTTEST.md`; danach höchstens ein bis zwei durch Beobachtungen belegte Verbesserungen auswählen. Währenddessen nur bestätigte Fehler beheben.
 - Ideen: Abendritual, Supabase-Konten, Health-Sync, Squads mit Freunden, teilbare Saisonkarte.
 - Datei in Module aufteilen (Vite + React), echtes Backend für Liga.

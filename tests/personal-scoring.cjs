@@ -36,6 +36,35 @@ test('Actual App.complete uses the shared award, creates one goal log and has sn
  const undo=hooks.find(x=>x&&typeof x.restore==='function'&&typeof x.msg==='string');assert.ok(undo);undo.restore();assert.deepEqual(clone(hooks[0]),before);
 });
 
+test('Actual completion rejects paused goal actions and safely ignores a removed mission',()=>{
+ const S=fresh(),g=addGoal(S),ac=LC.actionsOf(S.life,g.id)[0];
+ LC.changeRoutine(S,'m:'+ac.missionId,{text:ac.title,perWeek:ac.perWeek,paused:true});
+ hooks=[];cursor=0;a.App({init:S,auth:{session:{mode:'guest',name:'Test'}}});
+ const before=clone(hooks[0]);c.appContext.complete(ac.missionId);
+ assert.deepEqual(clone(hooks[0]),before);
+ // Re-render with the latest state, as a sheet still holding a mission ID would do.
+ hooks[0].missions=[];cursor=0;a.App({init:S,auth:{session:{mode:'guest',name:'Test'}}});
+ const removed=clone(hooks[0]);assert.doesNotThrow(()=>c.appContext.start(ac.missionId));
+ assert.deepEqual(clone(hooks[0]),removed);
+});
+
+test('Inactive goal actions earn nothing; resuming a paused action restores normal completion',()=>{
+ for(const state of ['off','archived','achieved','missing']){
+  const S=fresh(),g=addGoal(S),ac=LC.actionsOf(S.life,g.id)[0];
+  if(state==='off')ac.off=true;else if(state==='missing')S.life.goals=[];else g.status=state;
+  hooks=[];cursor=0;a.App({init:S,auth:{session:{mode:'guest',name:'Test'}}});
+  const before=JSON.stringify(hooks[0]);c.appContext.start(ac.missionId);c.appContext.complete(ac.missionId);
+  assert.equal(JSON.stringify(hooks[0]),before,state);
+ }
+ const S=fresh(),g=addGoal(S),ac=LC.actionsOf(S.life,g.id)[0];
+ LC.changeRoutine(S,'m:'+ac.missionId,{text:ac.title,perWeek:3,paused:true});
+ LC.changeRoutine(S,'m:'+ac.missionId,{text:ac.title,perWeek:3,paused:false});
+ hooks=[];cursor=0;a.App({init:clone(S),auth:{session:{mode:'guest',name:'Test'}}});
+ c.appContext.complete(ac.missionId);assert.ok(hooks[0].seasonPts>0);
+ assert.equal(LC.insights(hooks[0]).sessions,1);assert.equal(hooks[0].life.log.length,1);
+ assert.equal(LC.columnState(hooks[0].life,'health').pts,1);
+});
+
 test('Standards share three daily awards with missions; zero-point execution still earns experience',()=>{
  const S=fresh();for(const area of ['health','relationships','growth','wealth'])addStd(S,area);const k=ctx(S);
  const g=addGoal(k.S,'health',3),m=k.S.missions.find(m=>m.goal===g.id);a.awardCompletion(k.S,m);
@@ -57,6 +86,23 @@ test('Standard experience survives removal/private-text deletion/log truncation 
  LC.removeStandard(S.life,'health');assert.equal(LC.insights(S).sessions,1002);LC.clearFoundation(S);assert.equal(LC.insights(clone(S)).sessions,1002);
 });
 
+test('Goal experience survives log truncation, action removal and legacy JSON reload; undo restores its counter',()=>{
+ const S=fresh(),g=addGoal(S),ac=LC.actionsOf(S.life,g.id)[0];
+ // Existing saves have only the bounded log. Preserve its known history on the next execution.
+ S.life.log=Array.from({length:2000},(_,d)=>({aid:ac.id,d,wk:Math.floor(d/7)}));
+ assert.equal(LC.insights(S).sessions,2000);
+ hooks=[];cursor=0;a.App({init:clone(S),auth:{session:{mode:'guest',name:'Test'}}});
+ const before=clone(hooks[0]);c.appContext.complete(ac.missionId);
+ assert.equal(hooks[0].life.log.length,2000);assert.equal(LC.insights(hooks[0]).sessions,2001);
+ const undo=hooks.find(x=>x&&typeof x.restore==='function'&&typeof x.msg==='string');undo.restore();
+ assert.deepEqual(clone(hooks[0]),before);assert.equal(LC.insights(hooks[0]).sessions,2000);
+ for(let d=2000;d<2003;d++){S.life.d=d;LC.onComplete(S,ac.missionId)}
+ ac.off=true;S.missions=[];const reloaded=clone(S);
+ assert.equal(reloaded.life.log.length,2000);assert.equal(LC.insights(reloaded).sessions,2003);
+ addStd(reloaded);LC.logStandard(reloaded.life,'health','std');
+ assert.equal(LC.insights(clone(reloaded)).sessions,2004);
+});
+
 test('One daily goal produces a reachable personal plan instead of unrelated activity caps',()=>{
  const S=fresh();addGoal(S,'growth',7);assert.equal(a.planWeek(S),35);assert.equal(a.seasonPointPlan(S),140);S.seasonPts=140;
  assert.equal(a.derive(S).cur,1);assert.equal(a.gradeSeason({personal:true,cur:1,goal:.7,met:0,rank:8,mOk:false}),'S');
@@ -66,6 +112,25 @@ test('One daily goal produces a reachable personal plan instead of unrelated act
 test('Full calendar weeks are frozen; plan changes only alter open/future weeks',()=>{
  const S=fresh();addStd(S,'growth',7);S.day=6;S.life.d=6;a.recordWeek(S,1);assert.equal(S.weekHist[0].plan,35);
  S.day=7;S.life.d=7;LC.changeRoutine(S,'std:growth',{text:'Kleiner',perWeek:2,paused:false});assert.equal(a.planWeek(S),14);assert.equal(a.seasonPointPlan(S),35+3*14);
+});
+
+test('Actual weekly frequency buttons keep linked standard and goal plans in sync without rewriting previous weeks',()=>{
+ const S=fresh(),g=addGoal(S),ac=LC.actionsOf(S.life,g.id)[0];addStd(S);
+ LC.setStandard(S.life,'health',{aid:ac.id});S.life.d=7;S.day=7;
+ ac.anchor='Nach dem Frühstück';ac.mini='Ein kleiner Schritt';
+ hooks=[];cursor=0;a.App({init:S,auth:{session:{mode:'guest',name:'Test'}}});
+ c.appContext.setActPerWeek(ac.id,2);const n=hooks[0],act=LC.actById(n.life,ac.id);
+ assert.equal(LC.plannedAt(act,0),3);assert.equal(LC.plannedAt(act,1),2);
+ assert.equal(LC.standardWeek(n.life,'health',0).per,3);
+ assert.equal(LC.standardWeek(n.life,'health',1).per,2);
+ assert.equal(act.anchor,'Nach dem Frühstück');assert.equal(act.mini,'Ein kleiner Schritt');
+ const hist=JSON.stringify(act.hist);c.appContext.setActPerWeek(ac.id,2);
+ assert.equal(JSON.stringify(LC.actById(hooks[0].life,ac.id).hist),hist);
+ c.appContext.setActPerWeek(ac.id,1);const reloaded=clone(hooks[0]);
+ assert.equal(LC.standardWeek(reloaded.life,'health',0).per,3);
+ assert.equal(LC.standardWeek(reloaded.life,'health',1).per,1);
+ assert.equal(LC.plannedAt(LC.actById(reloaded.life,ac.id),0),3);
+ assert.equal(reloaded.seasonPts,S.seasonPts);assert.equal(reloaded.life.log.length,S.life.log.length);
 });
 
 test('Rest and partial start weeks reduce the budget; paused/linked routines do not inflate it',()=>{

@@ -188,9 +188,19 @@
   if(totals.phalanx)laurels.push({id:'phalanx',kind:'phalanx',title:'Phalanx-Wochen',count:totals.phalanx,detail:'Alle Mitglieder mit mindestens 60 Basispunkten'});
   return{seasons,totals,streak,best,rivals,laurels};}
  function invitation(code,base){const url=new URL(base);url.search='';url.hash='';url.searchParams.set('arena',String(code));return url.href;}
+ /* Nur Einladungscode und Ablaufzeit lokal merken, keine Konten oder privaten Texte. */
+ const INVITE_KEY='war_within_arena_invite_v1',INVITE_TTL=7*86400000;
+ const inviteCode=value=>/^[a-f0-9]{16}$/i.test(String(value||''))?String(value).toUpperCase():'';
+ function pendingInvitation(storage,href,now=Date.now()){
+  let code='';try{code=inviteCode(new URL(href).searchParams.get('arena'))}catch(e){}
+  if(code){try{storage.setItem(INVITE_KEY,JSON.stringify({code,until:now+INVITE_TTL}))}catch(e){}return code;}
+  try{const saved=JSON.parse(storage.getItem(INVITE_KEY)||'null');if(saved&&inviteCode(saved.code)&&Number.isFinite(saved.until)&&saved.until>now&&saved.until<=now+INVITE_TTL)return inviteCode(saved.code);storage.removeItem(INVITE_KEY)}catch(e){}
+  return'';
+ }
+ function clearInvitation(storage){try{storage.removeItem(INVITE_KEY)}catch(e){}}
  /* Automatische Übernahme: welche App-Aufgabe zählt für welchen Arena-Bereich. Finanzen haben bewusst keinen Platz. */
  const ACT_SLOT={body:'body',run:'body',lang:'growth',read:'growth',deep:'growth',code:'growth',rel:'bonds'};
  function contribution(S,m,extra={}){if(extra.auto)return null;const slot=ACT_SLOT[m.act],action=(S.life?.actions||[]).find(a=>a.missionId===m.id&&!a.off),minutes=extra.arenaMinutes??action?.minutes;
   return slot&&Number.isFinite(minutes)&&minutes>=({body:20,growth:20,bonds:10,mind:10}[slot])?slot:null;}
- G.ArenaCore={seasonStats,hall,forecast,scenario,pairings,duelOf,duelRecord,scout,catchUp,liveNews,FORMATIONS,BONUS_CAP,FORMATION_PTS,COMBO_PTS,MOMENTUM_PTS,MOMENTUM_RUN,scoreV3,formationOf,switchNeed,SLOTS,DEFAULT_TARGETS,ORACLE_FACTOR,BOUNTY,ACT_SLOT,contribution,phase,validTargets,targetsOf,oracle,bounty,weekly,gains,activity,finale,awards,season,invitation,addDays};
+ G.ArenaCore={pendingInvitation,clearInvitation,inviteCode,seasonStats,hall,forecast,scenario,pairings,duelOf,duelRecord,scout,catchUp,liveNews,FORMATIONS,BONUS_CAP,FORMATION_PTS,COMBO_PTS,MOMENTUM_PTS,MOMENTUM_RUN,scoreV3,formationOf,switchNeed,SLOTS,DEFAULT_TARGETS,ORACLE_FACTOR,BOUNTY,ACT_SLOT,contribution,phase,validTargets,targetsOf,oracle,bounty,weekly,gains,activity,finale,awards,season,invitation,addDays};
 })(typeof window==='undefined'?globalThis:window);

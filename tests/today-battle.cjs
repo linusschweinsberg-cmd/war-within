@@ -65,5 +65,5 @@ test('Saved battle survives save/load (v5) and old saves without it still load',
 
 test('Victory feedback is short, non-blocking and respects reduced motion',()=>{const d=/\.battle-fx\{animation:battleWin \.(\d)s/.exec(source);assert.ok(d,'animation present');const ms=+d[1]*100;assert.ok(ms>=300&&ms<=800,'300–800 ms');
  assert.match(source,/prefers-reduced-motion:reduce\)\{\.battle-fx,\.battle-fx \.battle-shield\{animation:none!important\}/);assert.match(source,/setTimeout\(\(\)=>setFx\(false\),800\)/);
- assert.match(source,/if\(lock\.current\[mid\]\)return;lock\.current\[mid\]=1/,'App complete() keeps its double-tap lock');assert.match(source,/upd\(n=>\{if\(isDone\(n,m\)\)return;/,'and its idempotent update')});
+ assert.match(source,/if\(lock\.current\[mid\]\)return;lock\.current\[mid\]=1/,'App complete() keeps its double-tap lock');assert.match(source,/if\(missionBlocked\(n,current\)\|\|isDone\(n,current\)\)return;/,'and its idempotent update checks the current mission')});
 console.log('PASS today battle');

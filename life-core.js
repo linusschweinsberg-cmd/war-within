@@ -161,7 +161,10 @@ function obstacleCounts(S,wk){const L=S.life,c={};(L.daily||[]).filter(x=>x.wk==
 function saveWeeklyReview(S,rv){const L=S.life;L.reviews=[...(L.reviews||[]).filter(r=>r.wk!==rv.wk),{...rv,t:Date.now()}].sort((a,b)=>a.wk-b.wk);L.flags={...(L.flags||{}),review:true}}
 
 /* ───── Ereignisse aus der App ───── */
+/* Erfahrung überlebt die Begrenzung des Detailprotokolls; Altstände starten mit bekannten Einträgen. */
+function actionSessions(L){return Number.isInteger(L.actionSessions)&&L.actionSessions>=0?L.actionSessions:(L.log||[]).length}
 function onComplete(S,mid){const L=S.life;if(!L)return null;const a=(L.actions||[]).find(x=>x.missionId===mid&&!x.off);if(!a)return null;
+ L.actionSessions=actionSessions(L)+1;
  L.log=[...(L.log||[]),{aid:a.id,d:L.d,wk:curWk(L),t:Date.now()}].slice(-2000);return a}
 function onAdvance(S){if(S.life)S.life.d=(S.life.d||0)+1}
 function onDailyReview(S,blocks){const L=S.life;if(!L)return;const obst=(blocks||[]).map(b=>BLOCK_MAP[b]).filter(Boolean);
@@ -457,7 +460,7 @@ function pointPlan(S,{days=7,dayCap=3,active=Object.keys(S.acts||{})}={}){const 
 function insights(S){const L=S.life,ex=L.exps||[],closed=ex.filter(e=>['success','fail','adopted'].includes(e.status));
  const w=curWk(L);let comebacks=0;for(let k=1;k<=w;k++){const a=weekRate(L,k-1),b=weekRate(L,k);if(a===0&&b>0)comebacks++}
  const std=standardSessionEntries(L),weeks=[];for(let k=Math.max(0,w-11);k<=w;k++)weeks.push({wk:k,rate:weekRate(L,k),done:(L.log||[]).filter(x=>x.wk===k).length+std.filter(x=>x.wk===k).length});
- return{sessions:(L.log||[]).length+standardSessions(L),exps:ex.length,won:ex.filter(e=>e.status==='success').length,closed:closed.length,running:ex.filter(e=>e.status==='running').length,
+ return{sessions:actionSessions(L)+standardSessions(L),exps:ex.length,won:ex.filter(e=>e.status==='success').length,closed:closed.length,running:ex.filter(e=>e.status==='running').length,
   playbook:ex.filter(e=>e.status==='success'&&e.decision==='adopt'),achieved:(L.goals||[]).filter(g=>g.status==='achieved').length,reviews:(L.reviews||[]).length,comebacks,weeks}}
 
 /* ───── LIFE TEMPLE ─────

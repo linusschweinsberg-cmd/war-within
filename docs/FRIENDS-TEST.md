@@ -43,3 +43,12 @@ Bitte melden: Gerät/Browser, letzter Schritt, erwartetes und tatsächliches Ver
 - Drei echte Konten / Geräte und anschließend laufende Saison.
 
 Erst nach diesen Prüfungen als für Freunde einsatzbereit bezeichnen.
+
+## Übernahme und Nachprüfung – 27.11.2026
+
+- Live-Stand laut Übergabe: main `0a47cd7`, ww-v134. Lokaler Kandidat ww-v135 enthält das Gegenreview und den auf diesen Stand übernommenen Einladungsablauf. Noch nicht veröffentlicht.
+- Lokal geprüft: Gast/Beispiel → „Liga erstellen“ → Kontoauswahl. Die Regeln enthalten weiterhin den Datenschutzhinweis. Einladungen überleben im selben Browser die Rückkehr von einer E-Mail-Bestätigung ohne arena-Parameter; sieben Tage Ablaufzeit, nur Code und Ablaufzeit im separaten lokalen Speicher. Automatisierte Prüfung in tests/arena-invitation.cjs, kein Nachweis echter E-Mail-Zustellung.
+- **Echter Kontodurchlauf nicht durchgeführt und nicht bestanden gemeldet.** SMTP-Anbieter/Absender und Zustellung sind aus der bisherigen Dokumentation weiterhin offen; am 27.11. wurden keine aktuellen SMTP-Dashboard-Einstellungen bestätigt. Kein neues echtes Konto und keine Liga für diesen Test angelegt, kein Einladungslink auf einem zweiten Gerät angenommen.
+- Zum Fortsetzen erforderlich: bestätigter SMTP-Stand, eine echte Testadresse mit Zugriff auf die Bestätigungsmail und ein zweiter Teilnehmer beziehungsweise ein zweites Gerät. Passwörter und SMTP-Geheimnisse werden vom Nutzer direkt eingegeben, nicht im Repository dokumentiert.
+- Danach Registrierung → zugestellte Bestätigung → Anmeldung/Onboarding → Liga erstellen → Einladung am zweiten Gerät öffnen → zweites bestätigtes Konto → ausdrücklich beitreten → Mitglieder und gemeinsame Ligadaten auf beiden Geräten vergleichen. Versand, Bestätigung und Beitritt jeweils mit tatsächlichem Ergebnis nachtragen.
+- Keine Supabase-Einstellungen oder Migrationen geändert. Kein Merge nach main und kein Deployment ohne Nutzerfreigabe.

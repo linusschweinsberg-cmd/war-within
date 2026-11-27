@@ -13,3 +13,9 @@ t('Counts actions and standards per day of the current week only',()=>{const L={
 t('Wired at the top of Fortschritt',()=>{assert.ok(source.includes('<${PersonalSeasonCard} S=${c.S}/><${ProgressCharts} c=${c}/>'))});
 t('Basis shows only the simple view (this week + goals); Erweitert keeps everything',()=>{assert.ok(source.includes('if(!adv)return html`<div className="screen px-4 pb-6">'));assert.ok(source.includes('<${SimpleProgress} c=${c}/>'));assert.ok(source.includes('data-simple-progress'))});
 console.log('PASS progress-charts');
+
+t('Upgrading a minimum to full completion counts one standard on that day',()=>{
+ const L={...LC.newLife(),d:3,log:[],stdLog:[{area:'health',d:3,wk:0,kind:'min'},{area:'health',d:3,wk:0,kind:'std'}]};
+ const before=JSON.stringify(L),P=a.progressData({life:L},Date.parse('2026-11-27T10:00Z'));
+ assert.equal(P.days.find(x=>x.today).n,1);assert.equal(JSON.stringify(L),before,'reading progress preserves all entries');
+});

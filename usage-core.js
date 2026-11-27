@@ -9,7 +9,13 @@
  const day=t=>{const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
  const store=()=>{try{return G.localStorage||null}catch(e){return null}};
  function empty(t){return{v:V,since:day(t),days:0,lastDay:null,ev:{}}}
- function load(t=Date.now()){const s=store();if(!s)return empty(t);try{const x=JSON.parse(s.getItem(KEY)||'null');if(x&&x.v===V&&x.ev&&typeof x.ev==='object')return x}catch(e){}return empty(t)}
+ const dateCode=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v);
+ const count=v=>Number.isSafeInteger(v)&&v>=0;
+ function load(t=Date.now()){const s=store();if(!s)return empty(t);try{const x=JSON.parse(s.getItem(KEY)||'null');if(x&&x.v===V&&x.ev&&typeof x.ev==='object'&&!Array.isArray(x.ev)){
+  const out=empty(t);out.since=dateCode(x.since)?x.since:out.since;out.days=count(x.days)?x.days:0;out.lastDay=dateCode(x.lastDay)?x.lastDay:null;
+  for(const [k,e] of Object.entries(x.ev)){if(Object.keys(out.ev).length>=MAX_KEYS)break;if(!/^(?:tab|sheet):[a-zA-Z0-9_-]{1,32}$|^do:(?:complete|undo)$|^info$/.test(k)||!e||!count(e.n)||!count(e.d)||!dateCode(e.last))continue;out.ev[k]={n:e.n,d:e.d,last:e.last}}
+  return out;
+ }}catch(e){}return empty(t)}
  function save(x){const s=store();if(!s)return;try{s.setItem(KEY,JSON.stringify(x))}catch(e){}}
  const clean=k=>String(k||'').replace(/[^a-zA-Z0-9:_\-]/g,'').slice(0,40);
  /* Ein Ereignis zählen. Gibt den neuen Stand zurück (für Tests). */
