@@ -28,6 +28,8 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
+- Codex: Integritätsprüfung auf `codex/friends-invitation-flow` – dauerhafte Erfahrung bei begrenztem Zielhandlungsprotokoll korrigiert; `life-core.js`, `tests/personal-scoring.cjs`, Release-URLs/Service Worker und Dokumentation. Kandidat ww-v136, kein Merge/Deployment. Details: `docs/INTEGRITY-v136.md`.
+- Codex: Selbsttest-Prüfliste auf `codex/friends-invitation-flow` ergänzt (`docs/SELBSTTEST.md`, `AGENTS.md`); vier Beobachtungsfragen, Fehlerkriterien und Auswertung nach zwei Wochen. Funktionsstopp bleibt bestehen.
 - Codex: `codex/friends-invitation-flow` – Review ww-v128–ww-v134, Einladungsabgleich und Kontotest; arena-core.js, arena-ui.js, index.html, usage-core.js, sw.js, docs und Tests. Zielrelease ww-v135, kein Merge/Deployment ohne Nutzerfreigabe. Domain bleibt beim Nutzer.
 
 ### Letzte Integration
@@ -74,5 +76,6 @@ Erst Selbsterkenntnis. Dann Eigenverantwortung. Dann persönliche Standards. Und
 - Gesundheitsdaten-Sync und Liga-Mitglieder sind simulierte Demo-Daten.
 
 ## Nächste Schritte
+- Zwei Wochen Alltagstest nach `docs/SELBSTTEST.md`; danach höchstens ein bis zwei durch Beobachtungen belegte Verbesserungen auswählen. Währenddessen nur bestätigte Fehler beheben.
 - Ideen: Abendritual, Supabase-Konten, Health-Sync, Squads mit Freunden, teilbare Saisonkarte.
 - Datei in Module aufteilen (Vite + React), echtes Backend für Liga.

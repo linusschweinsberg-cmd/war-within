@@ -57,6 +57,23 @@ test('Standard experience survives removal/private-text deletion/log truncation 
  LC.removeStandard(S.life,'health');assert.equal(LC.insights(S).sessions,1002);LC.clearFoundation(S);assert.equal(LC.insights(clone(S)).sessions,1002);
 });
 
+test('Goal experience survives log truncation, action removal and legacy JSON reload; undo restores its counter',()=>{
+ const S=fresh(),g=addGoal(S),ac=LC.actionsOf(S.life,g.id)[0];
+ // Existing saves have only the bounded log. Preserve its known history on the next execution.
+ S.life.log=Array.from({length:2000},(_,d)=>({aid:ac.id,d,wk:Math.floor(d/7)}));
+ assert.equal(LC.insights(S).sessions,2000);
+ hooks=[];cursor=0;a.App({init:clone(S),auth:{session:{mode:'guest',name:'Test'}}});
+ const before=clone(hooks[0]);c.appContext.complete(ac.missionId);
+ assert.equal(hooks[0].life.log.length,2000);assert.equal(LC.insights(hooks[0]).sessions,2001);
+ const undo=hooks.find(x=>x&&typeof x.restore==='function'&&typeof x.msg==='string');undo.restore();
+ assert.deepEqual(clone(hooks[0]),before);assert.equal(LC.insights(hooks[0]).sessions,2000);
+ for(let d=2000;d<2003;d++){S.life.d=d;LC.onComplete(S,ac.missionId)}
+ ac.off=true;S.missions=[];const reloaded=clone(S);
+ assert.equal(reloaded.life.log.length,2000);assert.equal(LC.insights(reloaded).sessions,2003);
+ addStd(reloaded);LC.logStandard(reloaded.life,'health','std');
+ assert.equal(LC.insights(clone(reloaded)).sessions,2004);
+});
+
 test('One daily goal produces a reachable personal plan instead of unrelated activity caps',()=>{
  const S=fresh();addGoal(S,'growth',7);assert.equal(a.planWeek(S),35);assert.equal(a.seasonPointPlan(S),140);S.seasonPts=140;
  assert.equal(a.derive(S).cur,1);assert.equal(a.gradeSeason({personal:true,cur:1,goal:.7,met:0,rank:8,mOk:false}),'S');
