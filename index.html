@@ -18,18 +18,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v125"></script>
-<script src="auth.js?v=ww-v125"></script>
-<script src="life-core.js?v=ww-v125"></script>
-<script src="wisdom-core.js?v=ww-v125"></script>
-<script src="future-self-core.js?v=ww-v125"></script>
-<script src="projection-core.js?v=ww-v125"></script>
-<script src="rank-core.js?v=ww-v125"></script>
-<script src="persona-core.js?v=ww-v125"></script>
-<script src="character-core.js?v=ww-v125"></script>
-<script src="arena-core.js?v=ww-v125"></script>
-<script src="arena-api.js?v=ww-v125"></script>
-<script src="arena-ui.js?v=ww-v125"></script>
+<script src="supabase-config.js?v=ww-v126"></script>
+<script src="auth.js?v=ww-v126"></script>
+<script src="life-core.js?v=ww-v126"></script>
+<script src="wisdom-core.js?v=ww-v126"></script>
+<script src="future-self-core.js?v=ww-v126"></script>
+<script src="projection-core.js?v=ww-v126"></script>
+<script src="rank-core.js?v=ww-v126"></script>
+<script src="persona-core.js?v=ww-v126"></script>
+<script src="character-core.js?v=ww-v126"></script>
+<script src="arena-core.js?v=ww-v126"></script>
+<script src="arena-api.js?v=ww-v126"></script>
+<script src="arena-ui.js?v=ww-v126"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -1803,7 +1803,7 @@ function Home({c}){const {S}=c;const [more,setMore]=useState(false),[pick,setPic
 
  </details>
  <details className="border-t ln" hidden=${S.ui!=='adv'&&!Object.values(S.life.standards||{}).some(x=>x.std&&x.status!=='paused')} onToggle=${e=>setMore(e.currentTarget.open)}><summary className="text-[14px] font-medium cursor-pointer px-1" style=${{minHeight:48,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}><span>${S.ui==='adv'?'Standards und Impulse':'Deine Standards'}<span className="opacity-70 font-normal">${(()=>{const l=Object.values((S.life&&S.life.standards)||{}).filter(x=>x.std&&x.status!=='paused');if(!l.length)return '';const wk=LC.curWk(S.life);let d=0,p=0;l.forEach(x=>{const w=LC.standardWeek(S.life,x.area,wk);d+=w?Math.min(w.done,w.per):0;p+=w?w.per:x.std.perWeek});return ' · '+d+' von '+p+' diese Woche'})()}</span></span><${Icon} n="chevD" s=${16}/></summary>
- ${more&&S.ui!=='adv'&&html`<${StandardsToday} c=${c}/><${CalmCard} c=${c}/>`}${more&&S.ui==='adv'&&html`<${StandardsToday} c=${c}/><button type="button" className="chip mt-3" onClick=${()=>c.openSheet({t:'loopinfo'})}>Wie dein Handeln wirkt</button><${InviteCard} c=${c}/><${CalmCard} c=${c}/><${WisdomSlot} c=${c} place="today"/>`}<div className="pb-2"/></details></div>
+ ${more&&S.ui!=='adv'&&html`<${StandardsToday} c=${c}/><${CalmCard} c=${c}/>`}${more&&S.ui==='adv'&&html`<${StandardsToday} c=${c}/><button type="button" className="chip mt-3" onClick=${()=>c.openSheet({t:'loopinfo'})}>Wie dein Handeln wirkt</button><${InviteCard} c=${c}/><${CalmCard} c=${c}/>`}<div className="pb-2"/></details></div>
  </div>`}
 /* Heute zuerst: Ziel, Ergebnis/Umsetzung, nächste Handlung, Loop-Phase */
 function TodayFocus({c}){const {S}=c;const L=S.life,g=mainGoal(S);const st=loopNow(c),Lp=LC.LOOP.find(x=>x.id===st);
@@ -2478,8 +2478,7 @@ function Stats({c}){
  const t=opts.some(o=>o[0]===c.statTab)?c.statTab:'out',set=c.setStatTab;
  return html`<div className="screen px-4 pb-6"><div className="pt-5 flex items-end justify-between gap-2"><div><h1 className="disp text-[32px] leading-none">Fortschritt</h1></div><div className="pb-1"><${ModeToggle} c=${c}/></div></div>
  <${PersonalSeasonCard} S=${c.S}/>
- <${SeasonFresco} c=${c}/>
- <${StatsCompass} c=${c}/>
+ ${LC.compassState(c.S).area||LC.compassState(c.S).state==="tie"?html`<${StatsCompass} c=${c}/>`:null}
  <div className="meander mt-4" aria-hidden="true"/><div className="lbl mt-3 px-1">Details</div><div className="mt-2 mb-3"><${Seg} opts=${opts} val=${t} on=${set}/></div>
  
  ${t==='out'&&html`<${OutcomeView} c=${c}/>`}${t==='temple'&&html`<${TempleProgress} c=${c}/>`}${t==='proc'&&html`<${ProcessView} c=${c}/>`}${t==='exp'&&html`<${ExpView} c=${c}/>`}
@@ -3534,9 +3533,9 @@ function MyLife({c}){const {S}=c;const adv=S.ui==='adv';const L=S.life;const st=
  <div className="mt-5"><${TempleHead} c=${c} st=${st} sel=${sel}/></div>
  <${NextStep} c=${c} where="life"/>
  ${adv&&(PC.invite(S)?html`<${PersonaCard} c=${c}/>`:chs&&chs.invite?html`<${CharacterInvite} c=${c}/>`:html`<${CharacterHint} c=${c} place="life"/>`)}
- ${adv&&html`<div className="lbl mt-5 px-1">Über dich</div>${!PC.invite(S)&&html`<${PersonaCard} c=${c}/>`}<${SkillsRow} c=${c}/>`}
+ ${adv&&html`<div className="lbl mt-5 px-1">Über dich</div>${!PC.invite(S)&&html`<${PersonaCard} c=${c}/>`}`}
  <div className="grid grid-cols-2 gap-2 mt-5">${tile('column','Grundlagen',fn+' von '+fs.length+' erledigt',()=>c.openSheet({t:'fundament'}))}${adv&&WC.enabled(S)?tile('scroll','Wisdom Codex',wn?wn+' gemerkt':'Lebensweisheiten',()=>c.openSheet({t:'codex',f:wn?'fav':'all'})):html`<span/>`}${adv&&tile('helmet','Charakter',chs.traits.length?chs.traits.map(id=>CH.BY[id].name).join(' · '):'Stärken und Herausforderungen',()=>c.openSheet({t:'character'}))}</div>
- ${adv&&html`<${WisdomSlot} c=${c} place="season" cls="mt-3 wis-sm"/>`}
+ 
  ${ach.length>0&&html`<details className="mt-3"><summary className="text-[14px] mute cursor-pointer px-1" style=${{minHeight:44,display:'flex',alignItems:'center'}}>Erreichte Ziele (${ach.length})</summary><div className="flex flex-col gap-2">${ach.map(g=>html`<${GoalCard} key=${g.id} c=${c} g=${g}/>`)}</div></details>`}
  </div>`}
 
@@ -3713,12 +3712,12 @@ function ObReady({ob,u,goId}){const pv=ob.readyChoice==='preview';
  if(pv)return html`<div><${Lines} l=${['So funktioniert es.']}/>
   <div className="flex flex-col gap-2 mt-5">${OB_HOW.map(([i,t,s],k)=>html`<div key=${t} className="card p-3.5 flex gap-3 story-in" style=${obIn(.5+k*.35)}><span className="acc shrink-0 mt-0.5"><${Icon} n=${i} s=${18}/></span><div><div className="text-[14px] font-semibold">${t}</div><div className="text-[12px] mute leading-snug mt-0.5">${s}</div></div></div>`)}</div>
   <p className="story-in text-[12px] mute mt-4 leading-relaxed" style=${obIn(1.8)}>Deine Antworten bleiben bei dir. Du kannst alles später ändern. Dein Zukunfts-Ich ist danach über der Navigation erreichbar: freiwillig, lokal und als mögliche Zukunft, nicht als Erfolgsversprechen.</p>
-  <div className="flex flex-col gap-2 mt-5 story-in" style=${obIn(2.1)}><button type="button" onClick=${()=>goId('name',{short:false,readyChoice:'preview'})} className="btn w-full py-3.5 text-[14px]">Jetzt ehrlich hinsehen · ca. 15 Min., pausierbar</button>
-  <button type="button" onClick=${()=>goId('name',{short:true,readyChoice:'preview'})} className="ghost w-full py-3.5 text-[14px] font-semibold">Mit dem Nötigsten starten · ca. 2 Min.</button>
+  <div className="flex flex-col gap-2 mt-5 story-in" style=${obIn(2.1)}><button type="button" onClick=${()=>goId('name',{short:true,readyChoice:'preview'})} className="btn w-full py-3.5 text-[14px]">Los geht's · ca. 2 Min.</button>
+  <button type="button" onClick=${()=>goId('name',{short:false,readyChoice:'preview'})} className="ghost w-full py-3.5 text-[14px] font-semibold">Ausführlich hinsehen · ca. 15 Min., pausierbar</button>
   <button type="button" onClick=${()=>u(()=>({readyChoice:null}))} className="bg-transparent border-0 py-2 text-[12px] mute">Zurück zur Frage</button></div></div>`;
  return html`<div className="story-c"><${Lines} l=${['Bist du bereit,','ehrlich hinzusehen?']} big=${true}/>
   <div className="flex flex-col gap-2 mt-8 story-in" style=${obIn(1.8)}>
-   <${Opt} k="yes" t="Ja, ich möchte verstehen, wo ich stehe." s="In Etappen, etwa 15 Minuten. Jederzeit pausierbar." on=${()=>goId('name',{short:false,readyChoice:'yes'})}/>
+   <${Opt} k="yes" t="Ja, ich möchte verstehen, wo ich stehe." s="In Etappen, etwa 15 Minuten. Jederzeit pausierbar." on=${()=>goId('name',{short:true,readyChoice:'yes'})}/>
    <${Opt} k="preview" t="Ich möchte erst sehen, wie es funktioniert." s="Ein kurzer Überblick, ohne Fragen." on=${()=>u(()=>({readyChoice:'preview'}))}/></div>
   <p className="story-in text-[12px] mute mt-5 text-center" style=${obIn(2.4)}>Beides ist in Ordnung.</p></div>`}
 function ObName({ob,u}){const n=ob.name.trim();return html`<div className="story-c"><${Lines} l=${['Wie sollen wir dich nennen?']}/>
