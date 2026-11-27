@@ -225,12 +225,15 @@ html,body{background:radial-gradient(1200px 600px at 50% -10%,#24150D 0%,#080605
  --good:#7FA36B;--good-rgb:127,163,107;--bad:#D9534F;--gold:#D69A3E;--gold-rgb:214,154,62;--warn:#D69A3E;--done:#C4502B;--you:#E0714A;
  --glass:rgba(31,27,25,.97);--hero:#171413;--ghost:rgba(232,217,195,.04);--hi:transparent;--glow:transparent;--body-glow:#0E0C0B;
  --card-g:#171413;--card2-g:#1F1B19;--stone:#E8D9C3;--bronze:#D69A3E;--eng1:rgba(255,255,255,.10);--eng2:rgba(0,0,0,.7);--shadow:none}
-[data-skin=antik][data-theme=light]{--bg:#DFCFB1;--bg2:#F3EADA;--card:#FFFCF6;--card2:#F3EADA;--line:#BFA67C;--line2:#9C875F;--rail:#BFA67C;--ink:#1C1815;--mute:#4A4036;
- --acc:#B2431F;--acc2:#9E3A19;--acc3:#C9764E;--acc-d:#8A3216;--acc-d2:#5A2010;--acc-rgb:178,67,31;--acc2-rgb:158,58,25;--acc3-rgb:201,118,78;
+[data-skin=antik][data-theme=light]{--bg:#D4BF9B;--bg2:#EFE3CC;--card:#FFFDF9;--card2:#EFE3CC;--line:#A88D60;--line2:#8A7048;--rail:#A88D60;--ink:#16120F;--mute:#3F362D;
+ --acc:#A63B19;--acc2:#93331A;--acc3:#C9764E;--acc-d:#8A3216;--acc-d2:#5A2010;--acc-rgb:178,67,31;--acc2-rgb:158,58,25;--acc3-rgb:201,118,78;
  --good:#4C7A3A;--good-rgb:76,122,58;--bad:#B3342F;--gold:#7A4F0E;--gold-rgb:122,79,14;--warn:#7A4F0E;--done:#B2431F;--you:#9E3A19;
- --glass:rgba(255,252,246,.97);--hero:#FFFCF6;--ghost:rgba(28,24,21,.07);--hi:transparent;--glow:transparent;--body-glow:#D5C5A6;
- --card-g:#FFFCF6;--card2-g:#F3EADA;--stone:#A08C68;--bronze:#7A4F0E;--eng1:rgba(255,255,255,.6);--eng2:rgba(0,0,0,.18);--shadow:0 1px 2px rgba(60,40,20,.10),0 8px 20px -10px rgba(60,40,20,.28)}
+ --glass:rgba(255,253,249,.97);--hero:#FFFDF9;--ghost:rgba(28,24,21,.07);--hi:transparent;--glow:transparent;--body-glow:#D5C5A6;
+ --card-g:#FFFDF9;--card2-g:#EFE3CC;--stone:#A08C68;--bronze:#7A4F0E;--eng1:rgba(255,255,255,.6);--eng2:rgba(0,0,0,.18);--shadow:0 1px 2px rgba(60,40,20,.10),0 8px 20px -10px rgba(60,40,20,.28)}
 [data-skin=antik][data-theme=light].app:after,[data-skin=antik][data-theme=light] .app:after{opacity:.02}
+/* Hell: innere Flächen und Navigation klar abgesetzt */
+[data-skin=antik][data-theme=light] .card2{box-shadow:0 0 0 1px var(--line) inset}
+[data-skin=antik][data-theme=light] nav[aria-label=Hauptnavigation]{background:var(--card)}
 html:has([data-skin=antik]),body:has([data-skin=antik]){background:#050404}
 [data-skin=antik].app,[data-skin=antik] .app{background:var(--bg)}
 [data-skin=antik].app:after{opacity:.045;mix-blend-mode:normal}
