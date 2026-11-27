@@ -1,23 +1,24 @@
 /* THE WAR WITHIN – Service Worker
    Bei Änderungen an index.html o. ä. die Versionsnummer erhöhen,
    damit installierte Apps das Update laden. */
-const VERSION = 'ww-v138';
+const VERSION = 'ww-v139';
 const APP_SHELL = [
   './',
   './index.html',
-  './auth.js?v=ww-v138',
-  './life-core.js?v=ww-v138',
-  './wisdom-core.js?v=ww-v138',
-  './future-self-core.js?v=ww-v138',
-  './projection-core.js?v=ww-v138',
-  './usage-core.js?v=ww-v138',
-  './rank-core.js?v=ww-v138',
-  './persona-core.js?v=ww-v138',
-  './character-core.js?v=ww-v138',
-  './arena-core.js?v=ww-v138',
-  './arena-api.js?v=ww-v138',
-  './arena-ui.js?v=ww-v138',
-  './supabase-config.js?v=ww-v138',
+  './auth.js?v=ww-v139',
+  './life-core.js?v=ww-v139',
+  './wisdom-core.js?v=ww-v139',
+  './future-self-core.js?v=ww-v139',
+  './projection-core.js?v=ww-v139',
+  './usage-core.js?v=ww-v139',
+  './rank-core.js?v=ww-v139',
+  './persona-core.js?v=ww-v139',
+  './character-core.js?v=ww-v139',
+  './arena-core.js?v=ww-v139',
+  './arena-api.js?v=ww-v139',
+  './arena-ui.js?v=ww-v139',
+  './supabase-config.js?v=ww-v139',
+  './tailwind.css?v=ww-v139',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -26,7 +27,6 @@ const APP_SHELL = [
 ];
 const CDN = [
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js',
-  'https://cdn.tailwindcss.com',
   'https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js',
   'https://unpkg.com/htm@3.1.1/dist/htm.umd.js'
@@ -68,9 +68,9 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Eigene Skripte: wie die Seite erst Netz, damit index.html und life-core.js usw. nie
+  // Eigene Skripte und tailwind.css: wie die Seite erst Netz, damit index.html und life-core.js usw. nie
   // aus verschiedenen Versionen stammen (sonst fehlen neue Funktionen bis zum nächsten Start)
-  if (url.origin === self.location.origin && url.pathname.endsWith('.js')) {
+  if (url.origin === self.location.origin && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {
     e.respondWith(fetch(req).then(r => {
       if (r.ok) { const copy = r.clone(); caches.open(VERSION).then(c => c.put(req, copy)); }
       return r;

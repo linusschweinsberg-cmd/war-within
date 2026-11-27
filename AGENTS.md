@@ -3,7 +3,7 @@
 Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einzelne Datei `index.html`.
 
 ## Technik
-- Single-file: React 18 (UMD via CDN), Tailwind (CDN), htm (Tagged Templates: html`...`, Komponenten <${Comp}/>, Ende <//>).
+- Single-file: React 18 (UMD via CDN), Tailwind (vorab gebaut in `tailwind.css`; nach neuen Klassen neu bauen, Befehl in `tools/tailwind.config.cjs`), htm (Tagged Templates: html`...`, Komponenten <${Comp}/>, Ende <//>).
 - State: `useState(loadState)`, `upd(fn)`, `derive(S)`; Spielstand in localStorage: `war_within_v5` (Gast/Demo) bzw. `war_within_acc_v1_<Supabase-Nutzer-ID>` (E-Mail-Konto).
 - Einstieg: `Root` → `AuthFlow` (Willkommen/Registrieren/Login) → `Onboarding` (First-Time-User-Experience: Einstieg → Selbsterkenntnis → Eigenverantwortung → Standards → Handeln (Success Loop, Ziel, erstes Commitment); jede Pflichtangabe überspringbar, Pause und Fortsetzen; Zustandslogik und Datenstruktur in `docs/FTUE.md`, Screens in `docs/ONBOARDING.md`; `buildState(ob)` erzeugt den Spielstand) → `App`. Sitzung und Onboarding-Fortschritt in `war_within_auth_v1`, niemals Passwörter.
 - Auth läuft über `auth.js` mit Supabase; öffentliche Konfiguration in `supabase-config.js`; Profil liegt in `S.profile`, Konto-Bereich im Sheet `account`.
@@ -12,7 +12,8 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Rückgängig: Abhaken, Standards (Erledigt/Minimum), erster Schritt und Import zeigen 5 Sekunden „Rückgängig“ (Snapshot des Spielstands, `c.restore`).
 - Sicherung: Optionen › „Daten sichern“ exportiert/importiert den Spielstand als JSON (enthält private Texte, bleibt beim Nutzer). Import prüft `v===5`, ersetzt erst nach Bestätigung und ist rückgängig machbar.
 - Erste Woche nach dem Onboarding: `life.fund.ob.calmUntil` (7 Tage) blendet Punkte, Liga, Nemesis und Duell aus (über `focusMode`); „Jetzt alles zeigen“ oder Fokusmodus aus beendet das vorzeitig.
-- Service Worker: Seite und eigene `.js`-Dateien werden zuerst aus dem Netz geladen, CDN-Dateien zuerst aus dem Cache. Eigene Skript-URLs tragen zusätzlich die Release-Version, damit auch ein zuvor installierter cache-first-Worker neue Abhängigkeiten lädt. Beim Release URL-Versionen und APP_SHELL zusammen mit VERSION erhöhen.
+- Speicher: Beim Start wird `navigator.storage.persist()` angefragt, damit der Browser den Spielstand nicht bei Speichermangel löscht.
+- Service Worker: Seite, eigene `.js`-Dateien und `tailwind.css` werden zuerst aus dem Netz geladen, CDN-Dateien zuerst aus dem Cache. Eigene Skript-URLs tragen zusätzlich die Release-Version, damit auch ein zuvor installierter cache-first-Worker neue Abhängigkeiten lädt. Beim Release URL-Versionen und APP_SHELL zusammen mit VERSION erhöhen.
 - Life-OS-Logik (Ziele, Messwerte, Handlungen, Rückblicke, Experimente, Migration) liegt in `life-core.js` (`window.LC`), Daten in `S.life`. Details: `docs/LIFE-OS.md`.
 - Gewohnheiten (7-Tage-Spur, „nie zweimal auslassen“, Identitätsstimme): `LC.standardTrace`/`standardSlipping`, Details `docs/HABITS.md`.
 - Wisdom of the Warrior (Bibliothek mit 72 Impulsen, regelbasierte Auswahl, Favoriten) liegt in `wisdom-core.js` (`window.WC`), Daten in `S.wisdom`. Details: `docs/WISDOM.md`.
@@ -28,6 +29,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
+- Claude: `claude/foundation` (PR #62, ww-v139) – Tailwind vorab gebaut, dauerhafter Speicher; `index.html`, `sw.js`, `serve.js`, `tailwind.css`, `tools/`, Tests, `AGENTS.md`. Wartet auf Codex-Review, kein Merge vorher.
 - Codex: Fortgesetzte Integritätsprüfung auf `codex/friends-invitation-flow` – zentraler Missionsabschluss gegen pausierte/entfernte Zielhandlungen und inaktive Ziele abgesichert; `index.html`, Regressionen, Release-URLs/Service Worker und Dokumentation. Kandidat ww-v138, kein Merge/Deployment. Details: `docs/INTEGRITY-v138.md`.
 - Codex: Fortgesetzte Integritätsprüfung auf `codex/friends-invitation-flow` – Wochenhäufigkeit über gemeinsamen Routinenablauf mit verknüpften Standards synchronisiert; `index.html`, Regression, Release-URLs/Service Worker und Dokumentation. Kandidat ww-v137, kein Merge/Deployment. Details: `docs/INTEGRITY-v137.md`.
 - Codex: Integritätsprüfung auf `codex/friends-invitation-flow` – dauerhafte Erfahrung bei begrenztem Zielhandlungsprotokoll korrigiert; `life-core.js`, `tests/personal-scoring.cjs`, Release-URLs/Service Worker und Dokumentation. Kandidat ww-v136, kein Merge/Deployment. Details: `docs/INTEGRITY-v136.md`.
@@ -47,7 +49,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Supabase Site URL auf die bestehende öffentliche GitHub-Pages-Adresse gesetzt; localhost bleibt als Test-Redirect erlaubt. Vollständiger Konto-/E-Mail-Reset-Durchlauf weiterhin manuell zu prüfen.
 
 ## PWA
-- `manifest.webmanifest`, `sw.js` (Cache `ww-v135` – bei jeder Änderung Version erhöhen), `icons/`.
+- `manifest.webmanifest`, `sw.js` (Cache `ww-v139` – bei jeder Änderung Version erhöhen), `icons/`.
 - Lokal testen: `node serve.js` → http://localhost:5173. Tests: `node tests/life-core.cjs`, `node tests/wisdom-core.cjs`, `node tests/release-smoke.cjs`, `node tests/auth-contract.cjs`, `node tests/ftue-flows.cjs` (Abläufe: neu, vollständig, übersprungen, zurückkehrend). Installation auf dem Handy braucht HTTPS-Hosting.
 
 ## Produktprinzip (verbindlich)
