@@ -18,19 +18,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v134"></script>
-<script src="auth.js?v=ww-v134"></script>
-<script src="life-core.js?v=ww-v134"></script>
-<script src="wisdom-core.js?v=ww-v134"></script>
-<script src="future-self-core.js?v=ww-v134"></script>
-<script src="projection-core.js?v=ww-v134"></script>
-<script src="usage-core.js?v=ww-v134"></script>
-<script src="rank-core.js?v=ww-v134"></script>
-<script src="persona-core.js?v=ww-v134"></script>
-<script src="character-core.js?v=ww-v134"></script>
-<script src="arena-core.js?v=ww-v134"></script>
-<script src="arena-api.js?v=ww-v134"></script>
-<script src="arena-ui.js?v=ww-v134"></script>
+<script src="supabase-config.js?v=ww-v135"></script>
+<script src="auth.js?v=ww-v135"></script>
+<script src="life-core.js?v=ww-v135"></script>
+<script src="wisdom-core.js?v=ww-v135"></script>
+<script src="future-self-core.js?v=ww-v135"></script>
+<script src="projection-core.js?v=ww-v135"></script>
+<script src="usage-core.js?v=ww-v135"></script>
+<script src="rank-core.js?v=ww-v135"></script>
+<script src="persona-core.js?v=ww-v135"></script>
+<script src="character-core.js?v=ww-v135"></script>
+<script src="arena-core.js?v=ww-v135"></script>
+<script src="arena-api.js?v=ww-v135"></script>
+<script src="arena-ui.js?v=ww-v135"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -2485,7 +2485,7 @@ function PersonalSeasonCard({S}){if(isDemoState(S)||focusMode(S))return null;con
    Eine Farbe (Akzent) für alle Balken; Bereiche tragen ihren Namen als Text, nie nur Farbe.
    Antippen zeigt den genauen Wert in einer Zeile unter der Grafik (statt schwebender Tooltips). */
 function progressData(S,now){const L=S.life||{},today=L.d||0,wk=LC.curWk(L);
- const cnt=d=>(L.log||[]).filter(x=>x.d===d).length+(L.stdLog||[]).filter(x=>x.d===d).length;
+ const cnt=d=>(L.log||[]).filter(x=>x.d===d).length+new Set((L.stdLog||[]).filter(x=>x.d===d).map(x=>x.area)).size;
  const days=[];for(let d=today-6;d<=today;d++){const dt=new Date(now-(today-d)*864e5);days.push({d,n:d<0?0:cnt(d),pre:d<0,today:d===today,name:dt.toLocaleDateString('de-DE',{weekday:'short'}).replace('.','').slice(0,2)})}
  const areas=LC.AREAS.map(a=>({a:LC.AREA[a.id],...LC.templeWeek(L,a.id,wk)}));
  const weeks=[];for(let k=Math.max(0,wk-7);k<=wk;k++){let p=0,dn=0;LC.AREAS.forEach(a=>{const w=LC.templeWeek(L,a.id,k);p+=w.planned;dn+=Math.min(w.done,w.planned)});weeks.push({k,p,dn,rate:p?dn/p:null,cur:k===wk})}
@@ -3782,7 +3782,7 @@ function ObReady({ob,u,goId}){const pv=ob.readyChoice==='preview';
   <button type="button" onClick=${()=>u(()=>({readyChoice:null}))} className="bg-transparent border-0 py-2 text-[12px] mute">Zurück zur Frage</button></div></div>`;
  return html`<div className="story-c"><${Lines} l=${['Bist du bereit,','ehrlich hinzusehen?']} big=${true}/>
   <div className="flex flex-col gap-2 mt-8 story-in" style=${obIn(1.8)}>
-   <${Opt} k="yes" t="Ja, ich möchte verstehen, wo ich stehe." s="In Etappen, etwa 15 Minuten. Jederzeit pausierbar." on=${()=>goId('name',{short:true,readyChoice:'yes'})}/>
+   <${Opt} k="yes" t="Ja, ich möchte verstehen, wo ich stehe." s="Kurz starten, etwa 2 Minuten. Im Fundament später vertiefen." on=${()=>goId('name',{short:true,readyChoice:'yes'})}/>
    <${Opt} k="preview" t="Ich möchte erst sehen, wie es funktioniert." s="Ein kurzer Überblick, ohne Fragen." on=${()=>u(()=>({readyChoice:'preview'}))}/></div>
   <p className="story-in text-[12px] mute mt-5 text-center" style=${obIn(2.4)}>Beides ist in Ordnung.</p></div>`}
 function ObName({ob,u}){const n=ob.name.trim();return html`<div className="story-c"><${Lines} l=${['Wie sollen wir dich nennen?']}/>

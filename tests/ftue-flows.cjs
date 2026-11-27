@@ -10,6 +10,14 @@ const a=c.api,LC=c.window.LC,ses={mode:'guest',name:'Gast'};const ok=[];const t=
 const ids=ob=>[...a.obScreens(ob)].map(x=>x.id);
 const finish=ob=>{const n=a.buildState(ob,ses);LC.ensureLife(n);return n};
 
+t('Hidden skills, value counters and Wisdom history survive both modes and reload',()=>{
+ const n=finish(a.newOb('Bestand'));n.life.skills=[{id:'s1',name:'Dranbleiben',area:'growth',t:1}];
+ n.principles=[{id:'p1',n:'Mut',acts:17,last:'2026-11-26'}];c.window.WC.ensure(n);
+ const id=Object.keys(c.window.WC.BY)[0];n.wisdom.seen=[{id,d:0,place:'home'}];n.wisdom.fav=[id];
+ const select=s=>JSON.stringify([s.life.skills,s.principles,s.wisdom]);const before=select(n);
+ for(const mode of ['base','adv','base']){n.ui=mode;store.war_within_v5=JSON.stringify(n);const r=a.loadState();LC.ensureLife(r);c.window.PC.ensure(r);c.window.WC.ensure(r);a.derive(r);assert.equal(select(r),before)}
+});
+
 t('Neuer Nutzer: Kurzform führt in wenigen Schritten in die App',()=>{const ob=a.newOb('');ob.short=true;assert.ok(!ids(ob).includes('first'),'erste Handlung erst, wenn ein Ziel entsteht');ob.goal=a.draftFromTpl(LC.GOAL_TPL[0]);assert.deepEqual(ids(ob),['still','what','resp','ready','name','pillars','persona','goal','first','commit']);
  ob.skip={goal:true};assert.ok(!ids(ob).includes('first'),'ohne Ziel entfällt die erste Handlung')});
 
