@@ -18,19 +18,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v127"></script>
-<script src="auth.js?v=ww-v127"></script>
-<script src="life-core.js?v=ww-v127"></script>
-<script src="wisdom-core.js?v=ww-v127"></script>
-<script src="future-self-core.js?v=ww-v127"></script>
-<script src="projection-core.js?v=ww-v127"></script>
-<script src="usage-core.js?v=ww-v127"></script>
-<script src="rank-core.js?v=ww-v127"></script>
-<script src="persona-core.js?v=ww-v127"></script>
-<script src="character-core.js?v=ww-v127"></script>
-<script src="arena-core.js?v=ww-v127"></script>
-<script src="arena-api.js?v=ww-v127"></script>
-<script src="arena-ui.js?v=ww-v127"></script>
+<script src="supabase-config.js?v=ww-v128"></script>
+<script src="auth.js?v=ww-v128"></script>
+<script src="life-core.js?v=ww-v128"></script>
+<script src="wisdom-core.js?v=ww-v128"></script>
+<script src="future-self-core.js?v=ww-v128"></script>
+<script src="projection-core.js?v=ww-v128"></script>
+<script src="usage-core.js?v=ww-v128"></script>
+<script src="rank-core.js?v=ww-v128"></script>
+<script src="persona-core.js?v=ww-v128"></script>
+<script src="character-core.js?v=ww-v128"></script>
+<script src="arena-core.js?v=ww-v128"></script>
+<script src="arena-api.js?v=ww-v128"></script>
+<script src="arena-ui.js?v=ww-v128"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -992,13 +992,13 @@ function Nemesis({c}){
  return html`<div className="rounded-[28px] p-4 relative overflow-hidden" style=${{background:'radial-gradient(120% 80% at 50% 0%,rgba(var(--nem-rgb),.16),#0F0A12 62%)',border:'1px solid rgba(var(--nem-rgb),.28)'}}>
   <div className="flex items-center justify-between"><div className="lbl" style=${{color:'var(--nem)'}}>Dein Zukunfts-Ich</div><button aria-label="Info" onClick=${()=>c.openSheet({t:'info',k:'self'})} className="bg-transparent border-0 mute p-0"><${Icon} n="info" s=${16}/></button></div>
   <div className="flex justify-center mt-1"><${NemesisFace} size=${124}/></div>
-  <div className="text-center mt-1"><div className="disp disp-i text-[32px]">Die bessere Version</div><div className="text-[12px] mute mt-0.5">Er hält jeden Plan. Jeden Tag. Ohne Ausrede.</div></div>
+  <div className="text-center mt-1"><div className="disp disp-i text-[32px]">Die bessere Version</div><div className="text-[12px] mute mt-0.5">Hält jeden Plan. Jeden Tag. Ohne Ausrede.</div></div>
   <div className="grid grid-cols-3 gap-2 mt-4 text-center items-end"><div><div className="lbl">Du</div><div className="disp text-[32px] mt-0.5">${you} %</div></div>
    <div><div className="lbl">Abstand</div><div className="disp text-[32px] mt-0.5" style=${{color:'var(--nem)'}}><${CountUp} v=${gap} d=${1}/>%</div></div>
-   <div><div className="lbl" style=${{color:'var(--nem)'}}>Er</div><div className="disp text-[32px] mt-0.5" style=${{color:'var(--nem)'}}>${him} %</div></div></div>
+   <div><div className="lbl" style=${{color:'var(--nem)'}}>Zukunft</div><div className="disp text-[32px] mt-0.5" style=${{color:'var(--nem)'}}>${him} %</div></div></div>
   <div className="mt-3 relative h-3 rounded-full overflow-hidden" style=${{background:'rgba(255,255,255,.06)'}}><div className="absolute inset-y-0 left-0 rounded-full" style=${{width:him+'%',background:'linear-gradient(90deg,rgba(var(--nem-rgb),.35),var(--nem))'}}/><div className="absolute inset-y-0 left-0 rounded-full" style=${{width:you+'%',background:'linear-gradient(90deg,var(--acc-d),var(--acc2))',transition:'width .6s'}}/></div>
   <div className="flex justify-between text-[12px] mute mt-1.5"><span style=${{color:'var(--acc2)'}}>Dein Stand in der Saison</span><span style=${{color:'var(--nem)'}}>Sein Stand</span></div>
-  <div className="grid grid-cols-2 gap-2 mt-3"><div className="rounded-2xl p-3" style=${{background:'rgba(255,255,255,.04)'}}><div className="lbl">Du heute</div><div className="disp text-[24px] mt-0.5">${dn}<span className="mute text-[16px]">/${tot}</span></div></div><div className="rounded-2xl p-3" style=${{background:'rgba(var(--nem-rgb),.1)'}}><div className="lbl" style=${{color:'var(--nem)'}}>Er heute</div><div className="disp text-[24px] mt-0.5" style=${{color:'var(--nem)'}}>${tot}<span className="text-[16px]" style=${{opacity:.6}}>/${tot}</span></div></div></div>
+  <div className="grid grid-cols-2 gap-2 mt-3"><div className="rounded-2xl p-3" style=${{background:'rgba(255,255,255,.04)'}}><div className="lbl">Du heute</div><div className="disp text-[24px] mt-0.5">${dn}<span className="mute text-[16px]">/${tot}</span></div></div><div className="rounded-2xl p-3" style=${{background:'rgba(var(--nem-rgb),.1)'}}><div className="lbl" style=${{color:'var(--nem)'}}>Zukunft heute</div><div className="disp text-[24px] mt-0.5" style=${{color:'var(--nem)'}}>${tot}<span className="text-[16px]" style=${{opacity:.6}}>/${tot}</span></div></div></div>
   <div className="mt-3 rounded-2xl p-3" style=${{background:'rgba(var(--nem-rgb),.08)',border:'1px solid rgba(var(--nem-rgb),.2)'}}>${(msg||cb)&&html`<div className="lbl mb-1" style=${{color:'var(--nem)'}}>${cb?'Rückfall-Modus':'Zukunfts-Ich sagt'}</div>`}<div className="text-[14px] font-medium leading-snug">${msg&&!cb?'„'+line+'“':line}</div></div>
   <button onClick=${()=>c.setTab('tasks')} className="btn w-full py-3 mt-3 text-sm" style=${{background:'linear-gradient(135deg,#FF4D6D,#B3153C)'}}>Aufholen</button></div>`}
 function QuoteSlider(){
@@ -1493,7 +1493,7 @@ function TimeDebug({c}){const [open,setOpen]=useState(false);const now=nowMinOf(
  ${open&&html`<div className="mt-3"><input type="range" min="0" max="1425" step="15" value=${now} onChange=${e=>c.setSimMin(+e.target.value)} aria-label="Uhrzeit" className="w-full"/>
   <div className="flex flex-wrap gap-1.5 mt-2">${[['Morgen',450],['Mittag',750],['Nachm.',930],['Abend',1200],['Nacht',180]].map(([l,m])=>html`<button key=${l} onClick=${()=>c.setSimMin(m)} className=${`chip ${c.simMin===m?'on':''}`}>${l} ${fmtHM(m)}</button>`)}<button onClick=${()=>c.setSimMin(null)} className=${`chip ${c.simMin==null?'on':''}`}>Live</button></div></div>`}</div>`}
 function NemPlan({c}){const {S}=c;const sel=S.nem||nemDefault(S);const pool=nemPool(S);
- return html`<${Sheet} sub="Zukunfts-Ich-Plan" title="Was würde er heute tun?" onClose=${c.closeSheet}>
+ return html`<${Sheet} sub="Zukunfts-Ich-Plan" title="Was würde dein Zukunfts-Ich heute tun?" onClose=${c.closeSheet}>
  <div className="text-[12px] mute mb-3 leading-snug">Wähle Aufgaben und Tageszeit. Genaue Uhrzeiten legst du im Tagesplan fest.</div>
  <div className="flex flex-col gap-2">${pool.map(m=>{const on=!!sel[m.id],k=kindOf(m);return html`<div key=${m.id} className="card2 p-3">
   <button onClick=${()=>c.setNem(m.id,on?null:NK_TOD[k])} className="w-full bg-transparent border-0 p-0 flex items-center gap-3 text-left ink"><span className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" style=${{background:on?'var(--acc)':'transparent',border:on?'none':'1.5px solid var(--line)',color:'#fff'}}>${on&&html`<${Icon} n="check" s=${14} sw=${3}/>`}</span><span className="flex-1 text-[14px] font-medium">${m.title}</span><span className="text-[12px] mute">${(SCN[k]||SCN.idle).label}</span></button>
@@ -1669,14 +1669,14 @@ function InfoNote({head,label,children,cls=''}){const [o,setO]=useState(false);
 /* Kopfkachel auf Heute: wie die Arena-Kopfkachel aufgebaut, zeigt das Zukunfts-Ich (gleiche Figur und Werte wie im Zukunfts-Ich-Sheet). */
 function FutureHead({c,purpose}){const {S}=c,p=FS.settings(S);if(!p.enabled)return null;
  const now=nowMinOf(c),fm=focusMode(S),d=duelNow(S,now),cur=d.plan.length?getCurrentActivity(d.plan,now):null,act=cur&&(SCN[cur.kind]||SCN.idle).label,rest=c.D.restToday,show=!fm&&!rest&&d.Y>0;
- const line=rest?'Er hält heute den Ruhetag.':fm||!act?'Was würde dein Zukunfts-Ich jetzt tun?':'Er ist gerade bei: '+act+'.';
- const bar=(who,n,col)=>html`<span className="flex items-center gap-2"><span className="text-[11.5px] font-semibold w-6 mute">${who}</span><span className="flex-1 block rounded-full overflow-hidden" style=${{height:6,background:'var(--ghost)'}}><span className="block h-full rounded-full" style=${{width:(d.Y?Math.round(n/d.Y*100):0)+'%',background:col,transition:'width .4s ease'}}/></span><span className="num text-[11.5px] mute w-10 text-right">${n}/${d.Y}</span></span>`;
- return html`<button type="button" onClick=${()=>c.openSheet({t:'futureSelf'})} data-future-head aria-label=${'Heute. '+purpose+' Dein Zukunfts-Ich: '+line+(show?' Er '+d.Z+', du '+d.X+' von '+d.Y+'.':'')+' Öffnen'} className="relative w-full mt-2 text-left overflow-hidden p-0" style=${{borderRadius:20,border:'1px solid var(--line)',background:'var(--hero)',color:'var(--ink)'}}>
+ const line=rest?'Heute Ruhetag, auch für dein Zukunfts-Ich.':fm||!act?'Was würde dein Zukunfts-Ich jetzt tun?':'Dein Zukunfts-Ich ist gerade bei: '+act+'.';
+ const bar=(who,n,col)=>html`<span className="flex items-center gap-2"><span className="text-[11.5px] font-semibold w-14 mute">${who}</span><span className="flex-1 block rounded-full overflow-hidden" style=${{height:6,background:'var(--ghost)'}}><span className="block h-full rounded-full" style=${{width:(d.Y?Math.round(n/d.Y*100):0)+'%',background:col,transition:'width .4s ease'}}/></span><span className="num text-[11.5px] mute w-10 text-right">${n}/${d.Y}</span></span>`;
+ return html`<button type="button" onClick=${()=>c.openSheet({t:'futureSelf'})} data-future-head aria-label=${'Heute. '+purpose+' Dein Zukunfts-Ich: '+line+(show?' Zukunft '+d.Z+', du '+d.X+' von '+d.Y+'.':'')+' Öffnen'} className="relative w-full mt-2 text-left overflow-hidden p-0" style=${{borderRadius:20,border:'1px solid var(--line)',background:'var(--hero)',color:'var(--ink)'}}>
  <span className="flex items-stretch gap-2">
   <span className="flex-1 min-w-0 px-4 pt-3 pb-2"><span className="lbl block" style=${{color:'var(--nem)'}}>Dein Zukunfts-Ich</span><span className="disp block text-[32px] leading-none mt-1">Heute</span>
    <span className="block text-[13px] font-semibold mt-1.5 leading-snug">${line}</span></span>
   <span className="shrink-0 flex items-end justify-center" style=${{width:96,background:'color-mix(in srgb,var(--nem) 12%,transparent)'}}><${FutureSelfMark} size=${92}/></span></span>
- <span className="block px-4 py-2.5 space-y-1" style=${{borderTop:'1px solid var(--line)',background:'color-mix(in srgb,var(--gold) 10%,transparent)'}}>${!fm&&(()=>{const r=RK.rank(S);return html`<span className="flex items-baseline justify-between text-[11.5px] mute" data-season-rank><span>Spielsaison ${S.season} · <b style=${{color:'var(--ink)'}}>${r.name}</b></span><span className="num">${r.next?r.pts+' / '+r.next.min+' Pkt.':r.pts+' Pkt.'}</span></span>`})()}${show?html`${bar('Er',d.Z,'var(--nem)')}${bar('Du',d.X,'var(--acc)')}`:html`<span className="flex items-center justify-between text-[12px] mute">Tippen für Rat oder Tagesurteil<${Icon} n="chevR" s=${14}/></span>`}</span></button>`}
+ <span className="block px-4 py-2.5 space-y-1" style=${{borderTop:'1px solid var(--line)',background:'color-mix(in srgb,var(--gold) 10%,transparent)'}}>${!fm&&(()=>{const r=RK.rank(S);return html`<span className="flex items-baseline justify-between text-[11.5px] mute" data-season-rank><span>Spielsaison ${S.season} · <b style=${{color:'var(--ink)'}}>${r.name}</b></span><span className="num">${r.next?r.pts+' / '+r.next.min+' Pkt.':r.pts+' Pkt.'}</span></span>`})()}${show?html`${bar('Zukunft',d.Z,'var(--nem)')}${bar('Du',d.X,'var(--acc)')}`:html`<span className="flex items-center justify-between text-[12px] mute">Tippen für Rat oder Tagesurteil<${Icon} n="chevR" s=${14}/></span>`}</span></button>`}
 function TodayHero({c,ini,rings,battle}){const {S}=c,planned=rings.filter(r=>r.total>0),closed=planned.filter(r=>r.done>=r.total).length,all=planned.length>0&&closed===planned.length;
  return html`<section className="pt-3 relative" aria-label="Dein Tag">
  ${!FS.settings(S).enabled&&html`<span className="page-emblem" style=${{top:44}}><${Icon} n=${all?'laurel':'aspis'} s=${76} sw=${1}/></span>`}
@@ -1751,14 +1751,14 @@ function DayAhead({c}){const {S,D}=c,now=nowMinOf(c),b=nextTimeBlock(S,now),r=re
 /* Zukunfts-Ich als Kachel auf Heute: Figur, was es laut deinem Plan gerade tut, Er gegen Du. Ersetzt dort die untere Leiste. */
 function FutureSelfTile({c}){const {S}=c,p=FS.settings(S);if(!p.enabled)return null;
  const now=nowMinOf(c),fm=focusMode(S),d=duelNow(S,now),cur=d.plan.length?getCurrentActivity(d.plan,now):null,act=cur&&(SCN[cur.kind]||SCN.idle).label,rest=c.D.restToday;
- const bar=(who,n,col)=>html`<div className="flex items-center gap-2"><span className="text-[12px] font-semibold w-6 mute">${who}</span><span className="flex-1 block rounded-full overflow-hidden" style=${{height:6,background:'var(--ghost)'}}><span className="block h-full rounded-full" style=${{width:(d.Y?Math.round(n/d.Y*100):0)+'%',background:col,transition:'width .4s ease'}}/></span><span className="num text-[12px] mute w-7 text-right">${n}/${d.Y}</span></div>`;
+ const bar=(who,n,col)=>html`<div className="flex items-center gap-2"><span className="text-[12px] font-semibold w-14 mute">${who}</span><span className="flex-1 block rounded-full overflow-hidden" style=${{height:6,background:'var(--ghost)'}}><span className="block h-full rounded-full" style=${{width:(d.Y?Math.round(n/d.Y*100):0)+'%',background:col,transition:'width .4s ease'}}/></span><span className="num text-[12px] mute w-7 text-right">${n}/${d.Y}</span></div>`;
  const lead=d.Z-d.X;
  return html`<button type="button" onClick=${()=>c.openSheet({t:'futureSelf'})} aria-label="Dein Zukunfts-Ich öffnen" className="w-full mt-3 text-left border-0 p-3 pr-4 flex items-center gap-3 relative overflow-hidden" style=${{minHeight:88,borderRadius:16,background:'var(--card)',boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}>
  <span className="shrink-0 flex items-end justify-center rounded-2xl" style=${{width:64,height:68,background:'color-mix(in srgb,var(--nem) 14%,transparent)'}}><${FutureSelfMark} size=${66}/></span>
  <span className="flex-1 min-w-0">
  <span className="block text-[12px] font-bold tracking-[.14em] uppercase" style=${{color:'var(--nem)'}}>Dein Zukunfts-Ich</span>
  <span className="block text-[16px] font-bold leading-snug mt-0.5 truncate">${rest?'Hält den Ruhetag':fm||!act?'Was würde ich jetzt tun?':act+' gerade'}</span>
- ${!fm&&!rest&&d.Y>0?html`<span className="block mt-2 space-y-1">${bar('Er',d.Z,'var(--nem)')}${bar('Du',d.X,'var(--acc)')}</span>`:html`<span className="block text-[12px] mute mt-0.5">Tippen für Rat oder Tagesurteil</span>`}
+ ${!fm&&!rest&&d.Y>0?html`<span className="block mt-2 space-y-1">${bar('Zukunft',d.Z,'var(--nem)')}${bar('Du',d.X,'var(--acc)')}</span>`:html`<span className="block text-[12px] mute mt-0.5">Tippen für Rat oder Tagesurteil</span>`}
  ${!fm&&!rest&&d.Y>0&&lead>0&&html`<span className="sr-only">${lead} Schritte Rückstand</span>`}
  </span><${Icon} n="chevR" s=${16} cls="mute"/></button>`}
 function trialToday(S){const L=S.life||{};return [L.trial,L.trialNext].find(t=>t&&t.d===L.d)||null}
@@ -1844,7 +1844,7 @@ function ReflectLine({c}){const {S,D}=c;const L=S.life,r=reviewToday(S),due=LC.r
 /* Zukunfts-Ich als eine Zeile, Szene im eigenen Sheet */
 function NemesisLine({c}){const {S}=c;const now=nowMinOf(c);const plan=buildNemesisPlan(nemTasks(S)),cur=getCurrentActivity(plan,now);const cnt=plan.filter(p=>!p.virtual&&p.kind!=='sleep'),Y=cnt.length,Z=cnt.filter(p=>nemDoneAt(p,plan,now)).length,X=cnt.filter(p=>p.done).length;
  return html`<button onClick=${()=>c.openSheet({t:'nemesis'})} className="w-full mt-2 flex items-center gap-3 px-3.5 py-3 rounded-[14px] text-left border-0 bg-transparent" style=${{boxShadow:'0 0 0 1px var(--line) inset',color:'var(--ink)'}}>
- <span style=${{color:'var(--nem)'}}><${Icon} n="helmet" s=${18} sw=${1.8}/></span><span className="flex-1 min-w-0"><span className="block text-[14px] font-medium truncate">Zukunfts-Ich: ${(SCN[cur.kind]||SCN.idle).label.toLowerCase()}</span><span className="block text-[12px] mute num">Er ${Z}/${Y} · du ${X}/${Y}${Z>X?' · '+(Z-X)+' Rückstand':''}</span></span><${Icon} n="chevR" s=${15} cls="mute"/></button>`}
+ <span style=${{color:'var(--nem)'}}><${Icon} n="helmet" s=${18} sw=${1.8}/></span><span className="flex-1 min-w-0"><span className="block text-[14px] font-medium truncate">Zukunfts-Ich: ${(SCN[cur.kind]||SCN.idle).label.toLowerCase()}</span><span className="block text-[12px] mute num">Zukunft ${Z}/${Y} · du ${X}/${Y}${Z>X?' · '+(Z-X)+' Rückstand':''}</span></span><${Icon} n="chevR" s=${15} cls="mute"/></button>`}
 function NemesisSheet({c}){const now=nowMinOf(c);return html`<${Sheet} sub="Arena · optional" title="Dein Zukunfts-Ich" onClose=${c.closeSheet}><${NemesisCard} c=${c}/>${now>=1260&&html`<div className="mt-3"><${DuelReport} c=${c}/></div>`}<div className="mt-3"><${LearnCard} c=${c}/></div><//>`}
 function HomeLegacy({c}){
  const {S,D}=c;const R=readiness(S);const a=D.standings[D.me.rank-2];
@@ -1958,7 +1958,7 @@ function DuelReport({c}){const {S}=c;const d=duelOf(S),st=(S.duel&&S.duel.streak
  return html`<div className="card p-4 mb-3 rise" style=${{borderRadius:24,background:'radial-gradient(120% 80% at 50% 0%,rgba(var(--nem-rgb),.12),var(--card) 65%)',borderColor:'rgba(var(--nem-rgb),.28)'}}>
  <div className="nem-line mb-2.5"/><div className="flex items-center justify-between"><div className="lbl" style=${{color:'var(--nem)'}}>Abendbericht · Tagesduell</div><span className="text-[12px] mute">ab 21 Uhr</span></div>
  <div className="flex items-end justify-around mt-3"><div className="text-center"><div className="disp text-[40px] leading-none" style=${{color:'var(--good)'}}>${d.X}</div><div className="lbl mt-1">Du</div></div><div className="text-[14px] mute pb-3">gegen</div><div className="text-center"><div className="disp text-[40px] leading-none" style=${{color:'var(--nem)'}}>${d.Y}</div><div className="lbl mt-1">Zukunfts-Ich</div></div></div>
- <div className="mt-3 rounded-2xl p-3" style=${{background:'rgba(var(--nem-rgb),.08)',boxShadow:'0 0 0 1px rgba(var(--nem-rgb),.2) inset'}}><div className="lbl mb-1" style=${{color:'var(--nem)'}}>Er sagt</div><div className="text-[14px] font-semibold leading-snug">„${d.lines.join(' ')}“</div></div>
+ <div className="mt-3 rounded-2xl p-3" style=${{background:'rgba(var(--nem-rgb),.08)',boxShadow:'0 0 0 1px rgba(var(--nem-rgb),.2) inset'}}><div className="lbl mb-1" style=${{color:'var(--nem)'}}>Dein Zukunfts-Ich sagt</div><div className="text-[14px] font-semibold leading-snug">„${d.lines.join(' ')}“</div></div>
  <div className="flex items-center justify-between mt-3 text-[12px]"><span className="mute">Duell-Serie</span><span className="font-semibold" style=${{color:'var(--gold)'}}>${d.won?st+1:st} ${(d.won?st+1:st)===1?'Tag':'Tage'} eingeholt${d.won?' · heute dabei':''}</span></div></div>`}
 /* ───── Realitäts-Check im Tagesplan ───── */
 const PLAN_LIMIT=300;
@@ -2041,7 +2041,7 @@ function HopliteFig({cape='var(--nem)',plume=true,ghost,animated=false}){const d
 /* Home-Szene: Sonnenscheibe nach Tageszeit, Tempel, Felsgrat; der Zukunfts-Ich zeigt, was er gerade erledigt */
 function DayScene({c}){const {S}=c;const now=nowMinOf(c),sl=slotOf(now),[bg,sun,op,stone,sy]=SLOT_PAL[sl],fm=focusMode(S);
  const plan=buildNemesisPlan(nemTasks(S)),cur=getCurrentActivity(plan,now),night=now<plan[0].start||cur.kind==='sleep',g=mainGoal(S);
- const cap=(fm?'Dein Tag · ':'Zukunfts-Ich · ')+sl,txt=fm?(g?g.title:'Lege dein Hauptziel fest'):night?'Er schläft. Morgen geht es weiter.':cur.name;
+ const cap=(fm?'Dein Tag · ':'Zukunfts-Ich · ')+sl,txt=fm?(g?g.title:'Lege dein Hauptziel fest'):night?'Schläft gerade. Morgen geht es weiter.':cur.name;
  return html`<button onClick=${()=>fm?c.setTab('tasks'):c.openSheet({t:'nemesis'})} className="scene-card" aria-label=${cap+': '+txt}>
  <svg viewBox="0 0 360 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="360" height="230" fill=${bg}/><circle cx="200" cy=${sy} r="78" fill=${sun} opacity=${op}/>
   <g fill=${stone} opacity=".8"><rect x="280" y="118" width="60" height="4"/>${[284,293,302,311,320,329].map(x=>html`<rect key=${x} x=${x} y="100" width="4" height="18"/>`)}<path d="M278 100 L310 88 L342 100Z"/></g>
