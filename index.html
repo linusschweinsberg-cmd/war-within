@@ -18,18 +18,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v120"></script>
-<script src="auth.js?v=ww-v120"></script>
-<script src="life-core.js?v=ww-v120"></script>
-<script src="wisdom-core.js?v=ww-v120"></script>
-<script src="future-self-core.js?v=ww-v120"></script>
-<script src="projection-core.js?v=ww-v120"></script>
-<script src="rank-core.js?v=ww-v120"></script>
-<script src="persona-core.js?v=ww-v120"></script>
-<script src="character-core.js?v=ww-v120"></script>
-<script src="arena-core.js?v=ww-v120"></script>
-<script src="arena-api.js?v=ww-v120"></script>
-<script src="arena-ui.js?v=ww-v120"></script>
+<script src="supabase-config.js?v=ww-v121"></script>
+<script src="auth.js?v=ww-v121"></script>
+<script src="life-core.js?v=ww-v121"></script>
+<script src="wisdom-core.js?v=ww-v121"></script>
+<script src="future-self-core.js?v=ww-v121"></script>
+<script src="projection-core.js?v=ww-v121"></script>
+<script src="rank-core.js?v=ww-v121"></script>
+<script src="persona-core.js?v=ww-v121"></script>
+<script src="character-core.js?v=ww-v121"></script>
+<script src="arena-core.js?v=ww-v121"></script>
+<script src="arena-api.js?v=ww-v121"></script>
+<script src="arena-ui.js?v=ww-v121"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -1661,11 +1661,22 @@ function AspisRing({area,pct,full,size=62}){const r=size/2-5,cc=2*Math.PI*r,h=si
  <circle cx=${h} cy=${h} r=${r} fill="none" stroke=${area.color} strokeWidth="4" strokeLinecap="round" opacity=${pct>0?1:0} strokeDasharray=${(cc*pct)+' '+cc} transform=${'rotate(-90 '+h+' '+h+')'} style=${{transition:'stroke-dasharray .6s cubic-bezier(.16,1,.3,1)'}}/>
  <circle cx=${h} cy=${h} r=${r-6} fill="none" stroke="var(--bronze)" strokeWidth=".75" opacity=".55"/>
  </svg><span className="absolute inset-0 flex items-center justify-center" style=${{color:full?'var(--bronze)':area.color}}>${full?html`<${Icon} n="check" s=${20} sw=${2.6}/>`:html`<${Icon} n=${area.icon} s=${19}/>`}</span></span>`}
+/* Kopfkachel auf Heute: wie die Arena-Kopfkachel aufgebaut, zeigt das Zukunfts-Ich (gleiche Figur und Werte wie im Zukunfts-Ich-Sheet). */
+function FutureHead({c,purpose}){const {S}=c,p=FS.settings(S);if(!p.enabled)return null;
+ const now=nowMinOf(c),fm=focusMode(S),d=duelNow(S,now),cur=d.plan.length?getCurrentActivity(d.plan,now):null,act=cur&&(SCN[cur.kind]||SCN.idle).label,rest=c.D.restToday,show=!fm&&!rest&&d.Y>0;
+ const line=rest?'Er hält heute den Ruhetag.':fm||!act?'Was würde dein Zukunfts-Ich jetzt tun?':'Er ist gerade bei: '+act+'.';
+ const bar=(who,n,col)=>html`<span className="flex items-center gap-2"><span className="text-[11.5px] font-semibold w-6 mute">${who}</span><span className="flex-1 block rounded-full overflow-hidden" style=${{height:6,background:'var(--ghost)'}}><span className="block h-full rounded-full" style=${{width:(d.Y?Math.round(n/d.Y*100):0)+'%',background:col,transition:'width .4s ease'}}/></span><span className="num text-[11.5px] mute w-10 text-right">${n}/${d.Y}</span></span>`;
+ return html`<button type="button" onClick=${()=>c.openSheet({t:'futureSelf'})} data-future-head aria-label=${'Heute. '+purpose+' Dein Zukunfts-Ich: '+line+(show?' Er '+d.Z+', du '+d.X+' von '+d.Y+'.':'')+' Öffnen'} className="relative w-full mt-2 text-left overflow-hidden p-0" style=${{borderRadius:20,border:'1px solid var(--line)',background:'var(--hero)',color:'var(--ink)'}}>
+ <span className="flex items-stretch gap-2">
+  <span className="flex-1 min-w-0 px-4 pt-3 pb-2"><span className="lbl block" style=${{color:'var(--nem)'}}>Dein Zukunfts-Ich</span><span className="disp block text-[32px] leading-none mt-1">Heute</span>
+   <span className="block text-[12px] mute mt-1.5 leading-snug" data-page-purpose>${purpose}</span><span className="block text-[13px] font-semibold mt-2 leading-snug">${line}</span></span>
+  <span className="shrink-0 flex items-end justify-center" style=${{width:96,background:'color-mix(in srgb,var(--nem) 12%,transparent)'}}><${FutureSelfMark} size=${92}/></span></span>
+ <span className="block px-4 py-2.5 space-y-1" style=${{borderTop:'1px solid var(--line)',background:'color-mix(in srgb,var(--gold) 10%,transparent)'}}>${show?html`${bar('Er',d.Z,'var(--nem)')}${bar('Du',d.X,'var(--acc)')}`:html`<span className="flex items-center justify-between text-[12px] mute">Tippen für Rat oder Tagesurteil<${Icon} n="chevR" s=${14}/></span>`}</span></button>`}
 function TodayHero({c,ini,rings,battle}){const {S}=c,planned=rings.filter(r=>r.total>0),closed=planned.filter(r=>r.done>=r.total).length,all=planned.length>0&&closed===planned.length;
  return html`<section className="pt-3 relative" aria-label="Dein Tag">
- <span className="page-emblem" style=${{top:44}}><${Icon} n=${all?'laurel':'aspis'} s=${76} sw=${1}/></span>
+ ${!FS.settings(S).enabled&&html`<span className="page-emblem" style=${{top:44}}><${Icon} n=${all?'laurel':'aspis'} s=${76} sw=${1}/></span>`}
  <div className="flex items-center justify-between gap-2"><div className="lbl truncate">${deDate(c.now,calendarZone(S))}</div><div className="flex shrink-0 -mr-2 relative"><button aria-label="Menü und Einstellungen" onClick=${()=>c.openSheet({t:'settings'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0" style=${{color:'var(--ink)'}}><${Icon} n="dots" s=${20}/></button><button aria-label="Konto & Profil" onClick=${()=>c.openSheet({t:'account'})} className="w-11 h-11 flex items-center justify-center bg-transparent border-0 p-0">${(()=>{const lk=PC.look(S,RK.looks(S));return lk&&lk.set?html`<${CharAvatar} lk=${lk} size=${32}/>`:html`<span className="w-8 h-8 rounded-full flex items-center justify-center text-[14px] font-bold" style=${{background:'var(--card2)',color:'var(--ink)',boxShadow:'0 0 0 1px var(--line) inset'}}>${ini}</span>`})()}</button></div></div>
- <h1 className="disp text-[32px] leading-none">Heute</h1><div className="text-[12px] mute mt-1.5 leading-snug" data-page-purpose>${battle?battle.done?'Hauptschlacht gewonnen. Alles Weitere ist Zugabe.':'Deine Hauptschlacht wartet.':'Wähle, was heute am meisten zählt.'}</div>
+ ${(()=>{const purpose=battle?battle.done?'Hauptschlacht gewonnen. Alles Weitere ist Zugabe.':'Deine Hauptschlacht wartet.':'Wähle, was heute am meisten zählt.';return FS.settings(S).enabled?html`<${FutureHead} c=${c} purpose=${purpose}/>`:html`<h1 className="disp text-[32px] leading-none">Heute</h1><div className="text-[12px] mute mt-1.5 leading-snug" data-page-purpose>${purpose}</div>`})()}
  ${!focusMode(S)&&(()=>{const r=RK.rank(S);return html`<button type="button" onClick=${()=>c.setTab('stats')} data-season-rank className="w-full mt-2 text-left bg-transparent border-0 p-0" style=${{minHeight:44,color:'var(--ink)'}} aria-label=${'Saison '+S.season+', Rang '+r.name+(r.next?', '+r.pts+' von '+r.next.min+' Saisonpunkten bis '+r.next.name:', höchster Saisonrang')}><span className="flex items-baseline justify-between gap-2 text-[12px]"><span className="truncate"><span className="mute">Spielsaison ${S.season} · </span><b>${r.name}</b></span><span className="num mute shrink-0">${r.next?r.pts+' / '+r.next.min+' Pkt.':r.pts+' Pkt.'}</span></span><span className="block h-1.5 rounded-full mt-1.5 overflow-hidden" style=${{background:'var(--ghost)'}}><span className="block h-full rounded-full" style=${{width:Math.max(3,r.pct*100)+'%',background:r.next?'var(--acc)':'var(--gold)',transition:'width .6s'}}/></span></button>`})()}
  <div className="meander mt-3" aria-hidden="true"/>
  </section>`}
