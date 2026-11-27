@@ -11,4 +11,5 @@ t('Empty life: no invented numbers',()=>{const S={life:LC.ensureLife({}).life||{
 t('Counts actions and standards per day of the current week only',()=>{const L={...(LC.newLife?LC.newLife():{}),d:9,goals:[],actions:[],standards:{},log:[{aid:'x',d:9,wk:1},{aid:'x',d:8,wk:1},{aid:'y',d:2,wk:0}],stdLog:[{area:'health',d:9,wk:1,kind:'std'}]};
  const P=a.progressData({life:L},Date.parse('2026-11-27T10:00Z'));const today=P.days.find(x=>x.today);assert.equal(today.n,2);assert.equal(P.days.length,7,'always seven days');assert.ok(!P.days.some(x=>x.d===2),'older than 7 days not shown');assert.equal(P.days.reduce((s,x)=>s+x.n,0),3)});
 t('Wired at the top of Fortschritt',()=>{assert.ok(source.includes('<${PersonalSeasonCard} S=${c.S}/><${ProgressCharts} c=${c}/>'))});
+t('Basis shows only the simple view (this week + goals); Erweitert keeps everything',()=>{assert.ok(source.includes('if(!adv)return html`<div className="screen px-4 pb-6">'));assert.ok(source.includes('<${SimpleProgress} c=${c}/>'));assert.ok(source.includes('data-simple-progress'))});
 console.log('PASS progress-charts');
