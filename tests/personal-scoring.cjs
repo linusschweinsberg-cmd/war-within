@@ -85,6 +85,25 @@ test('Full calendar weeks are frozen; plan changes only alter open/future weeks'
  S.day=7;S.life.d=7;LC.changeRoutine(S,'std:growth',{text:'Kleiner',perWeek:2,paused:false});assert.equal(a.planWeek(S),14);assert.equal(a.seasonPointPlan(S),35+3*14);
 });
 
+test('Actual weekly frequency buttons keep linked standard and goal plans in sync without rewriting previous weeks',()=>{
+ const S=fresh(),g=addGoal(S),ac=LC.actionsOf(S.life,g.id)[0];addStd(S);
+ LC.setStandard(S.life,'health',{aid:ac.id});S.life.d=7;S.day=7;
+ ac.anchor='Nach dem Frühstück';ac.mini='Ein kleiner Schritt';
+ hooks=[];cursor=0;a.App({init:S,auth:{session:{mode:'guest',name:'Test'}}});
+ c.appContext.setActPerWeek(ac.id,2);const n=hooks[0],act=LC.actById(n.life,ac.id);
+ assert.equal(LC.plannedAt(act,0),3);assert.equal(LC.plannedAt(act,1),2);
+ assert.equal(LC.standardWeek(n.life,'health',0).per,3);
+ assert.equal(LC.standardWeek(n.life,'health',1).per,2);
+ assert.equal(act.anchor,'Nach dem Frühstück');assert.equal(act.mini,'Ein kleiner Schritt');
+ const hist=JSON.stringify(act.hist);c.appContext.setActPerWeek(ac.id,2);
+ assert.equal(JSON.stringify(LC.actById(hooks[0].life,ac.id).hist),hist);
+ c.appContext.setActPerWeek(ac.id,1);const reloaded=clone(hooks[0]);
+ assert.equal(LC.standardWeek(reloaded.life,'health',0).per,3);
+ assert.equal(LC.standardWeek(reloaded.life,'health',1).per,1);
+ assert.equal(LC.plannedAt(LC.actById(reloaded.life,ac.id),0),3);
+ assert.equal(reloaded.seasonPts,S.seasonPts);assert.equal(reloaded.life.log.length,S.life.log.length);
+});
+
 test('Rest and partial start weeks reduce the budget; paused/linked routines do not inflate it',()=>{
  const S=fresh();addStd(S,'growth',7);S.calendar={v:1,date:'2026-11-26',tz:'Europe/Berlin',seasonOffset:3};assert.equal(a.planWeek(S),20);S.rest=[0];assert.equal(a.planWeek(S),15);
  LC.changeRoutine(S,'std:growth',{text:'Pause',perWeek:7,paused:true});assert.equal(a.weekPointPlan(S).points,0);S.seasonPts=100;assert.equal(a.derive(S).cur,0);assert.equal(a.pathLevel(S),0);
