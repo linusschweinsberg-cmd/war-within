@@ -33,7 +33,7 @@ t('Choose, change, remove and later; persists through JSON and repairs bad data'
 
 t('App wiring: script, ensure on load, sheet, card on Mein Leben, undo snapshot',()=>{
  assert.match(html,/<script src="persona-core\.js\?v=ww-v\d+"><\/script>/);assert.match(html,/PC\.ensure\(s\)/);
- assert.match(html,/case'persona':b=html`<\$\{PersonaSheet\}/);assert.ok(html.includes('(PC.invite(S)?html`<${PersonaCard} c=${c}/>`:chs&&chs.invite?html`<${CharacterInvite} c=${c}/>`'));assert.ok(html.includes('${!PC.invite(S)&&html`<${PersonaCard} c=${c}/>`}<${SkillsRow} c=${c}/>'));
+ assert.match(html,/case'persona':b=html`<\$\{PersonaSheet\}/);assert.ok(html.includes('(PC.invite(S)?html`<${PersonaCard} c=${c}/>`:chs&&chs.invite?html`<${CharacterInvite} c=${c}/>`'));assert.ok(html.includes('${!PC.invite(S)&&html`<${PersonaCard} c=${c}/>`}`}'));assert.ok(!html.includes('<${SkillsRow} c=${c}/>'),'Fähigkeiten vorerst ausgeblendet');
  assert.ok(html.includes('mine=(S.principles||[]).map(p=>p.n),add=PC.valuesToAdd(mine,v)'));assert.ok(html.includes('r=PC.choose(n,ids,vals,addV,cur)'));
  assert.match(html,/const choosePersona=\(ids,vals,addV,goalArea\)=>\{const before=S;/);assert.match(html,/undo:\(\)=>setS\(syncCalendar\(structuredClone\(before\)\)\)/)});
 console.log('PASS persona-core');
@@ -50,7 +50,7 @@ t('Skill hints from achieved goals and successful experiments, only until added 
 t('Skills survive season change data and JSON; broken data is repaired without loss',()=>{const S=life({skills:{v:0,list:[{name:'Musik',t:1},{name:'musik'},{name:''}]}});
  PC.skills(S);assert.deepEqual(Array.from(PC.skillList(S),x=>x.name),['Musik']);const back=JSON.parse(JSON.stringify(S));back.season=5;back.seasonPts=0;assert.equal(PC.skillList(back).length,1);
  assert.deepEqual(JSON.parse(JSON.stringify(PC.skillsForSync(S))),{v:1,n:1},'sync carries no names')});
-t('App wiring: skills row on Mein Leben, sheet, undo on remove',()=>{assert.ok(html.includes('<${PersonaCard} c=${c}/>`}<${SkillsRow} c=${c}/>'));assert.ok(html.includes("case'skills':b=html`<${SkillsSheet} c=${c}/>`"));
+t('App wiring: skills sheet stays reachable in code, undo on remove (row hidden for now)',()=>{assert.ok(html.includes("case'skills':b=html`<${SkillsSheet} c=${c}/>`"));
  assert.ok(html.includes("const removeSkill=id=>{const before=S"))});
 console.log('PASS skills');
 t('Look: defaults from persona, locked colours and engraving refused until unlocked, invalid data falls back',()=>{const S=life({});PC.choose(S,['owl'],[],false);
