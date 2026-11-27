@@ -18,19 +18,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v132"></script>
-<script src="auth.js?v=ww-v132"></script>
-<script src="life-core.js?v=ww-v132"></script>
-<script src="wisdom-core.js?v=ww-v132"></script>
-<script src="future-self-core.js?v=ww-v132"></script>
-<script src="projection-core.js?v=ww-v132"></script>
-<script src="usage-core.js?v=ww-v132"></script>
-<script src="rank-core.js?v=ww-v132"></script>
-<script src="persona-core.js?v=ww-v132"></script>
-<script src="character-core.js?v=ww-v132"></script>
-<script src="arena-core.js?v=ww-v132"></script>
-<script src="arena-api.js?v=ww-v132"></script>
-<script src="arena-ui.js?v=ww-v132"></script>
+<script src="supabase-config.js?v=ww-v133"></script>
+<script src="auth.js?v=ww-v133"></script>
+<script src="life-core.js?v=ww-v133"></script>
+<script src="wisdom-core.js?v=ww-v133"></script>
+<script src="future-self-core.js?v=ww-v133"></script>
+<script src="projection-core.js?v=ww-v133"></script>
+<script src="usage-core.js?v=ww-v133"></script>
+<script src="rank-core.js?v=ww-v133"></script>
+<script src="persona-core.js?v=ww-v133"></script>
+<script src="character-core.js?v=ww-v133"></script>
+<script src="arena-core.js?v=ww-v133"></script>
+<script src="arena-api.js?v=ww-v133"></script>
+<script src="arena-ui.js?v=ww-v133"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -1676,7 +1676,7 @@ function FutureHead({c,purpose}){const {S}=c,p=FS.settings(S);if(!p.enabled)retu
   <span className="flex-1 min-w-0 px-4 pt-3 pb-2"><span className="lbl block" style=${{color:'var(--nem)'}}>Dein Zukunfts-Ich</span><span className="disp block text-[32px] leading-none mt-1">Heute</span>
    <span className="block text-[13px] font-semibold mt-1.5 leading-snug">${line}</span></span>
   <span className="shrink-0 flex items-end justify-center" style=${{width:96,background:'color-mix(in srgb,var(--nem) 12%,transparent)'}}><${FutureSelfMark} size=${92}/></span></span>
- <span className="block px-4 py-2.5 space-y-1" style=${{borderTop:'1px solid var(--line)',background:'color-mix(in srgb,var(--gold) 10%,transparent)'}}>${!fm&&(()=>{const r=RK.rank(S);return html`<span className="flex items-baseline justify-between text-[11.5px] mute" data-season-rank><span>Spielsaison ${S.season} · <b style=${{color:'var(--ink)'}}>${r.name}</b></span><span className="num">${r.next?r.pts+' / '+r.next.min+' Pkt.':r.pts+' Pkt.'}</span></span>`})()}${show?html`${bar('Zukunft',d.Z,'var(--nem)')}${bar('Du',d.X,'var(--acc)')}`:html`<span className="flex items-center justify-between text-[12px] mute">Tippen für Rat oder Tagesurteil<${Icon} n="chevR" s=${14}/></span>`}</span></button>`}
+ <span className="block px-4 py-2.5 space-y-1" style=${{borderTop:'1px solid var(--line)',background:'color-mix(in srgb,var(--gold) 10%,transparent)'}}>${!fm&&(()=>{const r=RK.rank(S);return html`<span className="flex items-baseline justify-between text-[11.5px] mute" data-season-rank><span>Spielsaison ${S.season} · <b style=${{color:'var(--ink)'}}>${r.name}</b></span><span className="num">${r.next?r.pts+' / '+r.next.min+' Pkt.':r.pts+' Pkt.'}</span></span>`})()}${show?html`<span className="block text-[11px] mute">Heute erledigt · von ${d.Y} geplanten Aufgaben</span>${bar('Zukunft',d.Z,'var(--nem)')}${bar('Du',d.X,'var(--acc)')}`:html`<span className="flex items-center justify-between text-[12px] mute">Tippen für Rat oder Tagesurteil<${Icon} n="chevR" s=${14}/></span>`}</span></button>`}
 function TodayHero({c,ini,rings,battle}){const {S}=c,planned=rings.filter(r=>r.total>0),closed=planned.filter(r=>r.done>=r.total).length,all=planned.length>0&&closed===planned.length;
  return html`<section className="pt-3 relative" aria-label="Dein Tag">
  ${!FS.settings(S).enabled&&html`<span className="page-emblem" style=${{top:44}}><${Icon} n=${all?'laurel':'aspis'} s=${76} sw=${1}/></span>`}
