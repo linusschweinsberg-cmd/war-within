@@ -18,18 +18,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v126"></script>
-<script src="auth.js?v=ww-v126"></script>
-<script src="life-core.js?v=ww-v126"></script>
-<script src="wisdom-core.js?v=ww-v126"></script>
-<script src="future-self-core.js?v=ww-v126"></script>
-<script src="projection-core.js?v=ww-v126"></script>
-<script src="rank-core.js?v=ww-v126"></script>
-<script src="persona-core.js?v=ww-v126"></script>
-<script src="character-core.js?v=ww-v126"></script>
-<script src="arena-core.js?v=ww-v126"></script>
-<script src="arena-api.js?v=ww-v126"></script>
-<script src="arena-ui.js?v=ww-v126"></script>
+<script src="supabase-config.js?v=ww-v127"></script>
+<script src="auth.js?v=ww-v127"></script>
+<script src="life-core.js?v=ww-v127"></script>
+<script src="wisdom-core.js?v=ww-v127"></script>
+<script src="future-self-core.js?v=ww-v127"></script>
+<script src="projection-core.js?v=ww-v127"></script>
+<script src="usage-core.js?v=ww-v127"></script>
+<script src="rank-core.js?v=ww-v127"></script>
+<script src="persona-core.js?v=ww-v127"></script>
+<script src="character-core.js?v=ww-v127"></script>
+<script src="arena-core.js?v=ww-v127"></script>
+<script src="arena-api.js?v=ww-v127"></script>
+<script src="arena-ui.js?v=ww-v127"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -1663,7 +1664,7 @@ function AspisRing({area,pct,full,size=62}){const r=size/2-5,cc=2*Math.PI*r,h=si
  </svg><span className="absolute inset-0 flex items-center justify-center" style=${{color:full?'var(--bronze)':area.color}}>${full?html`<${Icon} n="check" s=${20} sw=${2.6}/>`:html`<${Icon} n=${area.icon} s=${19}/>`}</span></span>`}
 /* Erklärungen hinter einem Info-Symbol: sichtbar bleibt nur der Kopf, der Text klappt auf Wunsch auf. */
 function InfoNote({head,label,children,cls=''}){const [o,setO]=useState(false);
- return html`<div className=${cls}><div className="flex items-center justify-between gap-2">${head||html`<span/>`}<button type="button" aria-expanded=${o} aria-label=${(o?'Erklärung ausblenden: ':'Erklärung zeigen: ')+label} onClick=${e=>{e.stopPropagation();setO(x=>!x)}} className="shrink-0 inline-flex items-center justify-center bg-transparent border-0 p-0 rounded-full" style=${{width:44,height:44,color:o?'var(--acc2)':'var(--mute)'}}><${Icon} n="info" s=${17}/></button></div>
+ return html`<div className=${cls}><div className="flex items-center justify-between gap-2">${head||html`<span/>`}<button type="button" aria-expanded=${o} aria-label=${(o?'Erklärung ausblenden: ':'Erklärung zeigen: ')+label} onClick=${e=>{e.stopPropagation();if(!o)uhit('info');setO(x=>!x)}} className="shrink-0 inline-flex items-center justify-center bg-transparent border-0 p-0 rounded-full" style=${{width:44,height:44,color:o?'var(--acc2)':'var(--mute)'}}><${Icon} n="info" s=${17}/></button></div>
  ${o&&html`<div role="note" className="text-[12.5px] mute leading-snug px-1 pb-2 -mt-1">${children}</div>`}</div>`}
 /* Kopfkachel auf Heute: wie die Arena-Kopfkachel aufgebaut, zeigt das Zukunfts-Ich (gleiche Figur und Werte wie im Zukunfts-Ich-Sheet). */
 function FutureHead({c,purpose}){const {S}=c,p=FS.settings(S);if(!p.enabled)return null;
@@ -2694,7 +2695,7 @@ function Settings({c}){const {S}=c;
  <button onClick=${c.wisToggle} aria-pressed=${WC.enabled(S)} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="scroll" s=${18} cls="acc"/><div className="flex-1">Wisdom of the Warrior<div className="text-[12px] mute font-normal">Kurze Impulse auf Heute, im Debrief und bei Meilensteinen. Höchstens einer pro Stelle und Tag.</div></div><span className=${`chip ${WC.enabled(S)?'on':''}`}>${WC.enabled(S)?'An':'Aus'}</span></button>
  <button onClick=${()=>c.openSheet({t:'codex'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="bookmark" s=${18} cls="acc"/>Wisdom Codex öffnen</button>
  <button onClick=${c.togglePush} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="bell" s=${18} cls="acc"/><div className="flex-1">Erinnerungen<div className="text-[12px] mute font-normal">Blockstart, Rückfrage am Ende, Abendbericht um 21 Uhr. Ruhig von 21 bis 6 Uhr.</div></div><span className=${`chip ${S.push?'on':''}`}>${S.push?'An':'Aus'}</span></button>
- <${DataBackup} c=${c}/>
+ <${DataBackup} c=${c}/><${UsageCard} c=${c}/>
  <div className="ghost p-3.5"><div className="text-[14px] font-medium flex items-center gap-3 mb-2.5"><${Icon} n="helmet" s=${18} cls="acc"/>Design</div><${Seg} opts=${[['antik','Antik'],['violet','Violett']]} val=${S.skin||'antik'} on=${c.setSkin}/></div>
  <button onClick=${()=>c.openSheet({t:'account'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="user" s=${18} cls="acc"/>Konto & Profil</button>
  <button onClick=${()=>c.openSheet({t:'catalog'})} className="ghost p-3.5 flex items-center gap-3 text-left text-[14px] font-medium"><${Icon} n="info" s=${18} cls="acc"/>Punkte-Katalog ansehen</button>
@@ -4147,6 +4148,16 @@ function CommitCard({c}){const {S}=c;const L=S.life,k=L&&L.onboard&&L.onboard.co
 const OB_BODY={persona:ObPersona,standards:ObStandards,commit:ObCommit,future:ObFuture,audit:ObAudit,owner:ObOwner,loop:ObLoop,still:ObStill,what:ObWhat,resp:ObResp,ready:ObReady,name:ObName,pillars:ObPillarsS,mirror:ObMirror,cost:ObCost,compound:ObCompound,year:ObYear,goal:ObGoal,ctrl:ObCtrl,obst:ObObst,values:ObValues,sign:ObSign,first:ObFirst};
 
 /* ───── Sicherung: Export und Import (alles bleibt lokal; die Datei enthält private Texte) ───── */
+/* Nutzung im Selbsttest: nur auf diesem Gerät, nur Codes und Zahlen. Zählen darf die App nie stören. */
+const uhit=k=>{try{window.UC&&window.UC.hit(k)}catch(e){}};
+const USAGE_KNOWN=['tab:home','tab:tasks','tab:life','tab:stats','tab:league','tab:reflect','sheet:futureSelf','sheet:dayplan','sheet:review','sheet:weekly','sheet:goal','sheet:measure','sheet:standards','sheet:persona','sheet:character','sheet:look','sheet:skills','sheet:codex','sheet:impact','sheet:trules','sheet:settings','do:complete','do:undo','info'];
+function UsageCard({c}){const [x,setX]=useState(()=>UC.summary(USAGE_KNOWN)),[sure,setSure]=useState(false),[copied,setCopied]=useState(false),top=x.rows.slice(0,8);
+ const copy=async()=>{try{await navigator.clipboard.writeText(UC.asText(USAGE_KNOWN));setCopied(true)}catch(e){setCopied(false)}};
+ return html`<div className="card2 p-3.5 mt-3" data-usage><div className="flex items-center gap-2"><${Icon} n="bars" s=${15} cls="acc"/><div className="text-[14px] font-semibold flex-1">Nutzung im Selbsttest</div></div>
+  <div className="text-[12px] mute mt-1 leading-snug">Nur auf diesem Gerät. Seit ${x.since} · an ${x.days} ${x.days===1?'Tag':'Tagen'} geöffnet.</div>
+  ${top.length?html`<div className="mt-2 flex flex-col gap-1">${top.map(r=>html`<div key=${r.k} className="flex justify-between gap-2 text-[12.5px]"><span className="truncate">${r.k}</span><span className="num mute shrink-0">${r.n}× · ${r.d} ${r.d===1?'Tag':'Tage'}</span></div>`)}</div>`:null}
+  ${x.never.length>0&&html`<div className="text-[12px] mute mt-2 leading-snug">Nie genutzt: ${x.never.join(', ')}</div>`}
+  <div className="flex gap-2 mt-3"><button type="button" onClick=${copy} className="chip" style=${{minHeight:44}}>${copied?'Kopiert':'Als Text kopieren'}</button><button type="button" onClick=${()=>{if(!sure){setSure(true);return}UC.reset();setX(UC.summary(USAGE_KNOWN));setSure(false)}} className="chip" style=${{minHeight:44}}>${sure?'Wirklich zurücksetzen?':'Zurücksetzen'}</button></div></div>`}
 function DataBackup({c}){const {S}=c;const [pend,setPend]=useState(null),[err,setErr]=useState('');const ref=useRef(null);
  const exp=()=>{try{const d=new Date().toISOString().slice(0,10);const blob=new Blob([JSON.stringify({app:'war-within',v:1,exported:new Date().toISOString(),state:S},null,1)],{type:'application/json'});const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download='war-within-sicherung-'+d+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);c.toast('Sicherung gespeichert. Die Datei enthält auch deine privaten Texte, bewahre sie sicher auf.','good')}catch(e){c.toast('Export hat nicht geklappt.','warn')}};
  const pick=e=>{const f=e.target.files&&e.target.files[0];e.target.value='';setErr('');if(!f)return;if(f.size>5e6){setErr('Die Datei ist zu groß für eine Sicherung.');return}
@@ -4554,7 +4565,9 @@ function App({init,auth,skey='war_within_v5'}){
  useEffect(()=>{if(scrollRef.current)scrollRef.current.scrollTop=0;setScrolled(false)},[tab,statTab]);
  const toast=useCallback((msg,kind,o)=>{const id=uid();if(o&&o.undo){setUndo({id,msg,detail:o.detail,restore:o.undo});setToasts(t=>t.filter(x=>x.kind==='warn'));return}setToasts(t=>[...t.slice(-2),{id,msg,kind}]);setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)),3300)},[]);
  const [simMin,setSimMin]=useState(null);
- const openSheet=o=>setSheet(o),closeSheet=()=>setSheet(null);
+ const openSheet=o=>{if(o&&o.t)uhit('sheet:'+o.t);setSheet(o)},closeSheet=()=>setSheet(null);
+ /* Selbsttest: zählt lokal, welche Seiten geöffnet werden (nur Codes, siehe usage-core.js) */
+ useEffect(()=>{uhit('tab:'+tab)},[tab]);
  useEffect(()=>{if(focusMode(S)&&['solo','league'].includes(tab))setTab('home')},[S.life&&S.life.focusMode,tab]);
  /* Rang und Saisonfortschritt bleiben in ihren Ansichten; keine konkurrierenden Erfolgs-Toasts. */
  useEffect(()=>{const u=S.prog&&S.prog.up;if(!u||u.t<Date.now()-5000||focusMode(S))return;const t=setTimeout(()=>toast(u.rank+' erreicht. Neu verfügbar: '+u.text+'. Nutzen ist freiwillig.','good'),5600);return()=>clearTimeout(t)},[S.prog&&S.prog.up&&S.prog.up.t]);
@@ -4598,7 +4611,7 @@ function App({init,auth,skey='war_within_v5'}){
   arenaAuto(m,extra);
   const la=(S.life.actions||[]).find(x=>x.missionId===mid&&!x.off),lwk=LC.curWk(S.life),limp=la?`Umsetzung ${LC.doneIn(S.life,la.id,lwk)+1}/${LC.plannedAt(la,lwk)} diese Woche`:null;
   try{navigator.vibrate&&navigator.vibrate(award>0?[12,40,18]:8)}catch(e){}
-  toast('Erledigt: '+cleanTitle(m.title),'good',{detail:[capped?'Dein Punkte-Soll für heute ist voll. Das zählt trotzdem für dich und deine Ziele.':limp||impactOf(S,m),identityVote(S)].filter(Boolean).join(' · '),undo:()=>setS(S)});
+  uhit('do:complete');toast('Erledigt: '+cleanTitle(m.title),'good',{detail:[capped?'Dein Punkte-Soll für heute ist voll. Das zählt trotzdem für dich und deine Ziele.':limp||impactOf(S,m),identityVote(S)].filter(Boolean).join(' · '),undo:()=>setS(S)});
   if(!extra.keep)setSheet(null)};
  const start=(mid,ev,opt={})=>{const m=S.missions.find(x=>x.id===mid);if(isDone(S,m)){toast(m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
   if(!isActive(S,m.act)){toast(`${S.acts[m.act].name} sitzt auf der Bank. Wechsle sie im Squad ein.`,'warn');return}
@@ -4777,7 +4790,7 @@ function App({init,auth,skey='war_within_v5'}){
  ${tab==='home'&&S.push&&!undo&&!sheet&&dueAsk&&html`<div key=${'ask'+dueAsk.id} role="status" className="absolute z-40 left-3 right-3 rounded-[22px] p-3" style=${{bottom:dockOffset,background:'var(--glass)',backdropFilter:'blur(14px)',WebkitBackdropFilter:'blur(14px)',border:'1px solid rgba(var(--acc2-rgb),.4)',boxShadow:'0 14px 34px -12px rgba(0,0,0,.6)',animation:'toastIn .3s ease-out'}}>
   <div className="flex items-center gap-3"><span className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style=${{background:'rgba(var(--acc-rgb),.18)',color:'var(--acc2)'}}><${Icon} n=${dueAsk.icon} s=${18}/></span><div className="flex-1 min-w-0"><div className="text-[14px] font-semibold truncate">${dueAsk.name} erledigt?</div><div className="text-[12px] mute">Geplant ${fmtHM(dueAsk.start)}–${fmtHM(dueAsk.end)}${nowM<=dueAsk.end+GRACE?' · jetzt bestätigt = pünktlich':''}</div></div><button aria-label="Heute nicht mehr fragen" onClick=${()=>answerAsk(dueAsk,'no')} className="bg-transparent border-0 mute p-1 shrink-0"><${Icon} n="x" s=${16}/></button></div>
   <div className="flex gap-2 mt-2.5"><button onClick=${()=>answerAsk(dueAsk,'later')} className="ghost flex-1 py-2.5 text-[14px] font-semibold">Später</button><button onClick=${()=>answerAsk(dueAsk,'yes')} className="btn flex-[1.6] py-2.5 text-[14px]">Ja, erledigt</button></div></div>`}
- ${undo&&html`<div key=${undo.id} role="status" aria-live="polite" className="absolute z-[70] left-4 right-4 flex items-center gap-3 p-3 rounded-2xl" style=${{bottom:sheet?'calc(16px + env(safe-area-inset-bottom))':dockOffset,background:'var(--glass)',border:'1px solid var(--line)',animation:'toastIn .25s ease-out'}}><span className="flex-1 min-w-0"><span className="block text-[14px] font-semibold truncate">${undo.msg}</span>${undo.detail&&html`<span className="block text-[12px] mute leading-snug mt-0.5">${undo.detail}</span>`}</span><button onClick=${()=>{undo.restore();setUndo(null);toast('Rückgängig gemacht')}} className="chip on shrink-0" style=${{minHeight:44,padding:'6px 12px'}}>Rückgängig</button></div>`}
+ ${undo&&html`<div key=${undo.id} role="status" aria-live="polite" className="absolute z-[70] left-4 right-4 flex items-center gap-3 p-3 rounded-2xl" style=${{bottom:sheet?'calc(16px + env(safe-area-inset-bottom))':dockOffset,background:'var(--glass)',border:'1px solid var(--line)',animation:'toastIn .25s ease-out'}}><span className="flex-1 min-w-0"><span className="block text-[14px] font-semibold truncate">${undo.msg}</span>${undo.detail&&html`<span className="block text-[12px] mute leading-snug mt-0.5">${undo.detail}</span>`}</span><button onClick=${()=>{uhit('do:undo');undo.restore();setUndo(null);toast('Rückgängig gemacht')}} className="chip on shrink-0" style=${{minHeight:44,padding:'6px 12px'}}>Rückgängig</button></div>`}
  <${SheetHost} c=${c}/>
  ${ach&&!undo&&html`<div key=${newA} className="absolute inset-0 z-[60] flex items-center justify-center" style=${{background:'rgba(5,5,10,.82)',animation:'fadeIn .25s'}} onClick=${()=>upd(n=>{n.newAch=n.newAch.slice(1)})}>
   ${Array.from({length:18}).map((_,i)=>{const ang=i/18*Math.PI*2,r=110+(i%3)*40;return html`<span key=${i} className="absolute w-2 h-2 rounded-full" style=${{background:i%2?'var(--acc)':'var(--acc3)','--dx':Math.cos(ang)*r+'px','--dy':Math.sin(ang)*r+'px',animation:`burst 1.4s ease-out ${i*.03}s both`}}/>`})}
