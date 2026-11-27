@@ -18,19 +18,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v130"></script>
-<script src="auth.js?v=ww-v130"></script>
-<script src="life-core.js?v=ww-v130"></script>
-<script src="wisdom-core.js?v=ww-v130"></script>
-<script src="future-self-core.js?v=ww-v130"></script>
-<script src="projection-core.js?v=ww-v130"></script>
-<script src="usage-core.js?v=ww-v130"></script>
-<script src="rank-core.js?v=ww-v130"></script>
-<script src="persona-core.js?v=ww-v130"></script>
-<script src="character-core.js?v=ww-v130"></script>
-<script src="arena-core.js?v=ww-v130"></script>
-<script src="arena-api.js?v=ww-v130"></script>
-<script src="arena-ui.js?v=ww-v130"></script>
+<script src="supabase-config.js?v=ww-v131"></script>
+<script src="auth.js?v=ww-v131"></script>
+<script src="life-core.js?v=ww-v131"></script>
+<script src="wisdom-core.js?v=ww-v131"></script>
+<script src="future-self-core.js?v=ww-v131"></script>
+<script src="projection-core.js?v=ww-v131"></script>
+<script src="usage-core.js?v=ww-v131"></script>
+<script src="rank-core.js?v=ww-v131"></script>
+<script src="persona-core.js?v=ww-v131"></script>
+<script src="character-core.js?v=ww-v131"></script>
+<script src="arena-core.js?v=ww-v131"></script>
+<script src="arena-api.js?v=ww-v131"></script>
+<script src="arena-ui.js?v=ww-v131"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -2484,28 +2484,26 @@ function progressData(S,now){const L=S.life||{},today=L.d||0,wk=LC.curWk(L);
  const weeks=[];for(let k=Math.max(0,wk-7);k<=wk;k++){let p=0,dn=0;LC.AREAS.forEach(a=>{const w=LC.templeWeek(L,a.id,k);p+=w.planned;dn+=Math.min(w.done,w.planned)});weeks.push({k,p,dn,rate:p?dn/p:null,cur:k===wk})}
  return{days,areas,weeks,wk}}
 function ProgressCharts({c}){const {S}=c;if(!S.life)return null;const [tip,setTip]=useState(null);const P=progressData(S,c.now);
- const maxD=Math.max(1,...P.days.map(x=>x.n)),W=320,H=96,bw=Math.min(28,(W-16)/Math.max(1,P.days.length)-10);
- const anyDay=P.days.some(x=>x.n>0),planned=P.areas.some(x=>x.planned>0),hist=P.weeks.some(x=>x.rate!=null);
- const tipLine=(id)=>tip&&tip.id===id?html`<div className="text-[12.5px] mt-1.5 text-center" aria-live="polite">${tip.text}</div>`:html`<div className="text-[12px] mute mt-1.5 text-center">Balken antippen für den genauen Wert</div>`;
- const bar=(x,y,w,h,on,cur,key,text,id)=>html`<g key=${key} onClick=${()=>setTip({id,text})} style=${{cursor:'pointer'}}><rect x=${x-4} y=${0} width=${w+8} height=${H} fill="transparent"/><rect x=${x} y=${y} width=${w} height=${Math.max(0,h)} rx="4" style=${{fill:on?'var(--acc)':'var(--line)',opacity:cur?.55:1}}/><title>${text}</title></g>`;
+ const anyDay=P.days.some(x=>x.n>0),planned=P.areas.some(x=>x.planned>0),hist=P.weeks.some(x=>x.rate!=null)&&P.weeks.length>1;
+ /* Säulen in festen Pixeln (keine skalierte SVG): schmale Säulen, 72 px hoch, leere Tage als kurzer Strich. */
+ const Cols=({id,items,max,aria})=>html`<div role="img" aria-label=${aria}>
+  <div className="flex items-end justify-between gap-1 mt-3" style=${{height:84}}>${items.map(x=>{const h=x.v>0?Math.max(6,Math.round(x.v/max*72)):2;
+   return html`<button key=${x.k} type="button" onClick=${()=>setTip({id,text:x.tip})} aria-label=${x.tip} className="flex-1 flex flex-col items-center justify-end gap-1 bg-transparent border-0 p-0" style=${{height:84,minWidth:0}}>
+    ${x.v>0&&x.num!=null&&html`<span className="num text-[11px] mute leading-none">${x.num}</span>`}
+    <span className="block rounded-t" style=${{width:14,height:h,borderRadius:h>2?'4px 4px 1px 1px':1,background:x.v>0?'var(--acc)':'var(--line)',opacity:x.cur?.5:1}}/></button>`})}</div>
+  <div className="flex justify-between gap-1 border-t ln pt-1.5">${items.map(x=>html`<span key=${x.k} className=${'flex-1 text-center text-[11px] '+(x.strong?'font-bold':'mute')} style=${x.strong?{color:'var(--ink)'}:null}>${x.label}</span>`)}</div>
+  ${tip&&tip.id===id?html`<div className="text-[12.5px] mt-2 text-center" aria-live="polite">${tip.text}</div>`:null}</div>`;
+ const total=P.days.reduce((a,x)=>a+x.n,0),maxD=Math.max(1,...P.days.map(x=>x.n));
  return html`<section aria-label="Fortschritt auf einen Blick" data-progress-charts>
- <div className="card p-4 mt-3"><div className="flex items-baseline justify-between"><div className="text-[15px] font-semibold">Letzte 7 Tage</div><div className="text-[12px] mute num">${(n=>n+(n===1?' Handlung':' Handlungen'))(P.days.reduce((a,x)=>a+x.n,0))}</div></div>
-  ${anyDay?html`<svg viewBox=${'0 0 '+W+' '+(H+20)} width="100%" role="img" aria-label=${'Handlungen pro Tag: '+P.days.map(x=>x.name+' '+x.n).join(', ')}>
-   <line x1="0" x2=${W} y1=${H} y2=${H} style=${{stroke:'var(--line)'}} strokeWidth="1"/>
-   ${P.days.map((x,i)=>{const cx=8+(i+.5)*((W-16)/7),h=x.n/maxD*(H-18);return html`<g key=${x.d}>${bar(cx-bw/2,H-h,bw,h,x.n>0,false,'b'+x.d,x.name+': '+x.n+(x.n===1?' Handlung':' Handlungen')+(x.today?' (heute)':''),'week')}
-    ${x.n>0&&html`<text x=${cx} y=${H-h-4} textAnchor="middle" style=${{fill:'var(--mute)',fontSize:10}}>${x.n}</text>`}
-    <text x=${cx} y=${H+14} textAnchor="middle" style=${{fill:x.today?'var(--ink)':'var(--mute)',fontSize:11,fontWeight:x.today?700:400}}>${x.name}</text></g>`})}</svg>${tipLine('week')}`
-  :html`<div className="text-[13px] mute mt-2">In den letzten 7 Tagen noch keine Handlung erfasst.</div>`}</div>
- ${planned&&html`<div className="card p-4 mt-3"><div className="text-[15px] font-semibold">Bereiche diese Woche</div>
-  <div className="flex flex-col gap-3 mt-3">${P.areas.filter(x=>x.planned>0).map(x=>{const r=Math.min(1,x.done/x.planned),full=r>=1;return html`<div key=${x.a.id} role="img" aria-label=${x.a.de+': '+x.done+' von '+x.planned+' erledigt'}>
-   <div className="flex items-center justify-between text-[13px]"><span className="flex items-center gap-1.5"><span style=${{color:x.a.color}} aria-hidden="true"><${Icon} n=${x.a.icon} s=${14}/></span>${x.a.de}</span><span className="num mute">${Math.min(x.done,x.planned)} / ${x.planned}</span></div>
-   <div className="h-2 rounded-full mt-1.5 overflow-hidden" style=${{background:'var(--ghost)'}}><div className="h-full rounded-full" style=${{width:Math.max(r>0?4:0,r*100)+'%',background:full?'var(--gold)':'var(--acc)',transition:'width .5s'}}/></div></div>`})}</div></div>`}
- ${hist&&P.weeks.length>1&&html`<div className="card p-4 mt-3"><div className="flex items-baseline justify-between"><div className="text-[15px] font-semibold">Letzte ${P.weeks.length} Wochen</div><div className="text-[12px] mute">erledigt von geplant</div></div>
-  <svg viewBox=${'0 0 '+W+' '+(H+20)} width="100%" role="img" aria-label=${'Umsetzung pro Woche: '+P.weeks.map(x=>'Woche '+(x.k+1)+' '+(x.rate==null?'nichts geplant':Math.round(x.rate*100)+' Prozent')).join(', ')}>
-   <line x1="0" x2=${W} y1=${H} y2=${H} style=${{stroke:'var(--line)'}} strokeWidth="1"/>
-   <line x1="0" x2=${W} y1=${18} y2=${18} style=${{stroke:'var(--line)'}} strokeWidth="1" strokeDasharray="3 4"/><text x=${W} y=${14} textAnchor="end" style=${{fill:'var(--mute)',fontSize:10}}>100 %</text>
-   ${P.weeks.map((x,i)=>{const n=P.weeks.length,cx=8+(i+.5)*((W-16)/n),w=Math.min(26,(W-16)/n-10),h=(x.rate||0)*(H-18);return html`<g key=${x.k}>${bar(cx-w/2,H-h,w,h,x.rate!=null&&x.rate>0,x.cur,'w'+x.k,'Woche '+(x.k+1)+': '+(x.rate==null?'nichts geplant':x.dn+' von '+x.p+' ('+Math.round(x.rate*100)+' %)')+(x.cur?', läuft noch':''),'trend')}
-    <text x=${cx} y=${H+14} textAnchor="middle" style=${{fill:x.cur?'var(--ink)':'var(--mute)',fontSize:10,fontWeight:x.cur?700:400}}>${x.cur?'jetzt':'W'+(x.k+1)}</text></g>`})}</svg>${tipLine('trend')}</div>`}
+ <div className="card p-4 mt-3"><div className="flex items-baseline justify-between"><div className="lbl">Letzte 7 Tage</div><div className="text-[12px] mute num">${total} ${total===1?'Handlung':'Handlungen'}</div></div>
+  ${anyDay?html`<${Cols} id="days" max=${maxD} aria=${'Handlungen pro Tag: '+P.days.map(x=>x.name+' '+x.n).join(', ')} items=${P.days.map(x=>({k:x.d,v:x.n,num:x.n,label:x.name,strong:x.today,tip:x.name+': '+x.n+(x.n===1?' Handlung':' Handlungen')+(x.today?' (heute)':'')}))}/>`
+  :html`<div className="text-[13px] mute mt-2">Noch keine Handlung in den letzten 7 Tagen.</div>`}</div>
+ ${planned&&html`<div className="card p-4 mt-3"><div className="lbl">Bereiche diese Woche</div>
+  <div className="flex flex-col gap-3 mt-3">${P.areas.filter(x=>x.planned>0).map(x=>{const d=Math.min(x.done,x.planned),r=d/x.planned,full=r>=1;return html`<div key=${x.a.id} role="img" aria-label=${x.a.de+': '+d+' von '+x.planned+' erledigt'}>
+   <div className="flex items-center justify-between text-[13px]"><span className="flex items-center gap-1.5"><span style=${{color:x.a.color}} aria-hidden="true"><${Icon} n=${x.a.icon} s=${14}/></span>${x.a.de}</span><span className="num mute">${d} / ${x.planned}</span></div>
+   <div className="rounded-full mt-1.5 overflow-hidden" style=${{height:6,background:'var(--ghost)'}}><div className="h-full rounded-full" style=${{width:(r>0?Math.max(4,r*100):0)+'%',background:full?'var(--gold)':'var(--acc)',transition:'width .5s'}}/></div></div>`})}</div></div>`}
+ ${hist&&html`<div className="card p-4 mt-3"><div className="flex items-baseline justify-between"><div className="lbl">Letzte ${P.weeks.length} Wochen</div><div className="text-[12px] mute">erledigt von geplant</div></div>
+  <${Cols} id="weeks" max=${1} aria=${'Umsetzung pro Woche: '+P.weeks.map(x=>'Woche '+(x.k+1)+' '+(x.rate==null?'nichts geplant':Math.round(x.rate*100)+' Prozent')).join(', ')} items=${P.weeks.map(x=>({k:x.k,v:x.rate||0,num:x.rate!=null?Math.round(x.rate*100)+'%':null,label:x.cur?'jetzt':'W'+(x.k+1),strong:x.cur,cur:x.cur,tip:'Woche '+(x.k+1)+': '+(x.rate==null?'nichts geplant':x.dn+' von '+x.p+' ('+Math.round(x.rate*100)+' %)')+(x.cur?', läuft noch':'')}))}/></div>`}
  </section>`}
 function Stats({c}){
  const adv=c.S.ui==='adv',base=[['out','Ergebnisse'],['proc','Umsetzung'],['temple','Tempel']],opts=adv?[...base,['exp','Experimente'],['compound','Wirkung'],['matrix','Lebensmatrix'],['gen','Gesamt'],['over','Verlauf'],['rec','Rekorde'],['calc','Rechner'],['proj','Prognose']]:base;
