@@ -36,6 +36,35 @@ test('Actual App.complete uses the shared award, creates one goal log and has sn
  const undo=hooks.find(x=>x&&typeof x.restore==='function'&&typeof x.msg==='string');assert.ok(undo);undo.restore();assert.deepEqual(clone(hooks[0]),before);
 });
 
+test('Actual completion rejects paused goal actions and safely ignores a removed mission',()=>{
+ const S=fresh(),g=addGoal(S),ac=LC.actionsOf(S.life,g.id)[0];
+ LC.changeRoutine(S,'m:'+ac.missionId,{text:ac.title,perWeek:ac.perWeek,paused:true});
+ hooks=[];cursor=0;a.App({init:S,auth:{session:{mode:'guest',name:'Test'}}});
+ const before=clone(hooks[0]);c.appContext.complete(ac.missionId);
+ assert.deepEqual(clone(hooks[0]),before);
+ // Re-render with the latest state, as a sheet still holding a mission ID would do.
+ hooks[0].missions=[];cursor=0;a.App({init:S,auth:{session:{mode:'guest',name:'Test'}}});
+ const removed=clone(hooks[0]);assert.doesNotThrow(()=>c.appContext.start(ac.missionId));
+ assert.deepEqual(clone(hooks[0]),removed);
+});
+
+test('Inactive goal actions earn nothing; resuming a paused action restores normal completion',()=>{
+ for(const state of ['off','archived','achieved','missing']){
+  const S=fresh(),g=addGoal(S),ac=LC.actionsOf(S.life,g.id)[0];
+  if(state==='off')ac.off=true;else if(state==='missing')S.life.goals=[];else g.status=state;
+  hooks=[];cursor=0;a.App({init:S,auth:{session:{mode:'guest',name:'Test'}}});
+  const before=JSON.stringify(hooks[0]);c.appContext.start(ac.missionId);c.appContext.complete(ac.missionId);
+  assert.equal(JSON.stringify(hooks[0]),before,state);
+ }
+ const S=fresh(),g=addGoal(S),ac=LC.actionsOf(S.life,g.id)[0];
+ LC.changeRoutine(S,'m:'+ac.missionId,{text:ac.title,perWeek:3,paused:true});
+ LC.changeRoutine(S,'m:'+ac.missionId,{text:ac.title,perWeek:3,paused:false});
+ hooks=[];cursor=0;a.App({init:clone(S),auth:{session:{mode:'guest',name:'Test'}}});
+ c.appContext.complete(ac.missionId);assert.ok(hooks[0].seasonPts>0);
+ assert.equal(LC.insights(hooks[0]).sessions,1);assert.equal(hooks[0].life.log.length,1);
+ assert.equal(LC.columnState(hooks[0].life,'health').pts,1);
+});
+
 test('Standards share three daily awards with missions; zero-point execution still earns experience',()=>{
  const S=fresh();for(const area of ['health','relationships','growth','wealth'])addStd(S,area);const k=ctx(S);
  const g=addGoal(k.S,'health',3),m=k.S.missions.find(m=>m.goal===g.id);a.awardCompletion(k.S,m);

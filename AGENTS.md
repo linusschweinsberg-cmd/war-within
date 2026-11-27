@@ -28,6 +28,7 @@ Mobile-first Selbstverbesserungs-Spiel, Sprache: Deutsch. Ein Prototyp als einze
 - Bei Änderungen an `index.html` o. ä. die Cache-Version in `sw.js` erhöhen.
 
 ### In Arbeit
+- Codex: Fortgesetzte Integritätsprüfung auf `codex/friends-invitation-flow` – zentraler Missionsabschluss gegen pausierte/entfernte Zielhandlungen und inaktive Ziele abgesichert; `index.html`, Regressionen, Release-URLs/Service Worker und Dokumentation. Kandidat ww-v138, kein Merge/Deployment. Details: `docs/INTEGRITY-v138.md`.
 - Codex: Fortgesetzte Integritätsprüfung auf `codex/friends-invitation-flow` – Wochenhäufigkeit über gemeinsamen Routinenablauf mit verknüpften Standards synchronisiert; `index.html`, Regression, Release-URLs/Service Worker und Dokumentation. Kandidat ww-v137, kein Merge/Deployment. Details: `docs/INTEGRITY-v137.md`.
 - Codex: Integritätsprüfung auf `codex/friends-invitation-flow` – dauerhafte Erfahrung bei begrenztem Zielhandlungsprotokoll korrigiert; `life-core.js`, `tests/personal-scoring.cjs`, Release-URLs/Service Worker und Dokumentation. Kandidat ww-v136, kein Merge/Deployment. Details: `docs/INTEGRITY-v136.md`.
 - Codex: Selbsttest-Prüfliste auf `codex/friends-invitation-flow` ergänzt (`docs/SELBSTTEST.md`, `AGENTS.md`); vier Beobachtungsfragen, Fehlerkriterien und Auswertung nach zwei Wochen. Funktionsstopp bleibt bestehen.

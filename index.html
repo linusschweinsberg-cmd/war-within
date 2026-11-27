@@ -18,19 +18,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v137"></script>
-<script src="auth.js?v=ww-v137"></script>
-<script src="life-core.js?v=ww-v137"></script>
-<script src="wisdom-core.js?v=ww-v137"></script>
-<script src="future-self-core.js?v=ww-v137"></script>
-<script src="projection-core.js?v=ww-v137"></script>
-<script src="usage-core.js?v=ww-v137"></script>
-<script src="rank-core.js?v=ww-v137"></script>
-<script src="persona-core.js?v=ww-v137"></script>
-<script src="character-core.js?v=ww-v137"></script>
-<script src="arena-core.js?v=ww-v137"></script>
-<script src="arena-api.js?v=ww-v137"></script>
-<script src="arena-ui.js?v=ww-v137"></script>
+<script src="supabase-config.js?v=ww-v138"></script>
+<script src="auth.js?v=ww-v138"></script>
+<script src="life-core.js?v=ww-v138"></script>
+<script src="wisdom-core.js?v=ww-v138"></script>
+<script src="future-self-core.js?v=ww-v138"></script>
+<script src="projection-core.js?v=ww-v138"></script>
+<script src="usage-core.js?v=ww-v138"></script>
+<script src="rank-core.js?v=ww-v138"></script>
+<script src="persona-core.js?v=ww-v138"></script>
+<script src="character-core.js?v=ww-v138"></script>
+<script src="arena-core.js?v=ww-v138"></script>
+<script src="arena-api.js?v=ww-v138"></script>
+<script src="arena-ui.js?v=ww-v138"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -651,6 +651,8 @@ const weekTotal=S=>Object.values(S.weekPts).reduce((a,b)=>a+b,0)+S.adj;
 const todayTotal=S=>Object.values(S.todayPts).reduce((a,b)=>a+b,0);
 const isActive=()=>true;
 const isDone=(S,m)=>!!S.done[m.id]||(m.freq==='multi'&&((S.counts&&S.counts[m.id])||0)>=(m.times||1));
+/* Geöffnete Detailansichten dürfen eine inzwischen pausierte/entfernte Handlung nicht werten. */
+function missionBlocked(S,m){if(!m)return true;return((S.life&&S.life.actions)||[]).some(a=>a.missionId===m.id&&(a.off||a.paused||(LC.goalById(S.life,a.goalId)||{}).status!=='active'))}
 const FREQ={daily:'Täglich',multi:'Mehrmals pro Woche',weekly:'Wöchentlich',monthly:'Monatlich'};
 const freqLabel=m=>m.freq==='multi'?`${m.times}× pro Woche`:FREQ[m.freq]||'Täglich';
 function weekPointPlan(S,week=seasonWeek(S)){const offset=S.calendar?.seasonOffset||0,start=week*7-offset;
@@ -4660,9 +4662,9 @@ function App({init,auth,skey='war_within_v5'}){
  useEffect(()=>{arenaRef.current?.reconcile(dayKey(S),mid=>{const m=S.missions.find(x=>x.id===mid);return !!m&&isDone(S,m)})},[S.done,S.counts]);
  const complete=(mid,pos,extra={})=>{
   if(lock.current[mid])return;lock.current[mid]=1;setTimeout(()=>{delete lock.current[mid]},700);
-  const m=S.missions.find(x=>x.id===mid);if(!m||isDone(S,m)){toast(m&&m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
+  const m=S.missions.find(x=>x.id===mid);if(missionBlocked(S,m))return;if(isDone(S,m)){toast(m&&m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
   const pu=extra.onTime||punctOf(mid),reward={...extra,onTime:pu},quoted=completionQuote(S,m,reward),{capped,award}=quoted;
-  upd(n=>{if(isDone(n,m))return;n.done[mid]=true;if(m.freq==='multi'){n.counts=n.counts||{};n.counts[mid]=(n.counts[mid]||0)+1}const {award}=awardCompletion(n,m,reward);
+  upd(n=>{const current=n.missions.find(x=>x.id===mid);if(missionBlocked(n,current)||isDone(n,current))return;n.done[mid]=true;if(m.freq==='multi'){n.counts=n.counts||{};n.counts[mid]=(n.counts[mid]||0)+1}const {award}=awardCompletion(n,m,reward);
    n.acts[m.act].rating=Math.min(99,n.acts[m.act].rating+m.pts*.04);const ct=m.cat||n.acts[m.act].cat;n.catScore[ct]=Math.min(100,(n.catScore[ct]??40)+m.pts*.12);
    n.autoDone=n.autoDone||{};n.autoDone[mid]=!!extra.auto;
    if(extra.q!=null){n.qLog=n.qLog||[];n.qLog.unshift({act:m.act,q:extra.q,t:Date.now()});n.qLog=n.qLog.slice(0,40)}
@@ -4679,7 +4681,7 @@ function App({init,auth,skey='war_within_v5'}){
   try{navigator.vibrate&&navigator.vibrate(award>0?[12,40,18]:8)}catch(e){}
   uhit('do:complete');toast('Erledigt: '+cleanTitle(m.title),'good',{detail:[capped?'Dein Punkte-Soll für heute ist voll. Das zählt trotzdem für dich und deine Ziele.':limp||impactOf(S,m),identityVote(S)].filter(Boolean).join(' · '),undo:()=>setS(S)});
   if(!extra.keep)setSheet(null)};
- const start=(mid,ev,opt={})=>{const m=S.missions.find(x=>x.id===mid);if(isDone(S,m)){toast(m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
+ const start=(mid,ev,opt={})=>{const m=S.missions.find(x=>x.id===mid);if(missionBlocked(S,m))return;if(isDone(S,m)){toast(m.freq==='multi'&&!S.done[mid]?'Wochenziel schon erreicht.':'Bereits gewertet. Nichts wird doppelt gezählt.');return}
   if(!isActive(S,m.act)){toast(`${S.acts[m.act].name} sitzt auf der Bank. Wechsle sie im Squad ein.`,'warn');return}
   const pos=ev&&ev.currentTarget?ev.currentTarget.getBoundingClientRect():null;
   if(opt.detail&&S.ui!=='adv'){openSheet({t:'medit',mid});return}
