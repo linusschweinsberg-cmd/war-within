@@ -18,19 +18,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-config.js?v=ww-v129"></script>
-<script src="auth.js?v=ww-v129"></script>
-<script src="life-core.js?v=ww-v129"></script>
-<script src="wisdom-core.js?v=ww-v129"></script>
-<script src="future-self-core.js?v=ww-v129"></script>
-<script src="projection-core.js?v=ww-v129"></script>
-<script src="usage-core.js?v=ww-v129"></script>
-<script src="rank-core.js?v=ww-v129"></script>
-<script src="persona-core.js?v=ww-v129"></script>
-<script src="character-core.js?v=ww-v129"></script>
-<script src="arena-core.js?v=ww-v129"></script>
-<script src="arena-api.js?v=ww-v129"></script>
-<script src="arena-ui.js?v=ww-v129"></script>
+<script src="supabase-config.js?v=ww-v132"></script>
+<script src="auth.js?v=ww-v132"></script>
+<script src="life-core.js?v=ww-v132"></script>
+<script src="wisdom-core.js?v=ww-v132"></script>
+<script src="future-self-core.js?v=ww-v132"></script>
+<script src="projection-core.js?v=ww-v132"></script>
+<script src="usage-core.js?v=ww-v132"></script>
+<script src="rank-core.js?v=ww-v132"></script>
+<script src="persona-core.js?v=ww-v132"></script>
+<script src="character-core.js?v=ww-v132"></script>
+<script src="arena-core.js?v=ww-v132"></script>
+<script src="arena-api.js?v=ww-v132"></script>
+<script src="arena-ui.js?v=ww-v132"></script>
 <style>
 :root,[data-theme=dark]{--mt1:#0D0B1F;--mt2:#2E2063;--mt3:#7A4FD0;--mr1:#1D1A3A;--mr2:#2A2455;--mr3:#38306F;--msn:#E7E0FF;--mgr:#0E0D1B;--mst:1;--mtr:#CFC4FF;--bg:#0E0E0F;--bg2:#141415;--card:#18181B;--card2:#232327;--line:rgba(255,255,255,.07);--ink:#F2F1F8;--mute:#8E8CA5;--acc:#7B3FF2;--acc2:#A98BFF;--good:#34D399;--bad:#F87171;--glass:rgba(20,20,22,.94);--hero:linear-gradient(160deg,#1E1636 0%,#141416 62%);--ghost:rgba(255,255,255,.05)}
 [data-theme=light]{--mt1:#C9BDF2;--mt2:#E6D4F2;--mt3:#FFD9C2;--mr1:#BDB1E6;--mr2:#9D8FD6;--mr3:#7F6FC4;--msn:#FFFFFF;--mgr:#6657AE;--mst:0;--mtr:#FFFFFF;--bg:#F3F1FA;--bg2:#E9E5F5;--card:#FFFFFF;--card2:#EFEBFA;--line:rgba(20,22,40,.10);--ink:#14161C;--mute:#6A6E82;--acc:var(--acc-d);--acc2:var(--acc);--good:#0E9F6E;--bad:#E5484D;--glass:rgba(255,255,255,.9);--hero:linear-gradient(160deg,#E4DAFB 0%,#F6F3FD 70%);--ghost:rgba(20,22,40,.05)}
@@ -2474,11 +2474,68 @@ function PersonalSeasonCard({S}){if(isDemoState(S)||focusMode(S))return null;con
  return html`<section className="card p-3.5 mt-3" aria-label="Dein persönlicher Saisonplan"><div className="flex justify-between gap-2 text-[14px]"><b>Spielsaison ${S.season} · ${r.name}</b><span className="num">${S.seasonPts} Punkte</span></div>
  ${has?html`<div className="text-[12px] mute mt-2">Dein Saisonziel: ${target} Punkte aus deinem übernommenen Plan. Boni zählen zusätzlich.</div><div className="mt-2"><${Bar} pct=${Math.min(1,S.seasonPts/Math.max(1,target))} h=${5}/></div><div className="text-[12px] mute mt-2">Offene Wochen folgen deinem Plan. Abgeschlossene Wochen mit gespeichertem Plan bleiben erhalten.</div>`:html`<div className="text-[12px] mute mt-2">Dein Saisonplan ist noch offen. Wähle eine Handlung oder einen Standard, der zu dir passt.</div>`}
  ${p.offered>p.capacity&&html`<p className="text-[12px] mute mt-2">Dein Plan enthält mehr Handlungen als Punkteplätze. Höchstens drei Erledigungen pro Tag bringen Saisonpunkte; weitere zählen für deine Ziele und Erfahrung.</p>`}</section>`}
+/* ───── Fortschritt auf einen Blick: drei einfache Grafiken, nur aus echten Einträgen ─────
+   Eine Farbe (Akzent) für alle Balken; Bereiche tragen ihren Namen als Text, nie nur Farbe.
+   Antippen zeigt den genauen Wert in einer Zeile unter der Grafik (statt schwebender Tooltips). */
+function progressData(S,now){const L=S.life||{},today=L.d||0,wk=LC.curWk(L);
+ const cnt=d=>(L.log||[]).filter(x=>x.d===d).length+(L.stdLog||[]).filter(x=>x.d===d).length;
+ const days=[];for(let d=today-6;d<=today;d++){const dt=new Date(now-(today-d)*864e5);days.push({d,n:d<0?0:cnt(d),pre:d<0,today:d===today,name:dt.toLocaleDateString('de-DE',{weekday:'short'}).replace('.','').slice(0,2)})}
+ const areas=LC.AREAS.map(a=>({a:LC.AREA[a.id],...LC.templeWeek(L,a.id,wk)}));
+ const weeks=[];for(let k=Math.max(0,wk-7);k<=wk;k++){let p=0,dn=0;LC.AREAS.forEach(a=>{const w=LC.templeWeek(L,a.id,k);p+=w.planned;dn+=Math.min(w.done,w.planned)});weeks.push({k,p,dn,rate:p?dn/p:null,cur:k===wk})}
+ return{days,areas,weeks,wk}}
+function ProgressCharts({c}){const {S}=c;if(!S.life)return null;const [tip,setTip]=useState(null);const P=progressData(S,c.now);
+ const anyDay=P.days.some(x=>x.n>0),planned=P.areas.some(x=>x.planned>0),hist=P.weeks.some(x=>x.rate!=null)&&P.weeks.length>1;
+ /* Säulen in festen Pixeln (keine skalierte SVG): schmale Säulen, 72 px hoch, leere Tage als kurzer Strich. */
+ const Cols=({id,items,max,aria})=>html`<div role="img" aria-label=${aria}>
+  <div className="flex items-end justify-between gap-1 mt-3" style=${{height:84}}>${items.map(x=>{const h=x.v>0?Math.max(6,Math.round(x.v/max*72)):2;
+   return html`<button key=${x.k} type="button" onClick=${()=>setTip({id,text:x.tip})} aria-label=${x.tip} className="flex-1 flex flex-col items-center justify-end gap-1 bg-transparent border-0 p-0" style=${{height:84,minWidth:0}}>
+    ${x.v>0&&x.num!=null&&html`<span className="num text-[11px] mute leading-none">${x.num}</span>`}
+    <span className="block rounded-t" style=${{width:14,height:h,borderRadius:h>2?'4px 4px 1px 1px':1,background:x.v>0?'var(--acc)':'var(--line)',opacity:x.cur?.5:1}}/></button>`})}</div>
+  <div className="flex justify-between gap-1 border-t ln pt-1.5">${items.map(x=>html`<span key=${x.k} className=${'flex-1 text-center text-[11px] '+(x.strong?'font-bold':'mute')} style=${x.strong?{color:'var(--ink)'}:null}>${x.label}</span>`)}</div>
+  ${tip&&tip.id===id?html`<div className="text-[12.5px] mt-2 text-center" aria-live="polite">${tip.text}</div>`:null}</div>`;
+ const total=P.days.reduce((a,x)=>a+x.n,0),maxD=Math.max(1,...P.days.map(x=>x.n));
+ return html`<section aria-label="Fortschritt auf einen Blick" data-progress-charts>
+ <div className="card p-4 mt-3"><div className="flex items-baseline justify-between"><div className="lbl">Letzte 7 Tage</div><div className="text-[12px] mute num">${total} ${total===1?'Handlung':'Handlungen'}</div></div>
+  ${anyDay?html`<${Cols} id="days" max=${maxD} aria=${'Handlungen pro Tag: '+P.days.map(x=>x.name+' '+x.n).join(', ')} items=${P.days.map(x=>({k:x.d,v:x.n,num:x.n,label:x.name,strong:x.today,tip:x.name+': '+x.n+(x.n===1?' Handlung':' Handlungen')+(x.today?' (heute)':'')}))}/>`
+  :html`<div className="text-[13px] mute mt-2">Noch keine Handlung in den letzten 7 Tagen.</div>`}</div>
+ ${planned&&html`<div className="card p-4 mt-3"><div className="lbl">Bereiche diese Woche</div>
+  <div className="flex flex-col gap-3 mt-3">${P.areas.filter(x=>x.planned>0).map(x=>{const d=Math.min(x.done,x.planned),r=d/x.planned,full=r>=1;return html`<div key=${x.a.id} role="img" aria-label=${x.a.de+': '+d+' von '+x.planned+' erledigt'}>
+   <div className="flex items-center justify-between text-[13px]"><span className="flex items-center gap-1.5"><span style=${{color:x.a.color}} aria-hidden="true"><${Icon} n=${x.a.icon} s=${14}/></span>${x.a.de}</span><span className="num mute">${d} / ${x.planned}</span></div>
+   <div className="rounded-full mt-1.5 overflow-hidden" style=${{height:6,background:'var(--ghost)'}}><div className="h-full rounded-full" style=${{width:(r>0?Math.max(4,r*100):0)+'%',background:full?'var(--gold)':'var(--acc)',transition:'width .5s'}}/></div></div>`})}</div></div>`}
+ ${hist&&html`<div className="card p-4 mt-3"><div className="flex items-baseline justify-between"><div className="lbl">Letzte ${P.weeks.length} Wochen</div><div className="text-[12px] mute">erledigt von geplant</div></div>
+  <${Cols} id="weeks" max=${1} aria=${'Umsetzung pro Woche: '+P.weeks.map(x=>'Woche '+(x.k+1)+' '+(x.rate==null?'nichts geplant':Math.round(x.rate*100)+' Prozent')).join(', ')} items=${P.weeks.map(x=>({k:x.k,v:x.rate||0,num:x.rate!=null?Math.round(x.rate*100)+'%':null,label:x.cur?'jetzt':'W'+(x.k+1),strong:x.cur,cur:x.cur,tip:'Woche '+(x.k+1)+': '+(x.rate==null?'nichts geplant':x.dn+' von '+x.p+' ('+Math.round(x.rate*100)+' %)')+(x.cur?', läuft noch':'')}))}/></div>`}
+ </section>`}
+/* Fortschritt in „Basis“: genau zwei Fragen. 1) Bleibe ich dran? (diese Woche) 2) Komme ich meinen Zielen näher? (Messwerte)
+   Alles Weitere (Saisonpunkte, Bereiche, Tempel, Details, Kompass) steht in „Erweitert“ bzw. auf Heute und Mein Leben. */
+function SimpleProgress({c}){const {S}=c,L=S.life||{};const [hist,setHist]=useState(false),[tip,setTip]=useState(null);const P=progressData(S,c.now),cur=P.weeks[P.weeks.length-1]||{p:0,dn:0};
+ const total=P.days.reduce((a,x)=>a+x.n,0),maxD=Math.max(1,...P.days.map(x=>x.n)),past=P.weeks.filter(x=>x.rate!=null).length>1;
+ const goals=(L.goals||[]).filter(g=>g.status==='active');
+ const cols=(items,max,id)=>html`<div className="flex items-end justify-between gap-1 mt-4" style=${{height:64}}>${items.map(x=>{const h=x.v>0?Math.max(6,Math.round(x.v/max*56)):2;
+  return html`<button key=${x.k} type="button" onClick=${()=>setTip({id,text:x.tip})} aria-label=${x.tip} className="flex-1 flex items-end justify-center bg-transparent border-0 p-0" style=${{height:64,minWidth:0}}><span className="block" style=${{width:14,height:h,borderRadius:h>2?'4px 4px 1px 1px':1,background:x.v>0?'var(--acc)':'var(--line)',opacity:x.cur?.5:1}}/></button>`})}</div>
+  <div className="flex justify-between gap-1 border-t ln pt-1.5">${items.map(x=>html`<span key=${x.k} className=${'flex-1 text-center text-[11px] '+(x.strong?'font-bold':'mute')} style=${x.strong?{color:'var(--ink)'}:null}>${x.label}</span>`)}</div>
+  ${tip&&tip.id===id?html`<div className="text-[12.5px] mt-2 text-center" aria-live="polite">${tip.text}</div>`:null}`;
+ return html`<section aria-label="Dein Fortschritt" data-simple-progress>
+ <div className="card p-4 mt-3"><div className="lbl">Diese Woche</div>
+  <div className="mt-1 text-[22px] font-bold leading-tight">${cur.p?html`${cur.dn} <span className="mute font-normal text-[16px]">von ${cur.p} erledigt</span>`:html`${total} <span className="mute font-normal text-[16px]">${total===1?'Handlung':'Handlungen'} in 7 Tagen</span>`}</div>
+  ${cur.p>0&&html`<div className="rounded-full mt-2 overflow-hidden" style=${{height:6,background:'var(--ghost)'}}><div className="h-full rounded-full" style=${{width:Math.min(100,cur.dn/cur.p*100)+'%',background:cur.dn>=cur.p?'var(--gold)':'var(--acc)'}}/></div>`}
+  ${hist?cols(P.weeks.map(x=>({k:x.k,v:x.rate||0,label:x.cur?'jetzt':'W'+(x.k+1),strong:x.cur,cur:x.cur,tip:'Woche '+(x.k+1)+': '+(x.rate==null?'nichts geplant':x.dn+' von '+x.p)+(x.cur?', läuft noch':'')})),1,'w')
+   :cols(P.days.map(x=>({k:x.d,v:x.n,label:x.name,strong:x.today,tip:x.name+': '+x.n+(x.n===1?' Handlung':' Handlungen')+(x.today?' (heute)':'')})),maxD,'d')}
+  ${past&&html`<button type="button" onClick=${()=>{setHist(h=>!h);setTip(null)}} className="bg-transparent border-0 p-0 mt-2 text-[12.5px] acc font-semibold" style=${{minHeight:36}}>${hist?'Letzte 7 Tage zeigen':'Frühere Wochen zeigen'}</button>`}</div>
+ <div className="card p-4 mt-3"><div className="lbl">Deine Ziele</div>
+  ${goals.length?html`<div className="flex flex-col gap-4 mt-3">${goals.map(g=>{const a=LC.AREA[g.area],p=LC.goalProgress(L,g),now=LC.goalNow(L,g);return html`<div key=${g.id}>
+   <div className="flex items-center gap-2"><span style=${{color:a.color}} aria-hidden="true"><${Icon} n=${a.icon} s=${15}/></span><span className="flex-1 min-w-0 text-[14px] font-semibold truncate">${g.title}</span>
+    <button type="button" onClick=${()=>c.openSheet({t:'measure',gid:g.id})} className="chip shrink-0" style=${{minHeight:36}} aria-label=${'Messwert eintragen: '+g.title}>Messen</button></div>
+   ${p!=null?html`<div className="rounded-full mt-2 overflow-hidden" style=${{height:6,background:'var(--ghost)'}} role="img" aria-label=${g.title+': '+Math.round(p*100)+' Prozent'}><div className="h-full rounded-full" style=${{width:Math.max(p>0?4:0,p*100)+'%',background:p>=1?'var(--gold)':'var(--acc)'}}/></div>
+    <div className="flex justify-between text-[12px] mute mt-1 num"><span>${LC.fmtV(g.metric,now)}</span><span>Ziel ${LC.fmtV(g.metric,g.metric.target)}</span></div>`
+   :html`<div className="text-[12px] mute mt-1">Noch kein Messwert · Ziel ${LC.fmtV(g.metric,g.metric.target)}</div>`}</div>`})}</div>`
+  :html`<div className="text-[13px] mute mt-2">Noch kein Ziel. <button type="button" onClick=${()=>c.openSheet({t:'goal'})} className="bg-transparent border-0 p-0 acc font-semibold text-[13px]">Ziel festlegen</button></div>`}</div>
+ </section>`}
 function Stats({c}){
  const adv=c.S.ui==='adv',base=[['out','Ergebnisse'],['proc','Umsetzung'],['temple','Tempel']],opts=adv?[...base,['exp','Experimente'],['compound','Wirkung'],['matrix','Lebensmatrix'],['gen','Gesamt'],['over','Verlauf'],['rec','Rekorde'],['calc','Rechner'],['proj','Prognose']]:base;
  const t=opts.some(o=>o[0]===c.statTab)?c.statTab:'out',set=c.setStatTab;
+ if(!adv)return html`<div className="screen px-4 pb-6"><div className="pt-5 flex items-end justify-between gap-2"><div><h1 className="disp text-[32px] leading-none">Fortschritt</h1></div><div className="pb-1"><${ModeToggle} c=${c}/></div></div><${SimpleProgress} c=${c}/></div>`;
  return html`<div className="screen px-4 pb-6"><div className="pt-5 flex items-end justify-between gap-2"><div><h1 className="disp text-[32px] leading-none">Fortschritt</h1></div><div className="pb-1"><${ModeToggle} c=${c}/></div></div>
- <${PersonalSeasonCard} S=${c.S}/>
+ <${PersonalSeasonCard} S=${c.S}/><${ProgressCharts} c=${c}/>
  ${LC.compassState(c.S).area||LC.compassState(c.S).state==="tie"?html`<${StatsCompass} c=${c}/>`:null}
  <div className="meander mt-4" aria-hidden="true"/><div className="lbl mt-3 px-1">Details</div><div className="mt-2 mb-3"><${Seg} opts=${opts} val=${t} on=${set}/></div>
  
