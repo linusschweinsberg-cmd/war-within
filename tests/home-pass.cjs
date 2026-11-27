@@ -18,7 +18,7 @@ console.log(ok.map(n=>'PASS '+n).join('\n'));
  console.log(ok2.map(n=>'PASS '+n).join('\n'))}
 {const ok3=[];const t3=(n,f)=>{f();ok3.push(n)};
  t3('Tempel-Segmente folgen den Bausteinen; leere Säule ist leer',()=>{assert.ok(html.includes("const E=[1,...LC.STAGES.slice(1).map(x=>x.min)]"));assert.ok(html.includes("c.pts?'Stufe '+c.stage+'/5':'noch leer'"))});
- t3('Zuletzt verdienter Baustein wird genannt',()=>{assert.ok(html.includes('Zuletzt: ${m.label}'))});
+ t3('Tempel-Karte ruhig: Dach = Warum, Fundament = Werte, keine Kacheln und Erklärzeilen',()=>{assert.ok(html.includes('data-temple-roof'));assert.ok(html.includes('data-temple-base'));assert.ok(!html.includes('Heute danach gehandelt?'));assert.ok(!html.includes('data-temple-explain'))});
  console.log(ok3.map(n=>'PASS '+n).join('\n'))}
 {const names=[...html.matchAll(/^function ([A-Za-z0-9_]+)\(/gm)].map(m=>m[1]),dup=names.filter((n,i)=>names.indexOf(n)!==i);assert.deepEqual(dup,[],'keine doppelten Funktionsnamen (eine spätere Deklaration überschreibt still die frühere)');
  assert.ok(html.includes('function InfoNote({head,label,children'));console.log('PASS keine doppelten Funktionsnamen; Erklärungen hinter Info-Symbol')}
